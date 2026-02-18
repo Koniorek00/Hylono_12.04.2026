@@ -1,0 +1,14 @@
+task_id: TASK-XXXX
+title: "Nazwa Misji"
+status: pending
+owner: strategy-executive-orchestrator
+assignee: ops-daily-pm
+priority: P1
+objective: |
+  Krótki opis celu misji.
+scope:
+  - Punkt 1
+  - Punkt 2
+dependencies: []
+compliance_required: true
+trace_required: true

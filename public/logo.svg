@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGrad)"/>
+  
+  <!-- Logo mark -->
+  <g transform="translate(156, 156)">
+    <!-- Hexagon shape -->
+    <polygon points="100,0 200,50 200,150 100,200 0,150 0,50" fill="url(#logoGradient)"/>
+    <polygon points="100,20 180,60 180,140 100,180 20,140 20,60" fill="#0f172a"/>
+    <circle cx="100" cy="100" r="40" fill="url(#logoGradient)"/>
+    <circle cx="100" cy="100" r="20" fill="#0f172a"/>
+  </g>
+  
+  <!-- Brand name -->
+  <text x="256" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="bold" fill="white" text-anchor="middle">HYLONO</text>
+</svg>

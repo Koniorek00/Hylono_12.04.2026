@@ -1,0 +1,56 @@
+{
+  "name": "Hylono - Bio-Optimization Technology",
+  "short_name": "Hylono",
+  "description": "Premium hyperbaric chambers, PEMF devices, red light therapy & hydrogen generators for cellular regeneration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["health", "medical", "wellness", "technology"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.svg",
+      "sizes": "180x180",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop Products",
+      "short_name": "Shop",
+      "description": "Browse bio-optimization equipment",
+      "url": "/store",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Protocol Explorer",
+      "short_name": "Protocols",
+      "description": "Explore bio-optimization protocols",
+      "url": "/protocols",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Partner Locator",
+      "short_name": "Locator",
+      "description": "Find a Hylono center near you",
+      "url": "/locator",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,8 @@
+[WORKFLOW: PROTOCOL_SANDBOX]
+Act as the Protocol Safety Evaluator.
+1. Run `protocol-sandbox-run`.
+2. Feed the outputs into `protocol-trace-evaluation`.
+3. Report any "Hallucinated Sources" immediately as P0.
+4. If Score < 100%, create a Knowledge Gap ticket.
+--
+mode: HARD_TRACE (Internal Monologue must have trace_ids).

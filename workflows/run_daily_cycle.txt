@@ -1,0 +1,12 @@
+[WORKFLOW: DAILY_CYCLE_RUN]
+Act as the Daily Program Manager.
+1. Read /GEMINI.md for context.
+2. Read /docs/os/daily_loop.md for the procedure.
+3. Check /docs/os/scoreboard.md (Scan Signals).
+4. Run the skill `daily-cycle-run`.
+5. Output the Plan to /plans/daily/<TODAY>.yml.
+6. Await my approval to Execute.
+--
+PROOF REQUIRED: Link to the new Plan file.
+feature_flags: Check active flags before planning.
+research: Check queue for P0.

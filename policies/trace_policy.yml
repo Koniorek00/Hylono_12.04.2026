@@ -1,0 +1,42 @@
+version: 1
+modality_terms:
+  - HBOT
+  - hyperbaric
+  - PEMF
+  - red light
+  - photobiomodulation
+  - NIR
+  - hydrogen
+  - molecular hydrogen
+
+claim_trigger_patterns:
+  - "support(s)?"
+  - "help(s)?"
+  - "improve(s)?"
+  - "boost(s)?"
+  - "reduce(s)?"
+  - "increase(s)?"
+  - "enhance(s)?"
+  - "optimi[sz]e(s)?"
+  - "relief"
+  - "recovery"
+  - "sleep"
+  - "stress"
+  - "pain"
+  - "inflammation"
+  - "healing"
+  - "treat"
+  - "cure"
+  - "clinically proven"
+
+required_metadata:
+  fields:
+    - trace.trace_ids
+    - trace.sources
+  minimum_trace_ids: 1
+  minimum_sources: 2
+
+enforcement:
+  block_on_missing_trace: true
+  allowlist_exceptions:
+    - "This device uses <modality> technology."

@@ -1,0 +1,60 @@
+title: Partner Hub Expansion
+description: Build the full-scale B2B Operating System. Module 1 (Marketing) is complete.
+owner: product-owner-cpo
+status: active
+priority: critical
+goals:
+  - Transform Partner Portal into a "Daily OS" for clinics.
+  - Implement RBAC (Roles) for security.
+  - Launch Academy and Fleet Health modules.
+
+steps:
+  - name: Architecture & Data Layer
+    owner: eng-architecture-lead
+    status: complete
+    details: |
+      - Design DB Schema: `Clinic`, `DeviceFleet`, `MaintenanceLog`, `TrainingModule`.
+      - Implement RBAC middleware (Admin vs. Staff).
+      - Setup "Smart Nudge" event bus.
+
+  - name: Navigation & Shell
+    owner: frontend-lead
+    status: complete
+    details: |
+      - Build the `DashboardLayout` (Sidebar + Topbar).
+      - Create the "Partner Dashboard" Home (Widgets grid).
+      - Integrate existing "Marketing Studio" into new nav structure.
+
+  - name: Hylono Academy (LMS)
+    owner: fullstack-dev
+    status: complete
+    details: |
+      - Video Player Component (locked seeking).
+      - Quiz Engine (Multiple Choice).
+      - Certificate Generator (PDF generation re-use!).
+
+  - name: Fleet & Service
+    owner: backend-lead
+    status: complete
+    details: |
+      - "My Devices" CRUD (Register Serial Numbers).
+      - Maintenance Schedule Logic (Interval based).
+      - Support Ticket Integration (Webform -> Email/CRM).
+
+  - name: Revenue Cockpit (ROI)
+    owner: growth-marketing-lead
+    status: pending
+    details: |
+      - ROI Calculator Component (Inputs: Price, Vol, Costs).
+      - Visual Charts (Recharts) for Payback Period.
+      - "Protocol Builder" Drag-and-Drop UI.
+
+risk_assessment:
+  - Complexity: Moving from a simple portal to a SaaS app increases state management load.
+  - UX: Don't overwhelm small clinics. Use "Progressive Disclosure" (Basic -> Advanced).
+  - Security: RBAC must be strict. Staff cannot see financial data.
+
+success_metrics:
+  - Weekly Active Users (WAU) per Clinic.
+  - % of Partners completing Certification.
+  - Supply reorder frequency.

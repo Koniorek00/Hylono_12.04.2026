@@ -1,0 +1,72 @@
+version: 1
+items:
+  - id: OPP-001
+    status: done
+    title: "Add ESLint to Project"
+  - id: OPP-002
+    status: done
+    title: "Formalize Release Strategy Knowledge Pack"
+  - id: OPP-003
+    status: done
+    title: "Implement Automated Trace Coverage KPI"
+  - id: OPP-004
+    status: done
+    title: "SEO Metadata Review for All Pages"
+  - id: OPP-008
+    status: done
+    title: "Create Knowledge Packs for All Modalities"
+  - id: OPP-005
+    status: done
+    title: "Complete Hydrogen Trace Annotations"
+  - id: OPP-009
+    status: done
+    title: "Add PEMF/RLT/H2 Test Cases to Protocol Assistant"
+  - id: OPP-007
+    status: done
+    title: "Create Custom Hooks Directory (Part 1)"
+  - id: OPP-006
+    status: done
+    title: "Clean Remaining ESLint Warnings"
+  - id: OPP-010
+    status: done
+    title: "Scale Protocol Assistant to Sales Engine"
+    description: "Initial intelligence integration complete. Knowledge linking active."
+  - id: OPP-011
+    status: done
+    title: "Implement useTech Unified Hook"
+  - id: OPP-012
+    status: done
+    title: "Dynamic Knowledge Pack Integration"
+    description: "Linked UI components to /research/packs/ for live claim verification."
+  - id: OPP-013
+    status: done
+    title: "Automated Release Train Gating"
+    description: "Implemented automated pre-deployment checks (Trace, Build, Lint)."
+  - id: OPP-014
+    status: active
+    title: "Feature Flag Infrastructure"
+  - id: OPP-015
+    created_at: 2026-01-16
+    source: executive_mandate
+    type: ops
+    title: "The AntiGravity Heartbeat"
+    description: "Standardize and automate the Daily Operations loop."
+    priority: P0
+    status: done
+  - id: OPP-016
+    created_at: 2026-01-16
+    source: growth_engine
+    type: intelligence
+    title: "Synergy Intelligence Engine"
+    description: "Knowledge Graph driven resonance calculations for the UI."
+    priority: P0
+    status: done
+  - id: OPP-018
+    created_at: 2026-01-16
+    source: growth_engine
+    type: intelligence
+    title: "StorePage Analytics Activation"
+    description: "Product viewed tracking wired to handleProductClick."
+    priority: P0
+    status: done
+

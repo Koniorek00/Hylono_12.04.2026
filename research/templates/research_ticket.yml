@@ -1,0 +1,17 @@
+# Research Ticket Template
+id: RQ-XXXX
+created_at: YYYY-MM-DD
+requesting_agent: ""
+area: ""
+question: ""
+why_needed: ""
+decision_blocked: ""
+required_output_format: "Knowledge Pack"
+depth: "deep"          # deep | shallow
+urgency: "P1"          # P0 | P1 | P2
+jurisdiction: ["Global"]
+trace_required: true
+claim_tags: []
+evidence_requirements: []
+integration_targets: []
+notes: ""

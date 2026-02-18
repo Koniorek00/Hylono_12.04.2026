@@ -1,0 +1,65 @@
+version: 1
+
+modality_sections:
+  HBOT:
+    allowed_claim_types:
+      - "cellular oxygenation optimization"
+      - "mitochondrial efficiency support"
+      - "ATP energy production"
+      - "post-workout recovery"
+      - "cognitive clarity"
+    forbidden_claim_types:
+      - "cancer cure"
+      - "autism treatment"
+      - "lyme disease cure"
+      - "stroke reversal"
+      - "medical device (unless FDA cleared model)"
+    required_disclaimers:
+      - "Not a medical device for diagnosis or treatment of disease."
+      - "Consult a professional before protocol start."
+      - "Claims refer to general physiologic optimization."
+    trace_required: true
+    source_pack: /research/packs/hbot_safety_claims.md
+
+  PEMF:
+    allowed_claim_types:
+      - "cellular energy charging"
+      - "microcirculation support"
+      - "wellness frequencies"
+    forbidden_claim_types:
+      - "pain cure"
+      - "healing physical injuries without supervision"
+    required_disclaimers:
+      - "Do not use with pacemakers or during pregnancy."
+    trace_required: true
+    source_pack: /research/packs/pemf_safety_claims.md
+
+  RLT_NIR:
+    allowed_claim_types:
+      - "mitochondrial support"
+      - "skin vitality"
+      - "ATP resilience"
+    forbidden_claim_types:
+      - "skin disease treatment"
+      - "vision correction"
+    required_disclaimers:
+      - "Avoid direct eye exposure unless specified."
+    trace_required: true
+    source_pack: /research/packs/rlt_safety_claims.md
+
+  Molecular_Hydrogen:
+    allowed_claim_types:
+      - "antioxidant support"
+      - "oxidative stress balance"
+      - "molecule-rich hydration"
+    forbidden_claim_types:
+      - "inflammation cure"
+      - "metabolic disorder treatment"
+    required_disclaimers:
+      - "Use as part of a balanced lifestyle."
+    trace_required: true
+    source_pack: /research/packs/hydrogen_safety_claims.md
+
+enforcement:
+  standard: /docs/os/traceability.md
+  kpi: /docs/os/trace_coverage_kpi.md

@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+/src/generated/prisma
+
+# ─── Archive / Backup Directories ───────────────────────────────────────────
+# These are local working backups — not part of the deployable codebase.
+# Move to /archive if you want version history, or delete when confident.
+backups/
+protected-ui-backup-2026-02-16/
+components/_unused/
+
+# Experimental hero variants (not used in production routing)
+components/Hero45/
+components/Hero46/
+components/Hero46T2/
+components/HeroGPT/
+
+# Named backup files
+components/MegaMenu.backup.tsx
+components/TechDetail.backup.tsx
+
+# Build artifacts & reports (generated, not source-of-truth)
+eslint_report.json
+lint_results.txt
+screenshots/
+compressed-web/
+
+# Local dev scripts / one-off tools
+comprehensive_audit.py

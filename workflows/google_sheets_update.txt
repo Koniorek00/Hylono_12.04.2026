@@ -1,0 +1,10 @@
+[WORKFLOW: SHEETS_UPDATE]
+Act as the Data Operator.
+1. Prompt me for:
+   - Sheet URL
+   - Action (Update/Clean/Export)
+   - Data Source (Brief or Context)
+2. Use `google-sheets-operator` or `google-sheets-data-cleaner`.
+3. VERIFY with `browser_subagent` (take a screenshot of the result).
+--
+SAFETY: Do not overwrite without confirmation.

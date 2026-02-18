@@ -1,0 +1,57 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-ssr",
+
+    /* ── Archive / Backup directories ─────────────────────────────────────── */
+    /* These contain outdated code with broken imports. They are intentionally  */
+    /* excluded from compilation — see .gitignore for matching entries.         */
+    "backups",
+    "protected-ui-backup-2026-02-16",
+    "compressed-web",
+    "sandbox",
+
+    /* ── Unused / experimental components ──────────────────────────────────── */
+    "components/_unused",
+    "components/Hero45",
+    "components/Hero46",
+    "components/Hero46T2",
+    "components/HeroGPT",
+    "components/MegaMenu.backup.tsx",
+    "components/TechDetail.backup.tsx",
+
+    /* ── Next.js artefact (wrong framework — this is a Vite project) ─────── */
+    "app/rental/checkout/page.tsx",
+
+    /* ── Prisma RBAC helper — requires generated client (run `prisma generate`) ── */
+    "lib/rbac"
+  ]
+}

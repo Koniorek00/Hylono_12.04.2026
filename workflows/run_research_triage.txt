@@ -1,0 +1,11 @@
+[WORKFLOW: RESEARCH_TRIAGE]
+Act as the Knowledge Curator.
+1. Read /research/queue.yml.
+2. Run skill `research-queue-triage`.
+3. For P0 items:
+   - Check if they can be solved via Search immediately.
+   - If yes, solve and create a Knowledge Pack Draft.
+   - If no, schedule Deep Research.
+4. Update queue status.
+--
+PROOF REQUIRED: Updated queue.yml.

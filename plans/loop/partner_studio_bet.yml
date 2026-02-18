@@ -1,0 +1,52 @@
+title: Partner Studio Launch
+description: Design and build the Partner Marketing Generator UI.
+owner: product-owner-cpo
+status: active
+priority: high
+goals:
+  - Launch MVP of Partner Studio.
+  - Enable partners to generate compliant HBOT/PEMF assets.
+  - Validate "Campaign-in-a-Box" concept.
+
+steps:
+  - name: Architecture & Setup
+    owner: eng-architecture-lead
+    status: pending
+    details: |
+      - Initialize store for Canvas state (Zustand).
+      - Set up @react-pdf/renderer sandbox.
+      - Create `PartnerProfile` schema in Prisma.
+    dependencies: []
+  
+  - name: Smart Wizard UI
+    owner: frontend-lead
+    status: pending
+    details: |
+      - Build Step 1-4 Wizard components.
+      - Implement Brand Color auto-contrast utility.
+      - Create "Template Grid" with live preview.
+  
+  - name: Asset Generation Engine
+    owner: fullstack-dev
+    status: pending
+    details: |
+      - React-PDF template definitions (hardcoded layouts).
+      - HTML-to-Image export for web.
+      - Dynamic QR Code integration (initially static link).
+  
+  - name: Content & Compliance
+    owner: growth-marketing-lead
+    status: pending
+    details: |
+      - Write "Pre-Approved" copy blocks for HBOT, PEMF, RLT.
+      - Define "Forbidden Words" list for validator.
+      - Create 3 "Golden Templates" (Style: Elite/Minimal).
+
+risk_assessment:
+  - Technical: Client-side PDF generation can be font-heavy. Mitigation: subset fonts.
+  - Compliance: User finding a workaround to inject bad claims. Mitigation: Server-side validation before "Save".
+
+success_metrics:
+  - Time-to-Asset: < 2 minutes.
+  - Partner NPS.
+  - % of Assets using "Suggested Copy" (Target > 80%).

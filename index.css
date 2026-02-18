@@ -1,0 +1,815 @@
+@import "tailwindcss";
+
+:root {
+  --pearl-base: #f8fafc;
+  --iridescent-cyan: rgba(6, 182, 212, 0.15);
+  --iridescent-purple: rgba(147, 51, 234, 0.1);
+  --aurora-silver: #e2e8f0;
+  --high-vibe-glow: 0 0 25px rgba(255, 255, 255, 0.8);
+}
+
+@layer components {
+  .glass-pearl {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+}
+
+/* Skip Link for Accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.2s ease-in-out;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Focus Indicators - WCAG 2.1 Level AA Compliant */
+*:focus-visible {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+/* High contrast focus for dark backgrounds */
+.dark *:focus-visible,
+[data-theme="dark"] *:focus-visible {
+  outline-color: #22d3ee;
+}
+
+/* Reduced Motion Support - WCAG 2.1 Level AA */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable specific animations */
+  .animate-resonance,
+  .animate-spin,
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+  
+  /* Keep essential transforms but remove animation */
+  [class*="animate-"] {
+    animation: none !important;
+  }
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus,
+.not-sr-only:focus {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Resonance / Breathing UI - 6 cycles per minute (10s per cycle) */
+@keyframes breathe-border {
+
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  50% {
+    border-color: rgba(6, 182, 212, 0.4);
+  }
+}
+
+@keyframes breathe-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+  }
+}
+
+.animate-resonance {
+  animation: breathe-border 10s ease-in-out infinite, breathe-glow 10s ease-in-out infinite;
+}
+
+.futuristic-font {
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ===== LIVING ENERGY ANIMATIONS ===== */
+
+/* Breathing - Scale and opacity pulse like a living organism */
+@keyframes breathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 0.9;
+  }
+}
+
+/* Floating - Gentle vertical movement like clouds */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+
+  50% {
+    transform: translateY(-10px) translateX(-5px);
+  }
+
+  75% {
+    transform: translateY(-25px) translateX(5px);
+  }
+}
+
+/* Shimmer - Horizontal light sweep */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Shimmer Gradient - Background position movement for text effects */
+@keyframes shimmer-gradient {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Wave - Subtle horizontal flow */
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: translateX(-10%) translateY(-50%);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateX(10%) translateY(-50%);
+    opacity: 0.6;
+  }
+}
+
+/* Pulse - Simple opacity pulse for particles */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.5);
+  }
+}
+
+/* Expand - Width expansion for lines */
+@keyframes expand {
+
+  0%,
+  100% {
+    width: 8rem;
+  }
+
+  50% {
+    width: 12rem;
+  }
+}
+
+/* Fade In Up - Entry animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In - Simple opacity transition */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Slow Spin for background elements */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 30s linear infinite;
+}
+
+/* ===== MIND-MATTER CONNECTION ANIMATIONS ===== */
+
+/* Pulse Glow - Energy emission from Mind and Matter */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.4);
+    opacity: 1;
+  }
+}
+
+/* Path Flow - SVG path opacity pulsing */
+@keyframes path-flow {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    stroke-width: 1.5;
+  }
+
+  50% {
+    opacity: 0.8;
+    stroke-width: 2.5;
+  }
+}
+
+/* Dash Flow - Dashed line movement */
+@keyframes dash-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Flow Mind - Particle traveling from Mind position to center */
+@keyframes flow-mind {
+  0% {
+    left: 25%;
+    top: 0%;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    left: 37%;
+    top: 50%;
+  }
+
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    left: 50%;
+    top: 100%;
+    opacity: 0;
+    transform: scale(0.3) translateX(-50%);
+  }
+}
+
+/* Flow Matter - Particle traveling from Matter position to center */
+@keyframes flow-matter {
+  0% {
+    left: 75%;
+    top: 0%;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    left: 63%;
+    top: 50%;
+  }
+
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    left: 50%;
+    top: 100%;
+    opacity: 0;
+    transform: scale(0.3) translateX(-50%);
+  }
+}
+
+/* Connection Pulse - Central convergence point */
+@keyframes connection-pulse {
+
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.3);
+    filter: brightness(1.3);
+  }
+}
+
+/* Burst - Radial expansion on connection */
+@keyframes burst {
+  0% {
+    transform: translate(-50%, 50%) scale(0.5);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translate(-50%, 50%) scale(1.5);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: translate(-50%, 50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* ===== MIND + MATTER = HYLONO ANIMATIONS ===== */
+
+/* Reach Right - Particle from Mind reaching toward Matter */
+@keyframes reach-right {
+
+  0%,
+  100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translateY(-50%) translateX(8px);
+    opacity: 1;
+  }
+}
+
+/* Reach Left - Particle from Matter reaching toward Mind */
+@keyframes reach-left {
+
+  0%,
+  100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translateY(-50%) translateX(-8px);
+    opacity: 1;
+  }
+}
+
+/* Pulse Line - Connection bridge pulsing */
+@keyframes pulse-line {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scaleX(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1.1);
+  }
+}
+
+/* Merge Pulse - Center point where Mind and Matter merge */
+@keyframes merge-pulse {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+  }
+}
+
+/* Flow Down - Arrow pointing to HYLONO result */
+@keyframes flow-down {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scaleY(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleY(1.2);
+  }
+}
+
+/* Burst Ring - Expanding ring around HYLONO */
+@keyframes burst-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* ===== PREMIUM MASKED TEXT ANIMATIONS ===== */
+
+/* Orbit Mind - Mind text orbiting from left side toward center */
+@keyframes orbit-mind {
+
+  0%,
+  100% {
+    transform: translate(-200px, -80px) scale(0.9);
+    opacity: 0.7;
+  }
+
+  25% {
+    transform: translate(-150px, -100px) scale(0.95);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: translate(-180px, -60px) scale(1);
+    opacity: 1;
+  }
+
+  75% {
+    transform: translate(-160px, -90px) scale(0.95);
+    opacity: 0.85;
+  }
+}
+
+/* Orbit Matter - Matter text orbiting from right side toward center */
+@keyframes orbit-matter {
+
+  0%,
+  100% {
+    transform: translate(200px, 80px) scale(0.9);
+    opacity: 0.7;
+  }
+
+  25% {
+    transform: translate(160px, 100px) scale(0.95);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: translate(180px, 60px) scale(1);
+    opacity: 1;
+  }
+
+  75% {
+    transform: translate(150px, 90px) scale(0.95);
+    opacity: 0.85;
+  }
+}
+
+/* Aurora Flow - Animated nebula/aurora gradient flowing through the masked text */
+@keyframes aurora-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  25% {
+    background-position: 100% 50%;
+  }
+
+  50% {
+    background-position: 100% 100%;
+  }
+
+  75% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Shimmer Sweep - Light highlight sweeping across the text */
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+/* ===== HIGH CONTRAST MODE SUPPORT - WCAG 2.1 Level AAA ===== */
+@media (forced-colors: active) {
+  /* Ensure all interactive elements are visible */
+  button,
+  a,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  [role="link"],
+  [tabindex] {
+    border: 2px solid CanvasText;
+  }
+
+  /* Focus indicators in high contrast mode */
+  *:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  /* Ensure text is readable */
+  .glass-pearl {
+    background: Canvas;
+    border: 1px solid CanvasText;
+  }
+
+  /* Fix gradient text for high contrast */
+  .gradient-text,
+  [class*="gradient"] {
+    background: none;
+    color: CanvasText;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: CanvasText;
+  }
+
+  /* Ensure icons are visible */
+  svg {
+    fill: currentColor;
+    stroke: currentColor;
+  }
+
+  /* Fix glassmorphism effects */
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl {
+    backdrop-filter: none;
+    background: Canvas;
+  }
+
+  /* Ensure borders are visible on cards */
+  .border-white\/10,
+  .border-white\/20,
+  .border-white\/30 {
+    border-color: CanvasText;
+  }
+
+  /* Fix opacity issues */
+  .opacity-50,
+  .opacity-60,
+  .opacity-70,
+  .opacity-80 {
+    opacity: 1;
+  }
+}
+
+/* ===== PRINT-SPECIFIC STYLES ===== */
+@media print {
+  /* Reset backgrounds and colors for printing */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Show URLs after links */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Don't show URL for anchor links or javascript */
+  a[href^="#"]::after,
+  a[href^="javascript"]::after {
+    content: "";
+  }
+
+  /* Page breaks */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  p, blockquote, ul, ol, dl, figure, table {
+    page-break-inside: avoid;
+  }
+
+  /* Avoid orphans and widows */
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Hide non-essential elements */
+  nav,
+  footer,
+  .no-print,
+  .skip-link,
+  [role="navigation"],
+  [role="banner"],
+  [role="contentinfo"],
+  .animate-resonance,
+  .animate-spin,
+  .animate-pulse,
+  .animate-bounce,
+  [class*="animate-"] {
+    display: none !important;
+  }
+
+  /* Ensure images don't break across pages */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Print header on each page */
+  thead {
+    display: table-header-group;
+  }
+
+  /* Print footer on each page */
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* Ensure proper spacing */
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: 24pt;
+  }
+
+  h2 {
+    font-size: 20pt;
+  }
+
+  h3 {
+    font-size: 16pt;
+  }
+
+  /* Show link destinations */
+  a {
+    text-decoration: underline;
+  }
+
+  /* Ensure tables have borders */
+  table, th, td {
+    border: 1px solid #000;
+    border-collapse: collapse;
+  }
+
+  /* Ensure form inputs are visible */
+  input, textarea, select {
+    border: 1px solid #000;
+  }
+}

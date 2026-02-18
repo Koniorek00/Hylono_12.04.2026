@@ -1,0 +1,39 @@
+bet_id: "BET-YYYY-MM-DD-XX"
+title: ""
+objective: ""
+hypothesis: ""
+success_metrics:
+  - metric: ""
+    target: ""
+scope:
+  in: [""]
+  out: [""]
+owners:
+  primary_owner_agent: ""
+  supporting_agents: ["", ""]
+execution_pipeline:
+  - "Product/Spec"
+  - "Design/CRO"
+  - "Engineering"
+  - "Copy"
+  - "Compliance"
+  - "QA/Verification"
+  - "Release/Flags"
+  - "Analytics/Experiment"
+deliverables:
+  - ""
+proof_required:
+  - ""
+compliance_sensitivity: "low|med|high"
+traceability:
+  trace_required: true
+  expected_trace_ids: ["RQ-XXXX"]
+release_strategy:
+  type: "feature_flag|direct"
+  flag_name: ""
+rollback_plan: ""
+risks:
+  - ""
+kill_criteria: ""
+dependencies:
+  - ""

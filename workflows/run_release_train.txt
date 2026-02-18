@@ -1,0 +1,12 @@
+[WORKFLOW: RELEASE_TRAIN_RUN]
+Act as the Release Manager.
+1. Run the skill `release-train-run`.
+2. Gates to check:
+   - Build (npm run build)
+   - Trace Coverage (run `trace-coverage-report`)
+   - Compliance (run `trace-link-enforcement`)
+   - Visuals (run `browser-regression-walkthrough`)
+3. If all PASS -> Authorized to deploy/merge.
+4. If FAIL -> Block and list remediation steps.
+--
+trace_lint: MUST PASS.

@@ -1,0 +1,20 @@
+# Task Brief: Cross-Agent Communication
+# Location: /tasks/queued/PING-XXXX.yml
+
+requester: <Agent ID>
+target: <Agent ID>
+priority: P1/P2/P3
+context: |
+  Describe why you are contacting this agent. 
+  Example: "I am PMM and I need the CFO to verify the margin on the new HBOT rental plan."
+
+required_outcome: |
+  What do you need back?
+  Example: "Confirmed margin % and any pricing risks."
+
+proof_requirements:
+  - "Financial projection table"
+  - "Unit economics sign-off"
+
+status: queued
+created_at: <YYYY-MM-DD>

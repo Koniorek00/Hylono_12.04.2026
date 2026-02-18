@@ -1,0 +1,29 @@
+# Hylono Modality Standards (Truth SSOT)
+
+This document is the **Hard Core** of Hylono's technical identity. No agent may contradict these standards.
+
+## Core Modalities
+
+### 1. Hyperbaric Oxygen Therapy (HBOT)
+- **Hylono Stance**: Focused on non-invasive regeneration, inflammation reduction, and cognitive clarity.
+- **Safety Limits**: Max pressure 2.0 ATA (Clinical) / 1.5 ATA (Home).
+- **Prohibited Claims**: "Cures Cancer", "Reverses Autism", "Treats Stroke" (unless citing specific clinical paper in a Knowledge Pack).
+- **Keywords**: Saturation, Oxygenation, Renewal, Non-Invasive.
+
+### 2. Pulsed Electromagnetic Field (PEMF)
+- **Hylono Stance**: Cellular recharging and microcirculation enhancement.
+- **Safety Limits**: Avoid pacemakers and pregnancy.
+- **Keywords**: Cellular Energy, Frequency, Charge, Wellness.
+
+### 3. Red Light Therapy (RLT) / Photobiomodulation
+- **Hylono Stance**: Mitochondrial support and skin/tissue vitality.
+- **Wavelengths**: 660nm (Red) and 850nm (Near-Infrared).
+- **Keywords**: Adenosine Triphosphate (ATP), Resilience, Glowing Vitality.
+
+### 4. Hydrogen Therapy
+- **Hylono Stance**: Antioxidant support and selective oxidative stress reduction.
+- **Methods**: Inhalation and Hydrogen-rich water.
+- **Keywords**: Free Radical Scavenging, Hydrogen, Molecule, Balance.
+
+## Global Compliance Rule
+Never use the words "Patient", "Disease", "Patient", or "Diagnosis" in public-facing copy. Use "Client", "Protocol", "Vitality", and "Assessment".

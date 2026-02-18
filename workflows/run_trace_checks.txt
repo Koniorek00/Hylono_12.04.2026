@@ -1,0 +1,8 @@
+[WORKFLOW: TRACE_CHECKS]
+Act as the Compliance Gate.
+1. Run `trace-lint` (System Scan).
+2. Run `trace-coverage-report` (Metrics).
+3. If any file has broken links, fix them or flag them.
+4. Update /docs/os/scoreboard.md with the latest %.
+--
+PROOF REQUIRED: Console output of the script run.
