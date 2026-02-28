@@ -81,7 +81,7 @@ export const validatePhone = (phone: string): ValidationResult => {
         return { isValid: true, errors, sanitizedValue: '' }; // Phone is optional
     }
     
-    const cleanedPhone = phone.replace(/[\s\-\(\)]/g, '');
+    const cleanedPhone = phone.replace(/[\s\-()]/g, '');
     
     if (!PHONE_REGEX.test(cleanedPhone)) {
         errors.push('Please enter a valid phone number');

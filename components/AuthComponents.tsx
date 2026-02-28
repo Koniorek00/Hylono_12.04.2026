@@ -1,10 +1,14 @@
 
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, X, UserCircle, Package, Settings, LogOut, ArrowRight, Check, AlertCircle, Loader2, Github, Globe, Sun, Zap, CheckCircle, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { TechType } from '../types';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useFeatureFlag } from '../hooks/useFeatureFlag';
+import { OptimizedImage } from './shared/OptimizedImage';
 
 // --- Password Strength Component ---
 const PasswordStrengthMeter: React.FC<{ password: string }> = ({ password }) => {
@@ -344,9 +348,28 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
 export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType, mode?: string) => void; ownedTech?: TechType[] }> = ({ onNavigate, ownedTech = [] }) => {
     const { user, signOut } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
+    const accountRentalsEnabled = useFeatureFlag('feature_account_rentals');
+
+    const activeRentals = [
+        {
+            id: 'rental-001',
+            productTitle: 'Hylono mHBOT Starter System',
+            image: '/images/tech/hbot.jpg',
+            status: 'active' as const,
+            statusLabel: 'Active',
+            startDate: '2026-01-12',
+            endDate: '2026-07-12',
+            nextPaymentDate: '2026-03-12',
+            monthlyPrice: 109,
+            totalPaid: 218,
+            purchasePriceWithCredit: 3772,
+            fullPrice: 4990,
+        },
+    ];
 
     const tabs = [
         { id: 'orders', label: 'Orders', icon: Package },
+        ...(accountRentalsEnabled ? [{ id: 'rentals', label: 'My Rentals', icon: RotateCcw }] : []),
         { id: 'profile', label: 'Profile', icon: UserCircle },
         { id: 'circadian', label: 'Circadian Settings', icon: Sun },
         { id: 'settings', label: 'General', icon: Settings },
@@ -397,6 +420,63 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
 
                     {/* Content */}
                     <div className="md:col-span-3 bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
+                        {accountRentalsEnabled && activeTab === 'rentals' && (
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 mb-6">My rentals</h2>
+
+                                {activeRentals.length === 0 ? (
+                                    <div className="text-center py-12 text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                        <RotateCcw size={48} className="mx-auto mb-4 opacity-50" />
+                                        <p>You don't have any active rentals.</p>
+                                        <button onClick={() => onNavigate('rental')} className="mt-4 text-cyan-600 text-sm font-bold hover:underline">
+                                            See available devices →
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {activeRentals.map((rental) => (
+                                            <article key={rental.id} className="rounded-2xl border border-slate-100 p-4 bg-slate-50">
+                                                <div className="flex flex-col md:flex-row gap-4">
+                                                    <OptimizedImage
+                                                        src={rental.image}
+                                                        alt={rental.productTitle}
+                                                        width={160}
+                                                        height={112}
+                                                        sizes="(max-width: 768px) 100vw, 160px"
+                                                        className="w-full md:w-40 h-28 object-cover rounded-xl bg-slate-100"
+                                                    />
+                                                    <div className="flex-1">
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <h3 className="font-bold text-slate-900">{rental.productTitle}</h3>
+                                                            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                                                                {rental.statusLabel}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-sm text-slate-600 mt-2">Period: {rental.startDate} — {rental.endDate}</p>
+                                                        <p className="text-sm text-slate-600">Next payment: {rental.nextPaymentDate} — €{rental.monthlyPrice}</p>
+
+                                                        <div className="mt-3 p-3 rounded-xl border border-slate-200 bg-white">
+                                                            <p className="text-sm text-slate-700">
+                                                                Paid so far: €{rental.totalPaid}. Buy with credit: €{rental.purchasePriceWithCredit} (instead of €{rental.fullPrice}).
+                                                            </p>
+                                                            <button onClick={() => onNavigate('store')} className="mt-2 text-sm font-semibold text-cyan-700 hover:underline">
+                                                                Buy this device →
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="mt-3 flex flex-wrap gap-2">
+                                                            <button className="min-h-11 px-4 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700">Extend</button>
+                                                            <button className="min-h-11 px-4 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700">Schedule return</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {activeTab === 'orders' && (
                             <div>
                                 <h2 className="text-xl font-bold text-slate-900 mb-6">Order History</h2>
@@ -434,7 +514,16 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
                         {activeTab === 'circadian' && (
                             <div>
                                 <h2 className="text-xl font-bold text-slate-900 mb-2">Circadian Preferences</h2>
-                                <p className="text-sm text-slate-500 mb-8">Optimize your device interactions based on your natural rhythm.</p>
+                                <p className="text-sm text-slate-500 mb-4">Optimize your device interactions based on your natural rhythm.</p>
+                                <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 mb-6">
+                                    <span className="text-amber-500 mt-0.5">🚧</span>
+                                    <div>
+                                        <p className="text-sm font-semibold text-amber-800">Coming Soon</p>
+                                        <p className="text-xs text-amber-700 mt-0.5">
+                                            Circadian rhythm scheduling — morning light protocols, evening wind-down sequences, and sleep-phase optimised PEMF — is being developed. Check back in the next release.
+                                        </p>
+                                    </div>
+                                </div>
 
                                 <div className="space-y-8">
                                     <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
@@ -499,7 +588,16 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
 
                         {activeTab === 'settings' && (
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 mb-6">Settings</h2>
+                                <h2 className="text-xl font-bold text-slate-900 mb-4">Settings</h2>
+                                <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-100 border border-slate-200 mb-6">
+                                    <span className="text-slate-400 mt-0.5">🚧</span>
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-700">Coming Soon</p>
+                                        <p className="text-xs text-slate-500 mt-0.5">
+                                            Account settings — notification preferences, language, data export, and connected device management — are under active development.
+                                        </p>
+                                    </div>
+                                </div>
                                 <div className="space-y-4">
                                     <label className="flex items-center justify-between p-4 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
                                         <div className="flex items-center gap-3">

@@ -24,8 +24,8 @@ export const VerifiedTrustBadge: React.FC<VerifiedTrustBadgeProps> = ({ classNam
         },
         {
             icon: <Shield size={16} className="text-emerald-400" />,
-            title: "Clinical Grade",
-            desc: "FDA-registered manufacturing standards",
+            title: "Professional Build Quality",
+            desc: "Built to documented quality and safety procedures",
             id: "verify-3"
         },
         {

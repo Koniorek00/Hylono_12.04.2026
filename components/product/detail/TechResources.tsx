@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, Brain, Download } from 'lucide-react';
-import { TechData } from '../../types';
+import { TechData } from '../../../types';
 
 interface TechResourcesProps {
     data: TechData;

@@ -165,6 +165,15 @@ export const PartnerLocator: React.FC = () => {
                             {selectedPartner && <RecenterMap coords={selectedPartner.coordinates} />}
                         </MapContainer>
 
+                        {/* Coming Soon Map Overlay */}
+                        <div className="absolute inset-0 z-[500] flex flex-col items-center justify-center bg-slate-100/90 backdrop-blur-sm rounded-2xl">
+                            <MapPin size={36} className="text-cyan-500 mb-3" />
+                            <h3 className="font-bold text-slate-800 text-lg mb-2">Interactive Map Coming Soon</h3>
+                            <p className="text-sm text-slate-500 text-center max-w-xs px-4">
+                                We&apos;re integrating a live partner map. In the meantime, use the partner list on the right to find a certified Hylono centre near you.
+                            </p>
+                        </div>
+
                         {/* Map Overlay Stats */}
                         <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg border border-slate-200 pointer-events-none">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Partners</p>

@@ -6,6 +6,11 @@ export interface AuthUser {
     created_at: string;
 }
 
+/** Internal storage type — includes hashed password, never exposed to consumers */
+interface StoredUser extends AuthUser {
+    hashedPassword: string;
+}
+
 export interface AuthSession {
     access_token: string;
     refresh_token: string;
@@ -46,7 +51,7 @@ export const MockAuthService = {
         return hash === hashedPassword;
     },
 
-    getStoredUsers(): AuthUser[] {
+    getStoredUsers(): StoredUser[] {
         const users = localStorage.getItem(STORAGE_KEY);
         return users ? JSON.parse(users) : [];
     },
@@ -109,11 +114,12 @@ export const MockAuthService = {
         const user = users.find(u => u.email === email);
 
         // SECURITY: Verify hashed password, never compare plain text
-        if (!user || !(await this._verifyPassword(password, (user as any).hashedPassword || ''))) {
+        if (!user || !(await this._verifyPassword(password, user.hashedPassword))) {
             return { data: { user: null, session: null }, error: { message: 'Invalid login credentials' } };
         }
 
-        const { hashedPassword: _, ...safeUser } = user as any;
+        // Strip hashedPassword before returning — never expose it to the application layer
+        const { hashedPassword: _hp, ...safeUser }: StoredUser = user;
 
         const session: AuthSession = {
             access_token: 'mock_access_token_' + safeUser.id,
@@ -133,11 +139,8 @@ export const MockAuthService = {
 
     async resetPassword(email: string): Promise<{ error: AuthError | null }> {
         await this._delay(1000);
-        const users = this.getStoredUsers();
-        const user = users.find(u => u.email === email);
-
-        // Simulate security policy: don't reveal if user exists or not, but for dev we might log it
-        console.log(`[MockAuth] Reset password requested for: ${email}. User exists: ${!!user}`);
+        // Simulate security policy: don't reveal whether a user exists
+        // Mock flow intentionally performs no externally visible action.
 
         return { error: null };
     },

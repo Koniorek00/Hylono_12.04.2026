@@ -118,7 +118,7 @@ export const HeroSection: React.FC = () => {
 
                 {/* Main Headline */}
                 <motion.h1
-                    className="font-[var(--font-accent)] italic text-[36px] md:text-[56px] text-[#1A1A1A] text-center leading-[1.2] mb-5"
+                    className="text-[36px] md:text-[56px] text-[#1A1A1A] text-center leading-[1.2] mb-5"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
@@ -126,9 +126,9 @@ export const HeroSection: React.FC = () => {
                     Where Mind Connects With Matter
                 </motion.h1>
 
-                {/* Subheadline */}
+                {/* Subheadline - description style for readability */}
                 <motion.p
-                    className="text-[18px] text-[#6B6B60] font-[var(--font-body)] text-center max-w-[580px] leading-[1.6] mb-9"
+                    className="text-[18px] text-[#6B6B60] text-center max-w-[580px] leading-[1.7] mb-9"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}

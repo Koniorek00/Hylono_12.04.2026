@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface SmartTextProps {
     children: string;
@@ -20,14 +23,15 @@ const TERM_MAPPINGS: { [key: string]: string } = {
 };
 
 export const SmartText: React.FC<SmartTextProps> = ({ children, onNavigate, className = '' }) => {
+    const router = useRouter();
+
     if (!children) return null;
 
     const handleNavigate = (path: string) => {
         if (onNavigate) {
             onNavigate(path);
         } else {
-            window.history.pushState({}, '', path);
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            router.push(path);
             window.scrollTo(0, 0);
         }
     };

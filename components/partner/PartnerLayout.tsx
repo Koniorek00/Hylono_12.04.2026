@@ -1,30 +1,21 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
     Palette,
-    GraduationCap,
     Wrench,
-    ShoppingBag,
     Users,
     LogOut,
     Menu,
-    Bell,
-    Brain,
-    Activity,
-    TrendingUp,
-    Briefcase,
-    Link2,
-    ChevronDown,
-    ChevronRight,
-    LucideIcon,
-    Home,
-    ExternalLink,
     FileText,
     Search,
-    User,
-    Settings,
-    X
+    Home,
+    ExternalLink,
+    ChevronRight,
+    X,
+    Boxes,
+    LucideIcon,
 } from 'lucide-react';
 import { CommandPalette } from './CommandPalette';
 import { NotificationCenter } from './NotificationCenter';
@@ -33,14 +24,6 @@ interface NavItem {
     icon: LucideIcon;
     label: string;
     href: string;
-    description?: string;
-}
-
-interface NavGroup {
-    id: string;
-    label: string;
-    icon: LucideIcon;
-    items: NavItem[];
 }
 
 interface PartnerLayoutProps {
@@ -48,291 +31,278 @@ interface PartnerLayoutProps {
     title: string;
 }
 
-// Static navigation data - moved outside component to prevent recreation
-const NAV_GROUPS: NavGroup[] = [
-    {
-        id: 'operations',
-        label: 'Operations',
-        icon: Briefcase,
-        items: [
-            { icon: LayoutDashboard, label: 'Dashboard', href: '/partner/dashboard', description: 'Overview & insights' },
-            { icon: Wrench, label: 'Fleet Health', href: '/partner/fleet', description: 'Device management' },
-            { icon: ShoppingBag, label: 'Supply & Shop', href: '/partner/shop', description: 'Reorder & upgrades' },
-        ]
-    },
-    {
-        id: 'management',
-        label: 'Management',
-        icon: Settings,
-        items: [
-            { icon: Users, label: 'Team Progress', href: '/partner/team', description: 'Staff oversight' },
-        ]
-    },
-    {
-        id: 'clients',
-        label: 'Client Management',
-        icon: Users,
-        items: [
-            { icon: Activity, label: 'Nexus (CRM)', href: '/partner/nexus', description: 'Patient records' },
-            { icon: Brain, label: 'Protocols', href: '/partner/protocols', description: 'Treatment pathways' },
-            { icon: FileText, label: 'Documents', href: '/partner/docs', description: 'Consent & waivers' },
-            { icon: Link2, label: 'Referral Connect', href: '/partner/connect', description: 'Track referrals' },
-        ]
-    },
-    {
-        id: 'growth',
-        label: 'Growth & Learning',
-        icon: TrendingUp,
-        items: [
-            { icon: Palette, label: 'Marketing Studio', href: '/partner/studio', description: 'Create campaigns' },
-            { icon: GraduationCap, label: 'Academy', href: '/partner/academy', description: 'Training & certs' },
-            { icon: Users, label: 'My Profile', href: '/partner/profile', description: 'Skills & progress' },
-        ]
-    }
+const NAV_ITEMS: NavItem[] = [
+    { icon: LayoutDashboard, label: 'Overview',   href: '/partner/dashboard' },
+    { icon: Users,           label: 'Clients',    href: '/partner/nexus' },
+    { icon: Wrench,          label: 'Fleet',      href: '/partner/fleet' },
+    { icon: FileText,        label: 'Documents',  href: '/partner/docs' },
+    { icon: Palette,         label: 'Studio',     href: '/partner/studio' },
+    { icon: Boxes,           label: 'Team',       href: '/partner/team' },
 ];
 
-// Find which group contains the current path
-const findActiveGroup = (pathname: string): string | null => {
-    for (const group of NAV_GROUPS) {
-        if (group.items.some(item => pathname.startsWith(item.href))) {
-            return group.id;
-        }
-    }
-    return null;
-};
-
 export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title }) => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [pathname, setPathname] = useState('/partner/dashboard');
-    const [isMobile, setIsMobile] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const pathname = usePathname() ?? '/partner/dashboard';
 
-    // Handle SSR and initial pathname
     useEffect(() => {
-        setPathname(window.location.pathname);
-        
-        // Check mobile viewport
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024);
+        const onResize = () => {
             if (window.innerWidth < 1024) {
-                setSidebarOpen(false);
+                setCollapsed(false);
+                setMobileOpen(false);
             }
         };
-        
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
     }, []);
 
-    // Initialize expanded groups - auto-expand the group containing current page
-    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-        const activeGroup = findActiveGroup(pathname);
-        return activeGroup ? new Set([activeGroup]) : new Set(['operations']);
-    });
+    const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
-    // Update expanded groups when pathname changes
-    useEffect(() => {
-        const activeGroup = findActiveGroup(pathname);
-        if (activeGroup && !expandedGroups.has(activeGroup)) {
-            setExpandedGroups(prev => new Set([...prev, activeGroup]));
-        }
-    }, [pathname]);
+    const breadcrumbs = pathname
+        .split('/')
+        .filter(Boolean)
+        .slice(1)
+        .map(s => s.charAt(0).toUpperCase() + s.slice(1));
 
-    const toggleGroup = (groupId: string) => {
-        setExpandedGroups(prev => {
-            const next = new Set(prev);
-            if (next.has(groupId)) {
-                next.delete(groupId);
-            } else {
-                next.add(groupId);
-            }
-            return next;
-        });
-    };
-
-    const isItemActive = (href: string) => pathname.startsWith(href);
-
-    const breadcrumbs = pathname.split('/').filter(Boolean).slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1));
+    const sidebarW = collapsed ? 72 : 240;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900">
+        <div className="min-h-screen bg-slate-50 flex font-sans">
 
-            {/* Sidebar */}
+            {/* ── SIDEBAR ─────────────────────────────────────────────── */}
             <motion.aside
-                initial={{ width: 280 }}
-                animate={{ width: sidebarOpen ? 280 : 80 }}
-                className="bg-slate-900 text-slate-300 flex flex-col fixed h-full z-20 shadow-xl overflow-hidden transition-all duration-300"
+                animate={{ width: sidebarW }}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="fixed left-0 top-0 bottom-0 z-30 flex flex-col bg-[#0d1117] text-slate-400 border-r border-white/[0.04] shadow-2xl shadow-black/40 overflow-hidden hidden lg:flex"
             >
                 {/* Brand */}
-                <div className="h-16 flex items-center px-6 border-b border-slate-800 shrink-0 gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg shrink-0" />
-                    {sidebarOpen && (
-                        <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="font-bold text-white tracking-wide"
-                        >
-                            HYLONO <span className="text-cyan-400 text-xs">HUB</span>
-                        </motion.span>
-                    )}
+                <div className="h-14 flex items-center px-[18px] border-b border-white/[0.06] shrink-0 gap-3">
+                    <div className="w-7 h-7 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-md shrink-0 flex items-center justify-center">
+                        <span className="text-white font-black text-[10px] tracking-tight">HY</span>
+                    </div>
+                    <AnimatePresence>
+                        {!collapsed && (
+                            <motion.span
+                                key="brand"
+                                initial={{ opacity: 0, x: -6 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -6 }}
+                                transition={{ duration: 0.15 }}
+                                className="font-bold text-white text-sm tracking-wider"
+                            >
+                                HYLONO <span className="text-cyan-400 font-medium tracking-normal">Partner</span>
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                {/* Back to Homepage */}
+                {/* Back to website */}
                 <a
                     href="/"
-                    className="mx-3 mt-4 mb-2 flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors group"
+                    title="Back to website"
+                    className="mx-3 mt-3 mb-1 flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/[0.05] text-slate-500 hover:text-slate-300 transition-colors group"
                 >
-                    <Home className="w-5 h-5 shrink-0" />
-                    {sidebarOpen && (
-                        <>
+                    <Home className="w-4 h-4 shrink-0" />
+                    <AnimatePresence>
+                        {!collapsed && (
                             <motion.span
+                                key="home-label"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="text-sm font-medium flex-1"
+                                exit={{ opacity: 0 }}
+                                className="text-xs flex-1 truncate"
                             >
-                                Back to Website
+                                Back to website
                             </motion.span>
-                            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300" />
-                        </>
-                    )}
+                        )}
+                    </AnimatePresence>
+                    {!collapsed && <ExternalLink className="w-3 h-3 text-slate-600 group-hover:text-slate-400" />}
                 </a>
 
-                {/* Nav Groups */}
-                <nav className="flex-1 py-4 px-3 overflow-y-auto">
-                    {NAV_GROUPS.map((group) => {
-                        const isExpanded = expandedGroups.has(group.id);
-                        const hasActiveItem = group.items.some(item => isItemActive(item.href));
+                {/* Divider */}
+                <div className="mx-4 my-2 h-px bg-white/[0.05]" />
 
+                {/* Navigation */}
+                <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+                    {NAV_ITEMS.map((item) => {
+                        const active = isActive(item.href);
                         return (
-                            <div key={group.id} className="mb-2">
-                                {/* Group Header */}
-                                <button
-                                    onClick={() => toggleGroup(group.id)}
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${hasActiveItem
+                            <a
+                                key={item.href}
+                                href={item.href}
+                                title={collapsed ? item.label : undefined}
+                                className={`
+                                    relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150
+                                    ${active
                                         ? 'bg-cyan-500/10 text-cyan-400'
-                                        : 'hover:bg-slate-800 text-slate-400 hover:text-white'
-                                        }`}
-                                >
-                                    <group.icon className="w-5 h-5 shrink-0" />
-                                    {sidebarOpen && (
-                                        <>
-                                            <motion.span
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                className="text-sm font-semibold flex-1 text-left"
-                                            >
-                                                {group.label}
-                                            </motion.span>
-                                            <motion.div
-                                                animate={{ rotate: isExpanded ? 180 : 0 }}
-                                                transition={{ duration: 0.2 }}
-                                            >
-                                                <ChevronDown className="w-4 h-4" />
-                                            </motion.div>
-                                        </>
-                                    )}
-                                </button>
-
-                                {/* Group Items */}
+                                        : 'hover:bg-white/[0.05] text-slate-500 hover:text-slate-200'
+                                    }
+                                `}
+                            >
+                                {active && (
+                                    <motion.div
+                                        layoutId="nav-pill"
+                                        className="absolute inset-0 rounded-lg bg-cyan-500/10"
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
+                                )}
+                                {active && (
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-cyan-400 rounded-r-full" />
+                                )}
+                                <item.icon className={`w-[18px] h-[18px] shrink-0 relative z-10 ${active ? 'text-cyan-400' : ''}`} />
                                 <AnimatePresence>
-                                    {sidebarOpen && isExpanded && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="overflow-hidden"
+                                    {!collapsed && (
+                                        <motion.span
+                                            key={`label-${item.href}`}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="text-sm font-medium relative z-10 truncate"
                                         >
-                                            <div className="ml-4 mt-1 space-y-0.5 border-l border-slate-700 pl-4">
-                                                {group.items.map((item) => {
-                                                    const isActive = isItemActive(item.href);
-                                                    return (
-                                                        <a
-                                                            key={item.label}
-                                                            href={item.href}
-                                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all group/item ${isActive
-                                                                ? 'bg-cyan-500/20 text-cyan-400'
-                                                                : 'hover:bg-slate-800/50 text-slate-400 hover:text-white'
-                                                                }`}
-                                                        >
-                                                            <item.icon className="w-4 h-4 shrink-0" />
-                                                            <div className="flex-1 min-w-0">
-                                                                <span className="text-sm font-medium block truncate">
-                                                                    {item.label}
-                                                                </span>
-                                                                {item.description && (
-                                                                    <span className="text-[10px] text-slate-500 block truncate">
-                                                                        {item.description}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            {isActive && (
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                                                            )}
-                                                        </a>
-                                                    );
-                                                })}
-                                            </div>
-                                        </motion.div>
+                                            {item.label}
+                                        </motion.span>
                                     )}
                                 </AnimatePresence>
-                            </div>
+                            </a>
                         );
                     })}
                 </nav>
 
-                {/* Footer User */}
-                <div className="p-4 border-t border-slate-800">
-                    <div className={`flex items-center gap-3 ${sidebarOpen ? '' : 'justify-center'}`}>
-                        <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white border-2 border-slate-600">
-                            Dr.
-                        </div>
-                        {sidebarOpen && (
-                            <div className="overflow-hidden flex-1">
-                                <p className="text-sm font-bold text-white truncate">Dr. S. Chen</p>
-                                <p className="text-xs text-slate-500 truncate">Aura Wellness</p>
-                            </div>
+                {/* Collapse toggle */}
+                <button
+                    onClick={() => setCollapsed(c => !c)}
+                    className="mx-3 mb-2 flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/[0.05] text-slate-600 hover:text-slate-300 transition-colors"
+                    aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                >
+                    <Menu className="w-4 h-4 shrink-0" />
+                    <AnimatePresence>
+                        {!collapsed && (
+                            <motion.span
+                                key="collapse-label"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="text-xs truncate"
+                            >
+                                Collapse
+                            </motion.span>
                         )}
-                        {sidebarOpen && (
-                            <button className="p-1.5 hover:bg-slate-800 rounded text-slate-400">
-                                <LogOut className="w-4 h-4" />
+                    </AnimatePresence>
+                </button>
+
+                {/* Footer – user */}
+                <div className="p-3 border-t border-white/[0.06] shrink-0">
+                    <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
+                        <div className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            SC
+                        </div>
+                        <AnimatePresence>
+                            {!collapsed && (
+                                <motion.div
+                                    key="user-info"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="flex-1 min-w-0"
+                                >
+                                    <p className="text-xs font-semibold text-white truncate">Dr. S. Chen</p>
+                                    <p className="text-[10px] text-slate-500 truncate">Aura Wellness Clinic</p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        {!collapsed && (
+                            <button
+                                className="p-1 hover:bg-white/[0.05] rounded text-slate-600 hover:text-slate-300 transition-colors"
+                                aria-label="Sign out"
+                            >
+                                <LogOut className="w-3.5 h-3.5" />
                             </button>
                         )}
                     </div>
                 </div>
             </motion.aside>
 
-            {/* Mobile Overlay */}
+            {/* ── MOBILE DRAWER ────────────────────────────────────────── */}
             <AnimatePresence>
-                {isMobile && mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 z-10 lg:hidden"
-                        onClick={() => setMobileMenuOpen(false)}
-                    />
+                {mobileOpen && (
+                    <>
+                        <motion.div
+                            key="overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+                            onClick={() => setMobileOpen(false)}
+                        />
+                        <motion.aside
+                            key="drawer"
+                            initial={{ x: -260 }}
+                            animate={{ x: 0 }}
+                            exit={{ x: -260 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed left-0 top-0 bottom-0 w-64 z-50 flex flex-col bg-[#0d1117] border-r border-white/[0.04] lg:hidden"
+                        >
+                            <div className="h-14 flex items-center justify-between px-4 border-b border-white/[0.06]">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-7 h-7 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-md flex items-center justify-center">
+                                        <span className="text-white font-black text-[10px]">HY</span>
+                                    </div>
+                                    <span className="font-bold text-white text-sm">HYLONO Partner</span>
+                                </div>
+                                <button onClick={() => setMobileOpen(false)} className="p-1 text-slate-500" aria-label="Close menu">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <nav className="flex-1 px-3 py-3 space-y-0.5">
+                                {NAV_ITEMS.map((item) => {
+                                    const active = isActive(item.href);
+                                    return (
+                                        <a
+                                            key={item.href}
+                                            href={item.href}
+                                            onClick={() => setMobileOpen(false)}
+                                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${active ? 'bg-cyan-500/10 text-cyan-400' : 'text-slate-500 hover:bg-white/[0.05] hover:text-slate-200'}`}
+                                        >
+                                            <item.icon className="w-[18px] h-[18px] shrink-0" />
+                                            <span className="text-sm font-medium">{item.label}</span>
+                                        </a>
+                                    );
+                                })}
+                            </nav>
+                        </motion.aside>
+                    </>
                 )}
             </AnimatePresence>
 
-            {/* Main Content */}
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen && !isMobile ? 'ml-[280px]' : isMobile ? 'ml-0' : 'ml-[80px]'}`}>
-                {/* Header */}
-                <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-10">
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
+            {/* ── MAIN AREA ────────────────────────────────────────────── */}
+            <div
+                className="flex-1 flex flex-col min-w-0 transition-[margin] duration-200"
+                style={{ marginLeft: collapsed ? 72 : 240 }}
+            >
+                {/* Topbar */}
+                <header className="h-14 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
+                    {/* Left: hamburger + breadcrumb */}
+                    <div className="flex items-center gap-2 min-w-0">
+                        {/* Mobile menu toggle */}
                         <button
-                            onClick={() => isMobile ? setMobileMenuOpen(!mobileMenuOpen) : setSidebarOpen(!sidebarOpen)}
-                            className="p-2 -ml-2 hover:bg-slate-100 rounded text-slate-500"
-                            aria-label={isMobile ? 'Toggle mobile menu' : 'Toggle sidebar'}
+                            onClick={() => setMobileOpen(o => !o)}
+                            className="lg:hidden p-1.5 -ml-1.5 rounded text-slate-500 hover:bg-slate-100 transition-colors"
+                            aria-label="Open menu"
                         >
-                            {isMobile ? (mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />) : <Menu className="w-5 h-5" />}
+                            <Menu className="w-5 h-5" />
                         </button>
-                        <span className="font-bold text-slate-900 hidden sm:inline">Partner Hub</span>
-                        <nav className="hidden md:flex items-center gap-2">
+                        <nav className="flex items-center gap-1 text-sm min-w-0" aria-label="Breadcrumb">
+                            <span className="font-semibold text-slate-900 hidden sm:inline">Partner Hub</span>
                             {breadcrumbs.map((crumb, i) => (
                                 <React.Fragment key={crumb}>
-                                    <ChevronRight className="w-4 h-4 text-slate-300" />
-                                    <span className={i === breadcrumbs.length - 1 ? "text-cyan-600 font-medium" : ""}>
+                                    <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0 hidden sm:inline-block" />
+                                    <span
+                                        className={`truncate ${
+                                            i === breadcrumbs.length - 1
+                                                ? 'text-cyan-600 font-medium'
+                                                : 'text-slate-500'
+                                        }`}
+                                    >
                                         {crumb}
                                     </span>
                                 </React.Fragment>
@@ -340,25 +310,28 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                         </nav>
                     </div>
 
-                    <div className="flex items-center gap-2 md:gap-4">
+                    {/* Right: search + notifications + avatar */}
+                    <div className="flex items-center gap-2 md:gap-3 shrink-0">
                         <CommandPalette />
-                        <button className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200 transition-colors group">
-                            <Search className="w-3.5 h-3.5" />
-                            <span>Quick Find</span>
-                            <span className="bg-white px-1.5 py-0.5 rounded border border-slate-200 text-[10px] ml-2 group-hover:border-slate-300">⌘K</span>
-                        </button>
 
-                        <div className="h-6 w-px bg-slate-200 hidden md:block" />
+                        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg cursor-pointer transition-colors text-xs text-slate-500">
+                            <Search className="w-3.5 h-3.5" />
+                            <span>Search</span>
+                            <kbd className="ml-1.5 px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-400">⌘K</kbd>
+                        </div>
+
+                        <div className="w-px h-5 bg-slate-200 hidden md:block" />
 
                         <NotificationCenter />
 
-                        <div className="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center text-white font-bold text-xs ring-2 ring-slate-100">
-                            DR
+                        <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold ring-2 ring-slate-100">
+                            SC
                         </div>
                     </div>
                 </header>
 
-                <main className="p-4 md:p-6 lg:p-8">
+                {/* Page content */}
+                <main className="flex-1 p-4 md:p-6 lg:p-8">
                     {children}
                 </main>
             </div>

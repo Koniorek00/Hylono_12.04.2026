@@ -1,10 +1,144 @@
-import React, { useMemo, useCallback } from 'react';
-import { Search, X, Pointer, FileText, Sparkles, Files, FlaskConical, FileBarChart, ArrowRight } from 'lucide-react';
+import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react';
+import { Search, X, Pointer, FileText, Sparkles, Files, FlaskConical, FileBarChart, ArrowRight, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MenuContext, SEARCH_DATABASE } from './MegaMenuData';
+import { MenuContext, SEARCH_DATABASE, SEARCH_SYNONYMS, SearchDatabaseItem } from './MegaMenuData';
+import { getRecentSearches, addRecentSearch, POPULAR_SEARCHES, getAutocompleteSuggestions, getRecentPages, RecentPage } from '../../utils/searchStorage';
 
 const SEARCH_TRANSITION = { duration: 0.12, ease: "easeOut" as const };
 const CONTEXT_TRANSITION = { duration: 0.15, ease: [0.25, 0.1, 0.25, 1] as const };
+
+// Filter tag types
+type MegaMenuFilterTag = 'all' | 'Products' | 'Protocols' | 'Science' | 'Resources' | 'Tools';
+
+const FILTER_TAGS: { value: MegaMenuFilterTag; label: string }[] = [
+    { value: 'all', label: 'All' },
+    { value: 'Products', label: 'Products' },
+    { value: 'Protocols', label: 'Protocols' },
+    { value: 'Science', label: 'Science' },
+    { value: 'Resources', label: 'Resources' },
+    { value: 'Tools', label: 'Tools' },
+];
+
+// Category colors for headers and dots
+const categoryColors: Record<string, { text: string; dot: string }> = {
+    Products: { text: 'text-cyan-400', dot: 'bg-cyan-400' },
+    Protocols: { text: 'text-violet-400', dot: 'bg-violet-400' },
+    Science: { text: 'text-blue-400', dot: 'bg-blue-400' },
+    Resources: { text: 'text-amber-400', dot: 'bg-amber-400' },
+    Tools: { text: 'text-emerald-400', dot: 'bg-emerald-400' },
+};
+
+const filterTagStyles: Record<MegaMenuFilterTag, { active: string; inactive: string }> = {
+    all: {
+        active: 'bg-white text-slate-900 border-white',
+        inactive: 'bg-transparent text-white/60 border-white/20 hover:border-white/40 hover:bg-white/5',
+    },
+    Products: {
+        active: 'bg-cyan-400 text-slate-900 border-cyan-400',
+        inactive: 'bg-transparent text-cyan-400/70 border-cyan-400/30 hover:border-cyan-400/50 hover:bg-cyan-400/5',
+    },
+    Protocols: {
+        active: 'bg-violet-400 text-slate-900 border-violet-400',
+        inactive: 'bg-transparent text-violet-400/70 border-violet-400/30 hover:border-violet-400/50 hover:bg-violet-400/5',
+    },
+    Science: {
+        active: 'bg-blue-400 text-slate-900 border-blue-400',
+        inactive: 'bg-transparent text-blue-400/70 border-blue-400/30 hover:border-blue-400/50 hover:bg-blue-400/5',
+    },
+    Resources: {
+        active: 'bg-amber-400 text-slate-900 border-amber-400',
+        inactive: 'bg-transparent text-amber-400/70 border-amber-400/30 hover:border-amber-400/50 hover:bg-amber-400/5',
+    },
+    Tools: {
+        active: 'bg-emerald-400 text-slate-900 border-emerald-400',
+        inactive: 'bg-transparent text-emerald-400/70 border-emerald-400/30 hover:border-emerald-400/50 hover:bg-emerald-400/5',
+    },
+};
+
+interface FilterTagBarProps {
+    activeFilter: MegaMenuFilterTag;
+    onFilterChange: (filter: MegaMenuFilterTag) => void;
+    resultCounts: Record<MegaMenuFilterTag, number>;
+}
+
+const FilterTagBar: React.FC<FilterTagBarProps> = ({ activeFilter, onFilterChange, resultCounts }) => {
+    const tagRef = useRef<HTMLDivElement>(null);
+
+    const handleKeyDown = useCallback((event: React.KeyboardEvent, currentIndex: number) => {
+        let newIndex = currentIndex;
+
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+            event.preventDefault();
+            newIndex = (currentIndex + 1) % FILTER_TAGS.length;
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            newIndex = currentIndex === 0 ? FILTER_TAGS.length - 1 : currentIndex - 1;
+        } else if (event.key === 'Home') {
+            event.preventDefault();
+            newIndex = 0;
+        } else if (event.key === 'End') {
+            event.preventDefault();
+            newIndex = FILTER_TAGS.length - 1;
+        }
+
+        if (newIndex !== currentIndex) {
+            onFilterChange(FILTER_TAGS[newIndex].value);
+            const buttons = tagRef.current?.querySelectorAll('button');
+            buttons?.[newIndex]?.focus();
+        }
+    }, [onFilterChange]);
+
+    return (
+        <div
+            ref={tagRef}
+            className="py-2 mb-4"
+            role="radiogroup"
+            aria-label="Filter search results by category"
+        >
+            <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/40 flex items-center gap-1.5 shrink-0 mb-2">
+                <Filter size={10} /> Filter
+            </span>
+            <div className="flex flex-wrap items-center gap-1.5" role="radiogroup">
+                {FILTER_TAGS.map((tag, index) => {
+                    const isActive = activeFilter === tag.value;
+                    const count = resultCounts[tag.value];
+                    
+                    return (
+                        <button
+                            key={tag.value}
+                            type="button"
+                            role="radio"
+                            aria-checked={isActive}
+                            tabIndex={isActive ? 0 : -1}
+                            onClick={() => onFilterChange(tag.value)}
+                            onKeyDown={(e) => handleKeyDown(e, index)}
+                            className={`
+                                inline-flex items-center gap-1 px-2.5 py-1 min-h-[32px]
+                                rounded-full border text-[11px] font-semibold 
+                                transition-all duration-150 ease-in-out
+                                focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500
+                                ${isActive ? filterTagStyles[tag.value].active : filterTagStyles[tag.value].inactive}
+                            `}
+                        >
+                            <span>{tag.label}</span>
+                            {count > 0 && (
+                                <span 
+                                    className={`
+                                        text-[9px] px-1 py-0.5 rounded-full min-w-[16px] text-center
+                                        ${isActive ? 'bg-black/20' : 'bg-current/10'}
+                                    `}
+                                    aria-label={`${count} result${count !== 1 ? 's' : ''}`}
+                                >
+                                    {count}
+                                </span>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
 
 // Type definitions
 interface SearchResultItem {
@@ -59,14 +193,111 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
     showResults, debouncedQuery, onResultClick, currentConfig,
     searchContainerRef
 }) => {
+    // Filter state
+    const [activeFilter, setActiveFilter] = useState<MegaMenuFilterTag>('all');
+    // Recent searches state
+    const [recentSearches, setRecentSearches] = useState<string[]>([]);
+    // Recent pages state
+    const [recentPages, setRecentPages] = useState<RecentPage[]>([]);
 
-    const filteredResults = useMemo(() => {
+    // Load recent searches and pages on mount
+    useEffect(() => {
+        setRecentSearches(getRecentSearches());
+        setRecentPages(getRecentPages());
+    }, []);
+
+    // Refresh recent searches when dropdown opens
+    useEffect(() => {
+        if (showResults) {
+            setRecentSearches(getRecentSearches());
+        }
+    }, [showResults]);
+
+    // Handle result click with recent search save
+    const handleResultClick = (item: SearchResultItem) => {
+        addRecentSearch(searchQuery || item.title);
+        onResultClick(item);
+    };
+
+    /**
+     * Smart fuzzy search with synonym expansion and relevance scoring
+     * Matches against: title, category, desc, keywords, and related terms
+     * Also expands query using synonyms for intelligent matching
+     */
+    const filteredResults = useMemo((): (SearchDatabaseItem & { score: number })[] => {
         if (debouncedQuery.length === 0) return [];
-        const q = debouncedQuery.toLowerCase();
-        return SEARCH_DATABASE.filter(item =>
-            item.title.toLowerCase().includes(q) ||
-            item.category.toLowerCase().includes(q)
-        );
+        
+        const query = debouncedQuery.toLowerCase().trim();
+        const queryWords = query.split(/\s+/).filter(w => w.length > 0);
+        
+        // Expand query with synonyms
+        const expandedTerms = new Set<string>([query, ...queryWords]);
+        queryWords.forEach(word => {
+            const synonyms = SEARCH_SYNONYMS[word];
+            if (synonyms) {
+                synonyms.forEach(s => expandedTerms.add(s));
+            }
+        });
+        
+        // Score and filter items
+        const scored = SEARCH_DATABASE.map(item => {
+            let score = 0;
+            const titleLower = item.title.toLowerCase();
+            const categoryLower = item.category.toLowerCase();
+            const descLower = item.desc.toLowerCase();
+            const keywords = item.keywords || [];
+            const relatedTerms = item.relatedTerms || [];
+            
+            // Check each query word and its synonyms
+            queryWords.forEach(word => {
+                // Exact title match (highest priority)
+                if (titleLower === word) score += 100;
+                else if (titleLower.startsWith(word)) score += 80;
+                else if (titleLower.includes(word)) score += 60;
+                
+                // Category match
+                if (categoryLower.includes(word)) score += 40;
+                
+                // Description match
+                if (descLower.includes(word)) score += 20;
+                
+                // Keywords match (important for product discovery)
+                keywords.forEach(kw => {
+                    if (kw === word) score += 50;
+                    else if (kw.startsWith(word)) score += 35;
+                    else if (kw.includes(word)) score += 25;
+                });
+                
+                // Related terms match
+                relatedTerms.forEach(rt => {
+                    if (rt.includes(word)) score += 15;
+                });
+            });
+            
+            // Check expanded synonyms (lower weight - these are inferred matches)
+            expandedTerms.forEach(term => {
+                if (!queryWords.includes(term)) {
+                    if (keywords.some(kw => kw.includes(term))) score += 10;
+                    if (relatedTerms.some(rt => rt.includes(term))) score += 5;
+                }
+            });
+            
+            // Prefix matching for partial words (e.g., "hyper" matches "hyperbaric")
+            queryWords.forEach(word => {
+                if (word.length >= 3) {
+                    keywords.forEach(kw => {
+                        if (kw.startsWith(word) && !kw.includes(word)) score += 20;
+                    });
+                }
+            });
+            
+            return { ...item, score };
+        });
+        
+        // Filter items with score > 0 and sort by relevance
+        return scored
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score);
     }, [debouncedQuery]);
 
     const groupedResults = useMemo(() => {
@@ -77,6 +308,35 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
             items: filteredResults.filter(i => i.category === cat),
         }));
     }, [filteredResults]);
+
+    // Result counts per category for filter badges
+    const resultCounts = useMemo((): Record<MegaMenuFilterTag, number> => {
+        const counts: Record<string, number> = {};
+        filteredResults.forEach(item => {
+            counts[item.category] = (counts[item.category] || 0) + 1;
+        });
+        return {
+            all: filteredResults.length,
+            Products: counts['Products'] || 0,
+            Protocols: counts['Protocols'] || 0,
+            Science: counts['Science'] || 0,
+            Resources: counts['Resources'] || 0,
+            Tools: counts['Tools'] || 0,
+        };
+    }, [filteredResults]);
+
+    // Filtered grouped results based on active filter
+    const displayResults = useMemo(() => {
+        if (activeFilter === 'all') {
+            return groupedResults;
+        }
+        return groupedResults.filter(group => group.category === activeFilter);
+    }, [groupedResults, activeFilter]);
+
+    // Reset filter when search changes
+    useEffect(() => {
+        setActiveFilter('all');
+    }, [debouncedQuery]);
 
     return (
         <div className="col-span-4 p-10 relative flex flex-col overflow-hidden group/panel">
@@ -106,22 +366,108 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
 
                 {/* Instant Results Dropdown */}
                 <AnimatePresence>
+                    {/* Show recent/popular when focused with empty query */}
+                    {showResults && searchQuery.length === 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 5, scale: 0.98 }}
+                            transition={SEARCH_TRANSITION}
+                            className="absolute top-full left-0 right-0 mt-3 bg-[#0d1821] border border-white/10 rounded-2xl p-4 shadow-2xl z-50 overflow-hidden"
+                        >
+                            {/* Recent Pages */}
+                            {recentPages.length > 0 && (
+                                <div className="mb-4">
+                                    <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/40 mb-3 flex items-center gap-1.5">
+                                        <ArrowRight size={10} /> Recent pages
+                                    </p>
+                                    <div className="space-y-1">
+                                        {recentPages.slice(0, 3).map((page) => (
+                                            <button
+                                                key={page.url}
+                                                onClick={() => {
+                                                    // Navigate to page - create a mock result item
+                                                    handleResultClick({ id: 0, title: page.title, category: '', desc: '', type: '' });
+                                                }}
+                                                className="w-full text-left flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                                            >
+                                                <ArrowRight size={10} className="text-white/30" />
+                                                <span className="text-[11px] text-white/70">{page.title}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {recentSearches.length > 0 && (
+                                <div className="mb-4">
+                                    <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/40 mb-3 flex items-center gap-1.5">
+                                        <FileText size={10} /> Recent searches
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {recentSearches.map((recent) => (
+                                            <button
+                                                key={recent}
+                                                onClick={() => {
+                                                    // Set search query - need to call parent handler
+                                                    const event = { target: { value: recent } } as React.ChangeEvent<HTMLInputElement>;
+                                                    onSearchChange(event);
+                                                }}
+                                                className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-full text-[11px] font-semibold text-white/70 hover:text-white transition-all"
+                                            >
+                                                {recent}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div>
+                                <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/40 mb-3">Popular searches</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {POPULAR_SEARCHES.slice(0, 6).map((term) => (
+                                        <button
+                                            key={term}
+                                            onClick={() => {
+                                                const event = { target: { value: term } } as React.ChangeEvent<HTMLInputElement>;
+                                                onSearchChange(event);
+                                            }}
+                                            className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 hover:border-cyan-500/40 rounded-full text-[11px] font-semibold text-cyan-400/80 hover:text-cyan-300 transition-all"
+                                        >
+                                            {term}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Show results when there's a query */}
                     {showResults && searchQuery.length > 0 && (
                         <motion.div
                             initial={{ opacity: 0, y: 10, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 5, scale: 0.98 }}
                             transition={SEARCH_TRANSITION}
-                            className="absolute top-full left-0 right-0 mt-3 bg-[#0d1821] border border-white/10 rounded-2xl p-2 shadow-2xl z-50 overflow-hidden max-h-[380px] overflow-y-auto custom-scrollbar"
+                            className="absolute top-full left-0 right-0 mt-3 bg-[#0d1821] border border-white/10 rounded-2xl p-2 shadow-2xl z-50 overflow-hidden max-h-[450px] overflow-y-auto custom-scrollbar"
                         >
-                            {groupedResults.length > 0 ? (
+                            {/* Filter Tag Bar */}
+                            <FilterTagBar
+                                activeFilter={activeFilter}
+                                onFilterChange={setActiveFilter}
+                                resultCounts={resultCounts}
+                            />
+                            
+                            {displayResults.length > 0 ? (
                                 <div className="p-2 space-y-6">
-                                    {groupedResults.map(group => (
-                                        <div key={group.category}>
-                                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400 mb-3 px-3 flex items-center gap-2">
-                                                <div className="w-1 h-1 rounded-full bg-cyan-400" />
-                                                {group.category}
-                                            </div>
+                                    {displayResults.map(group => {
+                                        const colors = categoryColors[group.category] || { text: 'text-cyan-400', dot: 'bg-cyan-400' };
+                                        return (
+                                            <div key={group.category}>
+                                                <div className={`text-[10px] font-bold uppercase tracking-[0.2em] ${colors.text} mb-3 px-3 flex items-center gap-2 futuristic-font`}>
+                                                    <div className={`w-1 h-1 rounded-full ${colors.dot}`} />
+                                                    {group.category}
+                                                </div>
                                             <div className="space-y-1">
                                                 {group.items.map(item => (
                                                     <button
@@ -130,20 +476,29 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                                                         className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 group/res transition-all text-left"
                                                     >
                                                         <div>
-                                                            <div className="text-sm font-medium text-slate-200 group-hover/res:text-white transition-colors">{item.title}</div>
+                                                            <div className="text-sm font-medium text-slate-200 group-hover/res:text-white transition-colors futuristic-font">{item.title}</div>
                                                             <div className="text-[11px] text-slate-500 leading-tight mt-0.5">{item.desc}</div>
                                                         </div>
                                                         <ArrowRight size={14} className="text-slate-600 opacity-0 group-hover/res:opacity-100 group-hover/res:translate-x-1 transition-all" />
                                                     </button>
                                                 ))}
                                             </div>
-                                        </div>
-                                    ))}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             ) : (
-                                <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-3">
-                                    <Pointer size={24} className="opacity-20" />
-                                    <div className="text-sm">No intelligence match for "<span className="text-slate-300">{searchQuery}</span>"</div>
+                                <div className="p-6 text-center">
+                                    <Pointer size={24} className="opacity-20 mx-auto mb-3" />
+                                    <div className="text-sm text-slate-400 mb-4">No intelligence match for "<span className="text-slate-300">{searchQuery}</span>"</div>
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                            onClick={() => onResultClick({ id: 0, title: 'Contact', category: '', desc: '', type: '' })}
+                                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-lg transition-all"
+                                        >
+                                            Contact us <ArrowRight size={12} />
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </motion.div>
@@ -168,33 +523,13 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                             </span>
                         </div>
 
-                        <h2 className="text-4xl font-black text-white leading-tight mb-6 whitespace-pre-line tracking-tight">
+                        <h2 className="text-4xl font-black text-white leading-tight mb-6 whitespace-pre-line tracking-tight futuristic-font">
                             {currentConfig.featured.title}
                         </h2>
 
                         <p className="text-slate-400 text-base leading-relaxed mb-8 max-w-[90%]">
                             {currentConfig.featured.desc}
                         </p>
-
-                        {/* Status/Points Display */}
-                        {currentConfig.featured.scienceScore && (
-                            <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 mb-8 group-hover/panel:bg-white/[0.05] transition-all">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <Sparkles size={16} className="text-cyan-400" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Clinical Confidence</span>
-                                    </div>
-                                    <span className="text-xl font-bold text-cyan-400">{currentConfig.featured.scienceScore}%</span>
-                                </div>
-                                <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${currentConfig.featured.scienceScore}%` }}
-                                        className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400"
-                                    />
-                                </div>
-                            </div>
-                        )}
 
                         {currentConfig.featured.points && (
                             <div className="space-y-3 mb-8">
@@ -207,25 +542,6 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                             </div>
                         )}
 
-                        <div className="mt-auto pt-8 border-t border-white/5 flex items-center justify-between">
-                            <div className="flex gap-2 flex-wrap">
-                                {currentConfig.trendingTags.map((tag: string) => (
-                                    <span 
-                                        key={tag} 
-                                        className="text-[9px] uppercase tracking-widest font-bold text-slate-500 px-2 py-1 rounded-md bg-white/[0.02] border border-white/5 hover:bg-white/[0.08] hover:text-slate-300 hover:border-white/20 transition-all cursor-default"
-                                    >
-                                        {tag}
-                                    </span>
-                                ))}
-                            </div>
-
-                            <button className="flex items-center gap-3 text-white font-bold text-sm group/btn hover:text-cyan-400 transition-all uppercase tracking-widest">
-                                {currentConfig.featured.action}
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover/btn:bg-cyan-500 group-hover/btn:text-black transition-all">
-                                    <ArrowRight size={16} />
-                                </div>
-                            </button>
-                        </div>
                     </motion.div>
                 </AnimatePresence>
             </div>

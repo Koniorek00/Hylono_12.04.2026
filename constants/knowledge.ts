@@ -25,6 +25,162 @@ export interface KnowledgePack {
 }
 
 export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
+    "EWOT": {
+        id: "KP-EWOT-001",
+        title: "EWOT Safety & Education-Only Claims",
+        type: "Knowledge Pack",
+        status: "Verified",
+        confidence: 0.88,
+        tags: ["EWOT", "Oxygen", "Exercise", "Compliance", "Safety"],
+        approvedClaims: [
+            "May support aerobic capacity and endurance",
+            "Designed to enhance tissue oxygenation during exercise",
+            "May support post-workout recovery",
+            "Designed to improve oxygen delivery to peripheral tissues",
+            "May support cognitive clarity post-session",
+            "Designed to aid microcirculatory function",
+            "May support mitochondrial efficiency through oxygen loading",
+            "Designed for use alongside low-to-moderate aerobic exercise"
+        ],
+        forbiddenTerms: ["cure", "treat", "diagnose", "heal", "prevents disease", "medical treatment"],
+        disclaimers: [
+            "EWOT is designed to support wellness goals and is not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before beginning any exercise-based oxygen protocol, particularly if you have cardiovascular or respiratory conditions."
+        ],
+        synergies: [
+            { target: "HBOT", label: "Oxygen Amplifier", description: "EWOT primes circulatory pathways for enhanced HBOT delivery", boost: 40 },
+            { target: "HYDROGEN", label: "Oxidative Balance", description: "H2 neutralizes exercise-induced free radicals post-EWOT", boost: 30 }
+        ]
+    },
+    "SAUNA_BLANKET": {
+        id: "KP-SAUNA-001",
+        title: "Sauna Blanket Safety & Education-Only Claims",
+        type: "Knowledge Pack",
+        status: "Verified",
+        confidence: 0.87,
+        tags: ["Sauna", "Infrared", "Heat", "Recovery", "Compliance", "Safety"],
+        approvedClaims: [
+            "May support deep muscle relaxation",
+            "Designed to promote circulatory warmth and vasodilation",
+            "May assist with metabolic clearance through perspiration",
+            "Designed to support skin vitality through thermal stimulation",
+            "May support parasympathetic tone and wind-down",
+            "Designed to promote heat shock protein expression",
+            "May aid post-exercise recovery and soreness reduction",
+            "Designed to support cardiovascular conditioning through passive heat"
+        ],
+        forbiddenTerms: ["cure", "treat", "diagnose", "detoxify completely", "eliminates toxins", "prevents disease"],
+        disclaimers: [
+            "The Sauna Blanket is designed to support wellness and recovery goals and is not intended to diagnose, treat, cure, or prevent any disease. Adequate hydration is essential before and after use. Consult your healthcare provider before use if you have cardiovascular conditions, are pregnant, or have any chronic health condition."
+        ],
+        synergies: [
+            { target: "RLT", label: "Collagen & Heat Stack", description: "Heat primes tissue for deeper photobiomodulation penetration", boost: 30 },
+            { target: "EMS", label: "Recovery Accelerator", description: "Infrared heat flushes metabolic waste post-EMS activation", boost: 25 }
+        ]
+    },
+    "EMS": {
+        id: "KP-EMS-001",
+        title: "EMS Safety & Education-Only Claims",
+        type: "Knowledge Pack",
+        status: "Verified",
+        confidence: 0.89,
+        tags: ["EMS", "Muscle", "Stimulation", "Recovery", "Compliance", "Safety"],
+        approvedClaims: [
+            "Designed to activate a broad spectrum of muscle fiber types simultaneously",
+            "May support muscle strength and endurance development",
+            "Designed to enhance neuromuscular recruitment efficiency",
+            "May support post-exercise recovery acceleration",
+            "Designed to assist with metabolic rate optimization",
+            "May support rehabilitation and muscle maintenance protocols",
+            "Designed for time-efficient full-body conditioning",
+            "May assist with deep stabilizer muscle activation"
+        ],
+        forbiddenTerms: ["cure", "treat", "diagnose", "replaces surgery", "prevents disease", "weight loss guarantee"],
+        disclaimers: [
+            "EMS is designed to support fitness and wellness goals and is not intended to diagnose, treat, cure, or prevent any disease. EMS is contraindicated for individuals with pacemakers, implanted defibrillators, or during pregnancy. Always begin at low intensity. Consult your healthcare provider before use."
+        ],
+        synergies: [
+            { target: "SAUNA_BLANKET", label: "Activation & Recovery", description: "Infrared heat flushes metabolic waste after EMS-induced muscle fatigue", boost: 25 },
+            { target: "PEMF", label: "Cellular Repair Stack", description: "PEMF restores cellular charge after EMS-induced muscle stress", boost: 35 }
+        ]
+    },
+    "VNS": {
+        id: "KP-VNS-001",
+        title: "VNS Safety & Education-Only Claims",
+        type: "Knowledge Pack",
+        status: "Verified",
+        confidence: 0.91,
+        tags: ["VNS", "Vagus", "Nerve", "Stress", "Compliance", "Safety"],
+        approvedClaims: [
+            "Designed to support parasympathetic nervous system activation",
+            "May support heart rate variability (HRV) normalization",
+            "Designed to promote stress resilience and recovery",
+            "May assist with sleep onset and sleep architecture",
+            "Designed to support anti-inflammatory autonomic pathways",
+            "May support mood and cognitive baseline",
+            "Designed to deliver non-invasive auricular vagal stimulation",
+            "May support autonomic nervous system flexibility"
+        ],
+        forbiddenTerms: ["cure", "treat", "diagnose", "replaces medication", "prevents seizures", "prevents disease"],
+        disclaimers: [
+            "The VNS Device is designed to support nervous system wellness and is not intended to diagnose, treat, cure, or prevent any disease. Contraindicated for individuals with pacemakers, implanted VNS devices, or carotid artery disease. Consult your healthcare provider before use, especially if you take cardiac or neurological medications."
+        ],
+        synergies: [
+            { target: "PEMF", label: "Nervous System Reset", description: "PEMF and VNS create comprehensive autonomic recalibration together", boost: 45 },
+            { target: "HYDROGEN", label: "Neurological Protection", description: "H2 neutralizes CNS oxidative load while VNS reduces neuroinflammation", boost: 30 }
+        ]
+    },
+    "HYPOXIC": {
+        id: "KP-HYPOXIC-001",
+        title: "Hypoxic Generator Safety & Education-Only Claims",
+        type: "Knowledge Pack",
+        status: "Verified",
+        confidence: 0.86,
+        tags: ["Hypoxic", "Altitude", "Training", "Performance", "Compliance", "Safety"],
+        approvedClaims: [
+            "Designed to simulate altitude training conditions",
+            "May support EPO production and red blood cell adaptation",
+            "Designed to promote mitochondrial density through hypoxic signaling",
+            "May support VO2 Max improvement through structured altitude protocols",
+            "Designed to activate HIF-1α adaptive pathways",
+            "May support cardiovascular efficiency in trained individuals",
+            "Designed for use with structured intermittent hypoxic exposure protocols",
+            "May support aerobic endurance development"
+        ],
+        forbiddenTerms: ["cure", "treat", "diagnose", "safe for everyone", "prevents disease", "guaranteed results"],
+        disclaimers: [
+            "The Hypoxic Generator is designed for athletic performance and wellness optimization and is not intended to diagnose, treat, cure, or prevent any disease. Contraindicated during pregnancy and for individuals with severe respiratory or cardiovascular conditions. SpO2 monitoring is required during all sessions. Consult your healthcare provider before beginning altitude simulation training."
+        ],
+        synergies: [
+            { target: "HBOT", label: "Altitude-Oxygen Paradox", description: "Contrast hypoxic training with HBOT recovery for maximum HIF-1α adaptation", boost: 55 },
+            { target: "EWOT", label: "Hyperoxic Rebound", description: "Follow hypoxic sessions with EWOT for the ultimate oxygen contrast protocol", boost: 45 }
+        ]
+    },
+    "CRYO": {
+        id: "KP-CRYO-001",
+        title: "Cryo Chamber Safety & Education-Only Claims",
+        type: "Knowledge Pack",
+        status: "Verified",
+        confidence: 0.90,
+        tags: ["Cryo", "Cryotherapy", "Recovery", "Inflammation", "Compliance", "Safety"],
+        approvedClaims: [
+            "May support rapid post-exercise recovery",
+            "Designed to promote inflammatory response modulation",
+            "May support pain relief through cold-induced analgesic mechanisms",
+            "Designed to trigger beneficial norepinephrine release",
+            "May support mood and energy levels through sympathetic activation",
+            "Designed to assist with reactive hyperemia and circulatory flush",
+            "May support cold-shock protein expression for cellular resilience",
+            "Designed for 2-3 minute whole-body cold exposure protocols"
+        ],
+        forbiddenTerms: ["cure", "treat", "diagnose", "prevents injury", "cures inflammation", "prevents disease"],
+        disclaimers: [
+            "The Cryo Chamber is designed to support recovery and wellness goals and is not intended to diagnose, treat, cure, or prevent any disease. Contraindicated for individuals with Raynaud's disease, cold urticaria, cryoglobulinemia, cardiovascular conditions, during pregnancy, or with open wounds. Consult your healthcare provider before use."
+        ],
+        synergies: [
+            { target: "SAUNA_BLANKET", label: "Hot-Cold Contrast", description: "Alternating cryo and infrared creates powerful cardiovascular conditioning", boost: 50 },
+            { target: "PEMF", label: "Recovery Stack", description: "PEMF restores cellular charge after cryo-induced vasoconstriction", boost: 35 }
+        ]
+    },
     "HBOT": {
         id: "KP-HBOT-001",
         title: "HBOT Safety & Education-Only Claims",

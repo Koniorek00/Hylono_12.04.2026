@@ -1,10 +1,9 @@
-
 import React, { Component, ReactNode } from 'react';
 import { AppProviders } from './components/AppProviders';
 import { AppRouter } from './components/AppRouter';
-import { LiveChat } from './components/LiveChat';
 import { CookieConsent } from './components/CookieConsent';
 import { ExitIntent } from './components/ExitIntent';
+import { MultitoolContainer } from './src/components/ui/Multitool';
 
 // Error Boundary for the entire App
 interface ErrorBoundaryState {
@@ -44,9 +43,9 @@ const App: React.FC = () => (
         <AppProviders>
             <AppRouter />
             {/* Global UI overlays — mounted at root so they persist across route changes */}
-            <LiveChat />
             <CookieConsent />
             <ExitIntent />
+            <MultitoolContainer showFab={false} />
         </AppProviders>
     </ErrorBoundary>
 );

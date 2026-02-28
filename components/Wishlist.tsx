@@ -27,11 +27,13 @@ export const useWishlist = () => {
 
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [items, setItems] = useState<WishlistItem[]>(() => {
+        if (typeof window === 'undefined') return [];
         const saved = localStorage.getItem('hylono_wishlist');
         return saved ? JSON.parse(saved) : [];
     });
 
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         localStorage.setItem('hylono_wishlist', JSON.stringify(items));
     }, [items]);
 

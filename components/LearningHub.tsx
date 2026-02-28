@@ -1,12 +1,20 @@
 import React from 'react';
 import { Course } from '../types';
 import { BookOpen, CheckCircle, Lock, PlayCircle } from 'lucide-react';
+import { ProductMention } from './content/ProductMention';
+import { ProtocolMention } from './content/ProtocolMention';
+import { BuilderCTA } from './content/BuilderCTA';
+import { AdvisorCTA } from './content/AdvisorCTA';
+import { learningCommerceMap } from '../content/batch3';
+import { isFeatureEnabled } from '../utils/featureFlags';
 
 interface LearningHubProps {
-    courses: Course[];
+    courses?: Course[];
 }
 
-export const LearningHub: React.FC<LearningHubProps> = ({ courses }) => {
+export const LearningHub: React.FC<LearningHubProps> = ({ courses = [] }) => {
+    const contentCommerceEnabled = isFeatureEnabled('feature_content_commerce');
+
     return (
         <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm h-full">
             <div className="flex items-center justify-between mb-8">
@@ -70,6 +78,31 @@ export const LearningHub: React.FC<LearningHubProps> = ({ courses }) => {
             <button className="w-full mt-6 py-3 border border-gray-200 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors">
                 View All Certifications
             </button>
+
+            {contentCommerceEnabled && (
+                <div className="mt-8 border-t border-gray-100 pt-6">
+                    <h4 className="text-sm font-bold text-gray-900">Related products &amp; protocols</h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                        Use these options to turn learning into a practical routine.
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        <div className="space-y-3">
+                            {learningCommerceMap.relatedProducts.map((productId) => (
+                                <ProductMention key={`learning-product-${productId}`} productId={productId} />
+                            ))}
+                            {learningCommerceMap.relatedProtocols.map((protocolSlug) => (
+                                <ProtocolMention key={`learning-protocol-${protocolSlug}`} protocolSlug={protocolSlug} />
+                            ))}
+                        </div>
+
+                        <div className="space-y-3">
+                            <BuilderCTA goal={learningCommerceMap.goal} />
+                            <AdvisorCTA />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

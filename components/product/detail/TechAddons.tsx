@@ -1,5 +1,5 @@
 import React from 'react';
-import { TechData } from '../../types';
+import { TechData } from '../../../types';
 import { TechAddonCard } from '../../TechAddonCard';
 
 interface TechAddonsProps {

@@ -12,10 +12,10 @@ export const SupportPage: React.FC = () => {
                 setShowChat(true);
                 break;
             case 'phone':
-                window.location.href = 'tel:+48123456789';
+                window.location.assign('tel:+48123456789');
                 break;
             case 'email':
-                window.location.href = 'mailto:support@hylono.com';
+                window.location.assign('mailto:support@hylono.com');
                 break;
         }
     };
@@ -40,7 +40,7 @@ export const SupportPage: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-32 pb-24">
+        <div className="min-h-screen bg-slate-50 pt-10 pb-24">
             <div className="max-w-6xl mx-auto px-6">
                 {/* Hero Header */}
                 <div className="text-center mb-16">

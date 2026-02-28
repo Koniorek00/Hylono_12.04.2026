@@ -5,23 +5,23 @@ export const TrustBadges = () => {
         <div className="flex flex-wrap items-center justify-center gap-6 mt-12 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
             <div className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full">
                 <Shield size={16} className="text-emerald-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">FDA Cleared Class II</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">CE Marked</span>
             </div>
             <div className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full">
                 <CheckCircle size={16} className="text-blue-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">HSA/FSA Eligible</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">GDPR Compliant</span>
             </div>
             <div className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full hidden md:flex">
                 <Globe size={16} className="text-blue-600" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">MDR Compliant (EU)</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">MDR-Aligned Documentation</span>
             </div>
             <div className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full hidden md:flex">
                 <FileCheck size={16} className="text-orange-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">TÜV SÜD Certified</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Third-Party Compliance Review</span>
             </div>
             <div className="flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full">
                 <Award size={16} className="text-purple-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Clinical Grade</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Professional Build Quality</span>
             </div>
         </div>
     );

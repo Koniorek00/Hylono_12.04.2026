@@ -9,7 +9,13 @@ export enum TechType {
     HBOT = 'HBOT',
     PEMF = 'PEMF',
     RLT = 'RLT',
-    HYDROGEN = 'HYDROGEN'
+    HYDROGEN = 'HYDROGEN',
+    EWOT = 'EWOT',
+    SAUNA_BLANKET = 'SAUNA_BLANKET',
+    EMS = 'EMS',
+    VNS = 'VNS',
+    HYPOXIC = 'HYPOXIC',
+    CRYO = 'CRYO'
 }
 
 export interface Synergy {
@@ -22,6 +28,14 @@ export interface Synergy {
 export interface TechData {
     id: TechType;
     name: string;
+    /** Plain-language display name for the configurator (non-expert audience) */
+    friendlyName: string;
+    /** One-sentence plain-language description for the configurator */
+    plainDescription: string;
+    /** Goal tags used by the configurator to pre-select devices per goal */
+    goalTags: Array<'recovery' | 'performance' | 'cognitive' | 'sleep' | 'pain' | 'longevity' | 'skin' | 'strength'>;
+    /** Emoji icon for configurator goal cards */
+    icon: string;
     tagline: string;
     descriptionStandard: string;
     descriptionExpert: string;
@@ -158,3 +172,60 @@ export enum BookingMode {
     SESSION = 'SESSION',
     RENTAL = 'RENTAL'
 }
+
+// ─── CHAMBER PRODUCT TYPES ────────────────────────────────────────────────────
+
+export type ChamberType = 'monoplace' | 'multiplace' | 'soft';
+export type ChamberBrand = 'oxyhelp' | 'asian-series';
+export type ChamberTransactionMode = 'buy' | 'rent';
+
+export interface ChamberSpec {
+    label: string;
+    value: string;
+}
+
+export interface ChamberImage {
+    role: 'hero' | 'interior' | 'detail' | 'lifestyle' | 'diagram';
+    url: string;
+    alt: string;
+}
+
+export interface ChamberPricing {
+    buy: number | null;
+    rent: {
+        monthly: number | null;
+        minimumMonths: number;
+        depositMonths: number;
+    } | null;
+}
+
+export interface ChamberProduct {
+    id: string;
+    slug: string;
+    type: ChamberType;
+    brand: ChamberBrand;
+    brandLabel: string;
+    name: string;
+    variantLabel: string;
+    fullName: string;
+    tagline: string;
+    shortDescription: string;
+    description: string;
+    specifications: ChamberSpec[];
+    highlights: string[];
+    features: string[];
+    certifications: string[];
+    transactionModes: ChamberTransactionMode[];
+    pricing: ChamberPricing;
+    images: ChamberImage[];
+    accessories: string[];
+    useCases: string[];
+    idealFor: string;
+    disclaimer: string;
+}
+
+export type ChamberFilterState = {
+    type: ChamberType | 'all';
+    brand: ChamberBrand | 'all';
+    transactionMode: ChamberTransactionMode | 'all';
+};

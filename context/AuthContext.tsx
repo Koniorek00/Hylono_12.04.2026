@@ -1,74 +1,171 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { MockAuthService, AuthUser, AuthSession } from '../lib/mockAuth';
 
-interface AuthContextType {
+interface AuthUser {
+  id: string;
+  email: string;
+  name?: string;
+  createdAt?: string;
+}
+
+interface AuthSession {
+  sessionId: string;
+  expiresAt: string;
+}
+
+interface AuthError {
+  message: string;
+}
+
+interface AuthResponse {
+  success: boolean;
+  data?: {
     user: AuthUser | null;
     session: AuthSession | null;
-    loading: boolean;
-    signIn: (credentials: { email: string; password: string }) => Promise<{ error: any }>;
-    signUp: (credentials: { email: string; password: string; name?: string }) => Promise<{ error: any }>;
-    signOut: () => Promise<void>;
-    resetPassword: (email: string) => Promise<{ error: any }>;
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
 }
+
+interface AuthContextType {
+  user: AuthUser | null;
+  session: AuthSession | null;
+  loading: boolean;
+  signIn: (credentials: { email: string; password: string }) => Promise<{ error: AuthError | null }>;
+  signUp: (credentials: { email: string; password: string; name?: string }) => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
+}
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<AuthUser | null>(null);
-    const [session, setSession] = useState<AuthSession | null>(null);
-    const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Check for active session on mount
-        const storedSession = MockAuthService.getSession();
-        if (storedSession) {
-            setSession(storedSession);
-            setUser(storedSession.user);
+  useEffect(() => {
+    // Check for existing session on mount
+    const storedSession = localStorage.getItem('hylono_session');
+    if (storedSession) {
+      try {
+        const parsed = JSON.parse(storedSession) as AuthSession;
+        // Check if session is still valid
+        if (new Date(parsed.expiresAt) > new Date()) {
+          setSession(parsed);
+          // Verify session with backend
+          fetchSession(parsed.sessionId);
+        } else {
+          localStorage.removeItem('hylono_session');
         }
-        setLoading(false);
-    }, []);
+      } catch {
+        localStorage.removeItem('hylono_session');
+      }
+    }
+    setLoading(false);
+  }, []);
 
-    const signIn = async ({ email, password }: { email: string; password: string }) => {
-        const { data, error } = await MockAuthService.signIn({ email, password });
-        if (data.session) {
-            setSession(data.session);
-            setUser(data.user);
-        }
-        return { error };
-    };
-
-    const signUp = async ({ email, password, name }: { email: string; password: string; name?: string }) => {
-        const { data, error } = await MockAuthService.signUp({ email, password, name });
-        if (data.session) {
-            setSession(data.session);
-            setUser(data.user);
-        }
-        return { error };
-    };
-
-    const signOut = async () => {
-        await MockAuthService.signOut();
+  const fetchSession = async (sessionId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/session`, {
+        headers: {
+          'Authorization': `Bearer ${sessionId}`,
+        },
+      });
+      const data: AuthResponse = await response.json();
+      if (data.success && data.data?.user) {
+        setUser(data.data.user);
+      } else {
+        localStorage.removeItem('hylono_session');
         setSession(null);
-        setUser(null);
-    };
+      }
+    } catch {
+      localStorage.removeItem('hylono_session');
+      setSession(null);
+    }
+  };
 
-    const resetPassword = async (email: string) => {
-        const { error } = await MockAuthService.resetPassword(email);
-        return { error };
-    };
+  const signIn = async ({ email, password }: { email: string; password: string }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data: AuthResponse = await response.json();
+      
+      if (data.success && data.data?.session && data.data?.user) {
+        setSession(data.data.session);
+        setUser(data.data.user);
+        localStorage.setItem('hylono_session', JSON.stringify(data.data.session));
+        return { error: null };
+      }
+      
+      return { error: { message: data.error?.message || 'Login failed' } };
+    } catch (err) {
+      return { error: { message: 'Network error' } };
+    }
+  };
 
-    return (
-        <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, resetPassword }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  const signUp = async ({ email, password, name }: { email: string; password: string; name?: string }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+      const data: AuthResponse = await response.json();
+      
+      if (data.success && data.data?.session && data.data?.user) {
+        setSession(data.data.session);
+        setUser(data.data.user);
+        localStorage.setItem('hylono_session', JSON.stringify(data.data.session));
+        return { error: null };
+      }
+      
+      return { error: { message: data.error?.message || 'Registration failed' } };
+    } catch (err) {
+      return { error: { message: 'Network error' } };
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const sessionId = session?.sessionId;
+      if (sessionId) {
+        await fetch(`${API_BASE_URL}/api/auth/logout`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${sessionId}` },
+        });
+      }
+    } catch {
+      // Ignore errors
+    }
+    setSession(null);
+    setUser(null);
+    localStorage.removeItem('hylono_session');
+  };
+
+  const resetPassword = async (email: string) => {
+    // Password reset not implemented yet
+    return { error: { message: 'Password reset not available' } };
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, resetPassword }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

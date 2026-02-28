@@ -2,9 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SlidersHorizontal, X, Check, ChevronDown, RotateCcw } from 'lucide-react';
 
-interface FilterState {
+export interface FilterState {
     priceRange: [number, number];
+    rentalPriceRange: [number, number];
     technologies: string[];
+    goals: string[];
     categories: string[];
     pressureRating: string[];
     availability: string;
@@ -13,7 +15,9 @@ interface FilterState {
 
 const defaultFilters: FilterState = {
     priceRange: [0, 100000],
+    rentalPriceRange: [0, 3000],
     technologies: [],
+    goals: [],
     categories: [],
     pressureRating: [],
     availability: 'all',
@@ -30,7 +34,19 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
     const [isOpen, setIsOpen] = useState(false);
     const [expandedSection, setExpandedSection] = useState<string | null>('technology');
 
-    const technologies = ['HBOT', 'PEMF', 'Red Light Therapy', 'Hydrogen'];
+    const technologies = [
+        { value: 'mHBOT', label: 'Hyperbaric chambers' },
+        { value: 'H2', label: 'Hydrogen' },
+        { value: 'RLT', label: 'Red light / NIR' },
+        { value: 'PEMF', label: 'PEMF' },
+        { value: 'O2', label: 'Oxygen concentrators' },
+    ];
+    const goals = [
+        { value: 'recovery', label: 'Sports recovery' },
+        { value: 'sleep', label: 'Sleep' },
+        { value: 'stress', label: 'Stress' },
+        { value: 'comfort', label: 'Comfort & renewal' },
+    ];
     const categories = ['Chambers', 'Mats & Pads', 'Panels', 'Generators', 'Accessories'];
     const pressureRatings = ['1.3 ATA', '1.5 ATA', '2.0 ATA', '2.4 ATA'];
     const sortOptions = [
@@ -44,9 +60,11 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
     const activeFilterCount = useMemo(() => {
         let count = 0;
         if (filters.technologies.length) count++;
+        if (filters.goals.length) count++;
         if (filters.categories.length) count++;
         if (filters.pressureRating.length) count++;
         if (filters.priceRange[0] > 0 || filters.priceRange[1] < 100000) count++;
+        if (filters.rentalPriceRange[0] > 0 || filters.rentalPriceRange[1] < 3000) count++;
         if (filters.availability !== 'all') count++;
         return count;
     }, [filters]);
@@ -57,7 +75,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
         onFilterChange(newFilters);
     };
 
-    const toggleArrayFilter = (key: 'technologies' | 'categories' | 'pressureRating', value: string) => {
+    const toggleArrayFilter = (key: 'technologies' | 'goals' | 'categories' | 'pressureRating', value: string) => {
         const current = filters[key];
         const updated = current.includes(value)
             ? current.filter(v => v !== value)
@@ -75,25 +93,17 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
             <button
                 onClick={() => setExpandedSection(expandedSection === id ? null : id)}
                 className="w-full flex items-center justify-between py-4 text-left"
+                aria-expanded={expandedSection === id}
             >
                 <span className="font-medium text-slate-900">{title}</span>
                 <ChevronDown
-                    className={`text-slate-400 transition-transform ${expandedSection === id ? 'rotate-180' : ''}`}
+                    className={`text-slate-400 ui-transition-fast ${expandedSection === id ? 'rotate-180' : ''}`}
                     size={18}
                 />
             </button>
-            <AnimatePresence>
-                {expandedSection === id && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden pb-4"
-                    >
-                        {children}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <div className="ui-accordion-grid" data-open={expandedSection === id}>
+                <div className="pb-4">{children}</div>
+            </div>
         </div>
     );
 
@@ -133,14 +143,14 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                     <div className="flex flex-wrap gap-2 flex-1">
                         {technologies.map(tech => (
                             <button
-                                key={tech}
-                                onClick={() => toggleArrayFilter('technologies', tech)}
-                                className={`px-3 py-1.5 rounded-full text-sm transition-all ${filters.technologies.includes(tech)
+                                key={tech.value}
+                                onClick={() => toggleArrayFilter('technologies', tech.value)}
+                                className={`px-3 py-1.5 rounded-full text-sm transition-all ${filters.technologies.includes(tech.value)
                                         ? 'bg-cyan-500 text-white'
                                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                     }`}
                             >
-                                {tech}
+                                {tech.label}
                             </button>
                         ))}
                     </div>
@@ -168,12 +178,20 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                 </div>
 
                 {/* Active Filters */}
-                {(filters.technologies.length > 0 || filters.categories.length > 0) && (
+                {(filters.technologies.length > 0 || filters.goals.length > 0 || filters.categories.length > 0) && (
                     <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
                         {filters.technologies.map(t => (
                             <span key={t} className="flex items-center gap-1 px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm">
-                                {t}
+                                {technologies.find((tech) => tech.value === t)?.label ?? t}
                                 <button onClick={() => toggleArrayFilter('technologies', t)}>
+                                    <X size={14} />
+                                </button>
+                            </span>
+                        ))}
+                        {filters.goals.map(g => (
+                            <span key={g} className="flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm">
+                                {goals.find((goal) => goal.value === g)?.label ?? g}
+                                <button onClick={() => toggleArrayFilter('goals', g)}>
                                     <X size={14} />
                                 </button>
                             </span>
@@ -219,10 +237,21 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                                 <FilterSection title="Technology" id="technology">
                                     {technologies.map(tech => (
                                         <CheckboxOption
-                                            key={tech}
-                                            label={tech}
-                                            checked={filters.technologies.includes(tech)}
-                                            onChange={() => toggleArrayFilter('technologies', tech)}
+                                            key={tech.value}
+                                            label={tech.label}
+                                            checked={filters.technologies.includes(tech.value)}
+                                            onChange={() => toggleArrayFilter('technologies', tech.value)}
+                                        />
+                                    ))}
+                                </FilterSection>
+
+                                <FilterSection title="Goal" id="goal">
+                                    {goals.map(goal => (
+                                        <CheckboxOption
+                                            key={goal.value}
+                                            label={goal.label}
+                                            checked={filters.goals.includes(goal.value)}
+                                            onChange={() => toggleArrayFilter('goals', goal.value)}
                                         />
                                     ))}
                                 </FilterSection>
@@ -283,14 +312,51 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                                 </FilterSection>
 
                                 <FilterSection title="Availability" id="availability">
-                                    {['all', 'in-stock', 'pre-order'].map(opt => (
+                                    {['all', 'rental', 'in-stock'].map(opt => (
                                         <CheckboxOption
                                             key={opt}
-                                            label={opt === 'all' ? 'All Products' : opt === 'in-stock' ? 'In Stock' : 'Pre-Order'}
+                                            label={opt === 'all' ? 'All Products' : opt === 'rental' ? 'Available for rental' : 'In stock'}
                                             checked={filters.availability === opt}
                                             onChange={() => updateFilter('availability', opt)}
                                         />
                                     ))}
+                                </FilterSection>
+
+                                <FilterSection title="Rental price" id="rental-price">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-4">
+                                            <input
+                                                type="number"
+                                                value={filters.rentalPriceRange[0]}
+                                                onChange={(e) =>
+                                                    updateFilter('rentalPriceRange', [Number(e.target.value), filters.rentalPriceRange[1]])
+                                                }
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                                placeholder="Min €/mo"
+                                            />
+                                            <span className="text-slate-400">-</span>
+                                            <input
+                                                type="number"
+                                                value={filters.rentalPriceRange[1]}
+                                                onChange={(e) =>
+                                                    updateFilter('rentalPriceRange', [filters.rentalPriceRange[0], Number(e.target.value)])
+                                                }
+                                                className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                                placeholder="Max €/mo"
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {[[0, 300], [300, 800], [800, 1500], [1500, 3000]].map(([min, max]) => (
+                                                <button
+                                                    key={`${min}-${max}`}
+                                                    onClick={() => updateFilter('rentalPriceRange', [min, max])}
+                                                    className="flex-1 py-2 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg"
+                                                >
+                                                    €{min}-€{max}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </FilterSection>
                             </div>
 

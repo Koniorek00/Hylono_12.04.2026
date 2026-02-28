@@ -4,33 +4,34 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
     "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "strict": false,
+    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "exclude": [
     "node_modules",
     "dist",
     "dist-ssr",
-
     /* ── Archive / Backup directories ─────────────────────────────────────── */
     /* These contain outdated code with broken imports. They are intentionally  */
     /* excluded from compilation — see .gitignore for matching entries.         */
@@ -38,7 +39,6 @@
     "protected-ui-backup-2026-02-16",
     "compressed-web",
     "sandbox",
-
     /* ── Unused / experimental components ──────────────────────────────────── */
     "components/_unused",
     "components/Hero45",
@@ -47,11 +47,19 @@
     "components/HeroGPT",
     "components/MegaMenu.backup.tsx",
     "components/TechDetail.backup.tsx",
-
-    /* ── Next.js artefact (wrong framework — this is a Vite project) ─────── */
-    "app/rental/checkout/page.tsx",
-
     /* ── Prisma RBAC helper — requires generated client (run `prisma generate`) ── */
-    "lib/rbac"
+    "lib/rbac",
+    /* ── E2E tests + playwright config — require @playwright/test which is not in devDependencies ── */
+    "e2e",
+    "playwright.config.ts",
+    /* ── Separate Next.js workspace (validated independently) ────────────── */
+    "control-panel"
+  ],
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/dev/types/**/*.ts"
   ]
 }

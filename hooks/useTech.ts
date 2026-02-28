@@ -28,7 +28,13 @@ export const useTech = () => {
             [TechType.HBOT]: 'HBOT',
             [TechType.PEMF]: 'PEMF',
             [TechType.RLT]: 'RLT',
-            [TechType.HYDROGEN]: 'HYDROGEN'
+            [TechType.HYDROGEN]: 'HYDROGEN',
+            [TechType.EWOT]: 'EWOT',
+            [TechType.SAUNA_BLANKET]: 'SAUNA_BLANKET',
+            [TechType.EMS]: 'EMS',
+            [TechType.VNS]: 'VNS',
+            [TechType.HYPOXIC]: 'HYPOXIC',
+            [TechType.CRYO]: 'CRYO',
         };
         return KNOWLEDGE_REGISTRY[keyMap[type]];
     };

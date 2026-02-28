@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import {
     Search,
     Command,
@@ -33,6 +34,7 @@ interface CommandItem {
 }
 
 export const CommandPalette: React.FC = () => {
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -127,7 +129,8 @@ export const CommandPalette: React.FC = () => {
         if (item.action) {
             item.action();
         } else if (item.href) {
-            window.location.href = item.href;
+            router.push(item.href);
+            window.scrollTo(0, 0);
         }
     };
 

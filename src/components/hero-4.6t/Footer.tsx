@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export const Footer: React.FC = () => {
     return (
@@ -28,9 +29,9 @@ export const Footer: React.FC = () => {
                             <ul className="space-y-2">
                                 {col.links.map(link => (
                                     <li key={link}>
-                                        <a href="#" className="text-[14px] text-white/70 hover:text-white transition-colors">
+                                        <Link href="#" className="text-[14px] text-white/70 hover:text-white transition-colors">
                                             {link}
-                                        </a>
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>
@@ -41,8 +42,8 @@ export const Footer: React.FC = () => {
                     <div className="col-span-1">
                         <h4 className="text-[13px] uppercase tracking-widest font-semibold text-white/50 mb-6">Connect</h4>
                         <div className="flex gap-4 mb-6">
-                            <a href="#" className="text-white/70 hover:text-white">LinkedIn</a>
-                            <a href="#" className="text-white/70 hover:text-white">Instagram</a>
+                            <Link href="#" className="text-white/70 hover:text-white">LinkedIn</Link>
+                            <Link href="#" className="text-white/70 hover:text-white">Instagram</Link>
                         </div>
                         <div className="relative">
                             <input
@@ -58,9 +59,9 @@ export const Footer: React.FC = () => {
                 <div className="border-t border-[#333333] pt-8 flex flex-col md:flex-row justify-between items-center text-[12px] text-white/30">
                     <p>© 2025 Hylono. All rights reserved.</p>
                     <div className="flex gap-6 mt-4 md:mt-0">
-                        <a href="#" className="hover:text-white/60">Privacy Policy</a>
-                        <a href="#" className="hover:text-white/60">Terms of Service</a>
-                        <a href="#" className="hover:text-white/60">Cookie Settings</a>
+                        <Link href="#" className="hover:text-white/60">Privacy Policy</Link>
+                        <Link href="#" className="hover:text-white/60">Terms of Service</Link>
+                        <Link href="#" className="hover:text-white/60">Cookie Settings</Link>
                     </div>
                 </div>
             </div>

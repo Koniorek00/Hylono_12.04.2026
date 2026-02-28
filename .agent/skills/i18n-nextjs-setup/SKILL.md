@@ -1,117 +1,47 @@
-# SKILL: i18n Setup — React/Vite
-**Used by**: i18n-specialist, frontend-specialist
-
----
+# SKILL: i18n Setup — Next.js 16 App Router
+**Used by**: i18n-specialist, frontend-specialist, seo-performance
 
 ## Priority Locales
-| Locale | Market | Status |
-|--------|--------|--------|
-| `en` | Default / English | Primary |
-| `de` | Germany, Austria, CH | Key EU |
-| `pl` | Poland (home market) | Priority |
-| `nl` | Netherlands | Expansion |
+- `en` (default)
+- `de` (key EU)
+- `pl` (home market)
+- `nl` (expansion)
 
-## Translation File Structure
-```
-/public/locales/
-  en/
-    common.json       # Navigation, buttons, shared UI
-    products.json     # Product names, descriptions
-    checkout.json     # Rental/purchase flow
-    legal.json        # Disclaimers, GDPR notices
-    errors.json       # Validation, API errors
-  de/
-    [same files]
-  pl/
-    [same files]
-  nl/
-    [same files]
-```
+## Principles
+- No hardcoded user-facing strings
+- Use translation keys (`namespace.section.element`)
+- Use ICU-style pluralization/messages
+- Use locale-aware `Intl` formatting for date/number/currency
+- Keep legal/medical text locale-specific when regulations differ
 
-## Key Naming Convention
-```
-namespace.section.element
-```
+## App Router Guidance
+- Localized routes should preserve canonical + hreflang integrity
+- Metadata should be generated per locale on server
+- Keep locale-specific sitemaps where required
+
+## Example Key Pattern
 ```json
-// products.json
 {
-  "hero": {
-    "headline": "Breathe Deeper. Recover Faster.",
-    "subheadline": "Mild Hyperbaric Oxygen Therapy for home use",
-    "cta_rent": "Experience It",
-    "cta_buy": "Purchase"
-  },
-  "safety": {
-    "disclaimer": "Not intended to diagnose, treat, cure, or prevent any disease.",
-    "consult": "Consult your healthcare provider before use."
+  "products": {
+    "hero": {
+      "headline": "...",
+      "cta_rent": "..."
+    }
   }
 }
 ```
 
-## ICU Message Format (plurals/variables)
-```json
-{
-  "rental_duration": "{days, plural, one {# day} other {# days}}",
-  "price_from": "From {price} / month",
-  "items_in_cart": "{count, plural, =0 {Empty cart} one {# item} other {# items}}"
-}
+## Formatting Pattern
+```ts
+new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(value)
 ```
 
-## React Implementation
-```tsx
-import { useTranslation } from 'react-i18next';
+## SEO Requirements
+- `hreflang` set for all supported locales
+- locale-appropriate canonical strategy
+- translated metadata (title/description/OG)
 
-export const ProductHero = () => {
-  const { t } = useTranslation('products');
-  
-  return (
-    <section>
-      <h1>{t('hero.headline')}</h1>
-      <p>{t('hero.subheadline')}</p>
-      <button>{t('hero.cta_rent')}</button>
-    </section>
-  );
-};
-```
-
-## Locale-Aware Formatting
-```tsx
-// ✅ Always use Intl — never manual formatting
-const formatPrice = (amount: number, locale: string) =>
-  new Intl.NumberFormat(locale, { 
-    style: 'currency', 
-    currency: 'EUR',
-    minimumFractionDigits: 0
-  }).format(amount / 100); // Store prices as cents
-
-const formatDate = (date: Date, locale: string) =>
-  new Intl.DateTimeFormat(locale, { 
-    dateStyle: 'long' 
-  }).format(date);
-
-// ❌ Never:
-const price = `€${(amount / 100).toFixed(2)}`; // Wrong for DE (comma decimal)
-```
-
-## hreflang Implementation
-```html
-<!-- In <head> for every page -->
-<link rel="alternate" hreflang="en" href="https://hylono.com/en/products/mhbot" />
-<link rel="alternate" hreflang="de" href="https://hylono.com/de/products/mhbot" />
-<link rel="alternate" hreflang="pl" href="https://hylono.com/pl/products/mhbot" />
-<link rel="alternate" hreflang="nl" href="https://hylono.com/nl/products/mhbot" />
-<link rel="alternate" hreflang="x-default" href="https://hylono.com/en/products/mhbot" />
-```
-
-## Medical/Legal Content Per Locale
-Some content differs beyond translation (different regulatory status per country):
-```json
-// Each locale can have locale-specific overrides
-{
-  "regulatory_status": {
-    "en": "For wellness use. Not a medical device.",
-    "de": "Zur Wellnessunterstützung. Kein Medizinprodukt.",
-    "pl": "Do użytku wellness. Nie jest wyrobem medycznym."
-  }
-}
-```
+## Anti-Patterns
+- String concatenation for translatable sentences
+- Manual currency/date formatting
+- Shipping untranslated fallback text in production

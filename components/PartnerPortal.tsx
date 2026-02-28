@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Building, Users, TrendingUp, Globe, CheckCircle, Handshake, DollarSign, Headphones, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 
 interface PartnerFormData {
     companyName: string;
@@ -83,7 +84,7 @@ export const PartnerPortal: React.FC = () => {
             //     body: JSON.stringify(formData),
             // });
             
-            console.log('Partner application submitted:', formData);
+            // TODO: connect to /api/partner/apply endpoint
             setSubmitStatus('success');
             setFormData(initialFormData);
             
@@ -176,12 +177,12 @@ export const PartnerPortal: React.FC = () => {
                         <p className="text-slate-600 text-sm mb-6">
                             Access your partner dashboard, place orders, and download resources.
                         </p>
-                        <a href="/partner/dashboard" className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2">
+                        <Link href="/partner/dashboard" className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2">
                             Launch Partner OS
-                        </a>
-                        <a href="/partner/studio" className="w-full mt-3 py-4 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 flex items-center justify-center gap-2">
+                        </Link>
+                        <Link href="/partner/studio" className="w-full mt-3 py-4 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 flex items-center justify-center gap-2">
                             <TrendingUp size={18} /> Access Marketing Studio
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="bg-cyan-50 rounded-2xl p-8">

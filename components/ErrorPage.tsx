@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import {
     Home, Mail, Phone, HelpCircle, ShoppingBag,
     ArrowLeft, RefreshCw, AlertTriangle, Hexagon,
@@ -17,11 +18,13 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({
     message,
     onNavigate
 }) => {
+    const router = useRouter();
     const navigate = (page: string) => {
         if (onNavigate) {
             onNavigate(page);
         } else {
-            window.location.href = page === 'home' ? '/' : `/${page}`;
+            router.push(page === 'home' ? '/' : `/${page}`);
+            window.scrollTo(0, 0);
         }
     };
 

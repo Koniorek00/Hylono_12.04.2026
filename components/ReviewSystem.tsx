@@ -54,7 +54,15 @@ export const ReviewCard: React.FC<{
 );
 
 // Reviews Section for Product Pages
-export const ReviewsSection: React.FC<{ productName?: string }> = ({ productName = 'Product' }) => {
+export const ReviewsSection: React.FC<{
+    productName?: string;
+    minReviewCount?: number;
+    belowThresholdMessage?: string;
+}> = ({
+    productName = 'Product',
+    minReviewCount = 0,
+    belowThresholdMessage,
+}) => {
     const reviews = [
         { name: 'Dr. Anna K.', rating: 5, date: 'January 2026', text: 'Exceptional quality hyperbaric chamber. Our clinic has seen remarkable results with patients. The build quality is outstanding and the pressure consistency is perfect.', verified: true, helpful: 24 },
         { name: 'Marcus W.', rating: 5, date: 'December 2025', text: 'After extensive research, I chose Hylono for my home HBOT setup. The customer support was incredible - they helped me through every step of installation.', verified: true, helpful: 18 },
@@ -62,6 +70,7 @@ export const ReviewsSection: React.FC<{ productName?: string }> = ({ productName
     ];
 
     const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    const showAggregateRating = reviews.length >= minReviewCount;
 
     return (
         <section className="py-16 bg-slate-50">
@@ -69,10 +78,19 @@ export const ReviewsSection: React.FC<{ productName?: string }> = ({ productName
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">Customer Reviews</h2>
-                        <div className="flex items-center gap-3">
-                            <StarRating rating={Math.round(avgRating)} size={20} />
-                            <span className="text-slate-600">{avgRating.toFixed(1)} out of 5 ({reviews.length} reviews)</span>
-                        </div>
+                        {showAggregateRating ? (
+                            <div className="flex items-center gap-3">
+                                <StarRating rating={Math.round(avgRating)} size={20} />
+                                <span className="text-slate-600">{avgRating.toFixed(1)} out of 5 ({reviews.length} reviews)</span>
+                            </div>
+                        ) : (
+                            <div className="space-y-1">
+                                <p className="text-slate-600 text-sm">{reviews.length} verified reviews published</p>
+                                {belowThresholdMessage && (
+                                    <p className="text-xs text-slate-500">{belowThresholdMessage}</p>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <button className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800">
                         Write a Review

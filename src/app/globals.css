@@ -1,0 +1,2 @@
+/* Import existing global styles (includes Tailwind v4 import) */
+@import "../../index.css";

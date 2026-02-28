@@ -6,6 +6,9 @@
  * to a real backend (Express server / Supabase Edge Function) before going to production.
  */
 
+import { z } from 'zod';
+import { readJsonBody, validationErrorResponse } from '../_shared/validation';
+
 export interface RentalItem {
     techId: string;
     quantity: number;
@@ -28,6 +31,18 @@ export interface RentalResponse {
     createdAt: string;
 }
 
+const createRentalPayloadSchema = z.object({
+    items: z.array(
+        z.object({
+            techId: z.string().trim().min(1, 'Missing or invalid required field: items'),
+            quantity: z.number().int().min(1, 'Missing or invalid required field: items'),
+            monthlyPrice: z.number().nonnegative('Missing or invalid required field: items'),
+        })
+    ).min(1, 'Missing or invalid required field: items'),
+    userId: z.string().trim().min(1, 'Missing required field: userId'),
+    termMonths: z.number().int().min(1).max(60).optional().default(12),
+}) satisfies z.ZodType<CreateRentalPayload>;
+
 /**
  * POST /api/rental
  * Creates a new rental agreement record.
@@ -36,22 +51,14 @@ export async function POST(request: Request): Promise<Response> {
     const headers = { 'Content-Type': 'application/json' };
 
     try {
-        const body: CreateRentalPayload = await request.json();
-        const { items, userId, termMonths = 12 } = body;
+        const rawBody = await readJsonBody(request);
+        const parsed = createRentalPayloadSchema.safeParse(rawBody);
 
-        // Input validation
-        if (!items || !Array.isArray(items) || items.length === 0) {
-            return new Response(
-                JSON.stringify({ error: 'Missing or invalid required field: items' }),
-                { status: 400, headers }
-            );
+        if (!parsed.success) {
+            return validationErrorResponse(parsed.error);
         }
-        if (!userId || typeof userId !== 'string') {
-            return new Response(
-                JSON.stringify({ error: 'Missing required field: userId' }),
-                { status: 400, headers }
-            );
-        }
+
+        const { items, userId, termMonths = 12 } = parsed.data;
 
         // TODO: Replace stub below with real DB call via Prisma:
         // const rental = await prisma.rental.create({ data: { userId, items, termMonths } });

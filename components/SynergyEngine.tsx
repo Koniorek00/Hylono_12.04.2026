@@ -12,7 +12,7 @@ interface SynergyEngineProps {
     onNavigate?: (page: string) => void;
 }
 
-const TECH_ICONS: Record<TechType, React.ReactNode> = {
+const TECH_ICONS: Partial<Record<TechType, React.ReactNode>> = {
     [TechType.HBOT]: <Wind size={24} />,
     [TechType.PEMF]: <Activity size={24} />,
     [TechType.RLT]: <Sun size={24} />,
@@ -21,7 +21,7 @@ const TECH_ICONS: Record<TechType, React.ReactNode> = {
 
 // Simple protocols based on what user owns
 const getProtocolsForTech = (tech: TechType) => {
-    const protocols: Record<TechType, { name: string; duration: string; when: string }[]> = {
+    const protocols: Partial<Record<TechType, { name: string; duration: string; when: string }[]>> = {
         [TechType.HBOT]: [
             { name: 'Morning Session', duration: '60 min', when: 'After waking, before breakfast' },
             { name: 'Recovery Session', duration: '45 min', when: 'Post-workout within 2 hours' }
@@ -39,7 +39,7 @@ const getProtocolsForTech = (tech: TechType) => {
             { name: 'Evening Wind-Down', duration: '20 min', when: 'After dinner' }
         ]
     };
-    return protocols[tech] || [];
+    return protocols[tech] ?? [];
 };
 
 export const SynergyEngine: React.FC<SynergyEngineProps> = ({ ownedTech, onNavigate }) => {

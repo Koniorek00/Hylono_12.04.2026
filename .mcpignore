@@ -1,0 +1,61 @@
+# === Build & Cache ===
+.next/
+out/
+.turbo/
+.vercel/
+dist/
+build/
+
+# === Dependencies ===
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+*.tsbuildinfo
+
+# === Version Control ===
+.git/
+
+# === IDE & Editor ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === Agent Internals (read via direct path, not scan) ===
+.agent/
+.agent/memory/
+.agent/context/
+
+# === Environment ===
+.env
+.env.*
+!.env.example
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Logs ===
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# === Test Coverage ===
+coverage/
+.nyc_output/
+
+# === Drizzle ===
+drizzle/meta/
+
+# === Sentry ===
+.sentryclirc
+
+# === Bundle Analysis ===
+.next/analyze/
+
+# === Temporary ===
+tmp/
+temp/
+*.tmp

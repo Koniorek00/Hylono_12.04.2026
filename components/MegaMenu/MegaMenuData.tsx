@@ -10,25 +10,175 @@ export type MenuContext =
     | 'BUILDER' | 'PROTOCOLS' | 'PARTNERS' | 'LOCATOR'
     | 'MISSION' | 'SCIENCE' | 'CAREERS' | 'CONTACT';
 
-export const SEARCH_DATABASE = [
-    { id: 1, title: 'HBOT Pro X Chamber', category: 'Products', desc: '1.3 ATA Precision Oxygen', type: 'hbot' },
-    { id: 2, title: 'Tesla Max PEMF', category: 'Products', desc: 'High-intensity pulsing', type: 'pemf' },
-    { id: 3, title: 'Horizon RLT Panel', category: 'Products', desc: 'Dual-sync photobiomodulation', type: 'rlt' },
-    { id: 4, title: 'Hydra Molecular H2', category: 'Products', desc: '99.9% Pure Hydrogen', type: 'hydrogen' },
-    { id: 5, title: 'Skin & Collagen Matrix', category: 'Protocols', desc: 'RLT Collagen Synthesis', type: 'protocol' },
-    { id: 6, title: 'The Longevity Stack', category: 'Protocols', desc: 'HBOT + RLT Synergy', type: 'protocol' },
-    { id: 7, title: 'Deep Sleep Reset', category: 'Protocols', desc: 'PEMF Entrainment', type: 'protocol' },
-    { id: 8, title: 'Mitochondrial Bio-Physics', category: 'Science', desc: 'ATP Synthesis Study', type: 'article' },
-    { id: 9, title: 'Partner ROI Guide', category: 'Resources', desc: 'Clinic Growth Metrics', type: 'guide' },
-    { id: 11, title: 'Protocol Codex', category: 'Tools', desc: '100+ Research Papers', type: 'protocols' },
-    { id: 12, title: 'Zone Builder', category: 'Tools', desc: '3D Space Planning', type: 'builder' },
-] as const;
+export interface SearchDatabaseItem {
+    id: number;
+    title: string;
+    category: string;
+    desc: string;
+    type: string;
+    /** Keywords and synonyms for smart search matching */
+    keywords?: string[];
+    /** Related terms that should match this item */
+    relatedTerms?: string[];
+}
+
+export const SEARCH_DATABASE: SearchDatabaseItem[] = [
+    { 
+        id: 1, 
+        title: 'HBOT Pro X Chamber', 
+        category: 'Products', 
+        desc: '1.3 ATA Precision Oxygen', 
+        type: 'hbot',
+        keywords: ['hbot', 'hyperbaric', 'oxygen', 'chamber', 'pressure', 'ata', 'soft chamber', 'mild hbot', 'oxygen therapy', 'wellness chamber'],
+        relatedTerms: ['oxyhelp', 'oxylife', 'regeneration', 'recovery', 'athletic', 'anti-aging', 'longevity', 'wound healing', 'inflammation']
+    },
+    { 
+        id: 2, 
+        title: 'Tesla Max PEMF', 
+        category: 'Products', 
+        desc: 'High-intensity pulsing', 
+        type: 'pemf',
+        keywords: ['pemf', 'pulsed electromagnetic', 'magnetic', 'tesla', 'field', 'frequency', 'pemf mat', 'pemf device', 'electromagnetic therapy'],
+        relatedTerms: ['pain relief', 'sleep', 'recovery', 'circulation', 'energy', 'brainwave', 'delta', 'alpha', 'grounding', 'earthing']
+    },
+    { 
+        id: 3, 
+        title: 'Horizon RLT Panel', 
+        category: 'Products', 
+        desc: 'Dual-sync photobiomodulation', 
+        type: 'rlt',
+        keywords: ['rlt', 'red light', 'near infrared', 'nir', 'photobiomodulation', 'pbm', 'light therapy', 'led panel', 'red light therapy', '660nm', '850nm'],
+        relatedTerms: ['skin', 'collagen', 'anti-aging', 'wrinkles', 'acne', 'wound healing', 'muscle recovery', 'inflammation', 'mitochondria', 'atp']
+    },
+    { 
+        id: 4, 
+        title: 'Hydra Molecular H2', 
+        category: 'Products', 
+        desc: '99.9% Pure Hydrogen', 
+        type: 'hydrogen',
+        keywords: ['hydrogen', 'h2', 'molecular hydrogen', 'hydrogen water', 'hydrogen inhalation', 'hydrogen generator', 'brown gas', 'hhO'],
+        relatedTerms: ['antioxidant', 'oxidative stress', 'ros', 'free radicals', 'recovery', 'inflammation', 'athletic performance', 'anti-aging']
+    },
+    { 
+        id: 5, 
+        title: 'Skin & Collagen Matrix', 
+        category: 'Protocols', 
+        desc: 'RLT Collagen Synthesis', 
+        type: 'protocol',
+        keywords: ['skin', 'collagen', 'face', 'anti-aging', 'wrinkles', 'dermal', 'fibroblast', 'rlt', 'red light', 'beauty', 'aesthetic'],
+        relatedTerms: ['youthful', 'elasticity', 'complexion', 'rejuvenation', 'photobiomodulation']
+    },
+    { 
+        id: 6, 
+        title: 'The Longevity Stack', 
+        category: 'Protocols', 
+        desc: 'HBOT + RLT Synergy', 
+        type: 'protocol',
+        keywords: ['longevity', 'stack', 'hbot', 'rlt', 'synergy', 'combined', 'anti-aging', 'lifespan', 'healthspan', 'biohacking'],
+        relatedTerms: ['cellular', 'regeneration', 'mitochondria', 'telomere', 'oxidative', 'stress resistance']
+    },
+    { 
+        id: 7, 
+        title: 'Deep Sleep Reset', 
+        category: 'Protocols', 
+        desc: 'PEMF Entrainment', 
+        type: 'protocol',
+        keywords: ['sleep', 'deep sleep', 'delta', 'brainwave', 'pemf', 'entrainment', 'insomnia', 'rest', 'circadian', 'night'],
+        relatedTerms: ['relaxation', 'melatonin', 'recovery', 'rem', 'sleep quality']
+    },
+    { 
+        id: 8, 
+        title: 'Mitochondrial Bio-Physics', 
+        category: 'Science', 
+        desc: 'ATP Synthesis Study', 
+        type: 'article',
+        keywords: ['mitochondria', 'atp', 'energy', 'cellular', 'biology', 'physics', 'science', 'research', 'metabolism', 'bioenergetics'],
+        relatedTerms: ['oxidative phosphorylation', 'krebs cycle', 'cellular energy', 'mitochondrial function']
+    },
+    { 
+        id: 9, 
+        title: 'Partner ROI Guide', 
+        category: 'Resources', 
+        desc: 'Clinic Growth Metrics', 
+        type: 'guide',
+        keywords: ['roi', 'partner', 'clinic', 'business', 'growth', 'revenue', 'investment', 'profit', 'metrics', 'b2b'],
+        relatedTerms: ['wholesale', 'enterprise', 'clinic setup', 'practice growth']
+    },
+    { 
+        id: 11, 
+        title: 'Protocol Codex', 
+        category: 'Tools', 
+        desc: '100+ Research Papers', 
+        type: 'protocols',
+        keywords: ['protocol', 'codex', 'research', 'papers', 'library', 'guide', 'bio-stacks', 'combinations', 'therapy protocols'],
+        relatedTerms: ['evidence-based', 'clinical', 'treatment', 'regimens', 'safety']
+    },
+    { 
+        id: 12, 
+        title: 'Wellness Planner', 
+        category: 'Tools', 
+        desc: 'Build Your Stack', 
+        type: 'builder',
+        keywords: ['wellness', 'planner', 'stack', 'builder', 'configuration', 'setup', 'goal', 'budget', 'protocol', 'recommendation'],
+        relatedTerms: ['stack builder', 'goal planning', 'protocol matching', 'technology recommendation']
+    },
+];
+
+/**
+ * Smart search keywords map - maps user queries to product types
+ * Used for intelligent matching of related terms
+ */
+export const SEARCH_SYNONYMS: Record<string, string[]> = {
+    // Oxygen/HBOT synonyms
+    'oxygen': ['hbot', 'hyperbaric', 'chamber', 'oxyhelp', 'oxylife'],
+    'hyperbaric': ['hbot', 'oxygen', 'chamber', 'pressure'],
+    'hyper': ['hyperbaric', 'hbot', 'oxygen'],
+    'hbot': ['hyperbaric', 'oxygen', 'chamber'],
+    'chamber': ['hbot', 'hyperbaric', 'oxygen'],
+    'pressure': ['hbot', 'hyperbaric', 'chamber'],
+    
+    // Light/RLT synonyms
+    'light': ['rlt', 'red light', 'photobiomodulation', 'led', 'nir', 'near infrared'],
+    'red': ['rlt', 'red light', 'photobiomodulation'],
+    'infrared': ['rlt', 'nir', 'near infrared', 'photobiomodulation'],
+    'photobiomodulation': ['rlt', 'red light', 'light therapy', 'pbm'],
+    'collagen': ['rlt', 'red light', 'skin', 'anti-aging'],
+    
+    // PEMF synonyms
+    'magnetic': ['pemf', 'electromagnetic', 'tesla', 'field'],
+    'pemf': ['magnetic', 'electromagnetic', 'frequency', 'pulsed'],
+    'frequency': ['pemf', 'brainwave', 'entrainment'],
+    'brainwave': ['pemf', 'sleep', 'delta', 'alpha'],
+    
+    // Hydrogen synonyms
+    'hydrogen': ['h2', 'molecular hydrogen', 'hydrogen water', 'antioxidant'],
+    'h2': ['hydrogen', 'molecular hydrogen', 'antioxidant'],
+    'antioxidant': ['hydrogen', 'h2', 'oxidative stress'],
+    
+    // General wellness synonyms
+    'recovery': ['hbot', 'rlt', 'pemf', 'hydrogen'],
+    'sleep': ['pemf', 'brainwave', 'delta'],
+    'aging': ['rlt', 'hbot', 'collagen', 'longevity'],
+    'longevity': ['hbot', 'rlt', 'anti-aging', 'stack'],
+    'wellness': ['hbot', 'rlt', 'pemf', 'hydrogen'],
+    'therapy': ['hbot', 'rlt', 'pemf', 'hydrogen'],
+    'treatment': ['hbot', 'rlt', 'pemf', 'protocol'],
+    'energy': ['pemf', 'mitochondria', 'atp', 'rlt'],
+    'mitochondria': ['rlt', 'atp', 'energy', 'cellular'],
+    'atp': ['mitochondria', 'energy', 'rlt', 'cellular'],
+    'inflammation': ['hbot', 'rlt', 'hydrogen', 'recovery'],
+    'skin': ['rlt', 'collagen', 'red light', 'beauty'],
+    'athletic': ['hbot', 'hydrogen', 'recovery', 'pemf'],
+    'pain': ['pemf', 'magnetic', 'recovery'],
+    'stress': ['hydrogen', 'pemf', 'sleep'],
+};
 
 export const TECH_COLOR_MAP: Record<string, any> = {
     'text-cyan-400': {
         activeBg: 'rgba(6,182,212,0.1)', activeBorder: 'rgba(6,182,212,0.4)', activeShadow: '0 0 30px rgba(0,0,0,0.3)',
         iconActiveBg: '#06b6d4', iconActiveShadow: '0 0 20px rgba(255,255,255,0.4)',
-        iconDefaultBg: 'rgba(255,255,255,0.05)', iconDefaultText: '#22d3ee',
+        iconDefaultBg: 'rgba(34,211,238,0.2)', iconDefaultText: '#22d3ee',
+        iconHoverShadow: '0 0 15px rgba(34,211,238,0.5)',
         subtitleActive: '#22d3ee', subtitleDefault: 'rgba(34,211,238,0.7)',
         barActive: '#22d3ee',
         arrowActive: '#22d3ee',
@@ -37,7 +187,8 @@ export const TECH_COLOR_MAP: Record<string, any> = {
     'text-purple-400': {
         activeBg: 'rgba(168,85,247,0.1)', activeBorder: 'rgba(168,85,247,0.4)', activeShadow: '0 0 30px rgba(0,0,0,0.3)',
         iconActiveBg: '#a855f7', iconActiveShadow: '0 0 20px rgba(255,255,255,0.4)',
-        iconDefaultBg: 'rgba(255,255,255,0.05)', iconDefaultText: '#c084fc',
+        iconDefaultBg: 'rgba(192,132,252,0.2)', iconDefaultText: '#c084fc',
+        iconHoverShadow: '0 0 15px rgba(192,132,252,0.5)',
         subtitleActive: '#c084fc', subtitleDefault: 'rgba(192,132,252,0.7)',
         barActive: '#c084fc',
         arrowActive: '#c084fc',
@@ -46,7 +197,8 @@ export const TECH_COLOR_MAP: Record<string, any> = {
     'text-red-400': {
         activeBg: 'rgba(248,113,113,0.1)', activeBorder: 'rgba(248,113,113,0.4)', activeShadow: '0 0 30px rgba(0,0,0,0.3)',
         iconActiveBg: '#f87171', iconActiveShadow: '0 0 20px rgba(255,255,255,0.4)',
-        iconDefaultBg: 'rgba(255,255,255,0.05)', iconDefaultText: '#f87171',
+        iconDefaultBg: 'rgba(248,113,113,0.2)', iconDefaultText: '#f87171',
+        iconHoverShadow: '0 0 15px rgba(248,113,113,0.5)',
         subtitleActive: '#f87171', subtitleDefault: 'rgba(248,113,113,0.7)',
         barActive: '#f87171',
         arrowActive: '#f87171',
@@ -55,7 +207,8 @@ export const TECH_COLOR_MAP: Record<string, any> = {
     'text-sky-400': {
         activeBg: 'rgba(56,189,248,0.1)', activeBorder: 'rgba(56,189,248,0.4)', activeShadow: '0 0 30px rgba(0,0,0,0.3)',
         iconActiveBg: '#38bdf8', iconActiveShadow: '0 0 20px rgba(255,255,255,0.4)',
-        iconDefaultBg: 'rgba(255,255,255,0.05)', iconDefaultText: '#38bdf8',
+        iconDefaultBg: 'rgba(56,189,248,0.2)', iconDefaultText: '#38bdf8',
+        iconHoverShadow: '0 0 15px rgba(56,189,248,0.5)',
         subtitleActive: '#38bdf8', subtitleDefault: 'rgba(56,189,248,0.7)',
         barActive: '#38bdf8',
         arrowActive: '#38bdf8',
@@ -162,15 +315,15 @@ export const CONTEXT_CONFIG_STORE: Record<MenuContext, any> = {
         relatedTools: ['BUILDER'],
         featured: {
             type: 'preview',
-            title: "Spatial\nIntelligence",
-            desc: "Our interactive 3D builder uses spatial AI to optimize device placement for maximum clinical flow and space efficiency.",
-            badge: "Design Studio",
+            title: "Wellness\nPlanner",
+            desc: "Answer a few questions and we'll match you with the right technologies and protocols for your goals.",
+            badge: "Stack Builder",
             badgeColor: "text-slate-100",
-            action: "Start Building",
+            action: "Start Planning",
             icon: CONTEXT_ICONS.box,
-            points: ["Real-time 3D Rendering", "Smart Layout Suggestions", "Equipment Conflict Check"],
+            points: ["Goal-Based Recommendations", "Budget Optimization", "Protocol Synergies"],
         },
-        trendingTags: ["3D Visualization", "Space Optimization", "Equipment Sync"],
+        trendingTags: ["Stack Builder", "Goal Planning", "Protocol Matching"],
     },
     PROTOCOLS: {
         accent: 'text-emerald-400',

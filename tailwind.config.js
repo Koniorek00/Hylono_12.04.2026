@@ -7,60 +7,52 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                'outfit': ['Outfit', 'sans-serif'],
+                'sans': ['Outfit', 'system-ui', 'sans-serif'],
+                'heading': ['Syncopate', 'sans-serif'],
                 'syncopate': ['Syncopate', 'sans-serif'],
+                'outfit': ['Outfit', 'sans-serif'],
+                'body': ['Outfit', 'sans-serif'],
+                'description': ['Outfit', 'sans-serif'],
+            },
+            fontSize: {
+                'description': ['1.0625rem', { lineHeight: '1.7' }],
+                'description-lg': ['1.125rem', { lineHeight: '1.7' }],
             },
             colors: {
-                // Accessible color palette with WCAG 2.1 Level AA compliant contrast ratios
-                // These colors are designed to meet minimum contrast requirements
-                
-                // Primary text colors (minimum 4.5:1 contrast on white)
                 'text-primary': {
-                    DEFAULT: '#1e293b', // slate-800 - 10.7:1 contrast
-                    light: '#334155',   // slate-700 - 7.5:1 contrast
-                    dark: '#0f172a',    // slate-900 - 15.1:1 contrast
+                    DEFAULT: '#1e293b',
+                    light: '#334155',
+                    dark: '#0f172a',
                 },
-                
-                // Secondary text colors (minimum 4.5:1 contrast on white)
                 'text-secondary': {
-                    DEFAULT: '#475569', // slate-600 - 5.7:1 contrast (meets AA)
-                    light: '#64748b',   // slate-500 - 4.6:1 contrast (meets AA)
+                    DEFAULT: '#475569',
+                    light: '#64748b',
                 },
-                
-                // Muted text - use only for non-critical content
                 'text-muted': {
-                    DEFAULT: '#64748b', // slate-500 - 4.6:1 contrast (meets AA for large text)
+                    DEFAULT: '#64748b',
                 },
-                
-                // Accessible accent colors
                 'accent': {
                     cyan: {
-                        DEFAULT: '#0891b2', // cyan-600 - 4.5:1 contrast on white
-                        dark: '#0e7490',    // cyan-700 - 5.9:1 contrast on white
-                        light: '#06b6d4',   // cyan-500 - 3.5:1 contrast (large text only)
+                        DEFAULT: '#0891b2',
+                        dark: '#0e7490',
+                        light: '#06b6d4',
                     },
                     teal: {
-                        DEFAULT: '#0d9488', // teal-600 - 4.5:1 contrast on white
-                        dark: '#115e59',    // teal-700 - 6.3:1 contrast on white
+                        DEFAULT: '#0d9488',
+                        dark: '#115e59',
                     },
                 },
-                
-                // Focus ring colors for accessibility
                 'focus': {
-                    ring: '#0891b2',      // cyan-600 - visible focus indicator
-                    ringOffset: '#ffffff', // white offset for visibility
+                    ring: '#0891b2',
+                    ringOffset: '#ffffff',
                 },
-                
-                // Error/success colors with good contrast
                 'semantic': {
-                    error: '#dc2626',     // red-600 - 5.1:1 contrast
-                    success: '#16a34a',   // green-600 - 4.8:1 contrast
-                    warning: '#ca8a04',   // yellow-600 - 4.5:1 contrast
-                    info: '#2563eb',      // blue-600 - 5.3:1 contrast
+                    error: '#dc2626',
+                    success: '#16a34a',
+                    warning: '#ca8a04',
+                    info: '#2563eb',
                 },
             },
-            
-            // Focus ring utilities for accessibility
             ringWidth: {
                 'focus': '2px',
                 'focus-visible': '2px',
@@ -68,27 +60,24 @@ export default {
             ringOffsetWidth: {
                 'focus': '2px',
             },
-            
-            // Custom utilities for accessibility
             typography: {
-                // Ensure prose text meets contrast requirements
                 DEFAULT: {
                     css: {
-                        color: '#334155', // slate-700 - 7.5:1 contrast
+                        color: '#334155',
                         'h1, h2, h3, h4, h5, h6': {
-                            color: '#0f172a', // slate-900 - 15.1:1 contrast
+                            color: '#0f172a',
                         },
-                        'a': {
-                            color: '#0891b2', // cyan-600
-                            '&:hover': {
-                                color: '#0e7490', // cyan-700
+                        'a':{
+                            color: '#0891b2',
+                            '&:hover':{
+                                color: '#0e7490',
                             },
                         },
-                        'code': {
-                            color: '#be185d', // pink-700 - good contrast
+                        'code':{
+                            color: '#be185d',
                         },
-                        'blockquote': {
-                            color: '#475569', // slate-600
+                        'blockquote':{
+                            color: '#475569',
                         },
                     },
                 },
@@ -96,37 +85,31 @@ export default {
         },
     },
     plugins: [
-        // Add focus-visible utility classes
         function({ addUtilities, addComponents, theme }) {
-            // Focus visible utilities for keyboard navigation
             addUtilities({
                 '.focus-visible-ring': {
                     'outline': 'none',
-                    'ring': `2px solid ${theme('colors.focus.ring')}`,
-                    'ring-offset': `2px solid ${theme('colors.focus.ringOffset')}`,
+                    'ring': '2px solid ' + theme('colors.focus.ring'),
+                    'ring-offset': '2px solid ' + theme('colors.focus.ringOffset'),
                 },
                 '.focus-visible-outline': {
-                    'outline': `2px solid ${theme('colors.focus.ring')}`,
+                    'outline': '2px solid ' + theme('colors.focus.ring'),
                     'outline-offset': '2px',
                 },
             });
-            
-            // Accessible button component
             addComponents({
                 '.btn-accessible': {
-                    'min-height': '44px', // Minimum touch target size
+                    'min-height': '44px',
                     'min-width': '44px',
                     'padding': '0.75rem 1.5rem',
                     'font-weight': '500',
                     'transition': 'all 0.15s ease-in-out',
                     '&:focus-visible': {
-                        'outline': `2px solid ${theme('colors.focus.ring')}`,
+                        'outline': '2px solid ' + theme('colors.focus.ring'),
                         'outline-offset': '2px',
                     },
                 },
             });
-            
-            // Skip link utility
             addUtilities({
                 '.skip-link': {
                     'position': 'absolute',

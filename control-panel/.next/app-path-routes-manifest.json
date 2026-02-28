@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/commands/page": "/admin/commands",
+  "/admin/deploy/page": "/admin/deploy",
+  "/admin/help/page": "/admin/help",
+  "/admin/page": "/admin",
+  "/admin/quickstart/page": "/admin/quickstart",
+  "/admin/stack/page": "/admin/stack",
+  "/page": "/"
+}

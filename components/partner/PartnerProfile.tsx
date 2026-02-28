@@ -126,7 +126,7 @@ export const PartnerProfile: React.FC = () => {
                 ].map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id as 'skills' | 'certs' | 'path' | 'notes')}
                         className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px
                             ${activeTab === tab.id
                                 ? 'text-cyan-600 border-cyan-500'

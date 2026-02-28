@@ -1,0 +1,52 @@
+export const synonymGroups: string[][] = [
+  [
+    'oxygen chamber',
+    'hyperbaric chamber',
+    'mhbot',
+    'hbot',
+    'hyperbaric oxygen therapy',
+    'mild hyperbaric',
+    'pressure chamber',
+  ],
+  [
+    'red light',
+    'rlt',
+    'red light therapy',
+    'photobiomodulation',
+    'pbm',
+    'nir',
+    'near infrared',
+    'light therapy',
+    'red light panel',
+    'light panel',
+  ],
+  [
+    'hydrogen generator',
+    'hydrogen inhalation',
+    'hydrogen water',
+    'h2 therapy',
+    'hydrogen therapy',
+    'brown gas',
+    'hho',
+    'hydrogen inhaler',
+    'h2 generator',
+    'hydrogen',
+  ],
+  [
+    'magnetic therapy',
+    'pemf',
+    'pulsed electromagnetic',
+    'pulsed magnetic field',
+    'electromagnetic field therapy',
+  ],
+  ['vagus nerve stimulation', 'vns', 'vagal stimulation', 'neuromodulation'],
+  ['oxygen concentrator', 'oxygen', 'o2 concentrator'],
+];
+
+export const goalSearchTerms: Record<string, string[]> = {
+  recovery: ['recovery', 'regeneration', 'post-workout', 'sport', 'muscles', 'athletic'],
+  sleep: ['sleep', 'insomnia', 'rest', 'relaxation'],
+  stress: ['stress', 'tension', 'anxiety', 'calm', 'relaxation'],
+  comfort: ['comfort', 'anti-aging', 'rejuvenation', 'skin', 'renewal'],
+  vitality: ['vitality', 'energy', 'strength', 'health', 'wellness'],
+};

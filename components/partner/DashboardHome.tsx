@@ -1,317 +1,350 @@
 import React from 'react';
+import Link from 'next/link';
 import { PartnerLayout } from './PartnerLayout';
 import {
-    TrendingUp,
-    Zap,
-    AlertCircle,
-    ArrowRight,
     Users,
-    Palette,
     Wrench,
-    Brain,
-    ShoppingBag,
-    GraduationCap,
+    FileText,
+    Calendar,
+    ArrowRight,
+    AlertTriangle,
+    Activity,
+    Palette,
+    Plus,
     LucideIcon,
-    Flame,
-    Target,
-    Trophy,
-    Calendar
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { MorningBriefing } from './MorningBriefing';
-import { ClinicPulse } from './ClinicPulse';
-import { GrowthCatalyst } from './GrowthCatalyst';
-import { EducationSender } from './EducationSender';
-import { Leaderboard } from './Leaderboard';
 
-// Quick Action Component
+// ─────────────────────────────────────────────────────────
+// TYPES
+// ─────────────────────────────────────────────────────────
+
+interface KpiCardProps {
+    label: string;
+    value: string | number;
+    sub: string;
+    icon: LucideIcon;
+    accent: string;          // Tailwind bg class for icon bg
+    iconColor: string;       // Tailwind text class for icon
+    alert?: boolean;
+}
+
 interface QuickActionProps {
     icon: LucideIcon;
     label: string;
     description: string;
     href: string;
-    color: string;
+    iconBg: string;
+    iconColor: string;
 }
 
-const QuickAction: React.FC<QuickActionProps> = ({ icon: Icon, label, description, href, color }) => (
-    <a
+interface ActivityItem {
+    id: string;
+    type: 'client' | 'service' | 'document' | 'appointment';
+    text: string;
+    time: string;
+}
+
+interface DeviceRow {
+    id: string;
+    name: string;
+    serial: string;
+    status: 'online' | 'maintenance' | 'offline';
+    nextService: string;
+}
+
+// ─────────────────────────────────────────────────────────
+// STATIC DATA (replace with API when available)
+// ─────────────────────────────────────────────────────────
+
+const RECENT_ACTIVITY: ActivityItem[] = [
+    { id: 'a1', type: 'client',      text: 'New client registered — Maria K.',                 time: '2h ago' },
+    { id: 'a2', type: 'service',     text: 'Service log added for Pinnacle 360 (SN-8821)',      time: '5h ago' },
+    { id: 'a3', type: 'document',    text: 'Informed consent signed — James W.',                time: 'Yesterday' },
+    { id: 'a4', type: 'appointment', text: 'Session completed — Sarah C. (HBOT Protocol A)',   time: 'Yesterday' },
+    { id: 'a5', type: 'client',      text: 'Client notes updated — Robert P.',                  time: '2 days ago' },
+];
+
+const FLEET_ROWS: DeviceRow[] = [
+    { id: 'd1', name: 'Pinnacle 360 Hard Shell', serial: 'SN-8821-HB',  status: 'online',      nextService: '01 Mar 2026' },
+    { id: 'd2', name: 'Aurora Pro Panel',        serial: 'RLT-99X-02',  status: 'online',      nextService: '15 Jun 2026' },
+    { id: 'd3', name: 'Core PEMF Mat',           serial: 'PEMF-PRO-55', status: 'maintenance', nextService: 'OVERDUE' },
+];
+
+const QUICK_ACTIONS: QuickActionProps[] = [
+    {
+        icon: Users,
+        label: 'Add Client',
+        description: 'Register a new client in Nexus',
+        href: '/partner/nexus',
+        iconBg: 'bg-cyan-50',
+        iconColor: 'text-cyan-600',
+    },
+    {
+        icon: FileText,
+        label: 'New Document',
+        description: 'Consent form or waiver',
+        href: '/partner/docs',
+        iconBg: 'bg-indigo-50',
+        iconColor: 'text-indigo-600',
+    },
+    {
+        icon: Palette,
+        label: 'Create Campaign',
+        description: 'Open marketing studio',
+        href: '/partner/studio',
+        iconBg: 'bg-purple-50',
+        iconColor: 'text-purple-600',
+    },
+];
+
+// ─────────────────────────────────────────────────────────
+// SUB-COMPONENTS
+// ─────────────────────────────────────────────────────────
+
+const KpiCard: React.FC<KpiCardProps> = ({
+    label, value, sub, icon: Icon, accent, iconColor, alert,
+}) => (
+    <div className={`bg-white rounded-xl border ${alert ? 'border-amber-200' : 'border-slate-100'} shadow-sm p-5 flex items-start gap-4`}>
+        <div className={`w-10 h-10 rounded-lg ${accent} flex items-center justify-center shrink-0`}>
+            <Icon className={`w-5 h-5 ${iconColor}`} />
+        </div>
+        <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
+            <p className="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{value}</p>
+            <p className={`text-xs mt-1 ${alert ? 'text-amber-600 font-semibold' : 'text-slate-400'}`}>{sub}</p>
+        </div>
+    </div>
+);
+
+const QuickAction: React.FC<QuickActionProps> = ({
+    icon: Icon, label, description, href, iconBg, iconColor,
+}) => (
+    <Link
         href={href}
-        className="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md hover:border-cyan-200 transition-all group flex items-center gap-4"
+        className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex items-center gap-4 hover:border-cyan-200 hover:shadow-md transition-all group"
     >
-        <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center shrink-0`}>
-            <Icon className="w-6 h-6" />
+        <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
+            <Icon className={`w-5 h-5 ${iconColor}`} />
         </div>
         <div className="flex-1 min-w-0">
-            <h4 className="font-bold text-slate-900 group-hover:text-cyan-700 transition-colors">{label}</h4>
-            <p className="text-xs text-slate-500 truncate">{description}</p>
+            <p className="text-sm font-semibold text-slate-900 group-hover:text-cyan-700 transition-colors">{label}</p>
+            <p className="text-xs text-slate-400 truncate">{description}</p>
         </div>
-        <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-cyan-500 group-hover:translate-x-1 transition-all shrink-0" />
-    </a>
+        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+    </Link>
 );
 
-const WidgetCard: React.FC<{ title: string; children: React.ReactNode; className?: string }> = ({ title, children, className }) => (
-    <div className={`bg-white rounded-xl shadow-sm border border-slate-100 p-6 ${className}`}>
-        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">{title}</h3>
-        {children}
-    </div>
-);
+const activityIcon = (type: ActivityItem['type']) => {
+    switch (type) {
+        case 'client':      return <Users className="w-3.5 h-3.5 text-cyan-500" />;
+        case 'service':     return <Wrench className="w-3.5 h-3.5 text-amber-500" />;
+        case 'document':    return <FileText className="w-3.5 h-3.5 text-indigo-500" />;
+        case 'appointment': return <Calendar className="w-3.5 h-3.5 text-emerald-500" />;
+    }
+};
 
-const StatPill: React.FC<{ label: string; value: string; trend?: string; positive?: boolean }> = ({ label, value, trend, positive }) => (
-    <div className="flex flex-col">
-        <span className="text-xs text-slate-400 mb-1">{label}</span>
-        <div className="flex items-end gap-2">
-            <span className="text-2xl font-bold text-slate-800">{value}</span>
-            {trend && (
-                <span className={`text-xs font-bold mb-1 ${positive ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {positive ? '+' : ''}{trend}
-                </span>
-            )}
-        </div>
-    </div>
-);
+const DeviceStatusBadge: React.FC<{ status: DeviceRow['status'] }> = ({ status }) => {
+    if (status === 'online') {
+        return (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Online
+            </span>
+        );
+    }
+    if (status === 'maintenance') {
+        return (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase">
+                <Wrench className="w-3 h-3" />
+                Service
+            </span>
+        );
+    }
+    return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase">
+            Offline
+        </span>
+    );
+};
+
+// ─────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────
 
 export const DashboardHome: React.FC = () => {
+    const today = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
+
     return (
-        <PartnerLayout title="Dashboard">
+        <PartnerLayout title="Overview">
 
-            <MorningBriefing />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div className="lg:col-span-2">
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Quick Actions</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <QuickAction
-                            icon={Users}
-                            label="Add New Patient"
-                            description="Register a new client in Nexus"
-                            href="/partner/nexus"
-                            color="bg-cyan-50 text-cyan-600"
-                        />
-                        <QuickAction
-                            icon={Palette}
-                            label="Create Campaign"
-                            description="Design marketing materials"
-                            href="/partner/studio"
-                            color="bg-purple-50 text-purple-600"
-                        />
-                        <QuickAction
-                            icon={Wrench}
-                            label="Log Service"
-                            description="Record device maintenance"
-                            href="/partner/fleet"
-                            color="bg-amber-50 text-amber-600"
-                        />
-                        <QuickAction
-                            icon={Brain}
-                            label="Prescribe Protocol"
-                            description="Create treatment pathway"
-                            href="/partner/protocols"
-                            color="bg-indigo-50 text-indigo-600"
-                        />
-                    </div>
+            {/* Page header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                <div>
+                    <h1 className="text-xl font-bold text-slate-900">Overview</h1>
+                    <p className="text-sm text-slate-400 mt-0.5">{today}</p>
                 </div>
-
-                <div className="h-full">
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Live Status</h3>
-                    <ClinicPulse />
-                </div>
+                <Link
+                    href="/partner/nexus"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+                >
+                    <Plus className="w-4 h-4" />
+                    Add Client
+                </Link>
             </div>
 
-            {/* Business Growth Engine */}
-            <div className="mb-12">
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-500" /> Growth & Education Engine
-                </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <GrowthCatalyst />
-                    <EducationSender />
-                </div>
-            </div>
-
-            {/* Smart Nudges Row */}
-            <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* ── KPI Cards ─────────────────────────────────────────── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0 }}
+                >
+                    <KpiCard
+                        label="Active Clients"
+                        value={88}
+                        sub="12 at-risk — review needed"
+                        icon={Users}
+                        accent="bg-cyan-50"
+                        iconColor="text-cyan-600"
+                    />
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                >
+                    <KpiCard
+                        label="Fleet Health"
+                        value="2 / 3"
+                        sub="1 unit needs service"
+                        icon={Activity}
+                        accent="bg-amber-50"
+                        iconColor="text-amber-600"
+                        alert
+                    />
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="lg:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-6 text-white flex items-center justify-between shadow-lg shadow-slate-900/10"
                 >
-                    <div>
-                        <div className="flex items-center gap-2 mb-2 text-cyan-400 font-medium">
-                            <Zap className="w-4 h-4" /> Smart Insight
-                        </div>
-                        <h2 className="text-xl font-bold mb-1">Your HBOT usage is up 24% this week.</h2>
-                        <p className="text-slate-400 text-sm">You are on track to verify "Platinum Partner" status by Feb 1st.</p>
-                    </div>
-                    <button className="px-5 py-2.5 bg-white text-slate-900 rounded-lg text-sm font-bold hover:bg-cyan-50 transition-colors">
-                        View Analytics
-                    </button>
+                    <KpiCard
+                        label="Pending Documents"
+                        value={4}
+                        sub="Consent forms awaiting signature"
+                        icon={FileText}
+                        accent="bg-indigo-50"
+                        iconColor="text-indigo-600"
+                    />
                 </motion.div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-amber-50 border border-amber-100 rounded-xl p-6 text-amber-900 flex flex-col justify-between"
+                    transition={{ delay: 0.15 }}
                 >
-                    <div className="flex items-center gap-2 font-bold mb-2">
-                        <AlertCircle className="w-5 h-5" /> Action Required
-                    </div>
-                    <p className="text-sm mb-4">Warranty check due for <span className="font-mono bg-amber-100 px-1 rounded">SN-8821</span> (Pinnacle 360).</p>
-                    <button className="text-xs font-bold uppercase tracking-wider text-amber-700 hover:text-amber-900 text-left">
-                        Start Diagnostics &rarr;
-                    </button>
+                    <KpiCard
+                        label="Sessions This Week"
+                        value={14}
+                        sub="Next: Today, 14:00"
+                        icon={Calendar}
+                        accent="bg-emerald-50"
+                        iconColor="text-emerald-600"
+                    />
                 </motion.div>
             </div>
 
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <WidgetCard title="Revenue Pulse (Est)">
-                    <StatPill label="Last 30 Days" value="$12,450" trend="12%" positive />
-                    <div className="h-2 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-                        <div className="h-full w-[75%] bg-emerald-500 rounded-full" />
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-2 text-right">75% of Monthly Goal</p>
-                </WidgetCard>
+            {/* ── Middle row: Fleet + Recent Activity ───────────────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
 
-                <WidgetCard title="Fleet Status">
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-sm text-slate-600">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500" /> Pinnacle HBOT
-                            </div>
-                            <span className="text-xs font-bold bg-emerald-50 text-emerald-600 px-2 py-1 rounded">ONLINE</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-sm text-slate-600">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500" /> Aurora RLT
-                            </div>
-                            <span className="text-xs font-bold bg-emerald-50 text-emerald-600 px-2 py-1 rounded">ONLINE</span>
-                        </div>
-                        <div className="flex items-center justify-between opacity-50">
-                            <div className="flex items-center gap-2 text-sm text-slate-600">
-                                <div className="w-2 h-2 rounded-full bg-slate-300" /> Core PEMF
-                            </div>
-                            <span className="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded">OFFLINE</span>
-                        </div>
+                {/* Fleet Status (3/5) */}
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="lg:col-span-3 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden"
+                >
+                    <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h2 className="text-sm font-semibold text-slate-900">Fleet Status</h2>
+                        <Link href="/partner/fleet" className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
+                            Manage <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                     </div>
-                </WidgetCard>
+                    <div className="divide-y divide-slate-50">
+                        {FLEET_ROWS.map((device) => (
+                            <Link
+                                key={device.id}
+                                href="/partner/fleet"
+                                className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors group"
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-slate-800 group-hover:text-cyan-700 transition-colors truncate">
+                                        {device.name}
+                                    </p>
+                                    <p className="text-[10px] font-mono text-slate-400">{device.serial}</p>
+                                </div>
+                                <DeviceStatusBadge status={device.status} />
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Next service</p>
+                                    <p className={`text-xs font-medium ${device.nextService === 'OVERDUE' ? 'text-red-600 font-bold' : 'text-slate-600'}`}>
+                                        {device.nextService}
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                    {FLEET_ROWS.some(d => d.status === 'maintenance') && (
+                        <div className="px-5 py-3 bg-amber-50 border-t border-amber-100 flex items-center gap-2 text-xs text-amber-700">
+                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                            <span>Core PEMF Mat has an open service ticket. <Link href="/partner/fleet" className="font-bold underline hover:no-underline">View details</Link></span>
+                        </div>
+                    )}
+                </motion.div>
 
-                <WidgetCard title="Academy Progress">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-full border-4 border-cyan-500 flex items-center justify-center font-bold text-slate-800">
-                            2/3
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold text-slate-800">Staff Certified</p>
-                            <p className="text-xs text-slate-400">1 Pending Review</p>
-                        </div>
+                {/* Recent Activity (2/5) */}
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="lg:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden"
+                >
+                    <div className="px-5 py-4 border-b border-slate-100">
+                        <h2 className="text-sm font-semibold text-slate-900">Recent Activity</h2>
                     </div>
-                    <button className="w-full py-2 border border-slate-200 rounded text-xs font-bold text-slate-600 hover:bg-slate-50">
-                        View Team Status
-                    </button>
-                </WidgetCard>
-
-                <WidgetCard title="Referral Connect">
-                    <StatPill label="Pending Commissions" value="$450.00" />
-                    <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-                        <span>3 Home Units Active</span>
-                        <ArrowRight className="w-4 h-4" />
-                    </div>
-                </WidgetCard>
+                    <ul className="divide-y divide-slate-50">
+                        {RECENT_ACTIVITY.map((item) => (
+                            <li key={item.id} className="flex items-start gap-3 px-5 py-3">
+                                <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+                                    {activityIcon(item.type)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-slate-700 leading-snug">{item.text}</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5">{item.time}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </motion.div>
             </div>
 
-            {/* Learning Hub Section */}
-            <div className="mb-8">
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-cyan-500" /> Learning Hub
-                </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Continue Learning Card */}
-                    <motion.a
-                        href="/partner/academy"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="lg:col-span-1 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-6 text-white hover:shadow-lg hover:shadow-cyan-500/20 transition-all group"
-                    >
-                        <div className="flex items-center gap-2 mb-3">
-                            <Flame className="w-5 h-5 text-orange-300" />
-                            <span className="font-bold text-orange-200">3 Day Streak!</span>
-                        </div>
-                        <h4 className="text-xl font-bold mb-2">Continue Learning</h4>
-                        <p className="text-cyan-100 text-sm mb-4">You were learning "Client Comfort Hacks"</p>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                    <Target className="w-4 h-4" />
-                                </div>
-                                <div>
-                                    <div className="text-xs text-cyan-200">Today's XP</div>
-                                    <div className="font-bold">+120 XP</div>
-                                </div>
-                            </div>
-                            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                    </motion.a>
-
-                    {/* Daily Challenges */}
-                    <div className="bg-white rounded-xl border border-slate-200 p-5">
-                        <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-bold text-slate-900 flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-purple-500" />
-                                Daily Challenges
-                            </h4>
-                            <span className="text-xs text-slate-400">Resets in 8h</span>
-                        </div>
-                        <div className="space-y-3">
-                            {[
-                                { title: 'Complete 2 Safety modules', reward: '+50 XP', progress: 50 },
-                                { title: 'Pass a Stress Drill', reward: '+100 XP', progress: 0 },
-                                { title: 'Watch 5 videos', reward: '+30 XP', progress: 80 },
-                            ].map((challenge, idx) => (
-                                <div key={idx} className="p-2 bg-slate-50 rounded-lg">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <span className="text-xs font-medium text-slate-700">{challenge.title}</span>
-                                        <span className="text-[10px] text-amber-600 font-bold">{challenge.reward}</span>
-                                    </div>
-                                    <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all"
-                                            style={{ width: `${challenge.progress}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Leaderboard */}
-                    <Leaderboard />
+            {/* ── Quick Actions ─────────────────────────────────────── */}
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+            >
+                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Quick Actions</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {QUICK_ACTIONS.map((action) => (
+                        <QuickAction key={action.href} {...action} />
+                    ))}
                 </div>
-            </div>
-
-            {/* Recent generated assets */}
-            <h3 className="text-xl font-bold text-slate-900 mb-4">Recent Studio Assets</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="aspect-[3/4] bg-white rounded-lg border border-slate-200 p-2 shadow-sm hover:border-cyan-500 cursor-pointer transition-colors group relative">
-                        <div className="w-full h-full bg-slate-50 rounded flex items-center justify-center text-slate-300">
-                            PDF
-                        </div>
-                        <div className="absolute inset-x-0 bottom-0 p-2 bg-white/90 backdrop-blur rounded-b-lg border-t border-slate-100">
-                            <p className="text-[10px] font-bold text-slate-700 truncate">Campaign_Oct_{i}</p>
-                            <p className="text-[8px] text-slate-400">Oct 24 • Poster</p>
-                        </div>
-                    </div>
-                ))}
-
-                <a href="/partner/studio" className="aspect-[3/4] border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-cyan-500 hover:text-cyan-500 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                        +
-                    </div>
-                    <span className="text-xs font-bold">Create New</span>
-                </a>
-            </div>
+            </motion.div>
 
         </PartnerLayout>
     );

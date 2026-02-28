@@ -35,7 +35,16 @@ const MentionCard: React.FC<MentionCardProps> = ({ type, id, position }) => {
         }
     };
 
-    const data = (cardData[type] as any)?.[id] || { title: id, desc: 'Unknown reference', color: 'from-slate-500 to-gray-600' };
+    const source = cardData[type as keyof typeof cardData] as
+        | Record<string, { title: string; desc: string; color: string; link: string }>
+        | undefined;
+
+    const data = source?.[id] || {
+        title: id,
+        desc: 'Unknown reference',
+        color: 'from-slate-500 to-gray-600',
+        link: '#',
+    };
 
     return (
         <motion.div

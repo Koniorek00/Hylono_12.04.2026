@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { HelpCircle, ChevronDown, Search, MessageCircle } from 'lucide-react';
 import { SmartText } from './SmartText';
 import { FAQStructuredData } from './StructuredData';
@@ -10,7 +10,7 @@ const FAQ_DATA = [
         items: [
             { q: "What is Hylono?", a: "Hylono is a bio-optimization technology platform that democratizes access to elite regeneration devices. We provide hyperbaric oxygen chambers, PEMF therapy systems, red light therapy panels, and molecular hydrogen generators all designed for safe, effective home use. Our mission is to make cutting-edge wellness technology accessible to everyone." },
             { q: "Where Mind Connects with Matter what does that mean?", a: "Our philosophy bridges the gap between intention (Mind) and physical transformation (Matter). We believe that true regeneration requires both the right technology and the right protocol. Our systems are designed to help you architect your own regeneration journey with precision and purpose." },
-            { q: "Are these medical devices?", a: "Our products are FDA-cleared wellness devices designed for health optimization and regeneration support. While they are not intended to diagnose, treat, cure, or prevent any disease, they are backed by clinical research and manufactured to medical-grade standards. Always consult a healthcare professional for medical conditions." },
+            { q: "Are these medical devices?", a: "Our products are wellness devices designed to support health optimization and regeneration routines. They are not intended to diagnose, treat, cure, or prevent any disease. Depending on product model and market, specific compliance documents may apply and can be shared on request. Always consult a qualified healthcare professional for medical concerns." },
             { q: "Do you ship internationally?", a: "Yes, we ship to all EU countries and select international destinations. Shipping costs and delivery times vary by location. Large items like hyperbaric chambers require freight shipping. Contact our team for specific international shipping quotes." },
         ]
     },
@@ -29,7 +29,7 @@ const FAQ_DATA = [
             { q: "How do I choose the right product?", a: "Use our Zone Builder tool for personalized recommendations based on your wellness goals, health profile, and lifestyle constraints. Our AI assistant can guide initial selection. For complex needs or multiple conditions, schedule a free consultation with our bio-optimization specialists. We don't upsell. We match technology to your specific requirements." },
             { q: "Can I try before buying?", a: "We offer flexible rental programs for most devices, allowing you to validate therapeutic outcomes before committing to ownership. Rental periods start at 2-3 months minimum depending on the device. Rental equity can be applied toward purchase. This approach eliminates buyer's remorse and ensures the technology works for your specific physiology." },
             { q: "What warranty coverage do you provide?", a: "All products include comprehensive warranties: HBOT chambers have 5-year chassis and 2-year electronics coverage; PEMF devices carry 3-year warranties; Red Light panels have 2-year warranties; Hydrogen generators include 2-year coverage. Extended protection plans are available. Our support team handles claims directly, no third-party runarounds." },
-            { q: "Is financing available?", a: "Yes. We offer flexible financing starting at $42/month for Red Light panels up to $525/month for HBOT chambers. HSA/FSA funds are accepted for eligible products. Our financing partners provide instant approval decisions with transparent terms, no hidden fees, and early payoff options without penalty." },
+            { q: "Is financing available?", a: "Yes. We offer flexible financing and rental plans starting from €149/month for Red Light panels up to €599/month for HBOT chambers. Our rental model means no large upfront investment—just a monthly subscription that includes full support and maintenance. Early termination and upgrade options are available with transparent terms and no hidden fees." },
         ]
     },
     {
@@ -72,7 +72,7 @@ export const FAQPage: React.FC = () => {
     })).filter(cat => cat.items.length > 0);
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-32 pb-24">
+        <div className="min-h-screen bg-slate-50 pt-10 pb-24">
             {/* FAQPage Schema for Rich Snippets - P0-3 SEO Fix */}
             <FAQStructuredData faqData={FAQ_DATA} />
             <div className="max-w-3xl mx-auto px-6">
@@ -113,24 +113,18 @@ export const FAQPage: React.FC = () => {
                                         <button
                                             onClick={() => setOpenItem(isOpen ? null : itemId)}
                                             className="w-full px-6 py-4 flex items-center justify-between text-left"
+                                            aria-expanded={isOpen}
                                         >
                                             <span className="font-medium text-slate-900">{item.q}</span>
-                                            <ChevronDown className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} size={20} />
+                                            <ChevronDown className={`text-slate-400 ui-transition-fast ${isOpen ? 'rotate-180' : ''}`} size={20} />
                                         </button>
-                                        <AnimatePresence>
-                                            {isOpen && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className="px-6 pb-4"
-                                                >
-                                                    <p className="text-slate-600 text-sm leading-relaxed">
-                                                        <SmartText>{item.a}</SmartText>
-                                                    </p>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                        <div className="ui-accordion-grid" data-open={isOpen}>
+                                            <div className="px-6 pb-4">
+                                                <p className="text-slate-600 text-sm leading-relaxed">
+                                                    <SmartText>{item.a}</SmartText>
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 );
                             })}

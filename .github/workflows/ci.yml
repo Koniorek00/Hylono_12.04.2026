@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier format check
+        run: npm run format:check
+
+      - name: Build
+        run: npm run build
+
+      - name: Check bundle size
+        run: |
+          if [ -d ".next" ]; then
+            BUILD_DIR=".next"
+          elif [ -d "dist" ]; then
+            BUILD_DIR="dist"
+          else
+            echo "❌ Could not find build output directory (.next or dist)."
+            exit 1
+          fi
+
+          BUILD_SIZE=$(du -sb "$BUILD_DIR" | cut -f1)
+          echo "Total build size (${BUILD_DIR}): ${BUILD_SIZE} bytes"
+          # Fail if build exceeds 5MB (uncompressed)
+          if [ "$BUILD_SIZE" -gt 5242880 ]; then
+            echo "❌ Build size ${BUILD_SIZE} exceeds 5MB limit"
+            exit 1
+          fi
+          echo "✅ Build size OK: ${BUILD_SIZE} bytes"

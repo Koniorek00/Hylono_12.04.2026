@@ -1,0 +1,6 @@
+{
+  "/admin/commands/page": "app/admin/commands/page.js",
+  "/admin/deploy/page": "app/admin/deploy/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/stack/page": "app/admin/stack/page.js"
+}

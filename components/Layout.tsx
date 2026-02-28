@@ -1,17 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import {
     Menu, X, ArrowRight, Hexagon, ChevronDown, Sparkles, Server,
     ShieldCheck, Sun, Moon, Instagram, Linkedin, Youtube, ShoppingCart, User,
     ExternalLink, Shield, CheckCircle, Globe, Award, FileCheck,
-    Cpu, Zap, Droplets, Activity, Wind
+    Cpu, Zap, Droplets, Activity, Wind, Accessibility
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { TechType } from '../types';
+import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from 'framer-motion';
+import { TechType, NavigateFunction } from '../types';
 import { Newsletter } from './Newsletter';
+import { openCookieSettings } from './CookieConsent';
+import { isFeatureEnabled } from '../utils/featureFlags';
+import { batch3NavigationContent } from '../content/batch3';
+import { TECH_DETAILS } from '../constants';
+import { GlobalSearch } from './GlobalSearch';
 
 // Lazy load with preloading capability
 const loadMegaMenu = () => import('./MegaMenu').then(module => ({ default: module.MegaMenu }));
-const MegaMenu = React.lazy(loadMegaMenu);
+const MegaMenu = dynamic(loadMegaMenu, { loading: () => null });
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -21,6 +27,16 @@ interface LayoutProps {
 
 import { CommandPalette } from './shared/CommandPalette';
 import { Breadcrumbs } from './navigation/Breadcrumbs';
+import { useMultitoolStore } from '../src/stores/multitoolStore';
+
+// Helper to get button position for dropdown positioning
+const getButtonPosition = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return {
+        top: rect.bottom + 8, // 8px below button
+        right: window.innerWidth - rect.right,
+    };
+};
 
 export const Navbar: React.FC<{
     setCurrentPage: (p: string) => void;
@@ -32,14 +48,56 @@ export const Navbar: React.FC<{
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+    const [hidden, setHidden] = useState(false);
+    const { isOpen: multitoolOpen, toggle: toggleMultitool, openAtPosition } = useMultitoolStore();
+    
+    const handleAccessibilityClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (multitoolOpen) {
+            toggleMultitool();
+        } else {
+            const rect = e.currentTarget.getBoundingClientRect();
+            openAtPosition({
+                top: rect.bottom + 8,
+                right: window.innerWidth - rect.right,
+            });
+        }
+    };
+    const [announcementDismissed, setAnnouncementDismissed] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        try {
+            return window.localStorage.getItem('hylono_announcement_dismissed') === 'true';
+        } catch {
+            return false;
+        }
+    });
+    const lastScrollY = useRef(0);
+    const navGoalsEnabled = isFeatureEnabled('feature_nav_goals');
+    const headerTrustEnabled = isFeatureEnabled('feature_header_trust');
+    const lowestRental = Math.min(
+        ...Object.values(TECH_DETAILS)
+            .map((tech) => tech.rentalPrice)
+            .filter((value): value is number => typeof value === 'number' && value > 0)
+    );
+    const trustMarkers = batch3NavigationContent.trustMarkers(lowestRental);
 
-    useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    // Scroll progress bar
+    const { scrollYProgress, scrollY } = useScroll();
+    const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 40, restDelta: 0.001 });
 
-    const navClasses = `fixed top-0 left-0 right-0 z-50 transition-all duration-700 border-b py-4 ${isScrolled
+    // Smart hide/show navbar on scroll direction
+    useMotionValueEvent(scrollY, 'change', (latest) => {
+        const previous = lastScrollY.current;
+        setIsScrolled(latest > 20);
+        // Only hide after scrolled down 80px, and only when scrolling down
+        if (latest > previous && latest > 80) {
+            setHidden(true);
+        } else {
+            setHidden(false);
+        }
+        lastScrollY.current = latest;
+    });
+
+    const navClasses = `fixed top-0 left-0 right-0 z-50 border-b py-4 ${isScrolled
         ? 'bg-white/60 backdrop-blur-xl border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]'
         : 'bg-transparent border-transparent'
         }`;
@@ -47,7 +105,7 @@ export const Navbar: React.FC<{
     const NavLink = ({ label, target, setCurrentPage, setMobileOpen, currentPage }: { label: string; target: string; setCurrentPage: (p: string) => void; setMobileOpen: (o: boolean) => void; currentPage: string }) => (
         <button
             onClick={() => { setCurrentPage(target); setMobileOpen(false); }}
-            className={`relative text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-500 group ${currentPage === target ? 'text-gray-900 font-bold' : 'text-gray-500'
+            className={`relative text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-500 group futuristic-font ${currentPage === target ? 'text-gray-900 font-bold' : 'text-gray-500'
                 }`}
         >
             <span className="relative z-10">{label}</span>
@@ -56,15 +114,36 @@ export const Navbar: React.FC<{
     );
 
     return (
-        <nav className={`${navClasses} animate-resonance`}>
-            {/* ACCESSIBILITY: Skip to main content link */}
-            <a
-                href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-cyan-500 focus:text-white focus:rounded-lg focus:font-bold focus:text-sm"
-            >
-                Skip to main content
-            </a>
+        <>
+            <motion.nav
+            className={`${navClasses} animate-resonance`}
+            variants={{
+                visible: { y: 0 },
+                hidden: { y: '-100%' },
+            }}
+            animate={hidden ? 'hidden' : 'visible'}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+        >
+            {/* Scroll Progress Bar */}
+            <motion.div
+                className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-400 origin-left z-10 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
+                style={{ scaleX }}
+            />
+
+            {/* NOTE: Skip-to-main-content link is in AppRouter.tsx to avoid duplication (WCAG 2.4.1) */}
             <CommandPalette onNavigate={setCurrentPage} />
+
+            {headerTrustEnabled && (
+                <div className="border-b border-white/20 bg-white/60 backdrop-blur-xl">
+                    <div className="max-w-7xl mx-auto px-6 py-1 hidden md:flex items-center justify-end gap-4">
+                        {trustMarkers.slice(0, 3).map((marker) => (
+                            <span key={marker} className="text-[9px] uppercase tracking-[0.18em] text-slate-600 font-semibold">
+                                {marker}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="max-w-7xl mx-auto px-6 flex justify-between md:justify-center items-center md:gap-16">
                 {/* Logo */}
@@ -84,37 +163,58 @@ export const Navbar: React.FC<{
                 <div className="hidden md:flex items-center space-x-10">
                     <NavLink label="Concept" target="home" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
 
+                    {navGoalsEnabled && (
+                        <button
+                            onClick={() => setCurrentPage('conditions')}
+                            className="text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-300 group flex items-center gap-1 futuristic-font text-gray-500 hover:text-gray-900"
+                        >
+                            {batch3NavigationContent.goalsLabel}
+                        </button>
+                    )}
+
                     {/* Mega Menu Trigger - Primary Navigation Hub */}
                     <button
                         onMouseEnter={() => loadMegaMenu()}
                         onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-                        className={`text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-300 group flex items-center gap-1 ${megaMenuOpen ? 'text-cyan-500 font-bold' : 'text-gray-500 hover:text-gray-900'}`}
+                        className={`text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-300 group flex items-center gap-1 futuristic-font ${megaMenuOpen ? 'text-cyan-500 font-bold' : 'text-gray-500 hover:text-gray-900'}`}
                     >
                         Explore <ChevronDown size={12} className={`transition-transform duration-300 ${megaMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     <NavLink label="Store" target="store" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
-                    <NavLink label="Configurator" target="builder" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+                    <NavLink label="Wellness Planner" target="wellness-planner" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+                    <NavLink label="Contact" target="contact" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
 
                 </div>
 
-                <React.Suspense fallback={null}>
-                    <MegaMenu
-                        isOpen={megaMenuOpen}
-                        onClose={() => setMegaMenuOpen(false)}
-                        onNavigate={(page, techId) => {
-                            setMegaMenuOpen(false);
-                            if (techId) {
-                                onSelectTech(techId);
-                            } else {
-                                setCurrentPage(page);
-                            }
-                        }}
-                    />
-                </React.Suspense>
+                <MegaMenu
+                    isOpen={megaMenuOpen}
+                    onClose={() => setMegaMenuOpen(false)}
+                    onNavigate={(page, techId) => {
+                        setMegaMenuOpen(false);
+                        if (techId) {
+                            onSelectTech(techId);
+                        } else {
+                            setCurrentPage(page);
+                        }
+                    }}
+                />
 
                 {/* Right Actions */}
                 <div className="hidden md:flex items-center gap-2">
+                    <GlobalSearch onNavigate={setCurrentPage} />
+                    <button 
+                        onClick={handleAccessibilityClick}
+                        className={`p-2 rounded-full transition-colors ${
+                            multitoolOpen 
+                                ? 'bg-cyan-500 text-white' 
+                                : 'hover:bg-slate-100 text-gray-600'
+                        }`}
+                        aria-label="Open accessibility tools"
+                        aria-expanded={multitoolOpen}
+                    >
+                        <Accessibility size={20} />
+                    </button>
                     <button 
                         onClick={onOpenCart} 
                         className="p-2 hover:bg-slate-100 rounded-full transition-colors relative"
@@ -132,68 +232,135 @@ export const Navbar: React.FC<{
                 </div>
 
                 {/* Mobile Toggle */}
-                <button 
-                    className="md:hidden" 
-                    onClick={() => setMobileOpen(!mobileOpen)}
-                    aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
-                    aria-expanded={mobileOpen}
-                >
-                    {mobileOpen ? <X /> : <Menu />}
-                </button>
+                <div className="md:hidden flex items-center gap-2">
+                    <GlobalSearch onNavigate={setCurrentPage} />
+                    <button 
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+                        aria-expanded={mobileOpen}
+                    >
+                        {mobileOpen ? <X /> : <Menu />}
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Menu */}
             {
                 mobileOpen && (
                     <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-3xl border-b border-gray-100 p-8 flex flex-col space-y-8 md:hidden h-screen animate-fade-in">
+                        {headerTrustEnabled && (
+                            <div className="space-y-2">
+                                {trustMarkers.slice(0, 2).map((marker) => (
+                                    <p key={marker} className="text-[10px] uppercase tracking-[0.16em] text-slate-500 font-semibold">{marker}</p>
+                                ))}
+                            </div>
+                        )}
                         <NavLink label="Concept" target="home" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+                        {navGoalsEnabled && (
+                            <NavLink label="Goals" target="conditions" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+                        )}
                         <NavLink label="Store" target="store" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
                         <NavLink label="Ecosystem" target="tech" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
-                        <NavLink label="Zone Configurator" target="builder" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+                        <NavLink label="Wellness Planner" target="wellness-planner" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+                        <NavLink label="Contact" target="contact" setCurrentPage={setCurrentPage} setMobileOpen={setMobileOpen} currentPage={currentPage} />
+
+                        {navGoalsEnabled && (
+                            <div className="pt-2 border-t border-slate-200 space-y-3">
+                                {batch3NavigationContent.goals.map((goal) => (
+                                    <button
+                                        key={goal.path}
+                                        onClick={() => {
+                                            setCurrentPage(goal.path);
+                                            setMobileOpen(false);
+                                        }}
+                                        className="block text-left text-xs uppercase tracking-[0.15em] text-slate-500 hover:text-slate-900"
+                                    >
+                                        {goal.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                     </div>
                 )
             }
-        </nav >
+        </motion.nav>
+        </>
     );
 };
 
-export const Footer: React.FC<{ setCurrentPage?: (page: string) => void }> = ({ setCurrentPage }) => {
+export const Footer: React.FC<{ setCurrentPage?: NavigateFunction }> = ({ setCurrentPage }) => {
     const navigate = React.useCallback((page: string) => {
         setCurrentPage?.(page);
         window.scrollTo(0, 0);
     }, [setCurrentPage]);
 
-    const footerSections = [
+    const navigateToTech = React.useCallback((tech: TechType) => {
+        setCurrentPage?.('detail', tech);
+        window.scrollTo(0, 0);
+    }, [setCurrentPage]);
+
+    type FooterLink = {
+        label: string;
+        target?: string;
+        tech?: TechType;
+        icon?: React.ReactNode;
+    };
+
+    type FooterSection = {
+        title: string;
+        links: FooterLink[];
+    };
+
+    const footerSections: FooterSection[] = [
         {
             title: "Technology",
             links: [
-                { label: "Hyperbaric (HBOT)", target: "product/HBOT", icon: <Wind size={12} /> },
-                { label: "Pulsed EMF (PEMF)", target: "product/PEMF", icon: <Activity size={12} /> },
-                { label: "Red Light (RLT)", target: "product/RLT", icon: <Sun size={12} /> },
-                { label: "Hydrogen (H2)", target: "product/HYDROGEN", icon: <Droplets size={12} /> },
+                { label: "Hyperbaric (HBOT)", tech: TechType.HBOT, icon: <Wind size={12} /> },
+                { label: "Pulsed EMF (PEMF)", tech: TechType.PEMF, icon: <Activity size={12} /> },
+                { label: "Red Light (RLT)", tech: TechType.RLT, icon: <Sun size={12} /> },
+                { label: "Hydrogen (H2)", tech: TechType.HYDROGEN, icon: <Droplets size={12} /> },
+                { label: "Vagus Nerve (VNS)", tech: TechType.VNS, icon: <Zap size={12} /> },
+                { label: "EWOT Training", tech: TechType.EWOT, icon: <Wind size={12} /> },
+                { label: "Cryotherapy", tech: TechType.CRYO, icon: <Activity size={12} /> },
                 { label: "Compare All", target: "store" }
+            ]
+        },
+        {
+            title: "Products",
+            links: [
+                { label: "HBOT Chambers", tech: TechType.HBOT, icon: <Wind size={12} /> },
+                { label: "HHO Hydrogen Kits", target: "hho-car-kit", icon: <Droplets size={12} /> },
+                { label: "Firesafe™ Range", target: "firesafe", icon: <ShieldCheck size={12} /> }
             ]
         },
         {
             title: "Ecosystem",
             links: [
-
-                { label: "Zone Configurator", target: "builder" },
+                { label: "Wellness Planner", target: "wellness-planner" },
                 { label: "Protocol Codex", target: "protocols" },
                 { label: "Research Hub", target: "research" },
-                { label: "Learning Center", target: "faq" },
+                { label: "Video Library", target: "videos" },
+                { label: "Learning Center", target: "learning" },
                 { label: "Support Hub", target: "support" },
-                { label: "Rewards", target: "rewards" }
+                { label: "Rewards", target: "rewards" },
+                { label: "Refer & Earn", target: "referral" },
+                { label: "Financing", target: "financing" },
+                { label: "Trade-In", target: "trade-in" },
+                { label: "30-Day Guarantee", target: "guarantee" },
+                { label: "Health Conditions", target: "conditions" }
             ]
         },
         {
             title: "Company",
             links: [
                 { label: "Our Mission", target: "about" },
+                { label: "Medical Advisors", target: "advisors" },
+                { label: "Testimonials", target: "testimonials" },
                 { label: "Science & Evidence", target: "blog" },
                 { label: "Careers", target: "careers" },
                 { label: "Press & Media", target: "press" },
+                { label: "Press Kit", target: "press-kit" },
                 { label: "Contact", target: "contact" }
             ]
         },
@@ -203,7 +370,7 @@ export const Footer: React.FC<{ setCurrentPage?: (page: string) => void }> = ({ 
                 { label: "Partner Portal", target: "partners" },
                 { label: "Find a Center", target: "locator" },
                 { label: "Affiliate Program", target: "affiliate" },
-                { label: "Wholesale Info", target: "contact" }
+                { label: "Wholesale Info", target: "wholesale" }
             ]
         },
         {
@@ -211,8 +378,13 @@ export const Footer: React.FC<{ setCurrentPage?: (page: string) => void }> = ({ 
             links: [
                 { label: "Privacy Policy", target: "privacy" },
                 { label: "Terms of Service", target: "terms" },
-                { label: "Shipping & Returns", target: "shipping" },
-                { label: "Warranty", target: "warranty" }
+                { label: "Shipping Policy", target: "shipping" },
+                { label: "Returns Policy", target: "returns" },
+                { label: "Warranty", target: "warranty" },
+                { label: "Cookie Policy", target: "cookie-policy" },
+                { label: "Disclaimer", target: "disclaimer" },
+                { label: "Accessibility", target: "accessibility" },
+                { label: "Sitemap", target: "sitemap" }
             ]
         }
     ];
@@ -239,7 +411,7 @@ export const Footer: React.FC<{ setCurrentPage?: (page: string) => void }> = ({ 
                                 </span>
                             </div>
                         </button>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-8 font-medium">© 2026 HYLONO SYSTEMS INC.</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-8 font-medium">© 2026 HYLONO SYSTEMS</p>
                         <div className="flex items-center gap-3 mb-6">
                             <a
                                 href="https://www.instagram.com/hylono"
@@ -291,7 +463,16 @@ export const Footer: React.FC<{ setCurrentPage?: (page: string) => void }> = ({ 
                                 {section.links.map((link, lIdx) => (
                                     <li key={lIdx}>
                                         <button
-                                            onClick={() => navigate(link.target)}
+                                            onClick={() => {
+                                                if (link.tech) {
+                                                    navigateToTech(link.tech);
+                                                    return;
+                                                }
+
+                                                if (link.target) {
+                                                    navigate(link.target);
+                                                }
+                                            }}
                                             className="text-gray-400 hover:text-white text-[11px] tracking-wide transition-colors flex items-center gap-1.5 group"
                                         >
                                             {link.icon && <span className="opacity-40 group-hover:opacity-100 transition-opacity">{link.icon}</span>}
@@ -299,6 +480,17 @@ export const Footer: React.FC<{ setCurrentPage?: (page: string) => void }> = ({ 
                                         </button>
                                     </li>
                                 ))}
+                                {/* Cookie Settings — only in Legal column */}
+                                {section.title === 'Legal' && (
+                                    <li>
+                                        <button
+                                            onClick={openCookieSettings}
+                                            className="text-gray-400 hover:text-white text-[11px] tracking-wide transition-colors flex items-center gap-1.5 group"
+                                        >
+                                            Cookie Settings
+                                        </button>
+                                    </li>
+                                )}
                             </ul>
                         </div>
                     ))}

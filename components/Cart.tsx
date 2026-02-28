@@ -81,12 +81,12 @@ export const CartIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
 export const CartSidebar: React.FC<{ isOpen: boolean; onClose: () => void; onCheckout?: () => void }> = ({ isOpen, onClose, onCheckout }) => {
     const { items, removeItem, updateQuantity, total, clearCart } = useCart();
 
-    // Focus trap for accessibility
+    // Focus trap for accessibility - clickOutsideDeactivates is handled by the backdrop
     const trapRef = useFocusTrap({ 
         active: isOpen, 
         onDeactivate: onClose,
         escapeDeactivates: true,
-        clickOutsideDeactivates: false
+        clickOutsideDeactivates: true
     });
 
     return (
@@ -97,8 +97,9 @@ export const CartSidebar: React.FC<{ isOpen: boolean; onClose: () => void; onChe
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/40 z-50"
+                        className="fixed inset-0 bg-black/40 z-[55]"
                         onClick={onClose}
+                        aria-hidden="true"
                     />
                     <motion.div
                         ref={trapRef}
@@ -109,7 +110,7 @@ export const CartSidebar: React.FC<{ isOpen: boolean; onClose: () => void; onChe
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: 'tween', duration: 0.3 }}
-                        className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
+                        className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-[60] shadow-2xl flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">

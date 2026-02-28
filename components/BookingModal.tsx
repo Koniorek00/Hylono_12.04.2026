@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useActionState, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, X, User, Mail, Phone, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { submitBookingFormAction, type FormActionResult } from '../src/actions/formActions';
 
 interface BookingModalProps {
     isOpen: boolean;
@@ -15,6 +16,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [info, setInfo] = useState({ name: '', email: '', phone: '', notes: '' });
     const [booked, setBooked] = useState(false);
+    const [bookingError, setBookingError] = useState<string | null>(null);
+    const [bookingRef, setBookingRef] = useState<string | null>(null);
+    const [bookingActionState, bookingFormAction, bookingPending] = useActionState<FormActionResult, FormData>(
+        submitBookingFormAction,
+        { success: false, message: '' }
+    );
     
     // Focus trap for accessibility
     const trapRef = useFocusTrap({ 
@@ -33,16 +40,26 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
 
     const timeSlots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
-    const handleSubmit = () => {
-        console.log('Booking:', { selectedDate, selectedTime, info, productName });
-        setBooked(true);
-    };
+    useEffect(() => {
+        if (bookingActionState.success) {
+            setBookingRef(bookingActionState.bookingRef ?? null);
+            setBooked(true);
+            setBookingError(null);
+            return;
+        }
+
+        if (bookingActionState.message) {
+            setBookingError(bookingActionState.message);
+        }
+    }, [bookingActionState]);
 
     const resetAndClose = () => {
         setStep('date');
         setSelectedDate(null);
         setSelectedTime(null);
         setBooked(false);
+        setBookingError(null);
+        setBookingRef(null);
         onClose();
     };
 
@@ -76,6 +93,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                 <p className="text-slate-600 mb-2">
                                     {selectedDate} at {selectedTime}
                                 </p>
+                                {bookingRef && (
+                                    <p className="text-xs font-mono bg-slate-100 text-slate-500 px-3 py-1 rounded-lg inline-block mb-2">
+                                        Ref: {bookingRef}
+                                    </p>
+                                )}
                                 <p className="text-sm text-slate-400 mb-6">
                                     We've sent a confirmation to {info.email}
                                 </p>
@@ -110,7 +132,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                             key={dateStr}
                                                             disabled={isWeekend}
                                                             onClick={() => { setSelectedDate(dateStr); setStep('time'); }}
-                                                            className={`p-3 rounded-lg text-center text-sm transition-all ${isWeekend ? 'bg-slate-50 text-slate-300 cursor-not-allowed' :
+                                                            className={`p-3 rounded-lg text-center text-sm ui-transition-colors ${isWeekend ? 'bg-slate-50 text-slate-300 cursor-not-allowed' :
                                                                     selectedDate === dateStr ? 'bg-cyan-500 text-white' : 'bg-slate-100 hover:bg-slate-200'
                                                                 }`}
                                                         >
@@ -137,7 +159,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     <button
                                                         key={time}
                                                         onClick={() => { setSelectedTime(time); setStep('info'); }}
-                                                        className={`p-3 rounded-lg text-center font-medium transition-all ${selectedTime === time ? 'bg-cyan-500 text-white' : 'bg-slate-100 hover:bg-slate-200'
+                                                        className={`p-3 rounded-lg text-center font-medium ui-transition-colors ${selectedTime === time ? 'bg-cyan-500 text-white' : 'bg-slate-100 hover:bg-slate-200'
                                                             }`}
                                                     >
                                                         {time}
@@ -148,21 +170,26 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                     )}
 
                                     {step === 'info' && (
-                                        <div>
+                                        <form action={bookingFormAction}>
                                             <button onClick={() => setStep('time')} className="flex items-center gap-1 text-sm text-slate-500 mb-4">
                                                 <ChevronLeft size={16} /> Back
                                             </button>
                                             <h3 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
                                                 <User size={18} /> Your Details
                                             </h3>
+                                            <input type="hidden" name="preferredDate" value={selectedDate ?? ''} />
+                                            <input type="hidden" name="preferredTime" value={selectedTime ?? ''} />
+                                            <input type="hidden" name="bookingType" value="consultation" />
                                             <div className="space-y-3">
                                                 <input
+                                                    name="name"
                                                     placeholder="Full Name"
                                                     value={info.name}
                                                     onChange={e => setInfo({ ...info, name: e.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <input
+                                                    name="email"
                                                     placeholder="Email"
                                                     type="email"
                                                     value={info.email}
@@ -170,26 +197,41 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <input
+                                                    name="phone"
                                                     placeholder="Phone"
                                                     value={info.phone}
                                                     onChange={e => setInfo({ ...info, phone: e.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <textarea
+                                                    name="notes"
                                                     placeholder="Notes (optional)"
                                                     value={info.notes}
                                                     onChange={e => setInfo({ ...info, notes: e.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none h-24 resize-none"
                                                 />
                                             </div>
+                                            {bookingError && (
+                                                <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+                                                    {bookingError}
+                                                </p>
+                                            )}
                                             <button
-                                                onClick={handleSubmit}
-                                                disabled={!info.name || !info.email}
-                                                className="w-full mt-4 py-4 bg-cyan-500 text-white rounded-xl font-bold hover:bg-cyan-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                type="submit"
+                                                disabled={!info.name || !info.email || bookingPending}
+                                                className="w-full mt-4 py-4 bg-cyan-500 text-white rounded-xl font-bold hover:bg-cyan-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                             >
-                                                Confirm Booking
+                                                {bookingPending ? (
+                                                    <>
+                                                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                                        </svg>
+                                                        Booking…
+                                                    </>
+                                                ) : 'Confirm Booking'}
                                             </button>
-                                        </div>
+                                        </form>
                                     )}
                                 </div>
                             </>
@@ -209,7 +251,7 @@ export const BookDemoButton: React.FC<{ productName?: string; className?: string
         <>
             <button
                 onClick={() => setShowModal(true)}
-                className={`flex items-center gap-2 px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-xl font-bold hover:bg-slate-900 hover:text-white transition-all ${className}`}
+                className={`flex items-center gap-2 px-6 py-3 border-2 border-slate-900 text-slate-900 rounded-xl font-bold hover:bg-slate-900 hover:text-white ui-transition-colors ${className}`}
             >
                 <Calendar size={18} /> Book a Demo
             </button>

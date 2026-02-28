@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Check } from 'lucide-react';
-import { TechAddon } from '../types';
+import { TechAddon } from '../../types';
 
 interface TechAddonCardProps {
     addon: TechAddon;

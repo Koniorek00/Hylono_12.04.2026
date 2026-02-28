@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useMotionTemplate, useInView, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { motion, useScroll, useTransform, useMotionTemplate, useInView, AnimatePresence, type MotionValue } from 'framer-motion';
 
 // --- DESIGN SYSTEM & CONSTANTS ---
 const COLORS = {
@@ -116,7 +119,7 @@ const PathwayLine = () => {
     );
 };
 
-const Node = ({ scrollProgress, triggerPos }: { scrollProgress: ReturnType<typeof useTransform<number, number, number>>; triggerPos: number }) => {
+const Node = ({ scrollProgress, triggerPos }: { scrollProgress: MotionValue<number>; triggerPos: number }) => {
     const [active, setActive] = useState(false);
 
     useTransform(scrollProgress, (latest) => {
@@ -150,6 +153,8 @@ const Node = ({ scrollProgress, triggerPos }: { scrollProgress: ReturnType<typeo
 // --- MAIN PAGE COMPONENT ---
 
 export const MeridianPage = () => {
+    const router = useRouter();
+
     // Inject Fonts
     useEffect(() => {
         const link = document.createElement('link');
@@ -163,6 +168,11 @@ export const MeridianPage = () => {
     const navBorderOpacity = useTransform(scrollY, [0, 100], [0, 1]);
     const navBorderColor = useMotionTemplate`rgba(216, 211, 199, ${navBorderOpacity})`;
 
+    const navigateTo = (path: string) => {
+        router.push(path);
+        window.scrollTo(0, 0);
+    };
+
     return (
         <div className="w-full min-h-screen bg-[#F6F3EC] overflow-x-hidden selection:bg-[#B07156] selection:text-white"
             style={{ fontFamily: FONTS.body, color: COLORS.textPrimary }}>
@@ -174,8 +184,17 @@ export const MeridianPage = () => {
                 className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 md:px-12 backdrop-blur-md bg-[#F6F3EC]/90"
                 style={{ borderBottom: '1px solid', borderBottomColor: navBorderColor }}
             >
-                {/* Logo */}
-                <div className="flex items-center gap-1">
+                {/* Back to Home + Logo */}
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => router.back()}
+                        aria-label="Go back"
+                        style={{ fontFamily: FONTS.ui, fontSize: '12px', color: COLORS.textSecondary, letterSpacing: '1px' }}
+                        className="hidden md:flex items-center gap-1.5 hover:opacity-80 transition-opacity bg-transparent border-none cursor-pointer"
+                    >
+                        ← BACK
+                    </button>
+                    <div style={{ width: '1px', height: '16px', backgroundColor: COLORS.divider }} className="hidden md:block" />
                     <span style={{ fontFamily: FONTS.display, fontSize: '18px', fontWeight: 600, letterSpacing: '1px', color: COLORS.botanical }}>
                         hylono<span style={{ color: COLORS.copper }}>●</span>
                     </span>
@@ -392,7 +411,7 @@ export const MeridianPage = () => {
                                     </li>
                                 ))}
                             </ul>
-                            <button onClick={() => window.location.href = '/rental'} className="font-serif italic text-[15px] text-[#1B4332] hover:text-[#40916C] bg-transparent border-none cursor-pointer">Request Rental Access →</button>
+                            <button onClick={() => navigateTo('/rental')} className="font-serif italic text-[15px] text-[#1B4332] hover:text-[#40916C] bg-transparent border-none cursor-pointer">Request Rental Access →</button>
                         </div>
 
                         {/* Model B */}
@@ -427,7 +446,7 @@ export const MeridianPage = () => {
                                     </li>
                                 ))}
                             </ul>
-                            <button onClick={() => window.location.href = '/contact'} className="font-serif italic text-[15px] text-[#1B4332] hover:text-[#40916C] bg-transparent border-none cursor-pointer">Discuss Deployment →</button>
+                            <button onClick={() => navigateTo('/contact')} className="font-serif italic text-[15px] text-[#1B4332] hover:text-[#40916C] bg-transparent border-none cursor-pointer">Discuss Deployment →</button>
                         </div>
                     </div>
                 </div>
@@ -504,7 +523,7 @@ export const MeridianPage = () => {
 
                     <div className="flex flex-col gap-6">
                         {/* Individual CTA */}
-                        <button onClick={() => window.location.href = '/store'} className="group block bg-[#40916C] p-8 hover:bg-[#4DA677] transition-colors duration-300 w-full text-left border-none cursor-pointer">
+                        <button onClick={() => navigateTo('/store')} className="group block bg-[#40916C] p-8 hover:bg-[#4DA677] transition-colors duration-300 w-full text-left border-none cursor-pointer">
                             <div className="font-mono text-[11px] text-white/60 mb-2">FOR INDIVIDUALS</div>
                             <div className="flex justify-between items-center">
                                 <h3 className="text-[20px] font-bold text-white" style={{ fontFamily: FONTS.ui }}>Explore Personal Protocols</h3>
@@ -512,7 +531,7 @@ export const MeridianPage = () => {
                             </div>
                         </button>
                         {/* Professional CTA */}
-                        <button onClick={() => window.location.href = '/partner'} className="group block border-[2px] border-[#F6F3EC]/40 p-8 hover:bg-[#F6F3EC]/5 hover:border-[#F6F3EC] transition-all duration-300 w-full text-left bg-transparent cursor-pointer">
+                        <button onClick={() => navigateTo('/partner')} className="group block border-[2px] border-[#F6F3EC]/40 p-8 hover:bg-[#F6F3EC]/5 hover:border-[#F6F3EC] transition-all duration-300 w-full text-left bg-transparent cursor-pointer">
                             <div className="font-mono text-[11px] text-[#F6F3EC]/60 mb-2">FOR PROFESSIONALS</div>
                             <div className="flex justify-between items-center">
                                 <h3 className="text-[20px] font-bold text-[#F6F3EC]" style={{ fontFamily: FONTS.ui }}>Discuss Deployment</h3>
@@ -538,15 +557,48 @@ export const MeridianPage = () => {
 
                     {/* Columns */}
                     {[
-                        { title: 'ECOSYSTEM', links: ['Oxygen — mHBOT', 'Hydrogen — H₂', 'Light — RLT', 'Signal — PEMF/VNS', 'Protocol Integration'] },
-                        { title: 'ACCESS', links: ['Rental — Explore', 'Subscription — Commit', 'Professional — Deploy', 'Pricing Architecture'] },
-                        { title: 'COMPANY', links: ['About Hylono', 'Trust Infrastructure', 'Research References', 'Journal', 'Contact'] }
+                        {
+                            title: 'ECOSYSTEM',
+                            links: [
+                                { label: 'Oxygen — mHBOT', href: '/product/HBOT' },
+                                { label: 'Hydrogen — H₂', href: '/product/HYDROGEN' },
+                                { label: 'Light — RLT', href: '/product/RLT' },
+                                { label: 'Signal — PEMF/VNS', href: '/product/PEMF' },
+                                { label: 'Protocol Integration', href: '/protocols' },
+                            ]
+                        },
+                        {
+                            title: 'ACCESS',
+                            links: [
+                                { label: 'Rental — Explore', href: '/rental' },
+                                { label: 'Subscription — Commit', href: '/rental' },
+                                { label: 'Professional — Deploy', href: '/contact' },
+                                { label: 'Pricing Architecture', href: '/store' },
+                            ]
+                        },
+                        {
+                            title: 'COMPANY',
+                            links: [
+                                { label: 'About Hylono', href: '/about' },
+                                { label: 'Trust Infrastructure', href: '/about' },
+                                { label: 'Research References', href: '/research' },
+                                { label: 'Journal', href: '/blog' },
+                                { label: 'Contact', href: '/contact' },
+                            ]
+                        }
                     ].map((col) => (
                         <div key={col.title}>
                             <h5 className="font-mono text-[11px] tracking-[2px] opacity-35 font-bold mb-6">{col.title}</h5>
                             <ul className="space-y-4">
                                 {col.links.map(link => (
-                                    <li key={link}><button onClick={() => console.log(`Navigate to: ${link}`)} className="text-[14px] opacity-55 hover:opacity-90 bg-transparent border-none cursor-pointer text-left">{link}</button></li>
+                                    <li key={link.label}>
+                                        <button
+                                            onClick={() => navigateTo(link.href)}
+                                            className="text-[14px] opacity-55 hover:opacity-90 bg-transparent border-none cursor-pointer text-left"
+                                        >
+                                            {link.label}
+                                        </button>
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -559,8 +611,19 @@ export const MeridianPage = () => {
                             <li><a href="https://instagram.com/hylono" target="_blank" rel="noopener noreferrer" className="text-[14px] opacity-55 hover:opacity-90">Instagram</a></li>
                         </ul>
                         <div className="flex">
-                            <input type="email" placeholder="your@email.com" className="bg-[#2A2A28] border-none text-[13px] px-3 w-full font-mono placeholder:opacity-25 text-[#F6F3EC] focus:ring-1 focus:ring-[#40916C]" />
-                            <button className="bg-[#1B4332] w-12 flex items-center justify-center hover:bg-[#40916C] transition-colors">
+                            <label htmlFor="meridian-footer-email" className="sr-only">Email address</label>
+                            <input
+                                id="meridian-footer-email"
+                                type="email"
+                                placeholder="your@email.com"
+                                aria-label="Email address for newsletter"
+                                className="bg-[#2A2A28] border-none text-[13px] px-3 w-full font-mono placeholder:opacity-25 text-[#F6F3EC] focus:ring-1 focus:ring-[#40916C]"
+                            />
+                            <button
+                                type="button"
+                                aria-label="Subscribe to newsletter"
+                                className="bg-[#1B4332] w-12 flex items-center justify-center hover:bg-[#40916C] transition-colors"
+                            >
                                 →
                             </button>
                         </div>
@@ -568,11 +631,11 @@ export const MeridianPage = () => {
                 </div>
 
                 <div className="max-w-[1280px] mx-auto px-6 pt-8 border-t border-[#333330] flex justify-between items-center text-[11px] font-mono opacity-20">
-                    <div>© 2025 Hylono. All rights reserved.</div>
+                    <div>© 2026 HYLONO SYSTEMS. All rights reserved.</div>
                     <div className="flex gap-6">
-                        <button onClick={() => window.location.href = '/legal/privacy'} className="hover:opacity-100 bg-transparent border-none cursor-pointer">Privacy</button>
-                        <button onClick={() => window.location.href = '/legal/terms'} className="hover:opacity-100 bg-transparent border-none cursor-pointer">Terms</button>
-                        <button onClick={() => window.location.href = '/legal/cookies'} className="hover:opacity-100 bg-transparent border-none cursor-pointer">Cookies</button>
+                        <button onClick={() => navigateTo('/privacy')} className="hover:opacity-100 bg-transparent border-none cursor-pointer">Privacy</button>
+                        <button onClick={() => navigateTo('/terms')} className="hover:opacity-100 bg-transparent border-none cursor-pointer">Terms</button>
+                        <button onClick={() => navigateTo('/cookie-policy')} className="hover:opacity-100 bg-transparent border-none cursor-pointer">Cookies</button>
                     </div>
                 </div>
             </footer>
@@ -601,6 +664,8 @@ interface ModalityBandProps {
 }
 
 const ModalityBand = ({ id, name, sub, desc, specs, visualColor, reversed = false, VisualComponent }: ModalityBandProps) => {
+    const router = useRouter();
+
     return (
         <div className={`flex flex-col ${reversed ? 'md:flex-row-reverse' : 'md:flex-row'} gap-12 py-16 items-center`}>
             {/* Visual */}
@@ -624,7 +689,13 @@ const ModalityBand = ({ id, name, sub, desc, specs, visualColor, reversed = fals
                     ))}
                 </div>
 
-                <button onClick={() => window.location.href = '/protocols'} className="font-serif italic text-[15px] text-[#1B4332] hover:text-[#40916C] bg-transparent border-none cursor-pointer">
+                <button
+                    onClick={() => {
+                        router.push('/protocols');
+                        window.scrollTo(0, 0);
+                    }}
+                    className="font-serif italic text-[15px] text-[#1B4332] hover:text-[#40916C] bg-transparent border-none cursor-pointer"
+                >
                     View {name} Protocols →
                 </button>
             </div>

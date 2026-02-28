@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Layout, Brain, Shield,
-    ArrowRight, Box, X,
+    Box, X,
     Hexagon, Globe, Briefcase, Network, Award
 } from 'lucide-react';
 import { TechType } from '../types';
@@ -14,6 +14,8 @@ import {
 } from './MegaMenu/MegaMenuSection';
 import { MegaMenuPanel } from './MegaMenu/MegaMenuPanel';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { isFeatureEnabled } from '../utils/featureFlags';
+import { batch3NavigationContent } from '../content/batch3';
 
 interface MegaMenuProps {
     isOpen: boolean;
@@ -24,6 +26,7 @@ interface MegaMenuProps {
 const MENU_SPRING = { type: "spring" as const, damping: 30, stiffness: 400 };
 
 export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate }) => {
+    const navGoalsEnabled = isFeatureEnabled('feature_nav_goals');
     const [activeContext, setActiveContext] = useState<MenuContext>('NEUTRAL');
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -88,8 +91,8 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
     }, []);
 
     const handleSearchFocus = useCallback(() => {
-        if (searchQuery.length > 0) setShowResults(true);
-    }, [searchQuery.length]);
+        setShowResults(true);
+    }, []);
 
     const currentConfig = useMemo(
         () => CONTEXT_CONFIG_STORE[activeContext] || CONTEXT_CONFIG_STORE.NEUTRAL,
@@ -163,7 +166,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                             {/* COLUMN 1: SYSTEMS */}
                             <div className="col-span-3 p-8 border-r border-white/5 flex flex-col backdrop-blur-sm bg-black/20" onMouseLeave={handleContextReset}>
                                 <SectionHeader icon={<Hexagon size={14} />} title="Systems" color="text-cyan-400" />
-                                <div className="space-y-4 flex-1 mt-6">
+                                <div className="space-y-4 flex-1 mt-6 flex flex-col">
                                     {TECH_CARDS.map(tech => (
                                         <TechHoloCard
                                             key={tech.context}
@@ -173,7 +176,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                                             icon={tech.icon}
                                             activeContext={activeContext}
                                             onHover={setActiveContext}
-                                            onClick={() => handleTechClick(tech.context as any)}
+                                            onClick={() => handleTechClick(tech.context as 'HBOT' | 'PEMF' | 'RLT' | 'HYDROGEN')}
                                             color={tech.color}
                                             href={`/product/${tech.context}`}
                                         />
@@ -186,11 +189,11 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                                 <SectionHeader icon={<Layout size={14} />} title="Intelligence" color="text-indigo-400" />
                                 <div className="mt-8 space-y-2">
                                     <GlassLink
-                                        icon={<Box />} title="Zone Configurator" sub="3D Space Builder"
-                                        onClick={navigateTo('builder')}
+                                        icon={<Box />} title="Wellness Planner" sub="Build Your Stack"
+                                        onClick={navigateTo('wellness-planner')}
                                         onHover={() => setActiveContext('BUILDER')}
                                         dimmed={false} color="text-amber-300" bg="bg-amber-300/10"
-                                        href="/builder"
+                                        href="/wellness-planner"
                                     />
                                     <GlassLink
                                         icon={<Brain />} title="Protocol Codex" sub="Bio-Stacks"
@@ -237,6 +240,28 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                                         <SimpleLink label="Support" onHover={handleContextReset} onClick={navigateTo('support')} href="/support" />
                                         <SimpleLink label="Warranty" onHover={handleContextReset} onClick={navigateTo('warranty')} href="/warranty" />
                                     </div>
+                                    {navGoalsEnabled && (
+                                        <>
+                                            <div className="h-px w-12 bg-white/10" />
+                                            <div className="space-y-4">
+                                                {batch3NavigationContent.goals.map((goal) => (
+                                                    <SimpleLink
+                                                        key={goal.path}
+                                                        label={goal.label}
+                                                        onHover={handleContextReset}
+                                                        onClick={navigateTo(goal.path)}
+                                                        href={`/${goal.path}`}
+                                                    />
+                                                ))}
+                                                <SimpleLink
+                                                    label={batch3NavigationContent.cta.label}
+                                                    onHover={() => setActiveContext('BUILDER')}
+                                                    onClick={navigateTo(batch3NavigationContent.cta.path)}
+                                                    href={`/${batch3NavigationContent.cta.path}`}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 

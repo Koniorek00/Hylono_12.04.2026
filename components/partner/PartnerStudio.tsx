@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import {
     ChevronRight, ChevronLeft, Upload, Layout, Type, Download, Palette, Info,
     AlertTriangle, CheckCircle, Share2, Megaphone, GraduationCap, Calendar,
@@ -105,7 +106,13 @@ const LivePreviewHTML: React.FC<{ scale?: number }> = memo(({ scale = 1 }) => {
             {/* 1. LAYER: Background (For Overlay and Frame) */}
             {(isOverlay || isFrame) && backgroundImage && (
                 <div className="absolute inset-0 z-0">
-                    <img src={backgroundImage} alt="Background" className="w-full h-full object-cover" />
+                    <Image
+                        src={backgroundImage}
+                        alt="Background"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 600px"
+                        className="object-cover"
+                    />
                     <div className={`absolute inset-0 ${isOverlay ? (isStory ? 'bg-gradient-to-b from-black/60 via-transparent to-black/80' : 'bg-white/80') : 'blur-sm bg-black/20'}`} />
                 </div>
             )}
@@ -143,17 +150,26 @@ const LivePreviewHTML: React.FC<{ scale?: number }> = memo(({ scale = 1 }) => {
 
                     {/* Split Layout Image Portion */}
                     {isSplit && backgroundImage && (
-                        <div className="h-1/2 overflow-hidden">
-                            <img src={backgroundImage} alt="Hero" className="w-full h-full object-cover" />
+                        <div className="h-1/2 overflow-hidden relative">
+                            <Image
+                                src={backgroundImage}
+                                alt="Hero"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 600px"
+                                className="object-cover"
+                            />
                         </div>
                     )}
 
                     {/* Content Section */}
                     <div className={`flex-1 flex flex-col justify-center p-12 ${isOverlay && isStory ? 'text-white items-center text-center mt-20' : 'text-slate-900'} ${isSplit ? 'items-center text-center' : ''}`}>
                         {showLogo && profile.logoUrl && (
-                            <img
+                            <Image
                                 src={profile.logoUrl}
                                 alt="Clinic Logo"
+                                width={192}
+                                height={64}
+                                sizes="192px"
                                 className={`h-16 w-auto object-contain mb-6 ${isOverlay && isStory ? 'mx-auto brightness-0 invert' : ''} ${theme === 'luxury' && !isStory ? 'brightness-0' : ''}`}
                             />
                         )}
@@ -179,11 +195,13 @@ const LivePreviewHTML: React.FC<{ scale?: number }> = memo(({ scale = 1 }) => {
                     <div className={`shrink-0 flex items-center p-10 ${isOverlay && (isSquare || isStory) ? 'absolute bottom-8 left-0 w-full justify-center flex-col gap-4 bg-transparent' : 'bg-slate-50 justify-between'} ${theme === 'luxury' ? 'bg-slate-50/50' : ''} ${isFrame ? 'rounded-b-lg' : ''}`}>
                         {showQrCode && profile.bookingUrl && (
                             <div className="bg-white p-2 rounded-lg shadow-sm">
-                                <img
+                                <Image
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profile.bookingUrl)}`}
                                     alt="QR Code"
+                                    width={80}
+                                    height={80}
+                                    sizes="80px"
                                     className="w-20 h-20"
-                                    loading="lazy"
                                 />
                             </div>
                         )}
@@ -222,7 +240,11 @@ const StepIntent: React.FC = memo(() => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setProfile({ logoUrl: reader.result as string });
+            reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                    setProfile({ logoUrl: reader.result });
+                }
+            };
             reader.readAsDataURL(file);
         }
     }, [setProfile]);
@@ -236,7 +258,13 @@ const StepIntent: React.FC = memo(() => {
                         {/* Mini Logo */}
                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden relative group shrink-0">
                             {profile.logoUrl ? (
-                                <img src={profile.logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+                                <Image
+                                    src={profile.logoUrl}
+                                    alt="Logo"
+                                    fill
+                                    sizes="(max-width: 768px) 40px, 48px"
+                                    className="object-contain p-1"
+                                />
                             ) : (
                                 <Upload className="w-4 h-4 md:w-5 md:h-5 text-slate-300" />
                             )}
@@ -360,7 +388,9 @@ const StepEditor: React.FC = memo(() => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setBackgroundImage(reader.result as string);
+                if (typeof reader.result === 'string') {
+                    setBackgroundImage(reader.result);
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -373,7 +403,7 @@ const StepEditor: React.FC = memo(() => {
         setCustomBody(copy.body);
     }, [campaignGoal, modality, setCustomTitle, setCustomBody]);
 
-    const filteredImages = useMemo(() => 
+    const filteredImages = useMemo(() =>
         STOCK_IMAGES.filter(img => img.modality === modality || img.modality === 'ALL'),
         [modality]
     );
@@ -447,7 +477,13 @@ const StepEditor: React.FC = memo(() => {
                                 onClick={() => setBackgroundImage(img.url)}
                                 className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${backgroundImage === img.url ? 'border-cyan-500 ring-2 ring-cyan-500/30' : 'border-transparent hover:border-slate-300'}`}
                             >
-                                <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
+                                <Image
+                                    src={img.url}
+                                    alt={img.label}
+                                    fill
+                                    sizes="(max-width: 768px) 18vw, 80px"
+                                    className="object-cover"
+                                />
                             </button>
                         ))}
                         <label className={`relative aspect-square rounded-lg overflow-hidden border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors ${!filteredImages.some(i => i.url === backgroundImage) && backgroundImage ? 'border-cyan-500 bg-cyan-50' : 'border-slate-300 hover:bg-slate-50'}`}>

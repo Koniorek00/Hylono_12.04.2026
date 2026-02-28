@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft, CheckCircle, Clock, Zap, Save, Sparkles, ArrowRight } from 'lucide-react';
 import { TechType } from '../types';
+import { useRouter } from 'next/navigation';
 
 interface ProtocolEngineStep {
     title: string;
@@ -21,6 +22,7 @@ interface ProtocolEngineProps {
 }
 
 export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ steps, techName, accentColor, onComplete, nextSynergy }) => {
+    const router = useRouter();
     const [currentStep, setCurrentStep] = useState(0);
     const [isActive, setIsActive] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0); // in seconds
@@ -130,7 +132,8 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ steps, techName,
                                 className="px-6 py-3 bg-white text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-cyan-400 transition-all"
                                 onClick={() => {
                                     // Logic to jump to next tech would go here
-                                    window.location.href = `/product/${nextSynergy.id}?launch=true`;
+                                    router.push(`/product/${nextSynergy.id}?launch=true`);
+                                    window.scrollTo(0, 0);
                                 }}
                             >
                                 Continue Stack <ArrowRight size={14} />

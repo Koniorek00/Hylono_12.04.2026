@@ -56,7 +56,7 @@ const DEFAULT_ALLOWED_ATTR = [
 /**
  * Allowed URI protocols for href and src attributes
  */
-const DEFAULT_ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+const DEFAULT_ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
 
 /**
  * Sanitization options for different content types
@@ -143,7 +143,7 @@ export function sanitizeHtml(
         config.ADD_ATTR = ['allow', 'allowfullscreen'];
         
         // Only allow iframes from trusted video sources
-        config.ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+        config.ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
     }
 
     // Remove script and style from FORBID_TAGS if we're allowing them (we're not)

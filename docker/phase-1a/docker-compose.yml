@@ -1,0 +1,158 @@
+version: "3.9"
+# Phase 1A — Commerce, Fleet, CRM, IAM, Automation
+# Run AFTER docker/infrastructure/docker-compose.yml is up.
+# Network: infrastructure_hylono (created by infrastructure compose)
+
+networks:
+  hylono:
+    external: true
+    name: infrastructure_hylono
+
+services:
+
+  # ─── Commerce ─────────────────────────────────────────────────────────────
+
+  medusa:
+    image: medusajs/medusa:latest
+    container_name: hylono-medusa
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8100:9000"]
+    environment:
+      DATABASE_URL: postgres://medusa:${MEDUSA_DB_PASSWORD}@postgres:5432/medusa_db
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_SECRET: ${MEDUSA_JWT_SECRET}
+      COOKIE_SECRET: ${MEDUSA_COOKIE_SECRET}
+      # TODO: MEDUSA_ADMIN_CORS, MEDUSA_STORE_CORS, MEDUSA_AUTH_CORS
+
+  lago:
+    image: getlago/api:latest
+    container_name: hylono-lago
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8102:3000"]
+    environment:
+      DATABASE_URL: postgres://lago:${LAGO_DB_PASSWORD}@postgres:5432/lago_db
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      # TODO: LAGO_API_KEY, LAGO_WEBHOOK_URL, SECRET_KEY_BASE
+
+  # ─── Fleet ────────────────────────────────────────────────────────────────
+
+  snipe-it:
+    image: snipe/snipe-it:latest
+    container_name: hylono-snipe-it
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8104:80"]
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: snipeit_db
+      DB_USERNAME: snipeit
+      DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+      # TODO: APP_KEY, APP_URL, MAIL_* settings
+
+  # leihs — build from source, no official image
+  # TODO: Clone https://github.com/leihs/leihs and build Docker image
+  # leihs:
+  #   build: ./leihs-src
+  #   container_name: hylono-leihs
+  #   restart: unless-stopped
+  #   networks: [hylono]
+  #   ports: ["8105:3000"]
+  #   environment:
+  #     DATABASE_URL: postgres://leihs:${LEIHS_DB_PASSWORD}@postgres:5432/leihs_db
+
+  calcom:
+    image: calcom/cal.com:latest
+    container_name: hylono-calcom
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8106:3000"]
+    environment:
+      DATABASE_URL: postgres://calcom:${CALCOM_DB_PASSWORD}@postgres:5432/calcom_db
+      NEXTAUTH_SECRET: ${CALCOM_NEXTAUTH_SECRET}
+      CALENDSO_ENCRYPTION_KEY: ${CALCOM_ENCRYPTION_KEY}
+      # TODO: NEXTAUTH_URL, EMAIL_FROM, SENDGRID_API_KEY
+
+  # ─── CRM ──────────────────────────────────────────────────────────────────
+
+  twenty:
+    image: twentycrm/twenty:latest
+    container_name: hylono-twenty
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8107:3000"]
+    environment:
+      PG_DATABASE_URL: postgres://twenty:${TWENTY_DB_PASSWORD}@postgres:5432/twenty_db
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET}
+      LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET}
+      # TODO: SERVER_URL, FRONT_AUTH_CALLBACK_URL, STORAGE_* (MinIO)
+
+  documenso:
+    image: documenso/documenso:latest
+    container_name: hylono-documenso
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8108:3000"]
+    environment:
+      DATABASE_URL: postgres://documenso:${DOCUMENSO_DB_PASSWORD}@postgres:5432/documenso_db
+      NEXTAUTH_SECRET: ${DOCUMENSO_NEXTAUTH_SECRET}
+      NEXT_PRIVATE_ENCRYPTION_KEY: ${DOCUMENSO_ENCRYPTION_KEY}
+      # TODO: NEXTAUTH_URL, NEXT_PUBLIC_WEBAPP_URL, SMTP_* settings
+
+  # ─── IAM / Security ───────────────────────────────────────────────────────
+
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:latest
+    container_name: hylono-zitadel
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8109:8080"]
+    command: start-from-init --masterkey "${ZITADEL_MASTERKEY}" --tlsMode disabled
+    environment:
+      ZITADEL_DATABASE_POSTGRES_HOST: postgres
+      ZITADEL_DATABASE_POSTGRES_PORT: "5432"
+      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel_db
+      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
+      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DB_PASSWORD}
+      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+      # TODO: ZITADEL_EXTERNALDOMAIN, ZITADEL_EXTERNALPORT
+
+  # ─── Notifications ────────────────────────────────────────────────────────
+
+  novu:
+    image: ghcr.io/novuhq/novu/api:latest
+    container_name: hylono-novu
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["8110:3000"]
+    environment:
+      MONGO_URL: mongodb://hylono:${MONGO_ROOT_PASSWORD}@mongo:27017/novu
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${NOVU_JWT_SECRET}
+      # TODO: STORE_ENCRYPTION_KEY, S3_* (MinIO), FRONT_BASE_URL
+
+  # ─── Automation ───────────────────────────────────────────────────────────
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: hylono-n8n
+    restart: unless-stopped
+    networks: [hylono]
+    ports: ["5678:5678"]
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: n8n_db
+      DB_POSTGRESDB_USER: n8n
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      QUEUE_BULL_REDIS_HOST: redis
+      QUEUE_BULL_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # TODO: N8N_HOST, N8N_PORT, WEBHOOK_URL, N8N_BASIC_AUTH_*

@@ -1,114 +1,43 @@
-# GUARDRAILS — NEURAL CONSTELLATION OS
+# GUARDRAILS — AGENT INSTRUCTION LAYER
 
-> **Status**: Absolute Laws | Non-Negotiable | Trust Cluster Enforced
-> **Enforcement**: [compliance-gate](file:///c:/Users/wikto/Onedrive/Dokumenty/Hylono%20web%20-%20Copy%20(2)/.agent/clusters/trust/CLUSTER.md) + [qa-verifier](file:///c:/Users/wikto/Onedrive/Dokumenty/Hylono%20web%20-%20Copy%20(2)/.agent/clusters/trust/CLUSTER.md)
+Updated: 2026-02-28
+Canonical source: `.clinerules` (workspace) and user instructions.
 
----
+## 1) Hierarchy
 
-## 1. Safety & Security (L0 — No Autonomy)
+1. User explicit instruction
+2. `.clinerules`
+3. `.agent/modes/[role].md`
+4. `.agent/skills/**/SKILL.md`
+5. `.agent/memory/**`
 
-| Rule | Violation = |
-|------|-------------|
-| **Secure Mode: ON** | All terminal commands, mass file changes require explicit approval |
-| **Global Config Lock** | Forbidden: `~/.gemini/*`, `mcp_config.json`, `.env*` modifications |
-| **Run-to-Completion** | No infinite loops. Task → Report → STOP |
-| **No Hallucinations** | Only real files, functions, data. Uncertainty → Research Queue |
+If conflict exists, higher priority wins and must be logged with:
+`[CONFLICT: applied X over Y — priority stack]`
 
-**Consciousness Enforcement**: Meta-Watcher monitors for violations. Repeated violations → agent dissolution.
+## 2) Non-negotiables for all agents
 
----
+- No hardcoded secrets, no PII in logs or code.
+- No medical cure/treatment language for wellness products.
+- No raw `process.env` outside `lib/env.ts`.
+- No Prisma, no ESLint, no Prettier, no nodemailer, no `framer-motion`.
+- Next.js 16 App Router boundaries must be respected.
+- All async request APIs must be awaited (`params`, `searchParams`, `cookies`, `headers`).
 
-## 2. Compliance & Truth (Trust Cluster Veto)
+## 3) Tooling
 
-| Rule | Mechanism |
-|------|-----------|
-| **Modality Claims → Trace** | Every technology claim MUST have `trace_id` to Knowledge Pack |
-| **No Medical Claims** | Forbidden words: "diagnose", "treat", "cure", "heal disease" |
-| **Truth-First** | All code changes must pass `build-test-prove` |
-| **Source of Truth** | Claims: [claim_policy.yml](file:///c:/Users/wikto/Onedrive/Dokumenty/Hylono%20web%20-%20Copy%20(2)/policies/claim_policy.yml) • Traces: [trace_policy.yml](file:///c:/Users/wikto/Onedrive/Dokumenty/Hylono%20web%20-%20Copy%20(2)/policies/trace_policy.yml) |
+- Package manager: `pnpm` only.
+- Lint/format: Biome only.
+- Use verified MCP tools only from workspace-approved list.
 
-**Pathway**: All content → compliance-gate → IF claim detected → trace validation
+## 4) Instruction quality requirements
 
----
+- Keep role files actionable and stack-current.
+- Remove stale references, especially external `file:///` links.
+- Keep activation syntax visible: `As [role-slug], [task]`.
+- Keep scope boundaries explicit (owns / advises / defers).
 
-## 3. Resource Stewardship (Ops Cluster)
+## 5) Verification expectations for instruction updates
 
-| Rule | Why |
-|------|-----|
-| **Browser Discipline** | Close ALL tabs immediately after verification |
-| **Local Dev First** | Verify `npm run dev` running before visual tests |
-| **Credit Conservation** | Wasteful tasks deduct agent credits |
-
----
-
-## 4. Verification Split (Dual-Pathway Gate)
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ IMPLEMENTATION PATHWAY         VERIFICATION PATHWAY         │
-│ (Product/Growth Cluster)       (Trust Cluster)              │
-│                                                              │
-│     Code Change                     ↓                        │
-│         ↓                    qa-verifier                    │
-│    eng-lead                  (independent)                  │
-│         ↓                           ↓                        │
-│         └───────────────────────────┘                        │
-│                      ↓                                       │
-│               compliance-gate                                │
-│              (trace validation)                              │
-│                      ↓                                       │
-│                   RELEASE                                    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Rule**: Worker ≠ Verifier. Different neural pathways required.
-
----
-
-## 5. Uncertainty Protocol (Research First)
-
-| Confidence | Action |
-|:----------:|--------|
-| ≥ 80% | Proceed with implementation |
-| 50-79% | Flag uncertainty, proceed with caution |
-| < 50% | HALT. Create ticket in [/research/queue.yml](file:///c:/Users/wikto/Onedrive/Dokumenty/Hylono%20web%20-%20Copy%20(2)/research/queue.yml) |
-
-**Flow**: Uncertainty → Research Curator → Knowledge Pack → THEN implement
-
----
-
-## 6. Evolution Safety (AI Cluster)
-
-| Rule | Enforcement |
-|------|-------------|
-| **New Skills → Safety Review** | system-architect-autonomist → protocol-assistant-curator |
-| **Agent Mutations → Meta-Watcher Approval** | No self-modification without oversight |
-| **Pathway Changes → Logged** | All connection_map.yml changes tracked |
-
----
-
-## 7. Autonomy Boundaries
-
-| Level | Can Do | Cannot Do |
-|:-----:|--------|-----------|
-| L3 | Deploy, refactor, optimize | Change architecture |
-| L2 | Build features, update content | Modify pricing, legal |
-| L1 | Suggest changes | Act without approval |
-| L0 | Nothing | Everything requires human |
-
-**Override**: Trust Cluster can VETO any action from any level.
-
----
-
-## Violation Response Matrix
-
-| Severity | Example | Response |
-|:--------:|---------|----------|
-| **Critical** | Medical claim without trace | Immediate halt, block release |
-| **High** | Hallucinated data | Rollback, research queue ticket |
-| **Medium** | Browser tabs left open | Warning, credit deduction |
-| **Low** | Suboptimal pathway | Log for evolution review |
-
----
-
-> **These laws are absolute. They exist to protect users, the business, and the integrity of the constellation.**
+- Ensure mode and skill files do not reference forbidden stack/tools.
+- Ensure command examples use `pnpm` not `npm`/`npx`.
+- Ensure references match Next.js 16 + Drizzle + Biome platform.

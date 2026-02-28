@@ -186,7 +186,7 @@ const DeviceModal: React.FC<{
                                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
                                         <select
                                             value={newLog.type}
-                                            onChange={(e) => setNewLog({ ...newLog, type: e.target.value as any })}
+onChange={(e) => setNewLog({ ...newLog, type: e.target.value as 'routine' | 'repair' | 'issue' })}
                                             className="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-cyan-400"
                                         >
                                             <option value="routine">Routine Maintenance</option>

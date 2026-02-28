@@ -19,7 +19,7 @@ export const CareersPage: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-32 pb-24">
+        <div className="min-h-screen bg-slate-50 pt-10 pb-24">
             <div className="max-w-5xl mx-auto px-6">
                 {/* Header */}
                 <div className="text-center mb-16">

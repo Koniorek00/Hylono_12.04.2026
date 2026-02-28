@@ -7,12 +7,14 @@ interface GatedViewProps {
     children: React.ReactNode;
     title: string;
     description: string;
+    onRequestLogin?: () => void;
 }
 
 export const GatedView: React.FC<GatedViewProps> = ({
     children,
     title,
-    description
+    description,
+    onRequestLogin,
 }) => {
     const { session, loading } = useAuth();
 
@@ -47,10 +49,16 @@ export const GatedView: React.FC<GatedViewProps> = ({
                 </p>
 
                 <div className="space-y-3">
-                    <button className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                    <button
+                        onClick={onRequestLogin}
+                        className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                    >
                         Member Sign In <ArrowRight size={16} />
                     </button>
-                    <button className="w-full py-4 bg-white text-slate-900 border-2 border-slate-100 rounded-xl font-bold uppercase tracking-widest text-xs hover:border-slate-300 transition-all flex items-center justify-center gap-2">
+                    <button
+                        onClick={onRequestLogin}
+                        className="w-full py-4 bg-white text-slate-900 border-2 border-slate-100 rounded-xl font-bold uppercase tracking-widest text-xs hover:border-slate-300 transition-all flex items-center justify-center gap-2"
+                    >
                         Apply for Access <UserPlus size={16} />
                     </button>
                 </div>

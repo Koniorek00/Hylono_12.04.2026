@@ -1,114 +1,57 @@
-# SKILL: Project Conventions
+# SKILL: Project Conventions (Hylono v9)
 **Used by**: architect-orchestrator, frontend-specialist, backend-specialist, code-skeptic, code-reviewer, docs-specialist, test-engineer, devops-deploy, i18n-specialist
 
----
+## Canonical Stack
+- Framework: Next.js 16 App Router + React 19 + TypeScript strict
+- Styling: Tailwind v4 CSS-first (`@theme` in CSS)
+- Lint/format: Biome only (`pnpm exec biome check .`)
+- Database: Drizzle ORM + Neon PostgreSQL
+- Auth: Auth.js v5 (self-hosted)
+- Validation: Zod on all external input
+- Security: Arcjet for rate limiting + bot protection
+- Email: React Email + Resend
+- Analytics: PostHog EU (+ Vercel Analytics as supplementary)
+- Testing: Vitest + Playwright + `@axe-core/playwright`
 
-## Tech Stack
-- **Framework**: React 18 + TypeScript (strict mode)
-- **Build**: Vite
-- **Styling**: Tailwind CSS + CSS Modules where needed
-- **State**: React Context + useState (local), TanStack Query (server)
-- **Database**: PostgreSQL + Prisma ORM
-- **Validation**: Zod (server-side, always)
-- **Auth**: JWT + HttpOnly cookies
-- **Testing**: Vitest + React Testing Library + Playwright
+## Required Commands
+- `pnpm dev`
+- `pnpm build`
+- `pnpm test`
+- `pnpm check`
+- `pnpm exec biome check .`
 
-## Directory Structure
-```
-/
-├── .agent/           # Agent system (modes, skills, memory)
-├── app/              # API routes + server logic
-│   ├── api/          # REST endpoints
-│   └── rental/       # Rental-specific routes
-├── components/       # React components
-│   ├── shared/       # Reusable across pages
-│   ├── product/      # Product-related components
-│   ├── navigation/   # Nav components
-│   └── [page]/       # Page-specific components
-├── constants/        # Static data, enums, config
-├── context/          # React Context providers
-├── hooks/            # Custom React hooks
-├── lib/              # Utilities, services, helpers
-│   ├── services/     # External service integrations
-│   └── rbac/         # Role-based access control
-├── prisma/           # Database schema + migrations
-├── public/           # Static assets
-├── types.ts          # Shared TypeScript types
-└── utils/            # Pure utility functions
-```
+## Forbidden Commands / Tools
+- No `npm`, `yarn`, `npx`
+- No `pnpm lint`, `next lint`
+- No Prisma, ESLint, Prettier, nodemailer, `framer-motion`
 
-## TypeScript Rules
-- `strict: true` — no exceptions
-- No `any`. Use `unknown` + type guards.
-- Explicit return types on all exported functions
-- Interface over type for object shapes (unless union needed)
-- Enums for finite sets of values (device status, rental states, etc.)
+## Next.js 16 Rules
+- `page.tsx` is server by default (never add `'use client'` there)
+- Do not export `metadata` from a client component
+- Await request APIs: `params`, `searchParams`, `cookies()`, `headers()`, `draftMode()`
+- Internal routes via `next/link` (not raw `<a href>`)
+- Images via `next/image` (not `<img>`)
+- Routing hooks from `next/navigation` (no `react-router-dom`)
 
-## Component Conventions
-```tsx
-// Named exports only
-export const ComponentName = ({ prop1, prop2 }: ComponentNameProps) => {
-  return <div>...</div>;
-};
+## Server / Client Boundary
+- Default to server components
+- Use `'use client'` only for interactivity, browser APIs, or client-only libs
+- Client components cannot import server components
 
-// Props interface above component
-interface ComponentNameProps {
-  prop1: string;
-  prop2?: boolean;
-}
-```
-
-- One component per file
-- File name = component name (PascalCase)
-- Co-locate: `ComponentName.tsx`, `ComponentName.module.css` (if needed), `ComponentName.test.tsx`
-
-## API Conventions
-All API responses use this envelope:
-```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: {
-    code: string;      // Machine-readable: "RENTAL_NOT_FOUND"
-    message: string;   // Human-readable
-  };
-  meta?: {
-    page?: number;
-    total?: number;
-    limit?: number;
-  };
-}
-```
-
-## Error Handling
-```typescript
-// Server: Typed error classes
-class AppError extends Error {
-  constructor(public code: string, message: string, public statusCode = 400) {
-    super(message);
-  }
-}
-
-// Client: Always handle loading + error + empty states
-if (isLoading) return <Skeleton />;
-if (error) return <ErrorState error={error} />;
-if (!data?.length) return <EmptyState />;
-```
+## Data + API Conventions
+- Prefer Server Components for reads
+- Prefer Server Actions for mutations
+- Use `route.ts` only for webhooks/external integrations
+- API envelope: `{ success, data?, error?: { code, message }, meta? }`
 
 ## Environment Variables
-- `.env.local` — local secrets (gitignored)
-- `.env.example` — template with placeholder values (committed)
-- `.env` — non-secret defaults (committed)
-- Never access `process.env` directly in components — use config module
+- Access env only through `lib/env.ts`
+- No raw `process.env` outside env module
+- Keep secrets out of git
 
-## Git Conventions
-- Branch: `feature/slug`, `fix/slug`, `chore/slug`
-- Commits: Conventional commits — `feat:`, `fix:`, `docs:`, `chore:`
-- No direct commits to `main`
-
-## Code Quality Gates
-- ESLint: no warnings in production builds
-- TypeScript: no errors (strict)
-- All tests pass before merge
-- No `console.log` in production code (use structured logger)
-- No commented-out code shipped
+## Quality Gate
+Before delivery, run `pnpm check` and ensure:
+- build passes
+- tests pass
+- Biome passes
+- no forbidden stack usage introduced

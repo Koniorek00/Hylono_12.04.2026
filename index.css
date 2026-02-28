@@ -1,16 +1,171 @@
+/* ===== DYSLEXIA-FRIENDLY FONT - Accessibility ===== */
+/* Using Lexie Readable from Google Fonts as dyslexic-friendly alternative */
+@import url('https://fonts.googleapis.com/css2?family=Lexie+Readable:wght@400;700&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --duration-ui-fast: 150ms;
+  --duration-ui-standard: 200ms;
+  --duration-ui-slow: 300ms;
+  --ease-ui-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-ui-emphasized: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer utilities {
+  .ui-transition {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-ui-standard);
+    transition-timing-function: var(--ease-ui-standard);
+  }
+
+  .ui-transition-fast {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-ui-fast);
+    transition-timing-function: var(--ease-ui-standard);
+  }
+
+  .ui-transition-colors {
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: var(--duration-ui-standard);
+    transition-timing-function: var(--ease-ui-standard);
+  }
+
+  .ui-will-change {
+    will-change: transform, opacity;
+  }
+
+  .ui-accordion-grid {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition-property: grid-template-rows, opacity;
+    transition-duration: var(--duration-ui-standard);
+    transition-timing-function: var(--ease-ui-standard);
+    opacity: 0;
+  }
+
+  .ui-accordion-grid[data-open='true'] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .ui-accordion-grid > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .ui-will-change {
+    will-change: auto;
+  }
+}
+
+/* Constrain Tailwind's transition-all to non-layout properties globally to prevent jank */
+.transition-all {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: var(--ease-ui-standard);
+  transition-duration: var(--duration-ui-standard);
+}
+
 :root {
+  /* Typography System */
+  --font-heading: 'Syncopate', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-description: 'Outfit', sans-serif;
+  --font-dyslexic: 'Lexie Readable', sans-serif;
+  
+  /* Description sizing for accessibility (elderly users) */
+  --text-description: 1.0625rem; /* 17px - slightly larger for readability */
+  --text-description-lg: 1.125rem; /* 18px */
+  --leading-description: 1.7; /* More generous line-height */
+  
+  /* Legacy variables */
   --pearl-base: #f8fafc;
   --iridescent-cyan: rgba(6, 182, 212, 0.15);
   --iridescent-purple: rgba(147, 51, 234, 0.1);
   --aurora-silver: #e2e8f0;
   --high-vibe-glow: 0 0 25px rgba(255, 255, 255, 0.8);
+  
+  /* 2025 Aurora gradient - animatable via @property */
+  --aurora-stop-1: 220deg;
+  --aurora-stop-2: 160deg;
+}
+
+/* CSS @property for smooth gradient angle animation */
+@property --gradient-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --aurora-opacity {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0.5;
 }
 
 @layer components {
   .glass-pearl {
     @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+  
+  /* Grain texture overlay - applied via pseudo-element */
+  .grain-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px;
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  
+  /* Aurora border glow - the 2025 gradient border effect */
+  .aurora-border {
+    position: relative;
+    background: linear-gradient(#fff, #fff) padding-box,
+      conic-gradient(from var(--gradient-angle), #06b6d4, #8b5cf6, #f59e0b, #06b6d4) border-box;
+    border: 1.5px solid transparent;
+    animation: rotate-gradient 4s linear infinite;
+  }
+  
+  /* Glow text effect for key metrics */
+  .glow-cyan {
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.2);
+  }
+  
+  /* Magnetic hover effect base */
+  .magnetic {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  /* Masked gradient text — stronger than standard bg-clip */
+  .text-gradient-hylono {
+    background: linear-gradient(135deg, #0f172a 0%, #475569 50%, #0f172a 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer-gradient 6s ease infinite;
+  }
+  
+  /* Bento tile hover state */
+  .bento-tile {
+    @apply relative overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-500;
+  }
+  .bento-tile:hover {
+    @apply shadow-2xl -translate-y-1 border-slate-200;
+  }
+  
+  /* Stats counter glow on enter */
+  .stat-glow {
+    transition: text-shadow 0.5s ease;
+  }
+  .stat-glow.in-view {
+    text-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
   }
 }
 
@@ -159,9 +314,53 @@ html {
   animation: breathe-border 10s ease-in-out infinite, breathe-glow 10s ease-in-out infinite;
 }
 
+/* ===== TYPOGRAPHY SYSTEM ===== */
+
+/* Syncopate Font Classes */
+.syncopate-regular {
+  font-family: "Syncopate", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.syncopate-bold {
+  font-family: "Syncopate", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* All headings use Syncopate */
+h1, h2, h3, h4, h5, h6,
+.heading {
+  font-family: "Syncopate", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Heading weight variations */
+h3, h4, h5, h6 {
+  font-weight: 400;
+}
+
+/* Legacy class - now correctly points to Syncopate */
 .futuristic-font {
-  font-family: 'Inter', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: "Syncopate", sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Description text - optimized for readability (elderly users) */
+.description,
+.prose p,
+[data-description] {
+  font-family: var(--font-description);
+  font-size: var(--text-description);
+  line-height: var(--leading-description);
+  font-weight: 400;
+}
+
+/* Large description variant */
+.description-lg {
+  font-size: var(--text-description-lg);
 }
 
 /* ===== LIVING ENERGY ANIMATIONS ===== */
@@ -307,6 +506,81 @@ html {
 
 .animate-spin-slow {
   animation: spin-slow 30s linear infinite;
+}
+
+/* Rotate gradient angle for aurora borders */
+@keyframes rotate-gradient {
+  0% { --gradient-angle: 0deg; }
+  100% { --gradient-angle: 360deg; }
+}
+
+/* Infinite marquee / ticker */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-slow {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee 25s linear infinite reverse;
+}
+
+/* Stagger fade-up for grid children */
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(32px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Number ticker / count-up shimmer */
+@keyframes count-glow {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.3) drop-shadow(0 0 8px rgba(6,182,212,0.6)); }
+  100% { filter: brightness(1); }
+}
+
+.animate-count-glow {
+  animation: count-glow 1.5s ease-out forwards;
+}
+
+/* Spotlight sweep across card */
+@keyframes spotlight-sweep {
+  0% { opacity: 0; transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Text reveal via clip path (word by word) */
+@keyframes text-reveal {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+
+.text-reveal {
+  animation: text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Floating badge pulse */
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-4px) scale(1.02); }
+}
+
+.animate-badge-float {
+  animation: badge-float 3s ease-in-out infinite;
+}
+
+/* Gradient border rotation (conic) */
+@keyframes border-spin {
+  to { --gradient-angle: 360deg; }
 }
 
 /* ===== MIND-MATTER CONNECTION ANIMATIONS ===== */
@@ -704,6 +978,149 @@ html {
   .opacity-80 {
     opacity: 1;
   }
+}
+
+/* ===== HIGH CONTRAST MODE - Accessibility ===== */
+.high-contrast-mode {
+  /* Increase contrast for all text */
+  --text-primary: #000000;
+  --text-secondary: #1a1a1a;
+  
+  /* Enhance border visibility */
+  --border-color: #333333;
+}
+
+.high-contrast-mode body,
+.high-contrast-mode .bg-white,
+.high-contrast-mode .bg-slate-50,
+.high-contrast-mode .bg-slate-100 {
+  background-color: #ffffff !important;
+}
+
+.high-contrast-mode .text-slate-600,
+.high-contrast-mode .text-slate-500,
+.high-contrast-mode .text-slate-400 {
+  color: #1a1a1a !important;
+}
+
+.high-contrast-mode .text-slate-300,
+.high-contrast-mode .text-slate-200 {
+  color: #333333 !important;
+}
+
+.high-contrast-mode .border-slate-200,
+.high-contrast-mode .border-slate-100 {
+  border-color: #666666 !important;
+}
+
+.high-contrast-mode .shadow-lg,
+.high-contrast-mode .shadow-xl,
+.high-contrast-mode .shadow-2xl {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Focus indicators more visible in high contrast */
+.high-contrast-mode *:focus-visible {
+  outline: 3px solid #000000 !important;
+  outline-offset: 3px !important;
+}
+
+/* Links more visible */
+.high-contrast-mode a {
+  color: #0066cc !important;
+  text-decoration: underline !important;
+}
+
+.high-contrast-mode a:hover {
+  color: #004499 !important;
+}
+
+/* Buttons more visible */
+.high-contrast-mode button {
+  border: 2px solid currentColor !important;
+}
+
+/* ===== FOCUS MODE - Distraction-free reading ===== */
+.focus-mode-active {
+  /* Reduce overall brightness */
+}
+
+.focus-mode-active main,
+.focus-mode-active article,
+.focus-mode-active .prose {
+  transition: opacity 0.3s ease;
+}
+
+.focus-mode-active .focus-section-dimmed {
+  opacity: 0.25;
+  transition: opacity 0.3s ease;
+}
+
+.focus-mode-active .focus-section-active {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* ===== READING FONT STYLES ===== */
+.font-dyslexic {
+  --reading-font: 'Lexie Readable', sans-serif;
+}
+
+/* Apply dyslexic font to all readable text when enabled */
+.font-dyslexic,
+.font-dyslexic body,
+.font-dyslexic p,
+.font-dyslexic li,
+.font-dyslexic span,
+.font-dyslexic div,
+.font-dyslexic article,
+.font-dyslexic section,
+.font-dyslexic .prose,
+.font-dyslexic .description,
+.font-dyslexic [data-description],
+.font-dyslexic td,
+.font-dyslexic th,
+.font-dyslexic label,
+.font-dyslexic input,
+.font-dyslexic textarea,
+.font-dyslexic button:not(.syncopate-regular):not(.syncopate-bold),
+.font-dyslexic a:not(.syncopate-regular):not(.syncopate-bold) {
+  font-family: var(--reading-font) !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+}
+
+/* Keep headings in Syncopate font for brand consistency */
+.font-dyslexic h1,
+.font-dyslexic h2,
+.font-dyslexic h3,
+.font-dyslexic h4,
+.font-dyslexic h5,
+.font-dyslexic h6,
+.font-dyslexic .heading,
+.font-dyslexic .syncopate-regular,
+.font-dyslexic .syncopate-bold,
+.font-dyslexic .futuristic-font {
+  font-family: 'Syncopate', sans-serif !important;
+}
+
+.font-mono {
+  --reading-font: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.font-mono body,
+.font-mono .prose,
+.font-mono article {
+  font-family: var(--reading-font) !important;
+}
+
+/* Line height CSS variable for reading tools */
+:root {
+  --reading-line-height: 1.6;
+}
+
+body {
+  line-height: var(--reading-line-height);
 }
 
 /* ===== PRINT-SPECIFIC STYLES ===== */

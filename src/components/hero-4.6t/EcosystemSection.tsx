@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Sun, Wind, Activity } from 'lucide-react';
+import Link from 'next/link';
 
 export const EcosystemSection: React.FC = () => {
     return (
@@ -78,10 +79,10 @@ const Card = ({ title, desc, gradient, icon, animation }: any) => (
                 <h3 className="text-[24px] font-bold text-[#1A1A1A] mb-2">{title}</h3>
                 <p className="text-[14px] text-[#6B6B60] leading-relaxed">{desc}</p>
             </div>
-            <a href="#" className="inline-flex items-center text-[14px] font-semibold text-[#0A6E6E] group">
+            <Link href="#" className="inline-flex items-center text-[14px] font-semibold text-[#0A6E6E] group">
                 Learn Protocol
                 <span className="ml-1 transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </a>
+            </Link>
         </div>
     </motion.div>
 );

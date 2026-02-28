@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useActionState, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, AlertTriangle, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
 import { getCSRFToken, validateCSRFToken } from '../utils/csrf';
+import { submitContactFormAction, type FormActionResult } from '../src/actions/formActions';
 
 export const ContactPage: React.FC = () => {
     const [formStep, setFormStep] = useState(1);
@@ -23,8 +24,14 @@ export const ContactPage: React.FC = () => {
     const [showEmergencyModal, setShowEmergencyModal] = useState(false);
     const [showCallbackModal, setShowCallbackModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+    const [_selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [submitted, setSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [ticketId, setTicketId] = useState<string | null>(null);
+    const [contactActionState, contactFormAction, contactPending] = useActionState<FormActionResult, FormData>(
+        submitContactFormAction,
+        { success: false, message: '' }
+    );
     
     // Initialize CSRF token
     React.useEffect(() => {
@@ -38,7 +45,7 @@ export const ContactPage: React.FC = () => {
         const messageLower = formData.message.toLowerCase();
         const hasEmergency = keywords.some(keyword => messageLower.includes(keyword));
 
-        if (hasEmergency && !showEmergencyModal) {
+        if (hasEmergency) {
             setShowEmergencyModal(true);
         }
     }, [formData.message]);
@@ -51,24 +58,32 @@ export const ContactPage: React.FC = () => {
         setFormStep(prev => prev - 1);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
+    React.useEffect(() => {
+        if (contactActionState.success) {
+            setTicketId(contactActionState.ticketId ?? null);
+            setSubmitted(true);
+            setSubmitError(null);
+            return;
+        }
+
+        if (contactActionState.message) {
+            setSubmitError(contactActionState.message);
+        }
+    }, [contactActionState]);
+
+    const handleSubmitValidation = (e: React.FormEvent<HTMLFormElement>) => {
         // CSRF token validation
         const storedToken = getCSRFToken();
         const submittedToken = formData.csrfToken;
-        
+
         if (!validateCSRFToken(submittedToken, storedToken)) {
             setCsrfTokenError(true);
-            console.error('CSRF validation failed');
+            e.preventDefault();
             return;
         }
-        
+
         setCsrfTokenError(false);
-        
-        // Mock submission
-        console.log('Contact form submitted:', { userType, ...formData });
-        setSubmitted(true);
+        setSubmitError(null);
     };
 
     const handleCallbackSchedule = (slot: string) => {
@@ -79,10 +94,9 @@ export const ContactPage: React.FC = () => {
 
         setTimeout(() => {
             setShowCallbackModal(false);
-            setSelectedDate(null); // Reset for next time
-            // Show a toast or small confirmation could go here, for now just log it
-            console.log('Callback scheduled for:', { date: dateStr, time: slot });
-            alert(`Callback scheduled for ${dateStr} at ${slot}`);
+            setSelectedDate(null);
+            // TODO: connect to /api/callback endpoint when implemented
+            window.alert(`Callback scheduled for ${dateStr} at ${slot}`);
         }, 500);
     };
 
@@ -99,7 +113,7 @@ export const ContactPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-32 pb-24 relative overflow-hidden">
+        <div className="min-h-screen bg-slate-50 pt-10 pb-24 relative overflow-hidden">
             {/* Emergency Modal */}
             <AnimatePresence>
                 {showEmergencyModal && (
@@ -254,13 +268,24 @@ export const ContactPage: React.FC = () => {
                                 <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Send className="text-emerald-600" size={28} />
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
+                                {ticketId && (
+                                    <p className="text-xs font-mono bg-slate-100 text-slate-500 px-3 py-1 rounded-lg inline-block mb-2">
+                                        Ticket: {ticketId}
+                                    </p>
+                                )}
                                 <p className="text-slate-500">We'll get back to you within 24 hours.</p>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="h-full flex flex-col justify-between min-h-[400px]">
+                            <form action={contactFormAction} onSubmit={handleSubmitValidation} className="h-full flex flex-col justify-between min-h-[400px]">
                                 {/* CSRF Token - Hidden Field */}
                                 <input type="hidden" name="csrfToken" value={formData.csrfToken} />
+                                <input type="hidden" name="userType" value={userType ?? ''} />
+                                <input type="hidden" name="subject" value={formData.subject || `Contact from ${userType ?? 'website'}`} />
+                                <input type="hidden" name="message" value={formData.message} />
+                                <input type="hidden" name="serialNumber" value={formData.serialNumber} />
+                                <input type="hidden" name="clinicName" value={formData.clinicName} />
+                                <input type="hidden" name="interest" value={formData.interest} />
                                 
                                 {csrfTokenError && (
                                     <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -296,7 +321,7 @@ export const ContactPage: React.FC = () => {
                                                         key={type.id}
                                                         type="button"
                                                         onClick={() => {
-                                                            setUserType(type.id as any);
+                                                            setUserType(type.id as 'owner' | 'clinic' | 'curious');
                                                             handleNextStep();
                                                         }}
                                                         className={`w-full text-left p-4 rounded-xl border-2 transition-all ${userType === type.id ? 'border-cyan-500 bg-cyan-50/50' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'}`}
@@ -305,6 +330,27 @@ export const ContactPage: React.FC = () => {
                                                         <div className="text-sm text-slate-500">{type.desc}</div>
                                                     </button>
                                                 ))}
+
+                                                {/* Quick Message Option */}
+                                                <div className="pt-4 mt-4 border-t border-slate-100">
+                                                    <p className="text-xs text-slate-400 uppercase tracking-widest mb-3 text-center">or skip the questions</p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setUserType(null);
+                                                            setFormStep(3); // Skip directly to message form
+                                                        }}
+                                                        className="w-full text-left p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/30 transition-all group"
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div>
+                                                                <div className="font-bold text-slate-700 group-hover:text-cyan-700">Send a message directly</div>
+                                                                <div className="text-sm text-slate-500">Get personalized help without the questions</div>
+                                                            </div>
+                                                            <Send size={18} className="text-slate-300 group-hover:text-cyan-500 transition-colors" />
+                                                        </div>
+                                                    </button>
+                                                </div>
                                             </motion.div>
                                         )}
 
@@ -320,10 +366,12 @@ export const ContactPage: React.FC = () => {
 
                                                 {userType === 'owner' && (
                                                     <div>
-                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Device Serial Number (Optional)</label>
+                                                        <label htmlFor="contact-serial" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Device Serial Number (Optional)</label>
                                                         <input
+                                                            id="contact-serial"
                                                             type="text"
                                                             value={formData.serialNumber}
+                                                                name="serialNumber"
                                                             onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
                                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                                                             placeholder="e.g. HY-2024-XXXX"
@@ -334,18 +382,21 @@ export const ContactPage: React.FC = () => {
                                                 {userType === 'clinic' && (
                                                     <>
                                                         <div>
-                                                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Clinic Name</label>
+                                                            <label htmlFor="contact-clinic-name" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Clinic Name</label>
                                                             <input
+                                                                id="contact-clinic-name"
                                                                 type="text"
                                                                 value={formData.clinicName}
+                                                                name="clinicName"
                                                                 onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
                                                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                                                                 placeholder="Your Clinic Name"
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Approx. Monthly Patients</label>
+                                                            <label htmlFor="contact-patient-count" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Approx. Monthly Patients</label>
                                                             <select
+                                                                id="contact-patient-count"
                                                                 value={formData.patientCount}
                                                                 onChange={(e) => setFormData({ ...formData, patientCount: e.target.value })}
                                                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
@@ -361,9 +412,11 @@ export const ContactPage: React.FC = () => {
 
                                                 {userType === 'curious' && (
                                                     <div>
-                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">I'm most interested in...</label>
+                                                        <label htmlFor="contact-interest" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">I'm most interested in...</label>
                                                         <select
+                                                            id="contact-interest"
                                                             value={formData.interest}
+                                                            name="interest"
                                                             onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
                                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
                                                         >
@@ -393,6 +446,7 @@ export const ContactPage: React.FC = () => {
                                                         <input
                                                             id="contact-name"
                                                             type="text"
+                                                            name="name"
                                                             required
                                                             aria-required="true"
                                                             value={formData.name}
@@ -406,6 +460,7 @@ export const ContactPage: React.FC = () => {
                                                         <input
                                                             id="contact-email"
                                                             type="email"
+                                                            name="email"
                                                             required
                                                             aria-required="true"
                                                             value={formData.email}
@@ -456,12 +511,30 @@ export const ContactPage: React.FC = () => {
                                             </button>
                                         )
                                     ) : (
-                                        <button
-                                            type="submit"
-                                            className="ml-auto w-full md:w-auto px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <Send size={18} /> Send Message
-                                        </button>
+                                    <>
+                                            {submitError && (
+                                                <p className="ml-auto text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+                                                    {submitError}
+                                                </p>
+                                            )}
+                                            <button
+                                                type="submit"
+                                                disabled={contactPending}
+                                                className="ml-auto w-full md:w-auto px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                            >
+                                                {contactPending ? (
+                                                    <>
+                                                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                                        </svg>
+                                                        Sending…
+                                                    </>
+                                                ) : (
+                                                    <><Send size={18} /> Send Message</>
+                                                )}
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </form>

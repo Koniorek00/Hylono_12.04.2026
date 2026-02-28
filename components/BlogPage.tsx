@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     BookOpen, Calendar, Clock, ArrowRight, Tag, Search, Filter,
@@ -10,8 +13,8 @@ import { SmartText } from './SmartText';
 import { BLOG_POSTS, BlogPost, RESEARCH_STUDIES } from '../constants/content';
 
 // Lazy load heavy components
-const ArticleReader = React.lazy(() => import('./blog/ArticleReader').then(m => ({ default: m.ArticleReader })));
-const BlogEditor = React.lazy(() => import('./blog/BlogEditor').then(m => ({ default: m.BlogEditor })));
+const ArticleReader = dynamic(() => import('./blog/ArticleReader').then(m => ({ default: m.ArticleReader })), { loading: () => null });
+const BlogEditor = dynamic(() => import('./blog/BlogEditor').then(m => ({ default: m.BlogEditor })), { loading: () => null });
 
 // === TYPES ===
 type ViewType = 'grid' | 'list' | 'compact';
@@ -346,7 +349,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
 
     // === RENDER ===
     return (
-        <div className="min-h-screen bg-slate-50 pt-32 pb-24">
+        <div className="min-h-screen bg-slate-50 pt-10 pb-24">
             <div className="max-w-7xl mx-auto px-6">
                 {/* Header */}
                 <motion.div
@@ -589,54 +592,50 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Article Reader Modal */}
-            <React.Suspense fallback={null}>
-                <AnimatePresence>
-                    {selectedPost && (
-                        <ArticleReader
-                            post={selectedPost}
-                            onClose={() => setSelectedPost(null)}
-                            onNavigate={handleNavigateArticle}
-                            canNavigate={{
-                                prev: filteredPosts.findIndex(p => p.id === selectedPost.id) > 0,
-                                next: filteredPosts.findIndex(p => p.id === selectedPost.id) < filteredPosts.length - 1
-                            }}
-                        />
-                    )}
-                </AnimatePresence>
-            </React.Suspense>
+            <AnimatePresence>
+                {selectedPost && (
+                    <ArticleReader
+                        post={selectedPost}
+                        onClose={() => setSelectedPost(null)}
+                        onNavigate={handleNavigateArticle}
+                        canNavigate={{
+                            prev: filteredPosts.findIndex(p => p.id === selectedPost.id) > 0,
+                            next: filteredPosts.findIndex(p => p.id === selectedPost.id) < filteredPosts.length - 1
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Blog Editor Modal */}
-            <React.Suspense fallback={null}>
-                <AnimatePresence>
-                    {showEditor && (
+            <AnimatePresence>
+                {showEditor && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+                        onClick={() => setShowEditor(false)}
+                    >
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
-                            onClick={() => setShowEditor(false)}
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="w-full max-w-4xl my-8"
+                            onClick={e => e.stopPropagation()}
                         >
-                            <motion.div
-                                initial={{ scale: 0.95, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.95, opacity: 0 }}
-                                className="w-full max-w-4xl my-8"
-                                onClick={e => e.stopPropagation()}
-                            >
-                                <div className="flex justify-end mb-4">
-                                    <button
-                                        onClick={() => setShowEditor(false)}
-                                        className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
-                                <BlogEditor />
-                            </motion.div>
+                            <div className="flex justify-end mb-4">
+                                <button
+                                    onClick={() => setShowEditor(false)}
+                                    className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <BlogEditor />
                         </motion.div>
-                    )}
-                </AnimatePresence>
-            </React.Suspense>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

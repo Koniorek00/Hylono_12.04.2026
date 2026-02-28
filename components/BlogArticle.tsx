@@ -3,8 +3,14 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Calendar, Clock, Tag, Share2, Bookmark, ChevronRight } from 'lucide-react';
 import { SmartText } from './SmartText';
 import { ArticleStructuredData, BreadcrumbStructuredData } from './StructuredData';
+import { ProductMention } from './content/ProductMention';
+import { ProtocolMention } from './content/ProtocolMention';
+import { BuilderCTA } from './content/BuilderCTA';
+import { AdvisorCTA } from './content/AdvisorCTA';
 import { BLOG_POSTS, BlogPost } from '../constants/content';
+import { blogCategoryCommerceMap } from '../content/batch3';
 import { sanitizeArticleContent } from '../utils/sanitization';
+import { isFeatureEnabled } from '../utils/featureFlags';
 import { TechType } from '../types';
 
 interface BlogArticleProps {
@@ -27,6 +33,7 @@ const getArticleBySlug = (slug: string): BlogPost | undefined => {
 
 export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNavigate }) => {
     const article = getArticleBySlug(slug);
+    const contentCommerceEnabled = isFeatureEnabled('feature_content_commerce');
 
     if (!article) {
         return (
@@ -75,6 +82,8 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
         category: article.category,
         readTime: article.readTime
     };
+
+    const commerceMapping = blogCategoryCommerceMap[article.category] ?? blogCategoryCommerceMap.Protocols;
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -199,6 +208,39 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
                                 </motion.div>
                             ))}
                     </div>
+
+                {contentCommerceEnabled && (
+                    <div className="pb-16">
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8">
+                            <h3 className="text-xl font-bold text-slate-900">Related products &amp; protocols</h3>
+                            <p className="text-sm text-slate-600 mt-2">
+                                Based on this topic, these options may support your routine and implementation plan.
+                            </p>
+
+                            <div className="grid md:grid-cols-2 gap-6 mt-6">
+                                <div className="space-y-3">
+                                    {commerceMapping.relatedProducts.map((productId) => (
+                                        <ProductMention
+                                            key={`product-${article.id}-${productId}`}
+                                            productId={productId}
+                                            context="article"
+                                        />
+                                    ))}
+                                    {commerceMapping.relatedProtocols.map((protocolSlug) => (
+                                        <ProtocolMention
+                                            key={`protocol-${article.id}-${protocolSlug}`}
+                                            protocolSlug={protocolSlug}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="space-y-3">
+                                    <BuilderCTA goal={commerceMapping.goal} />
+                                    <AdvisorCTA />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 </div>
             </div>
         </div>

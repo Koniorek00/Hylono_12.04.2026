@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 
 interface FAQItem {
@@ -34,24 +33,18 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ items }) => {
                         <button
                             onClick={() => setOpenIndex(openIndex === index ? null : index)}
                             className="w-full flex items-center justify-between p-6 text-left"
+                            aria-expanded={openIndex === index}
                         >
                             <span className="font-bold text-slate-800">{item.question}</span>
-                            {openIndex === index ? <Minus size={16} className="text-cyan-500" /> : <Plus size={16} className="text-slate-400" />}
+                            <span className="ui-transition-fast">
+                                {openIndex === index ? <Minus size={16} className="text-cyan-500" /> : <Plus size={16} className="text-slate-400" />}
+                            </span>
                         </button>
-                        <AnimatePresence>
-                            {openIndex === index && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    className="overflow-hidden"
-                                >
-                                    <div className="p-6 pt-0 text-slate-500 text-sm leading-relaxed">
-                                        {item.answer}
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <div className="ui-accordion-grid" data-open={openIndex === index}>
+                            <div className="p-6 pt-0 text-slate-500 text-sm leading-relaxed">
+                                {item.answer}
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>

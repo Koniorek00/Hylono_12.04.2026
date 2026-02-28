@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useActionState, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Sparkles, Check } from 'lucide-react';
+import { Mail, Sparkles, Check, AlertTriangle } from 'lucide-react';
+import { submitNewsletterFormAction, type FormActionResult } from '../src/actions/formActions';
 
 export const Newsletter: React.FC = () => {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [actionState, formAction, pending] = useActionState<FormActionResult, FormData>(
+        submitNewsletterFormAction,
+        { success: false, message: '' }
+    );
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Newsletter signup:', email);
-        setSubmitted(true);
-    };
+    useEffect(() => {
+        if (actionState.success) {
+            setSubmitted(true);
+            setEmail('');
+        }
+    }, [actionState.success]);
 
     if (submitted) {
         return (
@@ -26,13 +32,15 @@ export const Newsletter: React.FC = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form action={formAction} className="flex gap-2">
+            <input type="hidden" name="source" value="footer" />
             <div className="relative flex-1">
                 <label htmlFor="newsletter-email-footer" className="sr-only">Email address</label>
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} aria-hidden="true" />
                 <input
                     id="newsletter-email-footer"
                     type="email"
+                    name="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -43,9 +51,10 @@ export const Newsletter: React.FC = () => {
             </div>
             <button
                 type="submit"
+                disabled={pending}
                 className="px-6 py-4 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl font-bold text-sm transition-colors"
             >
-                Subscribe
+                {pending ? 'Subscribing…' : 'Subscribe'}
             </button>
         </form>
     );
@@ -55,12 +64,21 @@ export const Newsletter: React.FC = () => {
 export const NewsletterSection: React.FC = () => {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [homeError, setHomeError] = useState<string | null>(null);
+    const [actionState, formAction, pending] = useActionState<FormActionResult, FormData>(
+        submitNewsletterFormAction,
+        { success: false, message: '' }
+    );
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Newsletter signup:', email);
-        setSubmitted(true);
-    };
+    useEffect(() => {
+        if (actionState.success) {
+            setSubmitted(true);
+            setEmail('');
+            setHomeError(null);
+        } else if (actionState.message) {
+            setHomeError(actionState.message);
+        }
+    }, [actionState.success, actionState.message]);
 
     return (
         <section className="py-24 bg-gradient-to-br from-slate-900 to-slate-800 relative overflow-hidden">
@@ -87,11 +105,13 @@ export const NewsletterSection: React.FC = () => {
                         <p className="text-sm opacity-80">Check your inbox for a confirmation email.</p>
                     </motion.div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                    <form action={formAction} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                        <input type="hidden" name="source" value="home-section" />
                         <label htmlFor="newsletter-email-section" className="sr-only">Email address</label>
                         <input
                             id="newsletter-email-section"
                             type="email"
+                            name="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -101,13 +121,20 @@ export const NewsletterSection: React.FC = () => {
                         />
                         <button
                             type="submit"
+                            disabled={pending}
                             className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-colors"
                         >
-                            Subscribe
+                            {pending ? 'Subscribing…' : 'Subscribe'}
                         </button>
                     </form>
                 )}
 
+                {homeError && (
+                    <div className="flex items-start gap-2 mt-4 text-amber-400 text-xs text-left max-w-md mx-auto">
+                        <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+                        <span>{homeError}</span>
+                    </div>
+                )}
                 <p className="text-xs text-slate-500 mt-4">
                     No spam, ever. Unsubscribe anytime.
                 </p>

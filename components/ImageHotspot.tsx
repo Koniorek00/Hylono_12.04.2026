@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
+import Image from 'next/image';
 
 interface Hotspot {
     id: string;
@@ -32,7 +33,13 @@ export const ImageHotspot: React.FC<ImageHotspotProps> = ({
         <div className={`relative ${aspectRatio} rounded-2xl overflow-hidden`}>
             {/* Background Image */}
             {imageSrc ? (
-                <img src={imageSrc} alt={imageAlt} className="w-full h-full object-cover" loading="lazy" width="800" height="450" />
+                <Image
+                    src={imageSrc}
+                    alt={imageAlt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 800px"
+                    className="object-cover"
+                />
             ) : (
                 <div className={`w-full h-full bg-gradient-to-br ${imageGradient}`} aria-hidden="true" />
             )}

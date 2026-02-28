@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
+import Image from 'next/image';
 
 interface VideoPlayerProps {
     videoUrl?: string;
@@ -22,7 +23,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 <>
                     {/* Thumbnail */}
                     <div className={`absolute inset-0 ${thumbnailUrl ? '' : 'bg-gradient-to-br from-slate-800 to-slate-900'}`}>
-                        {thumbnailUrl && <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" />}
+                        {thumbnailUrl && (
+                            <Image
+                                src={thumbnailUrl}
+                                alt={title}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 720px"
+                                className="object-cover"
+                            />
+                        )}
                     </div>
 
                     {/* Play Button Overlay */}
