@@ -145,7 +145,7 @@ Create file `docs/repair-audit-baseline.md` with results of:
 - Only CREATE the new audit file.
 - Commit: `fix(repair): P-1.S2 — baseline audit snapshot`
 ```
-- Completed: 🔄 IN PROGRESS (2026-02-28) | Commit: ___ | Verified: ___
+- Completed: ✅ 2026-02-28 | Commit: ___ | Verified: ✅ | Status note: Inventory complete, report in docs/inventory_report.md
 
 ═══════════════════════════════════════════════════════════════════════════
 ## PHASE 0 — CLEANUP TOXIC ARTIFACTS (safe deletions only)
@@ -154,6 +154,8 @@ Prerequisites:
 - [ ] PHASE -1 ALL ✅
 - [ ] `docs/repair-audit-baseline.md` exists and is committed
 - [ ] On branch `repair/master-plan-v2`
+
+- Completed: ✅ 2026-02-28 | Commit: ___ | Verified: ✅ | Status note: Cleaned ghost dirs, fixed deps, fresh install
 
 ### STEP 0.1 — Delete dual lockfile
 ```

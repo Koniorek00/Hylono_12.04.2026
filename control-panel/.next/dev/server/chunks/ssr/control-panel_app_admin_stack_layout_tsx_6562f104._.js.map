@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///F:/ag%20projects/Hylono_MAIN/control-panel/app/admin/stack/layout.tsx"],"sourcesContent":["import type { ReactNode } from \"react\";\n\nexport const metadata = {\n  title: \"Stack — Hylono Control Panel\",\n  description: \"Hylono Stack v5.6 — master implementation plan, 59 services across 4 phases.\",\n};\n\nexport default function StackLayout({ children }: { children: ReactNode }) {\n  return <>{children}</>;\n}\n"],"names":[],"mappings":";;;;;;;;AAEO,MAAM,WAAW;IACtB,OAAO;IACP,aAAa;AACf;AAEe,SAAS,YAAY,EAAE,QAAQ,EAA2B;IACvE,qBAAO;kBAAG;;AACZ"}}]
-}
