@@ -25,6 +25,7 @@
     "clsx": "^2.1.1",
     "dompurify": "^3.3.1",
     "focus-trap": "^8.0.0",
+    "framer-motion": "^12.34.3",
     "html-to-image": "^1.11.13",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
@@ -40,9 +41,15 @@
     "zustand": "^5.0.10"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["biome check . --write"],
-    "*.{js,mjs,cjs}": ["biome check . --write"],
-    "*.{json,md,yml,yaml,css}": ["biome format --write"]
+    "*.{ts,tsx}": [
+      "biome check . --write"
+    ],
+    "*.{js,mjs,cjs}": [
+      "biome check . --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "biome format --write"
+    ]
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
@@ -58,6 +65,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitest/coverage-v8": "^4.0.18",
+    "autoprefixer": "^10.4.27",
     "babel-plugin-react-compiler": "^1.0.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
