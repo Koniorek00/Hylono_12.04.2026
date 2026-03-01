@@ -1825,7 +1825,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                 <div className="sm:ml-auto text-right hidden sm:block">
                                     <span className="text-xs text-slate-400 block">Total session time</span>
                                     <div className="text-2xl font-black text-slate-900">
-                                        {data.protocolSteps.reduce((sum, s) => sum + s.duration, 0)} min
+                                        {data.protocolSteps.reduce((sum, s) => sum + (s.duration ?? 0), 0)} min
                                     </div>
                                 </div>
                             </div>

@@ -58,7 +58,7 @@ export const MockAuthService = {
 
     saveUser(user: AuthUser) {
         const users = this.getStoredUsers();
-        users.push(user);
+        users.push(user as StoredUser);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
     },
 

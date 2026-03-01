@@ -109,7 +109,7 @@ describe('setFeatureOverride', () => {
     it('is a no-op when called server-side (window undefined)', () => {
         // Simulate SSR environment by temporarily hiding window
         const originalWindow = globalThis.window;
-        delete globalThis.window;
+        (globalThis as any).window = undefined;
 
         // Should not throw
         expect(() => setFeatureOverride(FLAG, true)).not.toThrow();
@@ -125,7 +125,7 @@ describe('isFeatureEnabled — env variable overrides', () => {
     afterEach(() => {
         localStorage.clear();
         // Clean up any injected env keys
-        delete process.env.NEXT_PUBLIC_FLAG_DEBUG_MODE;
+        process.env.NEXT_PUBLIC_FLAG_DEBUG_MODE = undefined;
     });
 
     it('localStorage takes priority over env variable', () => {

@@ -52,7 +52,7 @@ const STACKS = {
 };
 
 export const ProtocolStacks: React.FC<StackProps> = ({ currentTech, onJump }) => {
-    const stack = STACKS[currentTech];
+    const stack = (STACKS as Record<string, typeof STACKS[keyof typeof STACKS]>)[currentTech];
 
     if (!stack) return null;
 
@@ -76,7 +76,7 @@ export const ProtocolStacks: React.FC<StackProps> = ({ currentTech, onJump }) =>
 
                 {/* Stack Visualizer */}
                 <div className="flex md:flex-1 items-center gap-2 justify-center">
-                    {stack.items.map((item, i) => (
+                    {stack.items.map((item: any, i: number) => (
                         <React.Fragment key={item.id}>
                             <motion.button
                                 whileHover={{ y: -5 }}

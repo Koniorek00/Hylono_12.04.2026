@@ -24,9 +24,9 @@ const LegacyTradeInFallback: React.FC<{ onNavigate: NavigateFunction }> = ({ onN
 const EnhancedTradeInPage: React.FC<TradeInPageProps> = ({ onNavigate }) => {
     const reduced = useReducedMotion();
     const [submitted, setSubmitted] = useState(false);
-    const [category, setCategory] = useState(tradeInContent.categories[0]?.value ?? '');
+    const [category, setCategory] = useState<string>(tradeInContent.categories[0]?.value ?? '');
     const [brandModel, setBrandModel] = useState('');
-    const [condition, setCondition] = useState(tradeInContent.conditions[0]?.value ?? '');
+    const [condition, setCondition] = useState<string>(tradeInContent.conditions[0]?.value ?? '');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');

@@ -276,19 +276,19 @@ export const AppRouter: React.FC = () => {
     const renderContent = () => (
         <LazyErrorBoundary>
                 {currentPage === 'home' && <Home onSelectTech={handleTechSelect} onLaunchBuilder={() => navigate('wellness-planner')} />}
-                {currentPage === 'product' && selectedTech && <TechDetail techId={selectedTech} onBack={handleBack} onJumpToTech={handleTechSelect} onNavigate={navigate} ownedTech={ownedTech} />}
-                {currentPage === 'product' && !selectedTech && <NotFoundPage onNavigate={navigate} />}
+                {currentPage === 'product' && selectedTech && <TechDetail techId={selectedTech} onBack={handleBack} onJumpToTech={handleTechSelect} onNavigate={navigate as any} ownedTech={ownedTech} />}
+                {currentPage === 'product' && !selectedTech && <NotFoundPage onNavigate={navigate as any} />}
                 {currentPage === 'wellness-planner' && (
-                    <FeatureGate flag="feature_builder" fallback={<NotFoundPage onNavigate={navigate} />}>
+                    <FeatureGate flag="feature_builder" fallback={<NotFoundPage onNavigate={navigate as any} />}>
                         <ZoneBuilder onComplete={() => navigate('store')} />
                     </FeatureGate>
                 )}
-                {currentPage === 'store' && <StorePage onNavigate={navigate} onSelectTech={handleTechSelect} onNavigateChambers={() => navigate('detail', TechType.HBOT)} />}
-                {currentPage === 'checkout' && <CheckoutPage onNavigate={navigate} />}
-                {currentPage === 'rental' && pathParts[1] === 'checkout' && <RentalCheckoutPage onNavigate={navigate} />}
+                {currentPage === 'store' && <StorePage onNavigate={navigate as any} onSelectTech={handleTechSelect} onNavigateChambers={() => navigate('detail', TechType.HBOT)} />}
+                {currentPage === 'checkout' && <CheckoutPage onNavigate={navigate as any} />}
+                {currentPage === 'rental' && pathParts[1] === 'checkout' && <RentalCheckoutPage onNavigate={navigate as any} />}
                 {currentPage === 'rental' && pathParts[1] !== 'checkout' && (
-                    <FeatureGate flag="feature_rental_landing" fallback={<NotFoundPage onNavigate={navigate} />}>
-                        <RentalLandingPage onNavigate={navigate} />
+                    <FeatureGate flag="feature_rental_landing" fallback={<NotFoundPage onNavigate={navigate as any} />}>
+                        <RentalLandingPage onNavigate={navigate as any} />
                     </FeatureGate>
                 )}
                 {currentPage === 'about' && <AboutPage />}
@@ -303,31 +303,31 @@ export const AppRouter: React.FC = () => {
                 {/* Legacy redirects to Help Center */}
                 {currentPage === 'contact' && <HelpCenterPage initialTab="contact" />}
                 {currentPage === 'faq' && <HelpCenterPage initialTab="faq" />}
-                {currentPage === 'blog' && !pathParts[1] && <BlogPage onNavigate={navigate} />}
-                {currentPage === 'blog' && pathParts[1] && <BlogArticle slug={pathParts[1]} onBack={handleBack} onNavigate={navigate} />}
+                {currentPage === 'blog' && !pathParts[1] && <BlogPage onNavigate={navigate as any} />}
+                {currentPage === 'blog' && pathParts[1] && <BlogArticle slug={pathParts[1]} onBack={handleBack} onNavigate={navigate as any} />}
                 {currentPage === 'research' && <ResearchHub />}
                 {currentPage === 'protocols' && !pathParts[1] && (
-                    <FeatureGate flag="feature_protocols_listing" fallback={<NotFoundPage onNavigate={navigate} />}>
-                        <ProtocolExplorer onNavigate={navigate} />
+                    <FeatureGate flag="feature_protocols_listing" fallback={<NotFoundPage onNavigate={navigate as any} />}>
+                        <ProtocolExplorer onNavigate={navigate as any} />
                     </FeatureGate>
                 )}
                 {currentPage === 'protocols' && pathParts[1] && (
-                    <FeatureGate flag="feature_protocols_detail" fallback={<NotFoundPage onNavigate={navigate} />}>
-                        <ProtocolExplorer slug={pathParts[1]} onNavigate={navigate} />
+                    <FeatureGate flag="feature_protocols_detail" fallback={<NotFoundPage onNavigate={navigate as any} />}>
+                        <ProtocolExplorer slug={pathParts[1]} onNavigate={navigate as any} />
                     </FeatureGate>
                 )}
                 {currentPage === 'learning' && <LearningHub />}
                 {currentPage === 'privacy' && <PrivacyPage />}
                 {currentPage === 'terms' && <TermsPage />}
                 {currentPage === 'shipping' && <ShippingPage />}
-                {currentPage === 'account' && <AccountPage onNavigate={navigate} ownedTech={ownedTech} />}
-                {currentPage === 'wishlist' && <WishlistPage onNavigate={navigate} />}
+                {currentPage === 'account' && <AccountPage onNavigate={navigate as any} ownedTech={ownedTech} />}
+                {currentPage === 'wishlist' && <WishlistPage onNavigate={navigate as any} />}
                 {/* Warranty is PUBLIC — customers must be able to read terms before purchasing */}
                 {currentPage === 'warranty' && <WarrantyPage />}
                 {/* ── Rewards (Consolidated: Referral + Loyalty) ────────────────────────── */}
                 {currentPage === 'rewards' && (
                     <GatedView title="Rewards Program" description="Hylono Rewards are exclusive to active system owners and protocol practitioners." onRequestLogin={() => setShowLogin(true)}>
-                        <RewardsPage onNavigate={navigate} />
+                        <RewardsPage onNavigate={navigate as any} />
                     </GatedView>
                 )}
                 {currentPage === 'affiliate' && (
@@ -356,7 +356,7 @@ export const AppRouter: React.FC = () => {
                 {currentPage === 'locator' && <PartnerLocator />}
                 {/* /support redirects to Help Center */}
                 {currentPage === 'support' && <HelpCenterPage initialTab="support" />}
-                {currentPage === 'hho-car-kit' && <HHOCarKitPage onBack={handleBack} onNavigate={navigate} />}
+                {currentPage === 'hho-car-kit' && <HHOCarKitPage onBack={handleBack} onNavigate={navigate as any} />}
                 {currentPage === 'firesafe' && <FiresafePage />}
                 {currentPage === 'meridian' && <MeridianPage />}
                 {/* /onboarding as inline page route */}
@@ -365,8 +365,8 @@ export const AppRouter: React.FC = () => {
                 {currentPage === 'guarantee' && <GuaranteePage />}
                 {/* Task 4: /conditions and /conditions/:slug */}
                 {currentPage === 'conditions' && (
-                    <FeatureGate flag="feature_condition_pages" fallback={<NotFoundPage onNavigate={navigate} />}>
-                        <ConditionsPage slug={pathParts[1]} onNavigate={navigate} />
+                    <FeatureGate flag="feature_condition_pages" fallback={<NotFoundPage onNavigate={navigate as any} />}>
+                        <ConditionsPage slug={pathParts[1]} onNavigate={navigate as any} />
                     </FeatureGate>
                 )}
 
@@ -377,21 +377,21 @@ export const AppRouter: React.FC = () => {
                 {currentPage === 'accessibility' && <AccessibilityPage />}
 
                 {/* ── Batch 2: Commerce ───────────────────────────────────────────────── */}
-                {currentPage === 'order-success' && <OrderSuccessPage onNavigate={navigate} />}
-                {currentPage === 'financing' && <FinancingPage onNavigate={navigate} />}
-                {currentPage === 'wholesale' && <WholesalePage onNavigate={navigate} />}
+                {currentPage === 'order-success' && <OrderSuccessPage onNavigate={navigate as any} />}
+                {currentPage === 'financing' && <FinancingPage onNavigate={navigate as any} />}
+                {currentPage === 'wholesale' && <WholesalePage onNavigate={navigate as any} />}
 
                 {/* ── Batch 3: Content ────────────────────────────────────────────────── */}
-                {currentPage === 'testimonials' && <TestimonialsPage onNavigate={navigate} />}
-                {currentPage === 'sitemap' && <SitemapPage onNavigate={navigate} />}
-                {currentPage === 'advisors' && <AdvisorsPage onNavigate={navigate} />}
-                {currentPage === 'videos' && <VideoLibraryPage onNavigate={navigate} />}
+                {currentPage === 'testimonials' && <TestimonialsPage onNavigate={navigate as any} />}
+                {currentPage === 'sitemap' && <SitemapPage onNavigate={navigate as any} />}
+                {currentPage === 'advisors' && <AdvisorsPage onNavigate={navigate as any} />}
+                {currentPage === 'videos' && <VideoLibraryPage onNavigate={navigate as any} />}
 
                 {/* ── Batch 4: Growth ─────────────────────────────────────────────────── */}
-                {currentPage === 'referral' && <ReferralPage onNavigate={navigate} />}
-                {currentPage === 'unsubscribe' && <UnsubscribePage onNavigate={navigate} />}
-                {currentPage === 'press-kit' && <PressKitPage onNavigate={navigate} />}
-                {currentPage === 'trade-in' && <TradeInPage onNavigate={navigate} />}
+                {currentPage === 'referral' && <ReferralPage onNavigate={navigate as any} />}
+                {currentPage === 'unsubscribe' && <UnsubscribePage onNavigate={navigate as any} />}
+                {currentPage === 'press-kit' && <PressKitPage onNavigate={navigate as any} />}
+                {currentPage === 'trade-in' && <TradeInPage onNavigate={navigate as any} />}
 
                 {currentPage === 'partner-studio' && <PartnerStudio />}
                 {currentPage === 'partner' && (
@@ -434,7 +434,7 @@ export const AppRouter: React.FC = () => {
                     // Batch 4: Growth
                     'referral', 'unsubscribe', 'press-kit', 'trade-in',
                 ].includes(currentPage) && (
-                        <NotFoundPage onNavigate={navigate} />
+                        <NotFoundPage onNavigate={navigate as any} />
                     )}
         </LazyErrorBoundary>
     );
@@ -499,7 +499,7 @@ export const AppRouter: React.FC = () => {
                         {/* Subtle shadow for depth separation */}
                         <div className="absolute inset-x-0 bottom-0 h-3 bg-gradient-to-b from-transparent to-slate-100/50 pointer-events-none" />
                         <div className="relative">
-                            <Breadcrumbs pathParts={pathParts} onNavigate={navigate} />
+                            <Breadcrumbs pathParts={pathParts} onNavigate={navigate as any} />
                         </div>
                     </div>
                 </>
@@ -529,7 +529,7 @@ export const AppRouter: React.FC = () => {
 
                 {/* Floating rental CTA — appears after scrolling past hero */}
                 {currentPage === 'home' && (
-                    <FloatingCTA onNavigate={navigate} />
+                    <FloatingCTA onNavigate={navigate as any} />
                 )}
             </div>
 

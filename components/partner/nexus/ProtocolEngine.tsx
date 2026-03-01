@@ -158,7 +158,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                 </div>
                 {prescription && prescription.type === 'success' && (
                     <div className={`text-xs font-bold px-2 py-1 rounded border ${signingStatus === 'signed' ? 'bg-emerald-700 border-emerald-500' : 'bg-cyan-900/50 text-cyan-400 border-cyan-500/30'}`}>
-                        {prescription.data.id}
+                        {prescription.data!.id}
                     </div>
                 )}
             </div>
@@ -227,7 +227,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                                     {/* Rx Header */}
                                     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Primary Diagnosis Match</div>
-                                        <h2 className="text-2xl font-bold text-slate-900 mb-1">{prescription.data.title}</h2>
+                                        <h2 className="text-2xl font-bold text-slate-900 mb-1">{prescription.data!.title}</h2>
                                     </div>
 
                                     {/* Dosing Grid */}
@@ -235,7 +235,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">
                                             <Zap className="w-3 h-3" /> Rx Dosing Parameters
                                         </div>
-                                        {Object.entries(prescription.data.dosing).map(([key, details]: [string, any]) => (
+                                        {Object.entries(prescription.data!.dosing).map(([key, details]: [string, any]) => (
                                             <div key={key} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
                                                 <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500" />
                                                 <div className="flex justify-between items-start mb-3">
@@ -325,12 +325,12 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                                             <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider">Mechanism of Action</span>
                                         </div>
                                         <p className="text-sm text-indigo-900/80 leading-relaxed mb-4">
-                                            {prescription.data.mechanism}
+                                            {prescription.data!.mechanism}
                                         </p>
                                         <div className="flex items-start gap-2 pt-3 border-t border-indigo-200/50">
                                             <BookOpen className="w-3 h-3 text-indigo-400 mt-0.5" />
                                             <p className="text-[10px] text-indigo-400 italic font-medium">
-                                                Source: {prescription.data.citation}
+                                                Source: {prescription.data!.citation}
                                             </p>
                                         </div>
                                     </div>

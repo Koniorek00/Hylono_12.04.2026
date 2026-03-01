@@ -88,9 +88,9 @@ export default async function ProductPageRoute({ params }: { params: Params }) {
 
   return (
     <>
-      {productSchema ? <StructuredData id="jsonld-product" data={productSchema} /> : null}
-      <StructuredData id="jsonld-medicalbusiness" data={medicalBusinessSchema} />
-      <StructuredData id="jsonld-breadcrumb" data={breadcrumbSchema} />
+      {productSchema ? <StructuredData id="jsonld-product" data={productSchema as any} /> : null}
+      <StructuredData id="jsonld-medicalbusiness" data={medicalBusinessSchema as any} />
+      <StructuredData id="jsonld-breadcrumb" data={breadcrumbSchema as any} />
       <ProductClient tech={tech} />
     </>
   );

@@ -275,7 +275,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                                 debouncedQuery={debouncedQuery}
                                 onResultClick={handleSearchResultClick}
                                 currentConfig={currentConfig}
-                                searchContainerRef={searchContainerRef}
+                                searchContainerRef={searchContainerRef as React.RefObject<HTMLDivElement>}
                             />
                         </div>
                     </motion.div>

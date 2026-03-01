@@ -65,21 +65,22 @@ export function useScrollSpy(options?: UseScrollSpyOptions) {
 
     // Create intersection observer
     observerRef.current = new IntersectionObserver(
-      (entries) => {
-        // Find the most visible section
-        let mostVisibleEntry: IntersectionObserverEntry | null = null;
-
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (!mostVisibleEntry || entry.intersectionRatio > mostVisibleEntry.intersectionRatio) {
-              mostVisibleEntry = entry;
-            }
+      (entries: IntersectionObserverEntry[]) => {
+        const mostVisibleEntry = entries.reduce<IntersectionObserverEntry | null>((currentMostVisible, entry) => {
+          if (!entry.isIntersecting) {
+            return currentMostVisible;
           }
-        });
+
+          if (!currentMostVisible || entry.intersectionRatio > currentMostVisible.intersectionRatio) {
+            return entry;
+          }
+
+          return currentMostVisible;
+        }, null);
 
         if (mostVisibleEntry) {
-          const id = mostVisibleEntry.target.id || 
-                     mostVisibleEntry.target.getAttribute('data-section-id');
+          const entryTarget = mostVisibleEntry.target as HTMLElement;
+          const id = entryTarget.id || entryTarget.getAttribute('data-section-id');
           if (id) {
             setActiveSectionId(id);
           }
