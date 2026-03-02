@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Lock, ShieldAlert, ArrowRight, UserPlus } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useSession } from 'next-auth/react';
 
 interface GatedViewProps {
     children: React.ReactNode;
@@ -16,9 +16,9 @@ export const GatedView: React.FC<GatedViewProps> = ({
     description,
     onRequestLogin,
 }) => {
-    const { session, loading } = useAuth();
+    const { data: session, status } = useSession();
 
-    if (loading) {
+    if (status === 'loading') {
         return (
             <div className="min-h-[70vh] flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-slate-200 border-t-cyan-500 rounded-full animate-spin" />

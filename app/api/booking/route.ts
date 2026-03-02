@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+import { env } from '@/lib/env';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface BookingRequest {
@@ -84,6 +85,16 @@ export async function POST(request: Request): Promise<Response> {
         // Generate booking reference
         const bookingRef = `BK-${Date.now().toString(36).toUpperCase()}`;
 
+        if (!env.DATABASE_URL) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Booking endpoint is not implemented on this environment.',
+                } satisfies BookingResponse,
+                { status: 501 }
+            );
+        }
+
         // --- Create booking record ---
         // TODO: Integrate with your calendar/booking system.
         // Options:
@@ -100,7 +111,7 @@ export async function POST(request: Request): Promise<Response> {
         //     data: { name: sanitized.name, date: sanitized.preferredDate, ref: bookingRef },
         // });
 
-        console.warn(`[booking] New booking ${bookingRef}: ${sanitized.bookingType} for ${sanitized.email}`);
+        console.info(`[booking] Booking request accepted ${bookingRef}: ${sanitized.bookingType} for ${sanitized.email}`);
 
         return Response.json(
             {

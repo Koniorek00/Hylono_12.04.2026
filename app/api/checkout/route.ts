@@ -137,16 +137,27 @@ export async function POST(request: Request): Promise<Response> {
                     } satisfies CheckoutResponse,
                     { status: 200 }
                 );
-            } else {
-                // STRIPE_SECRET_KEY not set — log and return mock success for development
-                console.warn(`[checkout] STRIPE_SECRET_KEY not set. Mock order ${orderId} for ${sanitizedShipping.email} (${(totalCents / 100).toFixed(2)} PLN)`);
             }
+
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Checkout card processing is not implemented on this environment.',
+                } satisfies CheckoutResponse,
+                { status: 501 }
+            );
         }
 
         // --- Non-card payments (bank transfer, financing) ---
-        // These require manual processing — notify team via email
-        // TODO: Wire up Resend email notification here (see /api/contact/route.ts for pattern)
-        console.warn(`[checkout] ${paymentMethod} order ${orderId} from ${sanitizedShipping.email} — ${(totalCents / 100).toFixed(2)} PLN`);
+        if (!env.DATABASE_URL) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Checkout processing is not implemented on this environment.',
+                } satisfies CheckoutResponse,
+                { status: 501 }
+            );
+        }
 
         return Response.json(
             {

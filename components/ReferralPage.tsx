@@ -4,10 +4,10 @@ import React, { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { CheckCircle, Copy, Mail, MessageCircle, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { NavigateFunction } from '../types';
 import { FeatureGate } from './FeatureGate';
 import { referralContent } from '../content/referral';
-import { useAuth } from '../context/AuthContext';
 
 interface ReferralPageProps {
     onNavigate: NavigateFunction;
@@ -35,13 +35,15 @@ const LegacyReferralFallback: React.FC<{ onNavigate: NavigateFunction }> = ({ on
 const EnhancedReferralPage: React.FC<ReferralPageProps> = ({ onNavigate }) => {
     const router = useRouter();
     const reduced = useReducedMotion();
-    const { user } = useAuth();
+    const { data: session } = useSession();
+    const user = session?.user;
     const [copied, setCopied] = useState(false);
 
     const referralLink = useMemo(() => {
-        const slug = user?.id ? user.id.slice(0, 8).toUpperCase() : 'DEMOUSER';
+        const identitySeed = user?.email ?? user?.name ?? 'DEMOUSER';
+        const slug = identitySeed.slice(0, 8).toUpperCase();
         return `${window.location.origin}/store?ref=HYLONO-${slug}`;
-    }, [user?.id]);
+    }, [user?.email, user?.name]);
 
     const referrals: ReferralRecord[] = useMemo(
         () => [

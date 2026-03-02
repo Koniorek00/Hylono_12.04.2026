@@ -5,6 +5,7 @@
  */
 
 import { z } from 'zod';
+import { env } from '@/lib/env';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface ContactRequest {
@@ -59,6 +60,16 @@ export async function POST(request: Request): Promise<Response> {
         // Generate a simple ticket ID for tracking
         const ticketId = `HYL-${Date.now().toString(36).toUpperCase()}`;
 
+        if (!env.RESEND_API_KEY) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Contact endpoint is not implemented on this environment.',
+                } satisfies ContactResponse,
+                { status: 501 }
+            );
+        }
+
         // --- Send notification email ---
         // TODO: Replace with your transactional email provider (Resend, Postmark, SendGrid).
         //
@@ -87,7 +98,7 @@ export async function POST(request: Request): Promise<Response> {
         //     }),
         // });
 
-        console.warn(`[contact] New inquiry ${ticketId} from ${sanitized.email} (${sanitized.inquiryType})`);
+        console.info(`[contact] Contact inquiry accepted ${ticketId} from ${sanitized.email} (${sanitized.inquiryType})`);
 
         return Response.json(
             {

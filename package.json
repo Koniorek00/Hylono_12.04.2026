@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
+    "e2e:install": "pnpm exec playwright install --with-deps",
+    "test:e2e": "pnpm exec playwright install --with-deps && pnpm exec playwright test",
     "compliance": "pnpm exec tsx scripts/compliance-check.ts",
     "compliance:strict": "pnpm exec tsx scripts/compliance-check.ts --strict",
     "prepare": "husky"
@@ -86,6 +87,7 @@
     "lint-staged": "16.2.7",
     "postcss": "8.5.6",
     "tailwindcss": "4.1.18",
+    "tsx": "4.20.6",
     "typescript": "5.8.2",
     "vitest": "4.0.18"
   }

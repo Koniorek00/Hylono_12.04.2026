@@ -13,6 +13,8 @@ import { GlobalOverlays } from '../components/layout/GlobalOverlays';
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
+  fallback: ['system-ui', 'arial'],
+  adjustFontFallback: true,
 });
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;

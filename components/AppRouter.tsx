@@ -11,7 +11,6 @@ import { SEO, pageSEO } from './SEO';
 import { TechType, NavigateFunction } from '../types';
 import { TECH_DETAILS } from '../constants';
 import { DAY_THEME } from '../constants/themes';
-import { useAuth } from '../context/AuthContext';
 import { OnboardingFlow } from './OnboardingFlow';
 import { LoginModal } from './AuthComponents';
 import { FeatureGate } from './FeatureGate';

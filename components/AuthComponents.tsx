@@ -3,8 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { signIn as authSignIn, signOut as authSignOut, useSession } from 'next-auth/react';
 import { User, Mail, Lock, Eye, EyeOff, X, UserCircle, Package, Settings, LogOut, ArrowRight, Check, AlertCircle, Loader2, Github, Globe, Sun, Zap, CheckCircle, RotateCcw } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { TechType } from '../types';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
@@ -74,7 +74,21 @@ interface LoginModalProps {
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignupSuccess }) => {
-    const { signIn, signUp, resetPassword } = useAuth();
+    const signIn = async ({ email, password }: { email: string; password: string }) => {
+        const result = await authSignIn('credentials', { email, password, redirect: false });
+        if (result?.error) {
+            return { error: { message: result.error } };
+        }
+        return { error: null };
+    };
+
+    const signUp = async (_credentials: { email: string; password: string; name?: string }) => {
+        return { error: { message: 'Registration is not implemented yet.' } };
+    };
+
+    const resetPassword = async (_email: string) => {
+        return { error: { message: 'Password reset is not implemented yet.' } };
+    };
 
     const [view, setView] = useState<'signin' | 'signup' | 'forgot'>('signin');
     const [showPassword, setShowPassword] = useState(false);
@@ -346,7 +360,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
 
 // --- Account Dashboard Component ---
 export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType, mode?: string) => void; ownedTech?: TechType[] }> = ({ onNavigate, ownedTech = [] }) => {
-    const { user, signOut } = useAuth();
+    const { data: session } = useSession();
+    const user = session?.user;
+    const signOut = () => {
+        void authSignOut({ callbackUrl: '/' });
+    };
     const [activeTab, setActiveTab] = useState('profile');
     const accountRentalsEnabled = useFeatureFlag('feature_account_rentals');
 
@@ -389,7 +407,7 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-900">My Account</h1>
-                        <p className="text-slate-500">Welcome back, {user.name || user.email}</p>
+                        <p className="text-slate-500">Welcome back, {user.name ?? user.email ?? 'Member'}</p>
                     </div>
                     <button
                         onClick={signOut}
@@ -500,7 +518,7 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Email</label>
-                                        <input type="email" readOnly value={user.email} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
+                                        <input type="email" readOnly value={user.email ?? ''} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
                                     </div>
                                     <div className="pt-2">
                                         <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors">

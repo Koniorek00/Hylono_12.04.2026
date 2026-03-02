@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AuthProvider } from '../../../context/AuthContext';
+import { SessionProvider } from 'next-auth/react';
 import { CartProvider } from '../../../components/Cart';
 import { WishlistProvider } from '../../../components/Wishlist';
 import { initPostHog } from '../../lib/analytics';
@@ -53,10 +53,10 @@ export function Providers({ children }: ProvidersProps) {
   }, []);
 
   return (
-    <AuthProvider>
+    <SessionProvider>
       <CartProvider>
         <WishlistProvider>{children}</WishlistProvider>
       </CartProvider>
-    </AuthProvider>
+    </SessionProvider>
   );
 }

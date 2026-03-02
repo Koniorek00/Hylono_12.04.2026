@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AuthProvider } from '../context/AuthContext';
+import { SessionProvider } from 'next-auth/react';
 import { CartProvider } from './Cart';
 import { WishlistProvider } from './Wishlist';
 import { initPostHog } from '../src/lib/analytics';
@@ -56,12 +56,12 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
     }, []);
 
     return (
-        <AuthProvider>
+        <SessionProvider>
             <CartProvider>
                 <WishlistProvider>
                     {children}
                 </WishlistProvider>
             </CartProvider>
-        </AuthProvider>
+        </SessionProvider>
     );
 };
