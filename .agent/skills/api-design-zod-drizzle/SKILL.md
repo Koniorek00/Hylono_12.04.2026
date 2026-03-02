@@ -3,7 +3,7 @@
 
 ## Core Rules
 - Validate every input with Zod server-side
-- Use Drizzle for DB access; no Prisma
+- Use Drizzle for DB access only
 - Prefer Server Actions for mutations
 - Use `route.ts` for webhooks/external integrations only
 - Enforce auth + ownership checks on protected resources

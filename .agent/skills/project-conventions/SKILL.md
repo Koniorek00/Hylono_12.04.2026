@@ -23,7 +23,7 @@
 ## Forbidden Commands / Tools
 - No `npm`, `yarn`, `npx`
 - No `pnpm lint`, `next lint`
-- No Prisma, ESLint, Prettier, nodemailer, `framer-motion`
+- No non-Drizzle ORM, ESLint, Prettier, nodemailer, `framer-motion`
 
 ## Next.js 16 Rules
 - `page.tsx` is server by default (never add `'use client'` there)

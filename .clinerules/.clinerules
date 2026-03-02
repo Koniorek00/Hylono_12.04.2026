@@ -1,0 +1,631 @@
+# CLINE — HYLONO PLATFORM
+# v12.0 | Next.js 16.1.6 App Router | Server-first hybrid
+# CANONICAL SOURCE OF TRUTH for this workspace.
+# Last updated: 2026-03-01
+
+## § PRIORITY ORDER
+1. User's explicit instruction
+2. This file (.clinerules)
+3. Mode file (.agent/modes/[role].md)
+4. Skill files (.agent/skills/[name]/SKILL.md)
+5. Memory files (.agent/memory/)
+6. Global rules (global-rules.md)
+7. Training defaults
+
+Higher number NEVER overrides lower number.
+Log: [CONFLICT: applied X over Y — priority stack]
+Guardrail conflict → follow guardrail + [GUARDRAIL: modified because X would violate Y]
+
+---
+
+## § GUARDRAILS (non-negotiable — nothing overrides these)
+
+**Medical:** NEVER "diagnose/treat/cure/heal/prevent disease" → USE "designed to support/may assist with/research suggests" + MedicalDisclaimer component + BioMCP evidence.
+
+**Security:** No hardcoded secrets (P0 if found) · No PII in code/logs · Validate all input server-side via Zod · Server Actions for mutations · No raw process.env outside lib/env.ts · Arcjet for rate limiting + bot protection + Nosecone for CSP.
+
+**Workspace boundary:** Main app and `control-panel/` are isolated workspaces — NEVER cross-import components, types, or utilities. Communicate via API only.
+
+**TypeScript:** No `any` · No `ts-ignore` without [DECISION] · Explicit interfaces · `strict: true` + `noUncheckedIndexedAccess: true` in tsconfig.
+
+**GDPR:** No tracking/cookies before explicit CookieConsent (Zustand tri-state) · PostHog EU cloud only · Sentry EU DSN only · Minimal data collection · Purpose-limited · Encrypted at rest.
+
+**WCAG 2.1 AA:** 4.5:1 contrast · Keyboard accessible · Alt text · Labeled inputs · No color-only information · Touch targets ≥44px.
+
+**Next.js boundary:** NEVER put metadata export and 'use client' in same file · NEVER import server component from client component · NEVER use `<a href>` for internal links · NEVER use `<img>` · NEVER use react-router-dom · NEVER access params/searchParams/cookies/headers synchronously (MUST await) · NEVER import from 'framer-motion' (use 'motion/react') · NEVER use nodemailer (use Resend) · NEVER use Prisma (use Drizzle ONLY) · middleware.ts is FORBIDDEN (use standalone proxy.ts instead).
+
+**Tooling:** Biome is the ONLY linter/formatter · ESLint and Prettier are FORBIDDEN · If found: remove immediately in dedicated batch.
+
+**Bundle budget:** Shared/layout chunk <150kB gzip · Per-route <50kB gzip · First Load JS <200kB gzip.
+
+---
+
+## § WORKING AGREEMENT
+
+First output: `ACT AS: [role-slug] | T[tier]`
+
+| Rule | Action |
+|------|--------|
+| Never spawn subagents | Execute sequentially |
+| Never ask "should I proceed?" | Decide, document, proceed |
+| Never present options | Make best call, log: [DECISION: X because Y — reverse if Z] |
+| Uncertain? | Conservative choice + [INTERPRETATION: X because Y] |
+| Ambiguous? | Ask 1–3 clarifying questions before code, never mid-task |
+| Blocked? (Resilience Override)| Analyze root cause, question assumptions, develop a fix, apply it. Loop guard: 3 attempts per issue → escalate approach. NEVER stop task permanently. Log in active task plan and errors.md |
+| Corrected? | Accept, log to preferences.md, implement, move on |
+
+---
+
+## § PLATFORM CONTEXT
+
+**Company:** EU medtech startup · Non-invasive regenerative technology
+**Modalities:** Oxygen (mHBOT) · Hydrogen (inhalation, water) · Light (RLT, NIR) · Signal (PEMF, VNS)
+**Brand:** Premium · Scientific · Accessible · "Where mind connects with matter"
+**Model:** Rental-first (€150–600/mo) → Purchase → B2B clinics
+**Customer:** 35–65yo EU professional · Evidence-oriented · Quality investor
+**Markets:** EU-first (en, de, pl, nl) · GDPR · MDR 2017/745
+
+**Stack:**
+- Main app: Next.js 16.1.6 + React 19.2 + TypeScript 5 strict (App Router, server-first hybrid)
+- Turbopack: default bundler in v16 (no --turbopack flag needed, top-level config)
+- React Compiler: stable in v16 (automatic memoization, `reactCompiler: true` in config)
+- Control panel: Next.js 16 + React 18 (isolated workspace)
+- Styling: Tailwind CSS v4 (CSS-first config — NO tailwind.config.ts, @theme in globals.css)
+- Linting/Formatting: Biome ONLY (no ESLint, no Prettier)
+- Database: Drizzle ORM + Neon (serverless PostgreSQL) — NO Prisma
+- Cache/Queue: Upstash Redis (cache + queue ONLY, NOT rate limiting)
+- Auth: Auth.js v5 (next-auth@beta, self-hosted, Drizzle adapter)
+- Server Actions: next-safe-action (with documented ADR)
+- URL State: nuqs v2
+- Forms: react-hook-form + zod
+- Client Data: @tanstack/react-query (realtime/polling only)
+- Client State: Zustand (Tri-state consent store)
+- Env Validation: @t3-oss/env-nextjs + Zod (ALL env vars through lib/env.ts)
+- Email: React Email + Resend (NO nodemailer)
+- File Uploads: Uploadthing
+- Background Jobs: @trigger.dev/sdk@v3
+- Security: @arcjet/next (bot protection, rate limiting) + @nosecone/next (CSP and headers)
+- Product Analytics: PostHog EU (session replay, feature flags, funnels)
+- Web Analytics: @vercel/analytics (supplementary)
+- Speed Metrics: @vercel/speed-insights
+- Error Monitoring: @sentry/nextjs (EU DSN — ingest.de.sentry.io)
+- SEO: schema-dts + next-sitemap
+- Animation: motion/react + @formkit/auto-animate (lists)
+- Image Optimization: sharp
+- Bundle Analysis: @next/bundle-analyzer + Knip (unused code detection)
+- Payments: Stripe
+- Testing: Vitest + Playwright + @axe-core/playwright (a11y)
+- Deploy: Vercel
+
+**Commands:**
+`pnpm dev` (next dev) · `pnpm build` (next build) · `pnpm start` (next start) · `pnpm test` (vitest) · `pnpm check` (biome check + build + test) · `pnpm analyze` (bundle analysis) · `pnpm knip` (unused code) · `pnpm db:generate` · `pnpm db:migrate` · `pnpm db:studio` · `pnpm email:dev`
+
+**Dependencies Commands:**
+* `pnpm add --save-exact <pkg>` — ALL package additions MUST use `--save-exact`.
+* `pnpm add -D --save-exact <pkg>` — For dev dependencies.
+
+**FORBIDDEN commands:**
+`pnpm lint` (ESLint removed) · `next lint` (removed in v16) · `npx prisma` / `prisma migrate` / `prisma db push` (FORBIDDEN - use Drizzle) · `npx` / `npm` / `yarn` (Use `pnpm` ONLY).
+
+---
+
+## § NEXT.JS 16 APP ROUTER ARCHITECTURE
+
+Mandatory reference for every task touching pages, components, data, or routing.
+
+### Rendering Strategy Decision Tree
+| Content type | Strategy | Implementation |
+|---|---|---|
+| Static (about, legal, therapy info) | SSG | `export default function Page()` (default) |
+| Semi-dynamic (products, blog, prices) | ISR | `export const revalidate = 3600` |
+| Personalized (dashboard, cart, account) | SSR | `export const dynamic = 'force-dynamic'` |
+| Static shell + dynamic islands | Cache Components | `cacheComponents: true` in config + Suspense |
+
+Every new page.tsx MUST declare which strategy applies via [DECISION] log.
+
+### Server/Client Component Rules
+* ALL components are SERVER by default — no directive needed.
+* Add 'use client' ONLY when component uses: `useState`, `useEffect`, `useRef`, event handlers (`onClick` etc.), browser APIs (`window`, `document`), `useRouter`/`usePathname`/`useSearchParams`, or third-party client-only libraries (Zustand, PostHog, Stripe.js).
+* Server components CAN import client components (as leaves).
+* Client components CANNOT import server components.
+* Client components CAN receive server components as `{children}`.
+* Push 'use client' as DEEP as possible — keep server wrappers.
+
+### Mandatory Page Pattern
+```tsx
+// src/app/[route]/page.tsx — ALWAYS SERVER (no 'use client')
+import type { Metadata } from 'next';
+import { PageClient } from './PageClient';
+
+export const metadata: Metadata = { title: '...', description: '...' };
+
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;  // v16: MUST await — sync access fully removed
+  const data = await getData(slug);
+  return <PageClient data={data} />;
+}
+
+```
+
+### Provider Architecture
+
+```tsx
+// src/app/layout.tsx — SERVER
+import { headers } from 'next/headers';
+
+export default async function RootLayout({ children }) {
+  const nonce = (await headers()).get('X-Nonce') ?? undefined;
+
+  return (
+    <html lang="en">
+      <body>
+        <Providers>           {/* 'use client' — Auth, Zustand, PostHog, QueryClient */}
+          <Header />          {/* sibling of children, NOT wrapping */}
+          <main>{children}</main>
+          <Footer />
+        </Providers>
+        <GlobalOverlays />    {/* 'use client' — modals, toasts, cookie consent */}
+        <SpeedInsights />
+        <Analytics />
+      </body>
+    </html>
+  );
+}
+
+```
+
+### Data Fetching
+
+| Location | Pattern | When |
+| --- | --- | --- |
+| Server Component | Direct Drizzle query / fetch | Default for all data |
+| Server Component | `"use cache"` directive | Cacheable server data functions |
+| Client Component | Server Action via `useTransition` | Form mutations, user actions |
+| Client Component | `@tanstack/react-query` | Realtime data, polling only |
+| API Route (`route.ts`) | Request/Response handlers | Webhooks, Uploadthing only |
+
+### Caching APIs (v16 stable)
+
+| API | Use Case | Semantics |
+| --- | --- | --- |
+| `"use cache"` | Directive on async server functions | Mark function output as cacheable |
+| `"use cache: remote"` | Directive for distributed caching | Vercel provides cacheHandlers automatically |
+| `"use cache: private"` | Directive for user-specific cache | Unshared, bound to session |
+| `cacheLife(profile)` | Set cache lifetime | Uses profiles defined in next.config.ts |
+| `cacheTag(tag)` | Tag cached data | For targeted SWR revalidation |
+| `revalidateTag(tag, profile)` | Background refresh | Profile argument (e.g., `"max"`) is REQUIRED in v16 |
+| `updateTag(tag)` | Immediate refresh | Read-your-writes inside Server Actions |
+| `refresh()` | Refresh client router | Trigger from Server Action without touching cache |
+| `await connection()` | Dynamic data boundary | MUST be awaited before deferred rendering |
+
+### Navigation + Images
+
+| Correct | Forbidden |
+| --- | --- |
+| `<Link href="/path">` from `next/link` | `<a href>`, `window.location`, `history.pushState` |
+| `useRouter().push()` from `next/navigation` | `react-router-dom` imports |
+| `<Image>` from `next/image` with width+height or fill | `<img>` tags |
+| `priority={true}` on LCP images, sizes on responsive | Missing dimensions |
+| Animation: `import { motion } from 'motion/react'` | `import from 'framer-motion'` |
+
+### App Router File Conventions
+
+| File | Purpose | Required? |
+| --- | --- | --- |
+| `page.tsx` | Route content (SERVER) | Yes for every route |
+| `layout.tsx` | Shared layout (persists across nav) | Root required |
+| `loading.tsx` | Loading UI (Suspense boundary) | Required for async pages |
+| `error.tsx` | Error boundary ('use client' required) | Required for external data fetches |
+| `not-found.tsx` | 404 UI | Root required |
+| `route.ts` | API endpoint | Webhooks/Uploadthing only |
+| `proxy.ts` | Network boundary (Security) | ROOT ONLY. Replaces middleware.ts |
+| `middleware.ts` | Edge middleware | DEPRECATED & FORBIDDEN. Remove if found. |
+| `default.tsx` | Parallel route default | REQUIRED for ALL `@slot` directories |
+
+### Critical Next.js 16 Changes from v15
+
+* `params`, `searchParams`, `cookies()`, `headers()`, `draftMode()` are ALL async — synchronous access is fully removed (no fallback).
+* Turbopack is default — no `--turbopack` flag needed. Config is top-level in `next.config.ts`.
+* `middleware.ts` → `proxy.ts` rename (Edge runtime NOT supported in proxy).
+* `next lint` removed — use Biome CLI directly (`pnpm exec biome check .`).
+* React Compiler stable — `reactCompiler: true` (not experimental).
+* `cacheLife` and `cacheTag` stable — no `unstable_` prefix.
+* Parallel routes: ALL `@slot` dirs MUST have `default.tsx`.
+* Tailwind v4: CSS-first config (`@import "tailwindcss"` in CSS), NO `tailwind.config.ts`.
+
+---
+
+## § ENVIRONMENT VARIABLES
+
+ALL environment variables MUST be accessed through `lib/env.ts` using `@t3-oss/env-nextjs`.
+NEVER use raw `process.env.X` anywhere except inside `lib/env.ts`.
+
+```ts
+// ✅ Correct
+import { env } from '@/lib/env'
+const url = env.DATABASE_URL
+
+// ❌ Forbidden
+const url = process.env.DATABASE_URL
+
+```
+
+If a new env var is needed: add to `lib/env.ts` schema first, then use.
+
+---
+
+## § DATABASE RULES
+
+Drizzle ORM is the ONLY ORM. Prisma is FORBIDDEN.
+
+| Correct | Forbidden |
+| --- | --- |
+| `import { db } from '@/lib/db'` (Drizzle) | `import { prisma } from '@/lib/prisma'` |
+| `drizzle-kit generate` | `prisma generate` |
+| `drizzle-kit migrate` | `prisma migrate` |
+| `drizzle-kit studio` | `prisma studio` |
+| `@neondatabase/serverless` | `@prisma/client` |
+
+If Prisma files are found (`schema.prisma`, `prisma/`): plan migration to Drizzle in dedicated phase.
+
+---
+
+## § EMAIL RULES
+
+React Email + Resend is the ONLY email stack. `nodemailer` is FORBIDDEN.
+
+| Correct | Forbidden |
+| --- | --- |
+| `import { Resend } from 'resend'` | `import nodemailer from 'nodemailer'` |
+| `import { Body, Html } from '@react-email/components'` | Raw HTML string templates |
+| `resend.emails.send({ react: <Template /> })` | `transporter.sendMail()` |
+
+Email templates live in `lib/email/templates/`. Dev preview: `pnpm email:dev`.
+
+---
+
+## § SECURITY RULES
+
+Arcjet is the unified security layer. Nosecone handles CSP/Headers.
+
+| Concern | Tool | NOT |
+| --- | --- | --- |
+| Rate limiting | Arcjet `tokenBucket` | `@upstash/ratelimit` |
+| Bot protection | Arcjet `detectBot` + `shield` | Custom middleware |
+| CSP / Headers | `@nosecone/next` in `proxy.ts` | Manual headers |
+| DDOS mitigation | Arcjet `shield` | Nothing |
+| Cache/Queue | Upstash Redis | — |
+
+Upstash Redis is KEPT for cache, queue, and session storage. NOT for rate limiting.
+
+---
+
+## § ANALYTICS RULES
+
+PostHog EU is primary product analytics. Vercel analytics is supplementary.
+
+| Purpose | Tool |
+| --- | --- |
+| Product analytics, funnels, user behavior | PostHog (eu.i.posthog.com) |
+| Session replay | PostHog (`maskAllInputs: true` for GDPR) |
+| Web vitals / speed | `@vercel/speed-insights` |
+| Page views (basic) | `@vercel/analytics` |
+| Error tracking + tracing | `@sentry/nextjs` (EU DSN) |
+
+ALL analytics MUST respect CookieConsent (Zustand Tri-State). No tracking before consent.
+
+---
+
+## § TESTING RULES
+
+| Scope | Tool/Location | Rule |
+| --- | --- | --- |
+| Unit/Integration | Vitest + `@testing-library/react` | Colocated `.test.ts` / `.test.tsx` files |
+| E2E | Playwright | Placed in `tests/e2e/` directory |
+| Server Actions | Vitest | Test via direct import, NOT via HTTP calls |
+| Minimum Coverage | All | MUST cover mutations, auth flows, payment flows |
+
+---
+
+## § TASK TIERS
+
+| Tier | Scope | Examples |
+| --- | --- | --- |
+| T1 | 1 file, no critical systems, <30 min | Typo, style tweak, utility |
+| T2 | 2–5 files, no critical systems, <2 hrs | Feature, refactor, page |
+| T3 | 5+ files OR auth/payments/medical/arch | New flow, schema change, migration |
+
+---
+
+## § WORKFLOW
+
+| Step | T1 | T2/T3 |
+| --- | --- | --- |
+| 1. ANALYZE | Internal: restate → goal → constraints → pre-mortem → rendering strategy → server/client boundary → done definition | Same |
+| 2. LOAD CONTEXT | Skip | Read: project-state, handoff-queue, anti-patterns, registry (components + api-endpoints), preferences, errors, patterns, decisions, codemap (if refactor or new feature) |
+| 3. RESEARCH | Library API → Context7 · Pattern → Filesystem · Medical → BioMCP | Same |
+| 4. ELEVATE | Responsive · Loading/error boundaries · ARIA · Touch ≥44px · Strict types · Server/client split | Same |
+| 5. PLAN | Inline checklist | Create `tasks/TaskName_PLAN.md` → delete after `pnpm check` passes |
+| 6. EXECUTE | Implement | Implement + log deviations |
+| 7. VERIFY | Output matches task? · Imports resolve? · Server/client boundary correct? · All request APIs awaited? | Same + adversarial scan + pnpm check + plan checks |
+| 8. DELIVER | See format below | See format below + Memory Updates |
+
+---
+
+## § RESEARCH TRIGGERS
+
+| Trigger | Tool | Action |
+| --- | --- | --- |
+| Any library API | Context7 | `resolve-library-id` → `get-library-docs` |
+| File/function existence | Filesystem | `read_file` / `search_files` |
+| Code patterns | Filesystem | Read 2–3 related files |
+| Medical/therapy content | BioMCP | Evidence lookup before any claim |
+| Security concern | Semgrep MCP | Scan for vulnerabilities |
+| Design implementation | Figma MCP | Extract specs → check existing components |
+| UI debugging | browser-tools-mcp | Console logs, network, screenshots, a11y audit |
+
+---
+
+## § PROTOCOLS
+
+### Server/Client Boundary (apply to EVERY component decision)
+
+| Question | If Yes | If No |
+| --- | --- | --- |
+| Uses `useState`/`useEffect`/`useRef`? | Client | Server |
+| Has `onClick`/`onChange`/`onSubmit`? | Client | Server |
+| Uses `window`/`document`/`navigator`? | Client | Server |
+| Uses `useRouter`/`usePathname`? | Client | Server |
+| Uses Zustand/PostHog/Stripe.js? | Client | Server |
+| Fetches data for display only? | Server | — |
+| Exports metadata? | Server (MUST) | — |
+
+When in doubt → Server. Extract only the interactive leaf to a client component.
+
+### Async Request APIs (v16 — non-negotiable)
+
+Every access to these APIs MUST be awaited. Synchronous access is fully removed in v16:
+
+```ts
+const { slug } = await params;           // page.tsx, layout.tsx, route.tsx
+const { q } = await searchParams;        // page.tsx
+const cookieStore = await cookies();     // anywhere server-side
+const headerList = await headers();      // anywhere server-side
+const draft = await draftMode();         // anywhere server-side
+const resolvedId = await id;             // sitemap with generateSitemaps
+
+```
+
+If you write `const { slug } = params` without await → runtime error in v16.
+
+### UI Consistency + Scalable Architecture
+
+Before ANY UI change: SEARCH similar patterns (Filesystem) → AUDIT registry (`.agent/registry/components.md`) → DECIDE abstraction level → EXTRACT tokens → MATCH same element = same treatment → IMPLEMENT at highest viable level → VERIFY via browser-tools-mcp.
+
+Decision hierarchy:
+
+1. Theme-level (CSS variables, `@theme` in Tailwind v4 `globals.css`) → colors, spacing, typography
+2. Component-level (shared components in `src/components/ui/`) → multi-page patterns
+3. Utility composition → page-specific combinations
+4. Inline → ONLY unique one-off with [DECISION]
+
+| Trigger | Required | Prohibited |
+| --- | --- | --- |
+| Value used 3+ times | Extract to token/variable | Hardcoded repetition |
+| Global style change | CSS variables / `@theme` | Element-by-element |
+| New variant | Extend existing pattern | Parallel patterns |
+| >2 places need change | Make universal | Isolated edits |
+
+**Anti-patterns:** New colors outside palette · Duplicated spacing · Copy-paste styles · Multiple paths to same result · Inline for theme values.
+
+### Debug Protocol
+
+1. Read full error.
+2. Search codebase (Filesystem).
+3. Check `errors.md`.
+4. `browser-tools-mcp` console/network.
+5. Fix with understanding.
+
+*Loop guard: 3 attempts per individual issue, different strategy each. After 3 failures → escalate to next approach/architecture. Task-level: NEVER stop permanently.*
+
+### Cascade Awareness
+
+Before changing any shared component/utility/type/provider/layout: search imports → assess breakage → update all consumers OR preserve interface.
+**High-risk cascades:** Layout changes → ALL child pages · Provider changes → ALL client components · Proxy (`proxy.ts`) → ALL routes · `next.config.ts` → entire build · `lib/env.ts` → every file importing env.
+
+### Browser Verification Protocol
+
+After UI changes, use `browser-tools-mcp`:
+| Step | Tool Call | Purpose |
+|---|---|---|
+| 1. Navigate | `browser_navigate` | Load the page |
+| 2. Console | `browser_console` | Check for errors/warnings |
+| 3. Screenshot | `browser_screenshot` | Visual verification |
+| 4. Network | `browser_network` | Verify API calls succeed |
+| 5. Accessibility | Run a11y audit if available | WCAG compliance |
+
+If `browser-tools-mcp` fails to connect, fall back to `pnpm build` verification only and note `[BLOCKED: browser verification unavailable]`.
+
+---
+
+## § QUALITY GATES
+
+### Confidence Levels
+
+| Level | Action |
+| --- | --- |
+| ✅ VERIFIED | Proceed, cite source |
+| 🔵 HIGH | Proceed, note reasoning |
+| 🟡 UNCERTAIN | Research first (Context7/Filesystem/BioMCP), flag `[UNCERTAIN: reason]` |
+| ⚠️ LOW | Don't implement. Research to 🟡 minimum. |
+
+### Four-Lens Check
+
+| Lens | Question |
+| --- | --- |
+| **USER** | Obvious and correct? Content visible in View Source (server-rendered)? |
+| **MAINTAINER** | Modifiable in 6 months? Server/client boundary obvious from file names? All request APIs awaited? Env vars through lib/env.ts? |
+| **ATTACKER** | What breaks this? Input sanitized? Auth checked? Arcjet protecting endpoints? Nonce-based CSP via Nosecone? |
+| **BUSINESS** | Solves actual problem? Rental-first priority respected? |
+
+---
+
+## § MCP TOOLS
+
+Canonical MCP set (12): `filesystem` · `context7` · `biomcp` · `github` · `@21st-dev/magic` · `semgrep-mcp` · `figma-mcp` · `stripe` · `posthog` · `vercel` · `browser-tools-mcp`
+
+**Forbidden MCPs:** `prisma` · `supabase-mcp` · `design-to-code` · `next-devtools` · `sequential-thinking` · `playwright` · `memory` · `fetch` · `postgresql`
+
+| Context | Tool | Key Actions |
+| --- | --- | --- |
+| Any library API | Context7 | `resolve-library-id` → `get-library-docs` — BEFORE writing API call |
+| File ops, code search | Filesystem | `read_file`, `write_file`, `search_files`, `list_directory` |
+| Database schema, migrations | Drizzle CLI | Use `pnpm db:generate` / `pnpm db:migrate` / `pnpm db:studio` |
+| Medical/scientific evidence | BioMCP | Evidence lookup — MANDATORY for therapy content |
+| UI debugging, visual verify | browser-tools-mcp | Console, network, screenshots, a11y audit |
+| UI component generation | @21st-dev/magic | Generate complex components from descriptions/designs |
+| Design spec extraction | Figma MCP | Spacing, colors, typography from Figma files |
+| Security scanning | Semgrep MCP | Static analysis — use for auth/payments/data tasks |
+| Payments, subscriptions | Stripe MCP | Products, prices, checkout, webhooks |
+| Analytics, feature flags | PostHog MCP | Event tracking, feature gates, funnels |
+| Deployment, env vars, logs | Vercel MCP | Deploy, preview URLs, env management, build logs |
+| Code history, PRs, issues | GitHub MCP | Branch ops, PR creation, issue tracking |
+
+**Rules:**
+
+* Never write library API from memory → Context7 first.
+* Never assume Drizzle schema names → verify against `lib/db/schema.ts`.
+* Semgrep scan on any PR touching auth, payments, or user data.
+
+**Design-to-Code Pipeline:**
+Figma MCP (extract specs) → check `src/components/ui/` for matches → `@21st-dev/magic` (generate if nothing reusable) → `browser-tools-mcp` (visual verify).
+
+---
+
+## § AGENT ROLES
+
+| Domain | Role |
+| --- | --- |
+| Instructions, skills, rules | skill-architect |
+| React, UI, styling, hooks | frontend-specialist |
+| API, DB, auth, server | backend-specialist |
+| Architecture, multi-domain | architect-orchestrator |
+| Audit, strategic review | ceo-auditor |
+| Security, GDPR, OWASP | security-compliance |
+| WCAG, ARIA, keyboard | accessibility-specialist |
+| Design tokens, components | design-system-architect |
+| Product copy, therapy content | content-product-writer |
+| SEO, Core Web Vitals, metadata | seo-performance |
+| CI/CD, deployment, Vercel | devops-deploy |
+| Quality gate, proof-demanding | code-skeptic |
+| PR review | code-reviewer |
+| Documentation | docs-specialist |
+| Testing | test-engineer |
+| i18n, translations | i18n-specialist |
+
+Multi-domain → primary role, handoff secondary. Ambiguous → `architect-orchestrator`. Check `.agent/modes/[role].md` if exists.
+
+---
+
+## § MEMORY SYSTEM
+
+Hierarchy: Temporary (`tasks/*_PLAN.md`) → Active (`.agent/memory/active/*`) → Permanent (skills, registry)
+
+| File | Purpose | Update When |
+| --- | --- | --- |
+| .agent/memory/project-state.md | Snapshot: built, broken, in progress | After T3 |
+| .agent/memory/activeContext.md | Current in-session focus, blockers, and next steps | Session start/end and after major pivot |
+| .agent/memory/anti-patterns.md | What NOT to do (max 100) | When discovered |
+| .agent/memory/codemap.md | Codebase navigation map | After new dirs or major refactor |
+| .agent/memory/active/handoff-queue.md | Pending work for other roles | After T2/T3 |
+| .agent/memory/active/patterns.md | Reusable patterns (max 50) | When found |
+| .agent/memory/active/errors.md | Errors + fixes (max 50) | When solved |
+| .agent/memory/active/preferences.md | User preferences (max 50) | When learned |
+| .agent/decisions/decisions.md | Persistent [DECISION] log | After any [DECISION] logged |
+| .agent/registry/components.md | Every component (server/client tagged) | Before/after UI work |
+| .agent/registry/api-endpoints.md | Every endpoint + server action | Before/after API work |
+
+DLMS: Delete plan files after `pnpm check` passes. Max entries → archive oldest 50%. Missing file → create it.
+
+### Integrity Rule
+Every file in `.agent/` (except modes/ and skills/) MUST be referenced
+in this section with a read and write trigger. No ghost files.
+If Cline creates a file not listed here → add it to this table or delete it.
+Audit: compare `tree /f .agent` against this table monthly.
+
+---
+
+## § DELIVERY FORMAT
+
+## Completed
+
+[One sentence]
+
+## Changes
+
+* `path` — [created/modified] — [what, why] — [server/client]
+
+## Enhancements Added
+
+* [beyond request, why]
+
+## Decisions
+
+* [DECISION: what, why, reverse] — or "None"
+
+## Known Issues
+
+* [KNOWN ISSUE: description] — or "None"
+
+## Verification
+
+* ✅ [check]
+* ✅ pnpm build passes
+* ✅ pnpm exec biome check . passes
+* ✅ No metadata exports in 'use client' files
+* ✅ All params/searchParams/cookies/headers awaited
+* ✅ View Source on new pages shows server-rendered HTML (not empty div)
+* ✅ No raw process.env outside lib/env.ts
+* ✅ No framer-motion imports (motion/react only)
+* ✅ No <img> tags (next/image only)
+* ✅ Bundle budget within limits
+* ✅ New `@slot` directory has `default.tsx`
+* ✅ New page with external data has `error.tsx`
+* ✅ LCP image has `priority={true}` and `sizes` attribute
+* ✅ New page → rendering strategy declared in [DECISION] log
+* ✅ Schema change → `drizzle-kit generate` + verify migration file before applying
+
+T2/T3 only — append:
+
+## Memory Updates
+
+* Handoffs: → [role]: [task] | [priority] | [files]
+* Noticed: → [out-of-scope observation]
+* Cascade: → [affected systems/layouts/providers]
+* Anti-pattern: → [AP-xxx]
+* Registry: → [updated item] [server|client]
+
+---
+
+## § DEFINITION OF DONE
+
+* `pnpm check` (# biome check + build + test) MUST pass before delivery.
+* `pnpm build` fails → fix before delivering (NEVER deliver with build errors).
+* `pnpm exec biome check .` fails → fix before delivering.
+* Tests fail → fix root cause, not symptoms.
+* New behavior → add tests.
+* New page → has metadata export, `loading.tsx`, correct rendering strategy, server/client split documented in delivery.
+* New page → View Source shows actual HTML content server-rendered (not empty div awaiting hydration).
+* New page → No metadata export in any 'use client' file (silent SEO failure).
+* New page with external data → MUST have `error.tsx` ('use client' required).
+* New `@slot` directory → MUST have `default.tsx`.
+* LCP images → MUST have `priority={true}` and `sizes`.
+* All `params`/`searchParams`/`cookies`/`headers` MUST be awaited (v16 — no sync fallback).
+* All env vars accessed through `lib/env.ts` only.
+* Schema change → `drizzle-kit generate` + verify migration file before applying.
+* API changed → update `.agent/registry/api-endpoints.md`.
+* Component created/modified → update `.agent/registry/components.md` with [server|client] tag.
+* Never touch applied Drizzle migrations.
+* Never commit to main directly.
+* Never mix `.agent/memory` or `.env.local` with feature code.
+

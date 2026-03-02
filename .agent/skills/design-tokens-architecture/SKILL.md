@@ -91,21 +91,13 @@ Component Tokens (component-specific)
 
 ### Tailwind Token Integration
 ```javascript
-// tailwind.config.js — map tokens to Tailwind
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        primary: 'var(--color-primary)',
-        accent: 'var(--color-accent)',
-        surface: 'var(--color-surface)',
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      },
-    }
-  }
-};
+/* Tailwind v4 CSS-first — define tokens in globals.css with @theme */
+@theme {
+  --color-primary: var(--color-primary);
+  --color-accent: var(--color-accent);
+  --color-surface: var(--color-surface);
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
 ```
 
 ## Component Token Pattern

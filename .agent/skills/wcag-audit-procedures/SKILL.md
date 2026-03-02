@@ -33,7 +33,7 @@ Use NVDA+Firefox or VoiceOver+Safari:
 ### Pass 3: Automated (10 min)
 ```bash
 # Install axe CLI
-npm install -g axe-cli
+pnpm add -D --save-exact @axe-core/playwright
 axe https://localhost:3000 --save results.json
 
 # Or in tests:

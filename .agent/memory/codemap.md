@@ -2,21 +2,26 @@
 
 ## Main App (`/`)
 src/
-├── app/                    # App Router pages (SERVER by default)
-│   ├── (marketing)/        # Public pages — SSG/ISR
-│   ├── (shop)/             # Product/rental pages — ISR
-│   ├── (dashboard)/        # Authenticated — SSR (force-dynamic)
-│   ├── api/                # route.ts — webhooks + uploadthing ONLY
-│   └── layout.tsx          # Root layout (SERVER) → Providers (CLIENT)
+├── app/                    # App Router routes + route-level UI
+│   ├── layout.tsx          # Root layout (server)
+│   ├── page.tsx            # Home route entry (server)
+│   ├── HomeClient.tsx      # Home interactive leaf (client)
+│   ├── product/[tech]/     # Product detail route + ProductClient leaf
+│   ├── store/              # Store route + StoreClient leaf
+│   └── wellness-planner/   # Planner route + WellnessPlannerClient leaf
+├── actions/
+│   └── formActions.ts      # Server Actions (`'use server'`) for form flows
 ├── components/
-│   ├── ui/                 # Design system primitives [server|client tagged]
-│   └── [domain]/           # Feature components
+│   ├── layout/             # Header/Footer/GlobalOverlays primitives
+│   ├── providers/          # Providers wrapper used by app layout
+│   ├── ui/                 # Shared UI modules (BreadcrumbBar, Multitool)
+│   └── hero-4.6t/          # Landing sections and composition blocks
 ├── lib/
-│   ├── db/                 # Drizzle schema + client
-│   │   └── schema.ts       # ⚠️ VERIFY before any query — never assume names
-│   ├── env.ts              # ALL env vars — single access point
-│   ├── email/templates/    # React Email templates
-│   └── actions/            # Server Actions (next-safe-action)
+│   ├── analytics.ts        # Analytics integration surface
+│   ├── stripe.ts           # Payment integration helpers
+│   └── schemas/            # Shared zod/schema definitions
+├── stores/
+│   └── multitoolStore.ts   # Client state for multitool UI
 ├── proxy.ts                # ROOT — replaces middleware.ts (FORBIDDEN)
 └── globals.css             # Tailwind v4 @theme config
 
@@ -25,7 +30,12 @@ src/
 Communication via API only.
 
 ## Critical Entry Points
-- Auth flow: `lib/auth.ts` → Auth.js v5 config → Drizzle adapter
-- Payment flow: `lib/stripe.ts` → webhook in `app/api/stripe/route.ts`
-- Email flow: `lib/email/` → Resend client → templates/
-- Security: `proxy.ts` (Nosecone CSP) + `lib/arcjet.ts` (rate limit, bot, shield)
+- App shell: `src/app/layout.tsx` (server) + `src/components/providers/Providers.tsx`
+- Mutations: `src/actions/formActions.ts` (server actions)
+- Security boundary: `src/proxy.ts`
+- Env boundary (root-level): `lib/env.ts`
+
+## Server / Client Boundaries (verified)
+- Client files: `src/app/HomeClient.tsx`, `src/app/store/StoreClient.tsx`, `src/app/wellness-planner/WellnessPlannerClient.tsx`
+- Server-first routes: all `src/app/**/page.tsx`
+- Server actions: `src/actions/formActions.ts` (`'use server'`)
