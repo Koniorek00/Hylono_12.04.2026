@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     Zap,
     Clock,
@@ -359,3 +359,4 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
         </div>
     );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Sun, CloudSun, Coffee, Calendar, TrendingUp } from 'lucide-react';
 
 export const MorningBriefing: React.FC = () => {
@@ -79,3 +79,4 @@ export const MorningBriefing: React.FC = () => {
         </motion.div>
     );
 };
+

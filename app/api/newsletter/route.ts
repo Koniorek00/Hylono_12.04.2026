@@ -44,8 +44,8 @@ export async function POST(request: Request): Promise<Response> {
         //   - Brevo (Sendinblue): POST to /contacts
         //
         // Example with Resend:
-        // const resendApiKey = process.env.RESEND_API_KEY;
-        // const audienceId = process.env.RESEND_AUDIENCE_ID;
+        // const resendApiKey = env.RESEND_API_KEY;
+        // const audienceId = env.RESEND_AUDIENCE_ID;
         // await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
         //     method: 'POST',
         //     headers: {

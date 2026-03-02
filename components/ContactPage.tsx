@@ -1,5 +1,5 @@
 import React, { useActionState, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, MessageCircle, Clock, AlertTriangle, ChevronRight, ChevronLeft, Calendar } from 'lucide-react';
 import { getCSRFToken, validateCSRFToken } from '../utils/csrf';
 import { submitContactFormAction, type FormActionResult } from '../src/actions/formActions';
@@ -597,3 +597,4 @@ export const ContactPage: React.FC = () => {
         </div>
     );
 };
+

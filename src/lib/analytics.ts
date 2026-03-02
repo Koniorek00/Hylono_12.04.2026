@@ -4,10 +4,12 @@
 // the dynamic import() inside initPostHog() — after the user gives analytics
 // consent. This saves ~950 kB from the initial bundle for non-consenting visitors.
 import type { PostHog } from 'posthog-js';
+import { readPublicRuntimeEnv } from '../../utils/featureFlagEnv';
 
 // EU PostHog endpoint — keeps data in Europe (GDPR data residency)
-const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY || '';
-const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://eu.posthog.com';
+const POSTHOG_KEY = readPublicRuntimeEnv('NEXT_PUBLIC_POSTHOG_KEY') ?? '';
+const POSTHOG_HOST =
+    readPublicRuntimeEnv('NEXT_PUBLIC_POSTHOG_HOST') ?? 'https://eu.i.posthog.com';
 
 let initialized = false;
 let posthogInstance: PostHog | null = null;

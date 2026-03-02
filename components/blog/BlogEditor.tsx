@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     Bold, Italic, Link2, Image, List, ListOrdered, Quote, Code,
     Type, AlignLeft, AlignCenter, AlignRight, Heading1, Heading2,
@@ -80,8 +80,8 @@ export const BlogEditor: React.FC = () => {
             mentionStartRef.current = cursorPos - atMatch[0].length;
 
             // Check if category prefix is specified
-            const categoryPrefix = atMatch[1]?.toLowerCase();
-            const query = atMatch[3] || '';
+            const categoryPrefix = atMatch[1]?.toLowerCase() ?? '';
+            const query = atMatch[3] ?? '';
 
             // Match category prefix
             const matchedCategory = MENTION_CATEGORIES.find(

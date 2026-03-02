@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface TypingEffectProps {
     text: string;
@@ -75,9 +75,14 @@ export const TypingSequence: React.FC<TypingSequenceProps> = ({
 }) => {
     const [currentLine, setCurrentLine] = useState(0);
     const [completedLines, setCompletedLines] = useState<string[]>([]);
+    const currentLineText = lines[currentLine];
 
     const handleLineComplete = useCallback(() => {
-        setCompletedLines(prev => [...prev, lines[currentLine]]);
+        const completedLine = lines[currentLine];
+        if (completedLine === undefined) return;
+
+        setCompletedLines(prev => [...prev, completedLine]);
+
         if (currentLine < lines.length - 1) {
             setTimeout(() => setCurrentLine(prev => prev + 1), lineDelay);
         }
@@ -88,9 +93,9 @@ export const TypingSequence: React.FC<TypingSequenceProps> = ({
             {completedLines.map((line) => (
                 <div key={line}>{line}</div>
             ))}
-            {currentLine < lines.length && (
+            {currentLine < lines.length && currentLineText !== undefined && (
                 <TypingEffect
-                    text={lines[currentLine]}
+                    text={currentLineText}
                     speed={speed}
                     onComplete={handleLineComplete}
                 />
@@ -118,28 +123,35 @@ export const TextRotator: React.FC<TextRotatorProps> = ({
     wordClassName = 'text-cyan-500'
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const hasWords = words.length > 0;
+    const currentWord = hasWords ? words[currentIndex % words.length] : undefined;
 
     useEffect(() => {
+        if (!hasWords) return;
+
         const timer = setInterval(() => {
             setCurrentIndex(prev => (prev + 1) % words.length);
         }, interval);
+
         return () => clearInterval(timer);
-    }, [words.length, interval]);
+    }, [hasWords, words.length, interval]);
 
     return (
         <span className={className}>
             {prefix}
             <AnimatePresence mode="wait">
-                <motion.span
-                    key={currentIndex}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className={`inline-block ${wordClassName}`}
-                >
-                    {words[currentIndex]}
-                </motion.span>
+                {currentWord !== undefined && (
+                    <motion.span
+                        key={currentIndex}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className={`inline-block ${wordClassName}`}
+                    >
+                        {currentWord}
+                    </motion.span>
+                )}
             </AnimatePresence>
             {suffix}
         </span>
@@ -173,8 +185,8 @@ export const ShuffleText: React.FC<ShuffleTextProps> = ({
             setDisplayText(
                 text.split('').map((char, i) => {
                     if (char === ' ') return ' ';
-                    if (count > i) return text[i];
-                    return chars[Math.floor(Math.random() * chars.length)];
+                    if (count > i) return text[i] ?? char;
+                    return chars[Math.floor(Math.random() * chars.length)] ?? char;
                 }).join('')
             );
 

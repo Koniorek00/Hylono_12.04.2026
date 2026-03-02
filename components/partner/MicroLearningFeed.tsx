@@ -175,6 +175,8 @@ export const MicroLearningFeed: React.FC = () => {
     const [activeCategory, setActiveCategory] = useState<Category>('all');
     const [showRecommendedPath, setShowRecommendedPath] = useState(false);
 
+    const activeVideo = activeVideoIndex === null ? null : MICRO_VIDEOS[activeVideoIndex] ?? null;
+
     const filteredVideos = activeCategory === 'all'
         ? MICRO_VIDEOS
         : MICRO_VIDEOS.filter(v => v.category === activeCategory);
@@ -193,7 +195,7 @@ export const MicroLearningFeed: React.FC = () => {
 
     const handleVideoClick = (video: ExtendedMicroVideo) => {
         const globalIndex = MICRO_VIDEOS.findIndex(v => v.id === video.id);
-        setActiveVideoIndex(globalIndex);
+        setActiveVideoIndex(globalIndex >= 0 ? globalIndex : null);
     };
 
     const handleClose = () => {
@@ -356,10 +358,10 @@ export const MicroLearningFeed: React.FC = () => {
             </div>
 
             {/* Player Overlay */}
-            {activeVideoIndex !== null && (
+            {activeVideo && (
                 <div className="relative z-[100]">
                     <MicroLearningPlayer
-                        video={MICRO_VIDEOS[activeVideoIndex]}
+                        video={activeVideo}
                         onClose={handleClose}
                         onNext={handleNext}
                         onPrev={handlePrev}

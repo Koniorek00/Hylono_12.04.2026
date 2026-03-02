@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 export const AccessSection: React.FC = () => {
     return (
@@ -107,3 +107,4 @@ const AccessCard = ({ title, subtitle, body, features, cta, outline }: any) => (
         </button>
     </motion.div>
 );
+

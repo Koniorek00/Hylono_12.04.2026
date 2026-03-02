@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { RotateCw, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 
 interface Product360ViewerProps {
@@ -155,3 +155,4 @@ export const ProductImageGallery: React.FC<{ productName: string }> = ({ product
         </div>
     );
 };
+

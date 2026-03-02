@@ -15,7 +15,7 @@ import {
     Phone,
     MoreHorizontal
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 // Mock Referral Data
 interface Referral {
@@ -179,3 +179,4 @@ export const ReferralConnect: React.FC = () => {
 };
 
 export default ReferralConnect;
+

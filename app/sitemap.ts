@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
+import { env } from '@/lib/env';
 import { conditionGoals } from '@/content/conditions';
 import { products } from '@/content/products';
 import { protocols } from '@/content/protocols';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hylono.eu';
+const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 const staticRoutes = [
   '/',

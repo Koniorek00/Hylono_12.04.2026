@@ -4,7 +4,7 @@
  * Mood: Scientific, meditative, ultra-premium Swiss design.
  */
 import React, { useRef, useCallback } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'motion/react';
 import { Wind, Activity, Sun, Droplets, User, Play } from 'lucide-react';
 import { MagneticButton } from '../shared/MagneticButton';
 
@@ -279,3 +279,4 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
     </motion.section>
   );
 };
+

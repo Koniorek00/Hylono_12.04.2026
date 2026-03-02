@@ -3,7 +3,7 @@ import { PartnerLayout } from './PartnerLayout';
 import { SkillRadarChart } from './SkillRadarChart';
 import { CertificationTracker } from './CertificationTracker';
 import { RolePathSelector } from './RolePathSelector';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import {
     User,
     Settings,
@@ -217,3 +217,4 @@ export const PartnerProfile: React.FC = () => {
         </PartnerLayout>
     );
 };
+

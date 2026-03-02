@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { X, Scale, Check, Minus, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import { ChamberProduct } from '../types';
 import { OptimizedImage } from './shared/OptimizedImage';
@@ -16,6 +16,8 @@ interface ChamberCompareProps {
     onClear: () => void;
     onNavigate: (slug: string) => void;
 }
+
+type SectionKey = 'specs' | 'features' | 'pricing';
 
 // All spec labels we want to compare across chambers
 const COMPARISON_ROWS: { label: string; key?: string; extractor: (c: ChamberProduct) => string }[] = [
@@ -115,13 +117,13 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
     onClear,
     onNavigate,
 }) => {
-    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    const [expandedSections, setExpandedSections] = useState<Record<SectionKey, boolean>>({
         specs: true,
         features: false,
         pricing: true,
     });
 
-    const toggleSection = (section: string) => {
+    const toggleSection = (section: SectionKey) => {
         setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
     };
 
@@ -145,7 +147,8 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
 
                 {/* Chamber columns */}
                 {chambers.map((c) => {
-                    const heroUrl = c.images.find((i) => i.role === 'hero')?.url || PLACEHOLDER_IMAGES[c.type];
+                    const fallbackImage = PLACEHOLDER_IMAGES[c.type] ?? PLACEHOLDER_IMAGES.monoplace;
+                    const heroUrl = c.images.find((i) => i.role === 'hero')?.url ?? fallbackImage;
                     return (
                         <div key={c.id} className="relative">
                             <button
@@ -159,7 +162,7 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
                                 <OptimizedImage
                                     src={heroUrl}
                                     alt={c.fullName}
-                                    fallbackSrc={PLACEHOLDER_IMAGES[c.type]}
+                                    fallbackSrc={fallbackImage}
                                     width={640}
                                     height={160}
                                     sizes="(max-width: 1024px) 100vw, 33vw"
@@ -186,7 +189,7 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
             <Section
                 title="Specifications"
                 sectionKey="specs"
-                expanded={expandedSections.specs}
+                expanded={expandedSections.specs ?? false}
                 onToggle={() => toggleSection('specs')}
             >
                 {COMPARISON_ROWS.slice(0, 12).map((row) => (
@@ -203,7 +206,7 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
             <Section
                 title="Features"
                 sectionKey="features"
-                expanded={expandedSections.features}
+                expanded={expandedSections.features ?? false}
                 onToggle={() => toggleSection('features')}
             >
                 {/* Collect all unique features across chambers */}
@@ -221,7 +224,7 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
             <Section
                 title="Pricing & Availability"
                 sectionKey="pricing"
-                expanded={expandedSections.pricing}
+                expanded={expandedSections.pricing ?? false}
                 onToggle={() => toggleSection('pricing')}
             >
                 {COMPARISON_ROWS.slice(12).map((row) => (

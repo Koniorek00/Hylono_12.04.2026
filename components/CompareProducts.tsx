@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Plus, Check, ArrowRight, Scale } from 'lucide-react';
 
 interface ProductForComparison {
@@ -94,9 +94,10 @@ export const ComparisonModal: React.FC<{
 }> = ({ isOpen, onClose, productIds }) => {
     const products = sampleProducts.filter(p => productIds.includes(p.id));
 
-    if (products.length === 0) return null;
+    const primaryProduct = products[0];
+    if (!primaryProduct) return null;
 
-    const allSpecs = Object.keys(products[0].specs);
+    const allSpecs = Object.keys(primaryProduct.specs);
 
     return (
         <AnimatePresence>

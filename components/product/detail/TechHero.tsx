@@ -13,7 +13,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     ArrowLeft, ArrowRight, Calendar, Shield, CheckCircle, Phone, ShoppingBag,
     ChevronDown, Users, Maximize2, Wind, Sun, Droplets, Activity,
@@ -83,7 +83,14 @@ export const TechHero: React.FC<TechHeroProps> = ({
     const [expandedTypes, setExpandedTypes] = useState<string[]>(['monoplace']);
 
     // Get config for this tech type
-    const techConfig = TECH_CONFIG.find(t => t.type === data.id) || TECH_CONFIG[0];
+    const defaultTechConfig = TECH_CONFIG[0] ?? {
+        type: data.id,
+        title: 'Technology',
+        tagline: 'Performance wellness systems',
+        icon: <Activity size={28} />,
+        iconBg: 'bg-cyan-500',
+    };
+    const techConfig = TECH_CONFIG.find(t => t.type === data.id) ?? defaultTechConfig;
 
     // For HBOT, get all chambers grouped by type
     const chambersByType = useMemo(() => {
@@ -255,7 +262,10 @@ export const TechHero: React.FC<TechHeroProps> = ({
                                         if (chambers.length === 0) return null;
                                         
                                         const isExpanded = expandedTypes.includes(type);
-                                        const typeMeta = TYPE_LABELS[type];
+                                        const typeMeta = TYPE_LABELS[type] ?? {
+                                            label: type,
+                                            icon: <Activity size={14} />,
+                                        };
                                         
                                         return (
                                             <div key={type} className="border-b border-slate-100 last:border-0">

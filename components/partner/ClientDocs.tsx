@@ -13,7 +13,7 @@ import {
     Building,
     AlertTriangle
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 // Document Templates
 interface DocTemplate {
@@ -69,7 +69,7 @@ const TEMPLATES: DocTemplate[] = [
     }
 ];
 
-const CATEGORY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+const CATEGORY_STYLES: Record<DocTemplate['category'], { bg: string; text: string; label: string }> = {
     consent: { bg: 'bg-cyan-50', text: 'text-cyan-700', label: 'Consent' },
     liability: { bg: 'bg-red-50', text: 'text-red-700', label: 'Liability' },
     intake: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Intake' },
@@ -434,7 +434,7 @@ export const ClientDocs: React.FC = () => {
                     <h3 className="text-xl font-bold text-slate-900 mb-4">Document Templates</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {TEMPLATES.map((template) => {
-                            const style = CATEGORY_STYLES[template.category];
+                            const style = CATEGORY_STYLES[template.category] ?? CATEGORY_STYLES.consent;
                             return (
                                 <motion.div
                                     key={template.id}

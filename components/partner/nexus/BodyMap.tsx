@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface BodyMapProps {
     onZoneClick: (zone: string) => void;
@@ -105,3 +105,4 @@ export const BodyMap: React.FC<BodyMapProps> = ({ onZoneClick, activeZones }) =>
         </div>
     );
 };
+

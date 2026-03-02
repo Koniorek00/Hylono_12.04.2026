@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, ExternalLink, Filter } from 'lucide-react';
 import { FeatureGate } from './FeatureGate';
 import { researchContent, ResearchModality, ResearchStudyCard } from '../content/research';
@@ -159,3 +159,4 @@ export const ResearchHub: React.FC = () => {
     </FeatureGate>
   );
 };
+

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, Home, List, ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { PageNavigatorDropdown } from '../../src/components/ui/BreadcrumbBar/PageNavigatorDropdown';
 
 interface BreadcrumbsProps {

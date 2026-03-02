@@ -8,7 +8,7 @@
  * - Hides native cursor via CSS
  */
 import React, { useEffect, useRef, useCallback } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'motion/react';
 
 type CursorState = 'default' | 'hover' | 'click' | 'text' | 'drag';
 
@@ -146,3 +146,4 @@ export const CustomCursor: React.FC = () => {
         </>
     );
 };
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { ArrowLeft, Calendar, Clock, Tag, Share2, Bookmark, ChevronRight } from 'lucide-react';
 import { SmartText } from './SmartText';
 import { ArticleStructuredData, BreadcrumbStructuredData } from './StructuredData';
@@ -83,7 +83,12 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
         readTime: article.readTime
     };
 
-    const commerceMapping = blogCategoryCommerceMap[article.category] ?? blogCategoryCommerceMap.Protocols;
+    const commerceMapping =
+        blogCategoryCommerceMap[article.category] ??
+        blogCategoryCommerceMap.Protocols ?? {
+            relatedProducts: [],
+            relatedProtocols: []
+        };
 
     return (
         <div className="min-h-screen bg-slate-50">

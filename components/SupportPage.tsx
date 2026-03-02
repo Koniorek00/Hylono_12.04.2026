@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { MessageSquare, Phone, Mail, HelpCircle, Shield, FileText, Search, ArrowRight, Clock, Users, Wrench, BookOpen } from 'lucide-react';
 import { DeviceScanner } from './support/DeviceScanner';
 
@@ -160,3 +160,4 @@ export const SupportPage: React.FC = () => {
         </div>
     );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { TechType } from '../types';
 import { TECH_DETAILS } from '../constants';
 import { calculateRentalTotal, GOAL_BUNDLES, GoalBundle } from '../utils/PricingEngine';
@@ -768,3 +768,4 @@ export const RentalConfigurator: React.FC<RentalConfiguratorProps> = ({ onChecko
         </div>
     );
 };
+

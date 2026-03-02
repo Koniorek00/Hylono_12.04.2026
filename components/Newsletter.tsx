@@ -1,7 +1,11 @@
 import React, { useActionState, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Mail, Sparkles, Check, AlertTriangle } from 'lucide-react';
-import { submitNewsletterFormAction, type FormActionResult } from '../src/actions/formActions';
+import {
+  submitNewsletterFormAction,
+  submitNewsletterSafeAction,
+  type FormActionResult,
+} from '../src/actions/formActions';
 
 export const Newsletter: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -10,6 +14,13 @@ export const Newsletter: React.FC = () => {
         submitNewsletterFormAction,
         { success: false, message: '' }
     );
+
+    useEffect(() => {
+        if (!actionState.success || !email) return;
+
+        const source = 'footer';
+        void submitNewsletterSafeAction({ email, source });
+    }, [actionState.success, email]);
 
     useEffect(() => {
         if (actionState.success) {
@@ -69,6 +80,13 @@ export const NewsletterSection: React.FC = () => {
         submitNewsletterFormAction,
         { success: false, message: '' }
     );
+
+    useEffect(() => {
+        if (!actionState.success || !email) return;
+
+        const source = 'home-section';
+        void submitNewsletterSafeAction({ email, source });
+    }, [actionState.success, email]);
 
     useEffect(() => {
         if (actionState.success) {
@@ -142,3 +160,4 @@ export const NewsletterSection: React.FC = () => {
         </section>
     );
 };
+

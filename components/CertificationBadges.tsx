@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Shield, Award, CheckCircle, FileCheck, Globe } from 'lucide-react';
 
 interface CertificationBadge {
@@ -129,3 +129,4 @@ export const TrustBanner: React.FC = () => (
         </div>
     </div>
 );
+

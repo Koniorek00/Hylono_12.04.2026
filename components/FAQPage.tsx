@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { HelpCircle, ChevronDown, Search, MessageCircle } from 'lucide-react';
 import { SmartText } from './SmartText';
 import { FAQStructuredData } from './StructuredData';
@@ -157,3 +157,4 @@ export const FAQPage: React.FC = () => {
         </div>
     );
 };
+

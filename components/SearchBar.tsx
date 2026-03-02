@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, ArrowRight, Hexagon } from 'lucide-react';
 import { TECH_DETAILS } from '../constants';
 import { TechType } from '../types';
@@ -113,3 +113,4 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectTech }) => {
         </>
     );
 };
+

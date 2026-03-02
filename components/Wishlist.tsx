@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Heart, X, ShoppingCart, Trash2 } from 'lucide-react';
 
 interface WishlistItem {
@@ -131,3 +131,4 @@ export const WishlistPage: React.FC<{ onNavigate: (page: string) => void }> = ({
         </div>
     );
 };
+

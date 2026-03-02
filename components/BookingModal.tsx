@@ -1,5 +1,5 @@
 import React, { useActionState, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Clock, X, User, Mail, Phone, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { submitBookingFormAction, type FormActionResult } from '../src/actions/formActions';
@@ -259,3 +259,4 @@ export const BookDemoButton: React.FC<{ productName?: string; className?: string
         </>
     );
 };
+

@@ -8,7 +8,7 @@
  * - Visual indicator of focus state
  */
 import React, { useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { Eye, EyeOff, Focus, Info } from 'lucide-react';
 import { useMultitoolStore } from '../../../../stores/multitoolStore';
 import { useScrollSpy } from '../hooks/useScrollSpy';

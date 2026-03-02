@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ContentToggleProps {
     options: [string, string];
@@ -98,3 +98,4 @@ export const ExplanationToggle: React.FC<{ standard: React.ReactNode; expert: Re
         {expert}
     </ContentToggle>
 );
+

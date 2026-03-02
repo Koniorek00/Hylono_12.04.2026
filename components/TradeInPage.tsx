@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, CheckCircle, Upload } from 'lucide-react';
 import { NavigateFunction } from '../types';
 import { tradeInContent } from '../content/tradeIn';
@@ -199,3 +199,4 @@ export const TradeInPage: React.FC<TradeInPageProps> = ({ onNavigate }) => {
         </FeatureGate>
     );
 };
+

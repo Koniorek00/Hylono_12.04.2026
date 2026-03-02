@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface SkillRadarChartProps {
     skills: {
@@ -120,3 +120,4 @@ export const SkillRadarChart: React.FC<SkillRadarChartProps> = ({ skills }) => {
         </div>
     );
 };
+

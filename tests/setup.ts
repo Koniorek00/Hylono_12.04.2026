@@ -18,8 +18,8 @@ afterEach(() => {
 // ─── Framer-motion stub ───────────────────────────────────────────────────────
 // Renders children only — no animations — so component tests stay fast and
 // deterministic. Component test files can override locally with vi.mock().
-vi.mock('framer-motion', async () => {
-    const actual = await vi.importActual<typeof import('framer-motion')>('framer-motion');
+vi.mock('motion/react', async () => {
+    const actual = await vi.importActual<typeof import('motion/react')>('motion/react');
     return {
         ...actual,
         // Replace AnimatePresence with a simple passthrough (no animation logic)
@@ -27,3 +27,4 @@ vi.mock('framer-motion', async () => {
         useReducedMotion: () => true, // always prefer reduced motion in tests
     };
 });
+

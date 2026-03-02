@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Briefcase, Heart, Zap, Globe, Users, MapPin, Clock, ArrowRight } from 'lucide-react';
 
 export const CareersPage: React.FC = () => {
@@ -106,3 +106,4 @@ export const CareersPage: React.FC = () => {
         </div>
     );
 };
+

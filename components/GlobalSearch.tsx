@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { Search, X, Clock, ArrowRight, FileText, Target, Package, Filter } from 'lucide-react';
 import Image from 'next/image';
 import { products } from '../content/products';
@@ -156,7 +156,10 @@ const FilterTagBar: React.FC<FilterTagBarProps> = ({ activeFilter, onFilterChang
     }
 
     if (newIndex !== currentIndex) {
-      onFilterChange(tags[newIndex].value);
+      const nextTag = tags[newIndex];
+      if (!nextTag) return;
+
+      onFilterChange(nextTag.value);
       const buttons = tagRef.current?.querySelectorAll('button');
       buttons?.[newIndex]?.focus();
     }

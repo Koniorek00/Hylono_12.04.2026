@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import {
     Play, Settings, HelpCircle, FileText, ChevronRight,
     Zap, Wind, Activity, Sun, Droplets, Clock, BookOpen, Phone
@@ -172,3 +172,4 @@ export const SynergyEngine: React.FC<SynergyEngineProps> = ({ ownedTech, onNavig
         </div>
     );
 };
+

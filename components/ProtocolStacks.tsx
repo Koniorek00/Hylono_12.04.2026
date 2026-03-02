@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Layers, ArrowRight, Zap, Activity, Brain, Plus } from 'lucide-react';
 import { TechType } from '../types';
 
@@ -114,3 +114,4 @@ export const ProtocolStacks: React.FC<StackProps> = ({ currentTech, onJump }) =>
         </div>
     );
 };
+

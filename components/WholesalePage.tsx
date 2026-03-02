@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Building2, Users, Truck, HeadphonesIcon, Award, BarChart3 } from 'lucide-react';
 import { NavigateFunction } from '../types';
 
@@ -100,3 +100,4 @@ export const WholesalePage: React.FC<WholesalePageProps> = ({ onNavigate }) => {
         </div>
     );
 };
+

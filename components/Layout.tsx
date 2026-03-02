@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import {
     Menu, X, ArrowRight, Hexagon, ChevronDown, Sparkles, Server,
-    ShieldCheck, Sun, Moon, Instagram, Linkedin, Youtube, ShoppingCart, User,
+    ShieldCheck, Sun, Moon, Instagram, Linkedin, Youtube, User,
     ExternalLink, Shield, CheckCircle, Globe, Award, FileCheck,
     Cpu, Zap, Droplets, Activity, Wind, Accessibility
 } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useMotionValueEvent } from 'motion/react';
 import { TechType, NavigateFunction } from '../types';
 import { Newsletter } from './Newsletter';
 import { openCookieSettings } from './CookieConsent';
@@ -14,6 +15,7 @@ import { isFeatureEnabled } from '../utils/featureFlags';
 import { batch3NavigationContent } from '../content/batch3';
 import { TECH_DETAILS } from '../constants';
 import { GlobalSearch } from './GlobalSearch';
+import { CartIcon } from './Cart';
 
 // Lazy load with preloading capability
 const loadMegaMenu = () => import('./MegaMenu').then(module => ({ default: module.MegaMenu }));
@@ -36,6 +38,24 @@ const getButtonPosition = (e: React.MouseEvent<HTMLButtonElement>) => {
         top: rect.bottom + 8, // 8px below button
         right: window.innerWidth - rect.right,
     };
+};
+
+const pageToHref = (page: string): string => {
+    if (!page || page === 'home') return '/';
+
+    const normalized = page.trim().replace(/^\/+/, '');
+
+    if (normalized === 'tech' || normalized === 'detail') return '/store';
+    if (normalized === 'videos') return '/learning';
+    if (normalized === 'referral') return '/rewards';
+    if (normalized === 'financing') return '/checkout';
+    if (normalized === 'trade-in') return '/returns';
+    if (normalized === 'press-kit') return '/press';
+    if (normalized === 'disclaimer') return '/terms';
+    if (normalized === 'accessibility') return '/support';
+    if (normalized === 'sitemap') return '/';
+
+    return `/${normalized}`;
 };
 
 export const Navbar: React.FC<{
@@ -103,14 +123,19 @@ export const Navbar: React.FC<{
         }`;
 
     const NavLink = ({ label, target, setCurrentPage, setMobileOpen, currentPage }: { label: string; target: string; setCurrentPage: (p: string) => void; setMobileOpen: (o: boolean) => void; currentPage: string }) => (
-        <button
-            onClick={() => { setCurrentPage(target); setMobileOpen(false); }}
+        <Link
+            href={pageToHref(target)}
+            onClick={(event) => {
+                event.preventDefault();
+                setCurrentPage(target);
+                setMobileOpen(false);
+            }}
             className={`relative text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-500 group futuristic-font ${currentPage === target ? 'text-gray-900 font-bold' : 'text-gray-500'
                 }`}
         >
             <span className="relative z-10">{label}</span>
             <span className={`absolute -bottom-2 left-0 w-full h-px bg-gray-900 transform scale-x-0 transition-transform duration-300 origin-right group-hover:scale-x-100 group-hover:origin-left ${currentPage === target ? 'scale-x-100' : ''}`} />
-        </button>
+        </Link>
     );
 
     return (
@@ -147,7 +172,15 @@ export const Navbar: React.FC<{
 
             <div className="max-w-7xl mx-auto px-6 flex justify-between md:justify-center items-center md:gap-16">
                 {/* Logo */}
-                <button onClick={() => setCurrentPage('home')} className="flex items-center gap-3 group">
+                <Link
+                    href="/"
+                    data-testid="logo-link"
+                    onClick={(event) => {
+                        event.preventDefault();
+                        setCurrentPage('home');
+                    }}
+                    className="flex items-center gap-3 group"
+                >
                     <Hexagon className="text-gray-900 transition-transform duration-700 group-hover:rotate-180" strokeWidth={1.5} size={24} />
                     <div className="flex flex-col items-start">
                         <span className="text-xl md:text-2xl font-bold tracking-[0.1em] futuristic-font text-gray-900 leading-none">
@@ -157,7 +190,7 @@ export const Navbar: React.FC<{
                             Systems
                         </span>
                     </div>
-                </button>
+                </Link>
 
                 {/* Desktop Nav */}
                 <div className="hidden md:flex items-center space-x-10">
@@ -200,6 +233,8 @@ export const Navbar: React.FC<{
                     }}
                 />
 
+                <CartIcon onClick={() => onOpenCart?.()} />
+
                 {/* Right Actions */}
                 <div className="hidden md:flex items-center gap-2">
                     <GlobalSearch onNavigate={setCurrentPage} />
@@ -216,13 +251,6 @@ export const Navbar: React.FC<{
                         <Accessibility size={20} />
                     </button>
                     <button 
-                        onClick={onOpenCart} 
-                        className="p-2 hover:bg-slate-100 rounded-full transition-colors relative"
-                        aria-label="Open shopping cart"
-                    >
-                        <ShoppingCart size={20} className="text-gray-600" />
-                    </button>
-                    <button 
                         onClick={onOpenLogin} 
                         className="p-2 hover:bg-slate-100 rounded-full transition-colors"
                         aria-label="Open user account menu"
@@ -233,6 +261,17 @@ export const Navbar: React.FC<{
 
                 {/* Mobile Toggle */}
                 <div className="md:hidden flex items-center gap-2">
+                    <Link
+                        href={pageToHref('store')}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            setCurrentPage('store');
+                            setMobileOpen(false);
+                        }}
+                        className="text-[10px] tracking-[0.2em] uppercase text-gray-700 font-semibold px-2 py-1 rounded hover:bg-slate-100 transition-colors"
+                    >
+                        Store
+                    </Link>
                     <GlobalSearch onNavigate={setCurrentPage} />
                     <button 
                         onClick={() => setMobileOpen(!mobileOpen)}

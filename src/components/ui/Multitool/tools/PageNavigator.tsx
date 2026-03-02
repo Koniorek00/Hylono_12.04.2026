@@ -11,7 +11,7 @@
  * - Key section highlighting (specs, pricing, evidence)
  */
 import React, { useMemo, useEffect, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { List, FileText, Clock, ArrowUp, Sparkles } from 'lucide-react';
 import { usePageStructure, type EnhancedSectionInfo } from '../hooks/usePageStructure';
 import { PeekTooltip, usePeekTooltip } from '../components/PeekTooltip';

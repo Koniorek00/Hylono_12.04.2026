@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Brain, Waves, Moon, Zap, X, Check } from 'lucide-react';
 
 
@@ -136,3 +136,4 @@ export const BrainwaveSelector: React.FC<BrainwaveSelectorProps> = ({ onSelect, 
         </AnimatePresence>
     );
 };
+

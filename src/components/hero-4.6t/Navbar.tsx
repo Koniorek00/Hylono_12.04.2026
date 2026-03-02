@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent } from 'motion/react';
 import { useMultitoolStore } from '@/src/stores/multitoolStore';
 import Link from 'next/link';
 
@@ -111,3 +111,4 @@ export const Navbar: React.FC = () => {
         </motion.nav>
     );
 };
+

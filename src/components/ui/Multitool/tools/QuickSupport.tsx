@@ -9,7 +9,7 @@
  * - Demo booking trigger
  */
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { HelpCircle, MessageCircle, Calendar, Phone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { QuickSupportProps } from '../types';

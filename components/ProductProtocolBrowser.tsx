@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Package, BookOpen, Target, X, Check, ChevronRight,
   DollarSign, Calendar, Star

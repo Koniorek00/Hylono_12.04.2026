@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Package, Lock, Timer, Info, RefreshCw } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
     available: number;
@@ -77,3 +77,4 @@ export const StockMonitor: React.FC<Props> = ({ available, reserved, allowBackor
         </div>
     );
 };
+

@@ -1,8 +1,121 @@
 {
   "mcpServers": {
-    "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
+    "filesystem": {
+      "disabled": false,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "f:/ag projects/Hylono_MAIN"
+      ]
+    },
+    "context7": {
+      "disabled": false,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp"]
+    },
+    "biomcp": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@iflow-mcp/bio-mcp"]
+    },
+    "github": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "@21st-dev/magic": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@21st-dev/magic"]
+    },
+    "semgrep-mcp": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "mcp-server-semgrep"]
+    },
+    "figma-mcp": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "figma-developer-mcp",
+        "--figma-api-key=${FIGMA_API_KEY}",
+        "--stdio"
+      ],
+      "env": {
+        "FIGMA_API_KEY": "${FIGMA_API_KEY}"
+      }
+    },
+    "stripe": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@stripe/mcp",
+        "--api-key=${STRIPE_SECRET_KEY}"
+      ],
+      "env": {
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
+      }
+    },
+    "posthog": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@andrew_eragon/mcp-server-posthog"],
+      "env": {
+        "POSTHOG_API_TOKEN": "${POSTHOG_API_TOKEN}"
+      }
+    },
+    "vercel": {
+      "disabled": true,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "vercel-mcp",
+        "VERCEL_API_KEY=${VERCEL_API_KEY}"
+      ],
+      "env": {
+        "VERCEL_API_KEY": "${VERCEL_API_KEY}"
+      }
+    },
+    "browser-tools-mcp": {
+      "disabled": false,
+      "timeout": 120,
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "browser-tools-mcp"]
     }
   }
 }

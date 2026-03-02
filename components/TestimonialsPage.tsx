@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { Star, ArrowRight, Quote } from 'lucide-react';
 import { NavigateFunction } from '../types';
 
@@ -114,3 +114,4 @@ export const TestimonialsPage: React.FC<TestimonialsPageProps> = ({ onNavigate }
         </div>
     );
 };
+

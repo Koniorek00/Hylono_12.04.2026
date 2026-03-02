@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     Zap, Microscope, BookOpen, FileText, Activity,
     Sun, Wind, Droplets, Beaker, Link2, Search,
@@ -411,3 +411,4 @@ export const MentionSuggestions: React.FC<MentionSuggestionsProps> = ({
 };
 
 export default MentionSuggestions;
+

@@ -1,0 +1,23 @@
+# .clineignore — Reduce initial scan tokens
+node_modules/
+.next/
+dist/
+build/
+.git/
+coverage/
+*.lock
+pnpm-lock.yaml
+.vercel/
+.turbo/
+drizzle/meta/          # Migration metadata (keep drizzle/ for SQL files)
+public/fonts/
+public/images/         # Cline doesn't need to scan binary assets
+__pycache__/
+*.woff2
+*.ico
+*.png
+*.jpg
+*.webp
+*.svg
+control-panel/node_modules/
+control-panel/.next/

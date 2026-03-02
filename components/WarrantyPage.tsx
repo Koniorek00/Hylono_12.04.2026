@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Shield, Wrench, Phone, Clock, CheckCircle, FileText, Mail, HelpCircle } from 'lucide-react';
 
 export const WarrantyPage: React.FC = () => {
@@ -119,3 +119,4 @@ export const WarrantyPage: React.FC = () => {
         </div>
     );
 };
+

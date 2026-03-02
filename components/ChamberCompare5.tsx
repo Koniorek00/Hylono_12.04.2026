@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { X, Scale, Check, Minus, ChevronDown, ChevronUp, ArrowRight, SplitSquareHorizontal } from 'lucide-react';
 import { ChamberProduct } from '../types';
 import { OptimizedImage } from './shared/OptimizedImage';
@@ -299,3 +299,4 @@ export const ChamberCompare5: React.FC<ChamberCompare5Props> = ({
         </div>
     );
 };
+

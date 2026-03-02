@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight, Quote, Award, Moon, Brain, Activity } from "lucide-react";
 
 interface CaseStudy {
@@ -102,7 +102,11 @@ export const CaseStudiesSection: React.FC = () => {
   const prev = () => { setActive(a => (a - 1 + CASES.length) % CASES.length); setExpanded(false); };
   const next = () => { setActive(a => (a + 1) % CASES.length); setExpanded(false); };
 
-  const study = CASES[active];
+  const study = CASES[active] ?? CASES[0];
+  if (!study) {
+    return null;
+  }
+
   const Icon = study.icon;
 
   return (

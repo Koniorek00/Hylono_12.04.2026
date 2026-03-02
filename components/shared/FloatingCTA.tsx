@@ -6,7 +6,7 @@
  * Vanishes 200px before footer to avoid overlap.
  */
 import React, { useState } from 'react';
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 
 interface FloatingCTAProps {
@@ -80,3 +80,4 @@ export const FloatingCTA: React.FC<FloatingCTAProps> = ({ onNavigate }) => {
         </AnimatePresence>
     );
 };
+

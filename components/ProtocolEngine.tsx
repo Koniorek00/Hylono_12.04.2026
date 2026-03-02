@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft, CheckCircle, Clock, Zap, Save, Sparkles, ArrowRight } from 'lucide-react';
 import { TechType } from '../types';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,14 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ steps, techName,
     const [timeLeft, setTimeLeft] = useState(0); // in seconds
     const [isCompleted, setIsCompleted] = useState(false);
 
+    if (steps.length === 0) {
+        return null;
+    }
+
     const step = steps[currentStep];
+    if (!step) {
+        return null;
+    }
     const hasNext = currentStep < steps.length - 1;
     const hasPrev = currentStep > 0;
 
@@ -176,7 +183,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ steps, techName,
                                 cx="50%"
                                 cy="50%"
                                 r="45%"
-                                className={`fill-none stroke-[8] ${steps[0].duration ? 'stroke-cyan-500' : 'stroke-slate-200'}`}
+                                className={`fill-none stroke-[8] ${step.duration ? 'stroke-cyan-500' : 'stroke-slate-200'}`}
                                 strokeDasharray="100 100"
                                 initial={{ strokeDashoffset: 100 }}
                                 animate={{ strokeDashoffset: 100 - progress }}

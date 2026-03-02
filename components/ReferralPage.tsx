@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { CheckCircle, Copy, Mail, MessageCircle, Share2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { NavigateFunction } from '../types';
@@ -187,3 +187,4 @@ export const ReferralPage: React.FC<ReferralPageProps> = ({ onNavigate }) => {
         </FeatureGate>
     );
 };
+

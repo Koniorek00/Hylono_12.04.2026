@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     Layout, Brain, Shield,
     Box, X,
@@ -284,3 +284,4 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
         </AnimatePresence>
     );
 };
+

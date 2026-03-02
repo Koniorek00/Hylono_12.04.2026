@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Map, ArrowRight } from 'lucide-react';
 import { NavigateFunction } from '../types';
 
@@ -103,3 +103,4 @@ export const SitemapPage: React.FC<SitemapPageProps> = ({ onNavigate }) => (
         </div>
     </div>
 );
+

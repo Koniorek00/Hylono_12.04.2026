@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import {
     Home, Mail, Phone, HelpCircle, ShoppingBag,
@@ -233,3 +233,4 @@ export const NotFoundPage: React.FC<{ onNavigate?: (page: string) => void }> = (
 export const LoadingFailedPage: React.FC<{ onNavigate?: (page: string) => void }> = ({ onNavigate }) => (
     <ErrorPage type="loading" onNavigate={onNavigate} />
 );
+

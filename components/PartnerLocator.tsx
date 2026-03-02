@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Phone, Mail, Globe, Clock, Star, Filter, ChevronDown, ExternalLink } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -304,3 +304,4 @@ export const PartnerLocator: React.FC = () => {
         </div>
     );
 };
+

@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     ArrowLeft, ArrowRight, Calendar, Shield, CheckCircle, Phone, ShoppingBag,
     ChevronDown, ChevronRight, Users, Maximize2, Wind,

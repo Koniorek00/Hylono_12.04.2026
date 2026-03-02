@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { SlidersHorizontal, X, Check, ChevronDown, RotateCcw } from 'lucide-react';
 
 export interface FilterState {
@@ -23,6 +23,20 @@ const defaultFilters: FilterState = {
     availability: 'all',
     sortBy: 'featured'
 };
+
+const PRICE_PRESETS: Array<[number, number]> = [
+    [0, 10000],
+    [10000, 30000],
+    [30000, 60000],
+    [60000, 100000],
+];
+
+const RENTAL_PRICE_PRESETS: Array<[number, number]> = [
+    [0, 300],
+    [300, 800],
+    [800, 1500],
+    [1500, 3000],
+];
 
 interface ProductFiltersProps {
     onFilterChange: (filters: FilterState) => void;
@@ -298,7 +312,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                                             />
                                         </div>
                                         <div className="flex gap-2">
-                                            {[[0, 10000], [10000, 30000], [30000, 60000], [60000, 100000]].map(([min, max]) => (
+                                            {PRICE_PRESETS.map(([min, max]) => (
                                                 <button
                                                     key={`${min}-${max}`}
                                                     onClick={() => updateFilter('priceRange', [min, max])}
@@ -346,7 +360,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                                             />
                                         </div>
                                         <div className="flex gap-2">
-                                            {[[0, 300], [300, 800], [800, 1500], [1500, 3000]].map(([min, max]) => (
+                                            {RENTAL_PRICE_PRESETS.map(([min, max]) => (
                                                 <button
                                                     key={`${min}-${max}`}
                                                     onClick={() => updateFilter('rentalPriceRange', [min, max])}

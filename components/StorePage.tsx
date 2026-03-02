@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { RentalConfigurator } from './RentalConfigurator';
 import {
     ArrowRight,
@@ -302,7 +302,7 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                 const productMeta = productMetaByTech.get(tech.id);
 
                                 return (
-                                    <motion.div
+                                    <motion.article
                                         key={tech.id}
                                         initial={{ opacity: 0, y: 30 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -310,7 +310,8 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                         onMouseEnter={() => setHoveredCard(tech.id)}
                                         onMouseLeave={() => setHoveredCard(null)}
                                         onClick={() => handleProductClick(tech)}
-                                        className={`group relative bg-white rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-500
+                                        data-testid="product-card"
+                                        className={`product-card group relative bg-white rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-500
                                     ${hoveredCard === tech.id ? 'shadow-2xl shadow-cyan-500/10 scale-[1.02]' : 'shadow-lg hover:shadow-xl'}
                                 `}
                                     >
@@ -412,7 +413,7 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                                 </div>
                                             )}
                                         </div>
-                                    </motion.div>
+                                    </motion.article>
                                 );
                             })}
                         </div>
@@ -445,3 +446,4 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
         </div>
     );
 };
+

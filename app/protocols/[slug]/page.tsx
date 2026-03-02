@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
+import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { protocolBySlug } from '@/content/protocols';
 import StructuredData from '@/src/components/StructuredData';
 import { ProtocolDetailClient } from './ProtocolDetailClient';
 
-export const revalidate = 3600;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hylono.eu';
+const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 const formatSlugTitle = (slug: string) =>
   slug

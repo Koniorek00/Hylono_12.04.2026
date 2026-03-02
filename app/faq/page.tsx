@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import StructuredData from '@/src/components/StructuredData';
 import { FaqClient } from './FaqClient';
@@ -10,7 +11,7 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function FaqPageRoute() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://hylono.eu';
+  const siteUrl = env.NEXT_PUBLIC_SITE_URL;
 
   const faqSchema = {
     '@context': 'https://schema.org',

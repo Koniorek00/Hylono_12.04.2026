@@ -8,7 +8,7 @@
  * - Visual feedback for current settings
  */
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { Type, Contrast, RotateCcw, Check } from 'lucide-react';
 import { 
   useMultitoolStore, 

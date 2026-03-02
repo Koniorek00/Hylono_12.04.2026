@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useReducedMotion } from 'framer-motion';
+import { motion } from 'motion/react';
+import { useReducedMotion } from 'motion/react';
 import { Mail, CheckCircle, BellOff, AlertTriangle, ArrowRight } from 'lucide-react';
 import { NavigateFunction } from '../types';
 
@@ -206,3 +206,4 @@ export const UnsubscribePage: React.FC<UnsubscribePageProps> = ({ onNavigate }) 
         </div>
     );
 };
+

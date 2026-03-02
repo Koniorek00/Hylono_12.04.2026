@@ -80,3 +80,28 @@ AI-assisted database management. Benefits:
 - Zero new app dependencies
 - Zero new MCP servers (Prisma MCP already present from T3)
 - Agent workflow fully documented and enforceable
+
+## MCP Stack — Final (June 2025)
+
+- `filesystem` — Read/write/search operations across the local codebase.
+- `context7` — Library and framework documentation lookup before API usage.
+- `prisma` — Agent-side safe DB introspection/query layer (not app ORM/runtime).
+- `biomcp` — Evidence lookup for medical/scientific content validation.
+- `github` — Repository, PR, issue, and branch operations.
+- `@21st-dev/magic` — UI component generation and refinement (`magic-mcp` alias).
+- `semgrep-mcp` — Static security scanning and vulnerability checks.
+- `figma-mcp` — Figma design extraction, comments, and implementation context.
+- `stripe` — Payments, products, pricing, checkout, and webhook operations.
+- `posthog` — Product analytics events, funnels, and feature-flag operations.
+- `vercel` — Deployment workflows, environment vars, and build log access.
+- `browser-tools-mcp` — Browser debugging, console/network inspection, audits, screenshots.
+- `supabase` — Supabase project/service-role operations via MCP server integration.
+- `brave-search` — Web search retrieval through Brave Search MCP.
+- `sentry` — Error tracking and monitoring operations through Sentry MCP.
+- `desktop-commander` — Local desktop automation and command orchestration MCP.
+- `task-master-ai` — Task decomposition and orchestration support MCP.
+
+**Notes:**
+- `sequential-thinking` removed (obsolete).
+- `playwright` removed (replaced by `browser-tools-mcp`).
+- `magic-mcp` is the alias/reference name for `@21st-dev/magic`.

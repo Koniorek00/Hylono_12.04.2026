@@ -1,6 +1,6 @@
 /* ===== DYSLEXIA-FRIENDLY FONT - Accessibility ===== */
-/* Using Lexie Readable from Google Fonts as dyslexic-friendly alternative */
-@import url('https://fonts.googleapis.com/css2?family=Lexie+Readable:wght@400;700&display=swap');
+/* External Google Fonts import removed to comply with strict CSP (style-src 'self'). */
+/* Keep the font-family token so local/system fallbacks still work gracefully. */
 @import "tailwindcss";
 
 @theme {

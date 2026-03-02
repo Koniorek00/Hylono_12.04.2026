@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Check, Home, Building2, Dumbbell, HeartPulse, Users, User, Wallet, RotateCcw } from 'lucide-react';
 import { ChamberProduct } from '../types';
 import { ALL_CHAMBERS } from '../constants/chambers';
@@ -179,7 +179,11 @@ export const ChamberFinder: React.FC<ChamberFinderProps> = ({ onSelect, onClose 
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [recommendations, setRecommendations] = useState<ChamberProduct[] | null>(null);
 
-    const step = STEPS[currentStep];
+    const step = STEPS[currentStep] ?? STEPS[0];
+    if (!step) {
+        return null;
+    }
+
     const isLastStep = currentStep === STEPS.length - 1;
     const canProgress = !!answers[step.id];
 
@@ -280,15 +284,22 @@ export const ChamberFinder: React.FC<ChamberFinderProps> = ({ onSelect, onClose 
                                                 Best match
                                             </span>
                                         )}
+                                        {(() => {
+                                            const fallbackImage = PLACEHOLDER_IMAGES[c.type] ?? PLACEHOLDER_IMAGES.monoplace;
+                                            const heroImage = c.images.find((img) => img.role === 'hero')?.url ?? fallbackImage;
+
+                                            return (
                                         <OptimizedImage
-                                            src={c.images.find((img) => img.role === 'hero')?.url || PLACEHOLDER_IMAGES[c.type]}
+                                            src={heroImage}
                                             alt={c.fullName}
-                                            fallbackSrc={PLACEHOLDER_IMAGES[c.type]}
+                                            fallbackSrc={fallbackImage}
                                             width={64}
                                             height={64}
                                             sizes="64px"
                                             className="w-16 h-16 rounded-lg object-cover shrink-0"
                                         />
+                                            );
+                                        })()}
                                         <div className="flex-1 min-w-0">
                                             {i === 0 && (
                                                 <span className="inline-block text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full mb-1">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, FileText, Download, UserX, AlertTriangle, CheckCircle, Activity, Lock, Eye } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 export const DataGovernance: React.FC = () => {
     const [auditLog] = useState([
@@ -97,3 +97,4 @@ export const DataGovernance: React.FC = () => {
         </div>
     );
 };
+

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import { Search, X, Pointer, FileText, Sparkles, Files, FlaskConical, FileBarChart, ArrowRight, Filter } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { MenuContext, SEARCH_DATABASE, SEARCH_SYNONYMS, SearchDatabaseItem } from './MegaMenuData';
 import { getRecentSearches, addRecentSearch, POPULAR_SEARCHES, getAutocompleteSuggestions, getRecentPages, RecentPage } from '../../utils/searchStorage';
 
@@ -82,7 +82,10 @@ const FilterTagBar: React.FC<FilterTagBarProps> = ({ activeFilter, onFilterChang
         }
 
         if (newIndex !== currentIndex) {
-            onFilterChange(FILTER_TAGS[newIndex].value);
+            const nextTag = FILTER_TAGS[newIndex];
+            if (!nextTag) return;
+
+            onFilterChange(nextTag.value);
             const buttons = tagRef.current?.querySelectorAll('button');
             buttons?.[newIndex]?.focus();
         }

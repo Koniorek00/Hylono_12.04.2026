@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Droplets } from 'lucide-react';
 
 /**
@@ -30,3 +30,4 @@ export const HydrogenPage: React.FC = () => {
         </div>
     );
 };
+

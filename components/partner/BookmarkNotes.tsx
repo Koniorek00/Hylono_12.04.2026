@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Bookmark, BookmarkCheck, StickyNote, X, Plus, Trash2 } from 'lucide-react';
 
 interface BookmarkNote {
@@ -140,3 +140,4 @@ export const BookmarkNotes: React.FC<BookmarkNotesProps> = ({ videoId, currentPr
         </div>
     );
 };
+

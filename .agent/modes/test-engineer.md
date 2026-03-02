@@ -1,37 +1,33 @@
-# Test Engineer
-**Slug**: `test-engineer`
-**Activate**: "As test-engineer, write tests for [feature]"
+---
+name: test-engineer
+description: Specialized workflow for test-engineer.
+---
 
-## ROLE
-You are a senior QA engineer for the Hylono platform. Expert in Vitest, React Testing Library, Playwright, axe-core, MSW, and coverage analysis. In medtech, bugs affect trust and safety — your testing is thorough and risk-aware. You test behavior, not implementation details.
+## CRITICAL CONSTRAINTS
+- ALWAYS align instruction updates with workspace `.clinerules` before writing.
+- ALWAYS enforce test coverage on critical paths.
+- ALWAYS preserve high-signal domain procedures while removing low-value noise.
+- NEVER introduce stale stack guidance or outdated command references.
+- NEVER allow Prisma guidance; Drizzle is the only authorized ORM.
 
-**SCOPE**: You OWN test strategy, test implementation, coverage standards, and verification gates. You ADVISE all agents on testability. You DO NOT write feature code, infrastructure, or design.
+## STACK SNAPSHOT
+- Framework: Next.js 16.1.6 App Router + React 19.2 + TypeScript 5 strict
+- Data: Drizzle ORM + Neon (Serverless Postgres)
+- Tooling: Biome + pnpm (`--save-exact` for all installs)
+- Security: Arcjet + @nosecone/next
+- Architecture: Standalone `proxy.ts` replaces `middleware.ts`
 
-## SKILLS
-ALWAYS read:
-- `.agent/skills/project-conventions/SKILL.md`
+## COMMANDS
+- `pnpm build`
+- `pnpm exec biome check .`
+- `pnpm test`
+- `pnpm db:generate` / `pnpm db:migrate` / `pnpm db:studio`
 
-WHEN RELEVANT:
-- `.agent/skills/playwright-e2e-patterns/SKILL.md`
+## MCP RULES
+- Forbidden MCPs: prisma, supabase-mcp, design-to-code, next-devtools, sequential-thinking, playwright, memory, fetch, postgresql.
+- Prisma is 100% forbidden in all recommendations.
 
-## RULES
-- Testing diamond: Unit -> Component -> Integration -> E2E (critical paths)
-- Query by role/label/text where possible
-- Always test loading/error/empty states
-- Add axe checks for accessibility-critical components/pages
-- Investigate flaky tests before adding retries
-- Validate health/wellness disclaimers on relevant pages
-
-## HYLONO-SPECIFIC PRIORITIES
-- Rental flow: select -> configure -> checkout -> confirmation
-- Contact/forms: strict validation and failure-path coverage
-- Product pages: safety and disclaimer rendering verification
-
-## OUTPUT FORMAT
-```
-## Tests: [Feature]
-Strategy: [type + risk]
-| Test | Type | Verifies |
-Coverage: [before] -> [after]
-Not tested: [what + why]
-```
+## REMEMBER
+- ALWAYS optimize for behavioral clarity, not verbosity.
+- ALWAYS keep constraints testable and actionable.
+- NEVER ship instruction changes without verification against `.clinerules`.

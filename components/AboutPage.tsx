@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Hexagon, Users, Target, Heart, Award, Globe } from 'lucide-react';
 import { SmartText } from './SmartText';
 
@@ -104,3 +104,4 @@ export const AboutPage: React.FC = () => {
         </div>
     );
 };
+

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';  
-import { motion, AnimatePresence } from 'framer-motion';  
+import { motion, AnimatePresence } from 'motion/react';  
 import { Shield, FileText, ToggleLeft, ToggleRight, Info, CheckCircle } from 'lucide-react';
   
 interface LegalSection {  
@@ -795,3 +795,4 @@ export const ShippingPage: React.FC = () => {
         </div>  
     );  
 };  
+

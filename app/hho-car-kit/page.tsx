@@ -4,8 +4,6 @@ import { Suspense } from 'react';
 import { headers } from 'next/headers';
 import { HhoCarKitClient } from './HhoCarKitClient';
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = createPageMetadata({
   title: 'HHO Car Kit',
   description: 'Explore Hylono HHO kits for cars and trucks with performance specs, ROI insights, and safety details.',
@@ -25,6 +23,16 @@ interface InitialFuelContext {
   countryCode: string;
   locationStatus: 'detected' | 'fallback';
 }
+
+const DEFAULT_FUEL_DATA: FuelData = {
+  petrol: 1.75,
+  diesel: 1.65,
+  currency: 'EUR',
+  symbol: '€',
+  countryName: 'your region',
+};
+
+const FUEL_REVALIDATE_SECONDS = 3600;
 
 const FUEL_PRICES: Record<string, FuelData> = {
   DE: { petrol: 1.76, diesel: 1.65, currency: 'EUR', symbol: '€', countryName: 'Germany' },
@@ -56,11 +64,11 @@ const FUEL_PRICES: Record<string, FuelData> = {
   ZA: { petrol: 1.45, diesel: 1.38, currency: 'USD', symbol: '$', countryName: 'South Africa' },
   AE: { petrol: 0.85, diesel: 0.72, currency: 'USD', symbol: '$', countryName: 'UAE' },
   TR: { petrol: 1.28, diesel: 1.22, currency: 'EUR', symbol: '€', countryName: 'Turkey' },
-  DEFAULT: { petrol: 1.75, diesel: 1.65, currency: 'EUR', symbol: '€', countryName: 'your region' },
+  DEFAULT: DEFAULT_FUEL_DATA,
 };
 
 const FALLBACK_FUEL_CONTEXT: InitialFuelContext = {
-  fuelData: FUEL_PRICES.DEFAULT,
+  fuelData: DEFAULT_FUEL_DATA,
   countryCode: 'DEFAULT',
   locationStatus: 'fallback',
 };
@@ -99,7 +107,7 @@ const getInitialFuelContext = async (): Promise<InitialFuelContext> => {
     const endpoint = ip ? `https://ipapi.co/${ip}/json/` : 'https://ipapi.co/json/';
 
     const response = await fetch(endpoint, {
-      next: { revalidate },
+      next: { revalidate: FUEL_REVALIDATE_SECONDS },
       headers: {
         Accept: 'application/json',
       },
@@ -111,7 +119,7 @@ const getInitialFuelContext = async (): Promise<InitialFuelContext> => {
 
     const data: { country_code?: string } = await response.json();
     const code = (data.country_code ?? 'DEFAULT').toUpperCase();
-    const fuelData = FUEL_PRICES[code] ?? FUEL_PRICES.DEFAULT;
+    const fuelData = FUEL_PRICES[code] ?? DEFAULT_FUEL_DATA;
 
     return {
       fuelData,

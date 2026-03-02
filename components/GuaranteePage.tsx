@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { CheckCircle, XCircle, Shield, RotateCcw, Clock, Star, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -246,3 +246,4 @@ export const GuaranteePage: React.FC = () => {
     </div>
   );
 };
+

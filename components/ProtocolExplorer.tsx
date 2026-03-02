@@ -28,6 +28,7 @@ const normalizeGoal = (goalTag: string): Exclude<GoalFilter, 'All'> => {
 
 const normalizeModalities = (protocolSlug: string): string[] => {
   const protocol = protocolBySlug[protocolSlug];
+  if (!protocol) return [];
   const modalities = new Set<string>();
 
   protocol.weeks.forEach((week) => {
@@ -64,6 +65,18 @@ const matchesTime = (timePerDay: string, selectedTime: TimeFilter): boolean => {
 
 const toCardData = (slug: string): ProtocolCardData => {
   const protocol = protocolBySlug[slug];
+  if (!protocol) {
+    return {
+      slug,
+      title: 'Protocol unavailable',
+      goalTag: 'Vitality',
+      timePerDay: 'N/A',
+      difficulty: 'Beginner',
+      modalities: [],
+      description: 'Protocol data is currently unavailable.',
+    };
+  }
+
   return {
     slug: protocol.slug,
     title: protocol.title,
@@ -130,7 +143,7 @@ const ProtocolDetailView: React.FC<{
 
   const relatedCards = protocol.relatedProtocolSlugs
     .map((relatedSlug) => protocolBySlug[relatedSlug])
-    .filter(Boolean)
+    .filter((relatedProtocol): relatedProtocol is NonNullable<typeof relatedProtocol> => Boolean(relatedProtocol))
     .map((relatedProtocol) => toCardData(relatedProtocol.slug));
 
   return (

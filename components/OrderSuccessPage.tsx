@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { NavigateFunction } from '../types';
 import { orderSuccessContent } from '../content/orderSuccess';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
@@ -122,9 +123,9 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onNavigate }
                                 <ul className="space-y-2">
                                     {orderDocuments.map((document) => (
                                         <li key={document.id}>
-                                            <a href={document.href} className="text-sm text-cyan-700 hover:underline">
+                                            <Link href={document.href} className="text-sm text-cyan-700 hover:underline">
                                                 {document.label} →
-                                            </a>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
@@ -147,3 +148,4 @@ export const OrderSuccessPage: React.FC<OrderSuccessPageProps> = ({ onNavigate }
         </div>
     );
 };
+

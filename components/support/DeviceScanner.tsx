@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Scan, CheckCircle, FileText, ShieldCheck, Upload, AlertCircle } from 'lucide-react';
 
 interface DeviceData {
@@ -33,6 +33,16 @@ const MOCK_DEVICES: DeviceData[] = [
     }
 ];
 
+const DEFAULT_DEVICE: DeviceData = MOCK_DEVICES[0] ?? {
+    id: 'fallback-device',
+    name: 'Hylono Device',
+    model: 'UNKNOWN',
+    serial: 'N/A',
+    warrantyStatus: 'pending',
+    warrantyDate: 'N/A',
+    manualUrl: '#',
+};
+
 export const DeviceScanner: React.FC = () => {
     const [isScanning, setIsScanning] = useState(false);
     const [scanProgress, setScanProgress] = useState(0);
@@ -60,7 +70,7 @@ export const DeviceScanner: React.FC = () => {
                 clearInterval(timer);
                 setIsScanning(false);
                 // Randomly pick a mock device for demo purposes
-                const randomDevice = MOCK_DEVICES[Math.floor(Math.random() * MOCK_DEVICES.length)];
+                const randomDevice = MOCK_DEVICES[Math.floor(Math.random() * MOCK_DEVICES.length)] ?? DEFAULT_DEVICE;
                 setFoundDevice(randomDevice);
             }
         }, interval);
@@ -73,7 +83,7 @@ export const DeviceScanner: React.FC = () => {
 
         // Simple mock check
         if (manualInput.length > 5) {
-            const randomDevice = MOCK_DEVICES[0]; // Default to first device for manual
+            const randomDevice = DEFAULT_DEVICE;
             setFoundDevice(randomDevice);
         } else {
             setError('Invalid serial number format');

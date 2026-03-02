@@ -78,10 +78,11 @@ export function proxy(request: NextRequest): NextResponse {
     // 3) GDPR tracking gate cookies (default denied unless explicit cookie consent indicates granted)
     const consent = parseConsentCookie(request.cookies.get('cookieConsent')?.value);
     const response = NextResponse.next();
+    const secureCookie = request.nextUrl.protocol === 'https:';
 
     response.cookies.set('hylono_analytics', consent.analytics ? 'granted' : 'denied', {
         httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
+        secure: secureCookie,
         sameSite: 'lax',
         path: '/',
         maxAge: 60 * 60 * 24 * 180,
@@ -89,7 +90,7 @@ export function proxy(request: NextRequest): NextResponse {
 
     response.cookies.set('hylono_marketing', consent.marketing ? 'granted' : 'denied', {
         httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
+        secure: secureCookie,
         sameSite: 'lax',
         path: '/',
         maxAge: 60 * 60 * 24 * 180,

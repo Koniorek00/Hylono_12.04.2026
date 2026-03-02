@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import {
     ArrowRight, Check, ShieldCheck, Users, Maximize2,
     Wind, Plus, Minus, BadgeCheck, Zap,
@@ -77,8 +77,14 @@ export const ChamberProductCard5: React.FC<ChamberProductCard5Props> = ({
     preferredMode = 'buy',
     index = 0,
 }) => {
+    const initialTab: 'buy' | 'rent' = chamber.transactionModes.includes(preferredMode)
+        ? preferredMode
+        : chamber.transactionModes[0] === 'rent'
+          ? 'rent'
+          : 'buy';
+
     const [activeTab, setActiveTab] = useState<'buy' | 'rent'>(
-        chamber.transactionModes.includes(preferredMode) ? preferredMode : chamber.transactionModes[0]
+        initialTab
     );
 
     const brand = BRAND_CONFIG[chamber.brand];

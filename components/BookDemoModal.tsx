@@ -1,5 +1,5 @@
 import React, { useActionState, useEffect, useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { X, CheckCircle, Calendar, Phone, Mail, User, ChevronDown, Clock, AlertTriangle } from "lucide-react";
 import { submitBookingFormAction, type FormActionResult } from "../src/actions/formActions";
 
@@ -179,3 +179,4 @@ export const BookDemoModal: React.FC<BookDemoModalProps> = ({ isOpen, onClose })
     </AnimatePresence>
   );
 };
+

@@ -221,7 +221,7 @@ The slightly larger chamber volume means the compressors work marginally harder 
   ],
 
   images: [
-    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-i-90-hero.jpg', alt: 'OxyLife I/90 monoplace hyperbaric chamber — wider 90cm model' },
+    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-i-80-hero.jpg', alt: 'OxyLife I/90 monoplace hyperbaric chamber — wider 90cm model' },
   ],
 };
 

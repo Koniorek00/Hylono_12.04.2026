@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Lock, ShieldAlert, ArrowRight, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -71,3 +71,4 @@ export const GatedView: React.FC<GatedViewProps> = ({
         </div>
     );
 };
+

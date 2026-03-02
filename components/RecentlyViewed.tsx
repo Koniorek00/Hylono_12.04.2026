@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Clock, ChevronRight } from 'lucide-react';
 
 interface RecentProduct {
@@ -82,3 +82,4 @@ export const RecentlyViewedSection: React.FC<{ onProductClick?: (id: string) => 
         </section>
     );
 };
+

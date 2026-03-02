@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { HeroConcept1 } from './heroes/HeroConcept1';
 import { TechType } from '../types';
 import { TECH_DETAILS } from '../constants';
@@ -673,3 +673,4 @@ export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder }) => 
         </div>
     );
 };
+

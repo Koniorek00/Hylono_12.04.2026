@@ -66,10 +66,15 @@ export function calculateStackSynergy(stack: TechType[]): StackConfiguration {
     }
 
     if (stack.length === 1) {
+        const singleTech = stack[0];
+        if (!singleTech) {
+            return { technologies: [], totalBoost: 0, stackName: 'Empty', coherenceScore: 0 };
+        }
+
         return {
             technologies: stack,
             totalBoost: 0,
-            stackName: TECH_DETAILS[stack[0]].name,
+            stackName: TECH_DETAILS[singleTech].name,
             coherenceScore: 50
         };
     }
@@ -81,11 +86,16 @@ export function calculateStackSynergy(stack: TechType[]): StackConfiguration {
 
     // Find all synergies between technologies in the stack
     for (let i = 0; i < stack.length; i++) {
-        const node = graph.get(stack[i]);
+        const sourceTech = stack[i];
+        if (!sourceTech) continue;
+
+        const node = graph.get(sourceTech);
         if (!node) continue;
 
         for (let j = i + 1; j < stack.length; j++) {
             const targetTech = stack[j];
+            if (!targetTech) continue;
+
             const edge = node.connections.find(e => e.to === targetTech);
             if (edge) {
                 totalBoost += edge.boost;
@@ -136,6 +146,7 @@ export function getStackRecommendations(currentStack: TechType[]): Array<{
     for (const candidate of availableTechs) {
         let potentialBoost = 0;
         let bestSynergy = '';
+        let bestSynergyBoost = -1;
 
         // Check synergies with each tech in current stack
         for (const existing of currentStack) {
@@ -145,17 +156,19 @@ export function getStackRecommendations(currentStack: TechType[]): Array<{
             const edge = node.connections.find(e => e.to === candidate);
             if (edge) {
                 potentialBoost += edge.boost;
-                if (!bestSynergy || edge.boost > potentialBoost) {
+                if (!bestSynergy || edge.boost > bestSynergyBoost) {
                     bestSynergy = edge.label;
+                    bestSynergyBoost = edge.boost;
                 }
             }
         }
 
         if (potentialBoost > 0) {
+            const firstTechInStack = currentStack[0];
             recommendations.push({
                 tech: candidate,
                 potentialBoost,
-                reason: bestSynergy || `Synergizes with ${TECH_DETAILS[currentStack[0]].name}`,
+                reason: bestSynergy || (firstTechInStack ? `Synergizes with ${TECH_DETAILS[firstTechInStack].name}` : 'Broad synergy potential'),
             });
         }
     }

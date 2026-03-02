@@ -1,5 +1,5 @@
 import React, { useActionState, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Truck, CreditCard, Check, ChevronRight, Lock, MapPin, Shield } from 'lucide-react';
 import { useCart } from './Cart';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
@@ -94,7 +94,11 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                 <div className="max-w-lg mx-auto px-6 text-center">
                     <ShoppingBag className="mx-auto text-slate-300 mb-4" size={64} />
                     <h1 className="text-2xl font-bold text-slate-900 mb-4">{checkoutContent.meta.emptyCartTitle}</h1>
-                    <button onClick={() => onNavigate('store')} className="text-cyan-600 font-medium min-h-11 px-4">
+                    <button
+                        onClick={() => onNavigate('store')}
+                        className="text-cyan-600 font-medium min-h-11 px-4"
+                        aria-label="Continue shopping to checkout"
+                    >
                         {checkoutContent.meta.continueShopping}
                     </button>
                 </div>
@@ -394,3 +398,4 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
         </div>
     );
 };
+

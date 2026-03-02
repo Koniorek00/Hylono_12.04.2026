@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { AlertCircle, ArrowRight, CreditCard } from 'lucide-react';
 import { NavigateFunction } from '../types';
 import { financingContent } from '../content/financing';
@@ -23,8 +23,13 @@ const LegacyFinancingFallback: React.FC<{ onNavigate: NavigateFunction }> = ({ o
 
 const EnhancedFinancingPage: React.FC<FinancingPageProps> = ({ onNavigate }) => {
     const reduced = useReducedMotion();
-    const [selectedProductId, setSelectedProductId] = useState(financingContent.products[0]?.id ?? '');
-    const selectedProduct = financingContent.products.find((product) => product.id === selectedProductId) ?? financingContent.products[0];
+    const defaultProduct = financingContent.products[0];
+    if (!defaultProduct) {
+        return null;
+    }
+
+    const [selectedProductId, setSelectedProductId] = useState(defaultProduct.id);
+    const selectedProduct = financingContent.products.find((product) => product.id === selectedProductId) ?? defaultProduct;
     const [selectedMonths, setSelectedMonths] = useState(selectedProduct?.installmentOptions[0]?.months ?? 0);
 
     const selectedInstallment = useMemo(() => {
@@ -57,7 +62,7 @@ const EnhancedFinancingPage: React.FC<FinancingPageProps> = ({ onNavigate }) => 
                         value={selectedProductId}
                         onChange={(event) => {
                             const nextId = event.target.value;
-                            const nextProduct = financingContent.products.find((product) => product.id === nextId) ?? financingContent.products[0];
+                            const nextProduct = financingContent.products.find((product) => product.id === nextId) ?? defaultProduct;
                             setSelectedProductId(nextId);
                             setSelectedMonths(nextProduct.installmentOptions[0]?.months ?? 0);
                         }}

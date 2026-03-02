@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import {
     BookOpen,
     Send,
-    Smartphone,
-    Mail,
     CheckCircle2,
     PlayCircle,
     FileText,
@@ -37,7 +34,7 @@ const RESOURCES = [
 export const EducationSender: React.FC = () => {
     const [sent, setSent] = useState(false);
     const [contact, setContact] = useState('');
-    const [selectedResource, setSelectedResource] = useState(RESOURCES[0].id);
+    const [selectedResource, setSelectedResource] = useState<string>(RESOURCES[0]?.id ?? '');
 
     const handleSend = (e: React.FormEvent) => {
         e.preventDefault();

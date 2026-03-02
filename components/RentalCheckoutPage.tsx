@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, CheckCircle, Info } from 'lucide-react';
 import Link from 'next/link';
 import { NavigateFunction } from '../types';
@@ -23,6 +23,15 @@ const RENTAL_PLANS: RentalPlan[] = [
     { id: 'performance', label: 'Performance 12-month plan', monthlyPrice: 89, minPeriod: '12 months' },
 ];
 
+const DEFAULT_RENTAL_PLAN: RentalPlan =
+    RENTAL_PLANS[1] ??
+    RENTAL_PLANS[0] ?? {
+        id: 'starter',
+        label: 'Starter 3-month plan',
+        monthlyPrice: 129,
+        minPeriod: '3 months',
+    };
+
 const LegacyRentalCheckoutFallback: React.FC<{ onNavigate: NavigateFunction }> = ({ onNavigate }) => (
     <div className="min-h-screen bg-slate-50 pt-32 pb-24 px-6">
         <div className="max-w-3xl mx-auto bg-white border border-slate-100 rounded-3xl p-8 text-center">
@@ -41,7 +50,7 @@ const LegacyRentalCheckoutFallback: React.FC<{ onNavigate: NavigateFunction }> =
 const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate }) => {
     const reduced = useReducedMotion();
 
-    const [selectedPlanId, setSelectedPlanId] = useState(RENTAL_PLANS[1].id);
+    const [selectedPlanId, setSelectedPlanId] = useState(DEFAULT_RENTAL_PLAN.id);
     const [deliveryName, setDeliveryName] = useState('');
     const [deliveryEmail, setDeliveryEmail] = useState('');
     const [deliveryPhone, setDeliveryPhone] = useState('');
@@ -54,7 +63,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
     const [submitted, setSubmitted] = useState(false);
 
     const selectedPlan = useMemo(
-        () => RENTAL_PLANS.find((plan) => plan.id === selectedPlanId) ?? RENTAL_PLANS[0],
+        () => RENTAL_PLANS.find((plan) => plan.id === selectedPlanId) ?? DEFAULT_RENTAL_PLAN,
         [selectedPlanId],
     );
 

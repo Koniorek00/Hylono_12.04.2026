@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
 import {
     ChevronRight, ChevronLeft, Upload, Layout, Type, Download, Palette, Info,
@@ -42,6 +42,13 @@ const STOCK_IMAGES = [
     { id: 'hydro-1', url: 'https://images.unsplash.com/photo-1564415051543-cb73a746b292?auto=format&fit=crop&q=80&w=400', label: 'Hydrogen Water', modality: 'Hydrogen' },
     { id: 'clinic-1', url: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=400', label: 'Wellness Space', modality: 'ALL' },
 ];
+
+const FALLBACK_COPY = {
+    title: 'Your Wellness Journey',
+    body: 'Unlock your potential with our advanced bio-optimization therapies. Book your consultation today to learn more.',
+    caption: 'Ready to optimize your health? 🌟 innovative therapies designed to help you look, feel, and perform your best.\n\nBook a consultation today! 👇',
+    hashtags: '#Wellness #HealthOptimization #Biohacking #SelfCare'
+};
 
 // --- Components ---
 
@@ -398,7 +405,7 @@ const StepEditor: React.FC = memo(() => {
 
     const applyMagicCopy = useCallback(() => {
         const key = `${campaignGoal}-${modality}`;
-        const copy = COPY_LIBRARY[key] || COPY_LIBRARY['default'];
+        const copy = COPY_LIBRARY[key] ?? COPY_LIBRARY.default ?? FALLBACK_COPY;
         setCustomTitle(copy.title);
         setCustomBody(copy.body);
     }, [campaignGoal, modality, setCustomTitle, setCustomBody]);
@@ -638,7 +645,7 @@ const StepDownload: React.FC = memo(() => {
     // Get social content
     const socialContent = useMemo(() => {
         const key = `${campaignGoal}-${modality}`;
-        return COPY_LIBRARY[key] || COPY_LIBRARY['default'];
+        return COPY_LIBRARY[key] ?? COPY_LIBRARY.default ?? FALLBACK_COPY;
     }, [campaignGoal, modality]);
 
     const handleCopyCaption = useCallback(() => {

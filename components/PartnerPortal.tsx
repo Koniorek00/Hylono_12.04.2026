@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Building, Users, TrendingUp, Globe, CheckCircle, Handshake, DollarSign, Headphones, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -230,3 +230,4 @@ export const PartnerPortal: React.FC = () => {
         </div>
     );
 };
+

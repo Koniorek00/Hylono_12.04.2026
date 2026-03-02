@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Clock, Filter, Play, X } from 'lucide-react';
 import { NavigateFunction, TechType } from '../types';
 import { videosContent } from '../content/videos';
@@ -255,3 +255,4 @@ export const VideoLibraryPage: React.FC<VideoLibraryPageProps> = ({ onNavigate }
         </div>
     );
 };
+

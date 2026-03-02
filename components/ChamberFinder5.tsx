@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     ChevronRight, ChevronLeft, Check, Home, Building2,
     Dumbbell, HeartPulse, Users, User, Wallet,
@@ -236,9 +236,13 @@ export const ChamberFinder5: React.FC<ChamberFinder5Props> = ({ onSelect, onClos
     const [recommendations, setRecommendations] = useState<ChamberProduct[] | null>(null);
     const [hoveredOption, setHoveredOption] = useState<string | null>(null);
 
-    const step = STEPS[currentStep];
+    const step = STEPS[currentStep] ?? STEPS[0];
+    if (!step) {
+        return null;
+    }
+
     const isLastStep = currentStep === STEPS.length - 1;
-    const canProgress = !!answers[step?.id];
+    const canProgress = !!answers[step.id];
     const progress = ((currentStep + (canProgress ? 1 : 0)) / STEPS.length) * 100;
 
     const handleAnswer = (optionId: string) => {
@@ -321,7 +325,8 @@ export const ChamberFinder5: React.FC<ChamberFinder5Props> = ({ onSelect, onClos
 
                                 <div className="space-y-3">
                                     {recommendations.map((c, i) => {
-                                        const heroUrl = c.images.find((img) => img.role === 'hero')?.url || PLACEHOLDER_IMAGES[c.type];
+                                        const fallbackImage = PLACEHOLDER_IMAGES[c.type] ?? PLACEHOLDER_IMAGES.monoplace;
+                                        const heroUrl = c.images.find((img) => img.role === 'hero')?.url ?? fallbackImage;
                                         const isBest = i === 0;
                                         return (
                                             <motion.button
@@ -340,7 +345,7 @@ export const ChamberFinder5: React.FC<ChamberFinder5Props> = ({ onSelect, onClos
                                                     <OptimizedImage
                                                         src={heroUrl}
                                                         alt={c.fullName}
-                                                        fallbackSrc={PLACEHOLDER_IMAGES[c.type]}
+                                                        fallbackSrc={fallbackImage}
                                                         width={80}
                                                         height={80}
                                                         sizes="80px"

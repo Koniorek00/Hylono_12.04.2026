@@ -13,7 +13,7 @@ import {
     Plus,
     LucideIcon,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 // ─────────────────────────────────────────────────────────
 // TYPES
@@ -349,3 +349,4 @@ export const DashboardHome: React.FC = () => {
         </PartnerLayout>
     );
 };
+

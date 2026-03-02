@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface AnimatedGradientTextProps {
     children: React.ReactNode;
@@ -141,3 +141,4 @@ export const HighlightText: React.FC<HighlightTextProps> = ({
         {children}
     </span>
 );
+

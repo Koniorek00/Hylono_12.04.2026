@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { AnimatePresence, motion, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useMotionValueEvent } from 'motion/react';
 import { Navbar, Footer } from './Layout';
 import { Breadcrumbs } from './navigation/Breadcrumbs';
 import { CartSidebar } from './Cart';
@@ -104,6 +104,7 @@ import { addRecentPage } from '../utils/searchStorage';
 import { ProductStructuredData, OrganizationStructuredData } from './StructuredData';
 import { CustomCursor } from './shared/CustomCursor';
 import { FloatingCTA } from './shared/FloatingCTA';
+import { readPublicRuntimeEnv } from '../utils/featureFlagEnv';
 
 const LoadingScreen = () => (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -114,18 +115,23 @@ const LoadingScreen = () => (
     </div>
 );
 
+const resolveControlPanelUrl = (): string => {
+    const fallback = `${globalThis.location.protocol}//${globalThis.location.hostname || 'localhost'}:3005/admin/stack`;
+
+    if (typeof window === 'undefined') {
+        return fallback;
+    }
+
+    const fromWindow = readPublicRuntimeEnv('NEXT_PUBLIC_CONTROL_PANEL_URL');
+    if (typeof fromWindow === 'string' && fromWindow.trim().length > 0) {
+        return fromWindow.trim().replace(/\/$/, '');
+    }
+
+    return fallback;
+};
+
 const AdminStackRedirect: React.FC = () => {
-    const buildAdminStackUrl = () => {
-        const configuredUrl = process.env.NEXT_PUBLIC_CONTROL_PANEL_URL?.trim();
-        if (configuredUrl) {
-            return configuredUrl.replace(/\/$/, '');
-        }
-
-        const protocol = globalThis.location.protocol;
-        const hostname = globalThis.location.hostname || 'localhost';
-
-        return `${protocol}//${hostname}:3005/admin/stack`;
-    };
+    const buildAdminStackUrl = () => resolveControlPanelUrl();
 
     useEffect(() => {
         const targetUrl = buildAdminStackUrl();
@@ -536,3 +542,4 @@ export const AppRouter: React.FC = () => {
         </div>
     );
 };
+

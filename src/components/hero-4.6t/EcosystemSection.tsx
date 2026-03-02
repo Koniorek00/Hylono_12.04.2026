@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Zap, Sun, Wind, Activity } from 'lucide-react';
 import Link from 'next/link';
 
@@ -156,3 +156,4 @@ const SignalAnimation = () => (
         </svg>
     </div>
 );
+

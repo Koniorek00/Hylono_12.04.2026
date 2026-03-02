@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'motion/react';
 
 export const HeroSection: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -179,3 +179,4 @@ export const HeroSection: React.FC = () => {
         </section>
     );
 };
+

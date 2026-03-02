@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
+import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { TECH_DETAILS } from '@/constants';
 import { TechType } from '@/types';
 import StructuredData from '@/src/components/StructuredData';
 import { ProductClient } from './ProductClient';
 
-export const revalidate = 3600;
-
 type Params = Promise<{ tech: string }>;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hylono.eu';
+const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 const parseTechType = (value: string): TechType | null => {
   const normalized = value.toUpperCase();

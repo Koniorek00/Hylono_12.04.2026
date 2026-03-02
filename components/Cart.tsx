@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, X, Plus, Minus, Trash2, ArrowRight, CreditCard } from 'lucide-react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
@@ -66,10 +66,19 @@ export const CartIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
     const { itemCount } = useCart();
 
     return (
-        <button onClick={onClick} className="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
+        <button
+            onClick={onClick}
+            className="relative p-2 hover:bg-slate-100 rounded-full transition-colors"
+            aria-label="Open shopping cart"
+            data-testid="cart-button"
+        >
             <ShoppingCart size={20} className="text-slate-600" />
             {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-cyan-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span
+                    className="cart-count absolute -top-1 -right-1 w-5 h-5 bg-cyan-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                    data-testid="cart-count"
+                    aria-label={`${itemCount} items in cart`}
+                >
                     {itemCount}
                 </span>
             )}
@@ -178,3 +187,4 @@ export const CartSidebar: React.FC<{ isOpen: boolean; onClose: () => void; onChe
         </AnimatePresence>
     );
 };
+

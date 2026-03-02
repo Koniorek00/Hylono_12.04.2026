@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, useScroll, useTransform, useMotionTemplate, useInView, AnimatePresence, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionTemplate, useInView, AnimatePresence, type MotionValue } from 'motion/react';
 
 // --- DESIGN SYSTEM & CONSTANTS ---
 const COLORS = {
@@ -154,15 +154,6 @@ const Node = ({ scrollProgress, triggerPos }: { scrollProgress: MotionValue<numb
 
 export const MeridianPage = () => {
     const router = useRouter();
-
-    // Inject Fonts
-    useEffect(() => {
-        const link = document.createElement('link');
-        link.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Space+Grotesk:wght@500;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400&display=swap';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-        return () => { document.head.removeChild(link); };
-    }, []);
 
     const { scrollY } = useScroll();
     const navBorderOpacity = useTransform(scrollY, [0, 100], [0, 1]);
@@ -811,3 +802,4 @@ const ParallaxPanel = ({ color, speed, z, label, offset = "0", align = "left", t
 };
 
 export default MeridianPage;
+

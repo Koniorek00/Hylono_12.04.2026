@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, Send, Sparkles, X, Bot } from 'lucide-react';
 
 interface Message {
@@ -49,11 +49,11 @@ export const AITutor: React.FC<AITutorProps> = ({ videoTitle, onClose }) => {
         // Simulate AI response
         setTimeout(() => {
             const lowerInput = input.toLowerCase();
-            let response = MOCK_RESPONSES.default;
+            let response = MOCK_RESPONSES.default ?? 'Thanks for your question. I can help with pressure, ear comfort, and emergency procedures.';
 
-            if (lowerInput.includes('pressure')) response = MOCK_RESPONSES.pressure;
-            else if (lowerInput.includes('ear')) response = MOCK_RESPONSES.ear;
-            else if (lowerInput.includes('emergency')) response = MOCK_RESPONSES.emergency;
+            if (lowerInput.includes('pressure')) response = MOCK_RESPONSES.pressure ?? response;
+            else if (lowerInput.includes('ear')) response = MOCK_RESPONSES.ear ?? response;
+            else if (lowerInput.includes('emergency')) response = MOCK_RESPONSES.emergency ?? response;
 
             const aiMessage: Message = {
                 id: (Date.now() + 1).toString(),

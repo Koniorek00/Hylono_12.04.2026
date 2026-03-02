@@ -6,7 +6,7 @@ import { ViewMode, TechType, ChamberType } from '../types';
 import { HbotVisual, PemfVisual, RltVisual, HydrogenVisual } from './Visualizations';
 import { ArrowLeft, ArrowRight, Play, CheckCircle, Shield, Zap, Brain, Activity, Wind, Sun, Droplets, Sparkles, ChevronDown, ChevronUp, Clock, AlertTriangle, Calendar, Phone, Star, Quote, Moon, Sunrise, Building2, TrendingUp, Users, Pill, BarChart2, Target, FlaskConical, BookOpen, Truck, Video, ChevronRight, Flame, Thermometer, Radio, Mountain, Snowflake, Package, Headphones, Eye, Ear, Leaf, Heart, X } from 'lucide-react';
 import { SmartText } from './SmartText';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { useTech } from '../hooks/useTech';
 import { ProductStructuredData, BreadcrumbStructuredData } from './StructuredData';
 import { TechAddons } from './product/detail/TechAddons';
@@ -25,6 +25,7 @@ import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { pdpCommerceContent } from '../content/pdpCommerce';
 import { ChamberCompare5, ChamberCompareDock5 } from './ChamberCompare5';
 import { OptimizedImage } from './shared/OptimizedImage';
+import { useCart } from './Cart';
 
 function renderChamberDescription(text: string): React.ReactNode {
     return text.split('\n').map((line, i) => {
@@ -92,6 +93,19 @@ const TECH_GRADIENTS: Record<TechType, string> = {
     [TechType.CRYO]: "from-sky-300/10 via-blue-300/5 to-white",
 };
 
+const CART_ITEM_GRADIENTS: Record<TechType, string> = {
+    [TechType.HBOT]: 'from-cyan-500 to-blue-500',
+    [TechType.PEMF]: 'from-purple-500 to-fuchsia-500',
+    [TechType.RLT]: 'from-red-500 to-orange-500',
+    [TechType.HYDROGEN]: 'from-sky-500 to-teal-500',
+    [TechType.EWOT]: 'from-orange-500 to-amber-500',
+    [TechType.SAUNA_BLANKET]: 'from-amber-500 to-yellow-500',
+    [TechType.EMS]: 'from-violet-500 to-purple-500',
+    [TechType.VNS]: 'from-teal-500 to-emerald-500',
+    [TechType.HYPOXIC]: 'from-indigo-500 to-blue-500',
+    [TechType.CRYO]: 'from-sky-400 to-blue-400',
+};
+
 const HBOT_DEFAULT_CHAMBER_SLUG = 'oxylife-i-90';
 const HBOT_TYPE_ORDER: ChamberType[] = ['monoplace', 'multiplace', 'soft'];
 const HBOT_TYPE_LABELS: Record<ChamberType, string> = {
@@ -152,6 +166,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
     const pdpDualTrackEnabled = useFeatureFlag('feature_pdp_dual_track');
     const pdpStickyCtaEnabled = useFeatureFlag('feature_pdp_sticky_cta');
     const pdpFinancingDrawerEnabled = useFeatureFlag('feature_pdp_financing_drawer');
+    const { addItem } = useCart();
 
     const [mode, setMode] = useState<ViewMode>(ViewMode.STANDARD);
     const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
@@ -237,9 +252,18 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
     const alternativeTrack: PurchaseTrack = activeTrack === 'purchase' ? 'rental' : 'purchase';
     const alternativeTrackLabel = alternativeTrack === 'purchase' ? pdpCommerceContent.trackLabels.buyLower : pdpCommerceContent.trackLabels.rentLower;
 
+    const addCurrentTechToCart = () => {
+        addItem({
+            id: `tech-${data.id.toLowerCase()}`,
+            name: data.name,
+            price: parseNumericAmount(data.price),
+            image: CART_ITEM_GRADIENTS[data.id] ?? 'from-slate-400 to-slate-600',
+        });
+    };
+
     const handlePrimaryTrackAction = () => {
         if (activeTrack === 'purchase') {
-            navigateToPage('store');
+            addCurrentTechToCart();
             return;
         }
 
@@ -449,7 +473,8 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                 return previous;
             }
 
-            return rentalPlans[0].period;
+            const firstPlan = rentalPlans[0];
+            return firstPlan?.period ?? '';
         });
     }, [rentalPlans]);
 
@@ -461,7 +486,8 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                 return previous;
             }
 
-            return availableInstallmentOptions[0].months;
+            const firstInstallment = availableInstallmentOptions[0];
+            return firstInstallment?.months ?? previous;
         });
     }, [availableInstallmentOptions]);
 
@@ -476,7 +502,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                setIsCommercePanelInView(entry.isIntersecting);
+                setIsCommercePanelInView(entry?.isIntersecting ?? false);
             },
             {
                 threshold: 0.25,
@@ -2113,7 +2139,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         {(()=>{const p=parseFloat(data.price.replace(/[^0-9.]/g,''))||0;return 'EUR '+(p*1.15).toLocaleString('de-DE',{maximumFractionDigits:0})})()}
                                     </span>
                                 </div>
-                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-400 transition-all">Add to Cart</button>
+                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-400 transition-all">Request Essential Bundle</button>
                             </div>
                         </div>
                         {/* Bundle 2: Pro Protocol */}
@@ -2140,7 +2166,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         {(()=>{const p=parseFloat(data.price.replace(/[^0-9.]/g,''))||0;return 'EUR '+(p*0.85+600).toLocaleString('de-DE',{maximumFractionDigits:0})})()}
                                     </span>
                                 </div>
-                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-400 transition-all">Add to Cart</button>
+                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-400 transition-all">Request Pro Bundle</button>
                             </div>
                         </div>
                         {/* Bundle 3: Clinic Edition */}
@@ -2683,10 +2709,10 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                         </div>
                         <div className="flex items-center gap-4 w-full md:w-auto">
                             <button
-                                onClick={() => onNavigate?.('store')}
+                                onClick={addCurrentTechToCart}
                                 className="flex-1 md:flex-none px-8 py-4 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-lg"
                             >
-                                Order Now <ArrowRight size={18} />
+                                Add to Cart <ArrowRight size={18} />
                             </button>
                         </div>
                     </div>

@@ -1,6 +1,8 @@
 'use server';
 
+import { revalidateTag, updateTag } from 'next/cache';
 import { z } from 'zod';
+import { actionClient } from '@/lib/safe-action';
 
 export interface FormActionResult {
   success: boolean;
@@ -107,6 +109,9 @@ export async function submitNewsletterFormAction(
     };
   }
 
+  updateTag('newsletter');
+  revalidateTag('newsletter', 'max');
+
   return {
     success: true,
     message: 'Thank you for subscribing! Check your inbox to confirm.',
@@ -169,3 +174,21 @@ export async function submitCheckoutFormAction(
     orderId,
   };
 }
+
+const submitNewsletterInputSchema = z.object({
+  email: z.string().trim().email().max(254),
+  source: z.string().trim().max(100).optional().default('unknown'),
+});
+
+export const submitNewsletterSafeAction = actionClient
+  .inputSchema(submitNewsletterInputSchema)
+  .action(async ({ parsedInput }) => {
+    updateTag('newsletter');
+
+    return {
+      success: true,
+      message: 'Thank you for subscribing! Check your inbox to confirm.',
+      email: parsedInput.email,
+      source: parsedInput.source,
+    };
+  });

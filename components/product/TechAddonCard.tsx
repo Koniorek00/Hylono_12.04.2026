@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Plus, Check } from 'lucide-react';
 import { TechAddon } from '../../types';
 
@@ -72,3 +72,4 @@ export const TechAddonCard: React.FC<TechAddonCardProps> = ({ addon, isSelected,
         </motion.div>
     );
 };
+

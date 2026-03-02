@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import {
     FileText, Download, Image, Film, Mail, ExternalLink,
     Calendar, Newspaper, Globe, ChevronRight

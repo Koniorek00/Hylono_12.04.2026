@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { User, Mail, Lock, Eye, EyeOff, X, UserCircle, Package, Settings, LogOut, ArrowRight, Check, AlertCircle, Loader2, Github, Globe, Sun, Zap, CheckCircle, RotateCcw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { TechType } from '../types';
@@ -622,3 +622,4 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
         </div>
     );
 };
+

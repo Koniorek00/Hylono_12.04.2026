@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+import { env } from '@/lib/env';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hylono.eu';
+const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 const OG_IMAGE_PATH = '/og-image.svg';
 
 interface CreatePageMetadataInput {

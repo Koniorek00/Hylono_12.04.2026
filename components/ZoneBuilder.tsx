@@ -62,7 +62,7 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
 
     if (selectedGoals.length > 0) {
       selectedGoals.forEach((goal) => {
-        const map = goalModalityRelevance[goal];
+        const map = goalModalityRelevance[goal] ?? {};
         Object.entries(map).forEach(([modality, value]) => {
           modalityScores[modality] = (modalityScores[modality] ?? 0) + value;
         });
@@ -76,12 +76,14 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
     const rankedModalities = Object.entries(modalityScores)
       .sort((a, b) => b[1] - a[1])
       .map(([modality]) => modality)
-      .filter((modality) => modalityScores[modality] > 0)
+      .filter((modality) => (modalityScores[modality] ?? 0) > 0)
       .slice(0, 3);
 
     const recommendations = rankedModalities
       .map((modality) => {
-        const allowed = modalityToProductModalities[modality];
+        const allowed = modalityToProductModalities[modality] ?? [];
+        if (allowed.length === 0) return null;
+
         const candidates = products.filter((product) => allowed.includes(product.modality));
 
         const filteredByBudget = candidates.filter((product) => {
@@ -101,7 +103,7 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
           reason:
             selectedGoals.length > 0
               ? `Aligned with ${selectedGoals.join(', ')} goal${selectedGoals.length > 1 ? 's' : ''}.`
-              : `Aligned with ${modalityToLabel[modality]} preference.`,
+              : `Aligned with ${modalityToLabel[modality] ?? modality} preference.`,
           modality,
           purchasePrice: selectedCandidate.purchasePrice,
           rentalPrice: Number.isFinite(minRental) ? minRental : 0,
@@ -125,10 +127,10 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
 
     const suggestedProtocol = protocols
       .map((protocol) => toProtocolCardView(protocol.slug))
-      .filter(Boolean)
+      .filter((card): card is NonNullable<typeof card> => Boolean(card))
       .find((card) =>
         selectedGoals.length > 0
-          ? selectedGoals.some((goal) => card!.goalTag.toLowerCase() === goal)
+          ? selectedGoals.some((goal) => card.goalTag.toLowerCase() === goal)
           : true
       );
 
@@ -158,6 +160,8 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
       prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
     );
   };
+
+  const primarySynergy = recommendation.activeSynergies[0];
 
   const generateRecommendation = () => {
     setStep('result');
@@ -391,9 +395,9 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
                 ))}
               </div>
 
-              {recommendation.activeSynergies.length > 0 && (
+              {primarySynergy && (
                 <div className="mt-5 rounded-xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-900">
-                  <strong>Synergy:</strong> {recommendation.activeSynergies[0].description}
+                  <strong>Synergy:</strong> {primarySynergy.description}
                 </div>
               )}
 

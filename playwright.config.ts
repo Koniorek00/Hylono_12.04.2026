@@ -1,4 +1,16 @@
 import { defineConfig, devices } from '@playwright/test';
+import { readRuntimeEnv } from './lib/env';
+
+const resolveWorkers = (): number => {
+    const override = readRuntimeEnv('PLAYWRIGHT_WORKERS');
+
+    if (!override) {
+        return 1;
+    }
+
+    const parsed = Number.parseInt(override, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+};
 
 /**
  * Hylono AntiGravity — Playwright E2E Configuration
@@ -7,11 +19,11 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
     testDir: './e2e',
     /* Fail the build on CI if you accidentally left test.only in the source code. */
-    forbidOnly: !!process.env.CI,
+    forbidOnly: !!readRuntimeEnv('CI'),
     /* Retry on CI only */
-    retries: process.env.CI ? 2 : 0,
+    retries: readRuntimeEnv('CI') ? 2 : 0,
     /* Opt out of parallel files on CI */
-    workers: process.env.CI ? 1 : undefined,
+    workers: readRuntimeEnv('CI') ? 1 : resolveWorkers(),
     /* Reporter to use */
     reporter: [
         ['list'],
@@ -20,7 +32,7 @@ export default defineConfig({
     /* Shared settings for all the projects below */
     use: {
         /* Base URL for page.goto('/') calls */
-        baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+        baseURL: readRuntimeEnv('PLAYWRIGHT_BASE_URL') || 'http://localhost:3100',
         /* Collect trace on first retry for debugging */
         trace: 'on-first-retry',
         /* Always take screenshot on failure */
@@ -47,11 +59,11 @@ export default defineConfig({
         },
     ],
 
-    /* Run the Vite dev server before starting the tests */
+    /* Run a fresh isolated production server instance per test run to avoid Turbopack dev chunk instability */
     webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
+        command: 'pnpm build && pnpm start --port 3100',
+        url: 'http://localhost:3100',
+        reuseExistingServer: false,
+        timeout: 300_000,
     },
 });

@@ -4,6 +4,7 @@ import {
     setFeatureOverride,
     type FeatureFlag,
 } from '../../utils/featureFlags';
+import { setFeatureFlagEnvOverrideForTests } from '../../utils/featureFlagEnv';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -125,18 +126,18 @@ describe('isFeatureEnabled — env variable overrides', () => {
     afterEach(() => {
         localStorage.clear();
         // Clean up any injected env keys
-        process.env.NEXT_PUBLIC_FLAG_DEBUG_MODE = undefined;
+        setFeatureFlagEnvOverrideForTests('DEBUG_MODE', undefined);
     });
 
     it('localStorage takes priority over env variable', () => {
         // Inject env var saying false, localStorage says true
-        process.env.NEXT_PUBLIC_FLAG_DEBUG_MODE = 'false';
+        setFeatureFlagEnvOverrideForTests('DEBUG_MODE', 'false');
         localStorage.setItem('HYLO_DEBUG_MODE', 'true');
         expect(isFeatureEnabled('DEBUG_MODE')).toBe(true); // localStorage wins
     });
 
     it('env variable overrides default when no localStorage override', () => {
-        process.env.NEXT_PUBLIC_FLAG_DEBUG_MODE = 'true';
+        setFeatureFlagEnvOverrideForTests('DEBUG_MODE', 'true');
         expect(isFeatureEnabled('DEBUG_MODE')).toBe(true);
     });
 });

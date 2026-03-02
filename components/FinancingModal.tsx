@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Calculator, X, CreditCard, Banknote } from 'lucide-react';
 
 interface FinancingModalProps {
@@ -126,3 +126,4 @@ export const PriceWithFinancing: React.FC<{ price: number; productName: string }
         </div>
     );
 };
+

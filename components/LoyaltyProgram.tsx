@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Award, Star, Gift, Trophy, Zap, Crown, ChevronRight } from 'lucide-react';
 
 export const LoyaltyProgram: React.FC = () => {
@@ -114,3 +114,4 @@ export const LoyaltyProgram: React.FC = () => {
         </div>
     );
 };
+

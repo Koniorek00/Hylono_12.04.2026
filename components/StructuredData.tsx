@@ -133,6 +133,7 @@ const generateProductSchema = (tech: TechData) => {
 
     const priceValue = tech.price?.replace(/[^0-9.]/g, '') || '0';
     const rentalPriceValue = tech.rentalPrice ? String(tech.rentalPrice) : null;
+    const priceValidUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] ?? '';
 
     // Build offers array - always include purchase, add rental if available (P1-1 SEO Fix)
     const offers: Array<{
@@ -157,7 +158,7 @@ const generateProductSchema = (tech: TechData) => {
                 "@type": "Organization",
                 "name": "Hylono"
             },
-            "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            "priceValidUntil": priceValidUntil
         }
     ];
 
@@ -173,7 +174,7 @@ const generateProductSchema = (tech: TechData) => {
                 "@type": "Organization",
                 "name": "Hylono"
             },
-            "priceValidUntil": new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "priceValidUntil": priceValidUntil,
             "eligibleDuration": "P1M" // ISO 8601 duration: 1 month
         });
     }

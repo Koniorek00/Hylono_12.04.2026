@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Plus } from 'lucide-react';
 import Image from 'next/image';
 
@@ -118,3 +118,4 @@ export const HBOTChamberDiagram: React.FC = () => {
         </section>
     );
 };
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Shield, FlaskConical, Stethoscope, Activity, CheckCircle, ChevronRight } from 'lucide-react';
 
 interface VerifiedTrustBadgeProps {
@@ -119,3 +119,4 @@ export const VerifiedTrustBadge: React.FC<VerifiedTrustBadgeProps> = ({ classNam
         </div>
     );
 };
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from 'motion/react';
 
 interface Pub { name: string; cls: string; }
 
@@ -78,3 +78,4 @@ export const PressLogoBar: React.FC = () => {
     </section>
   );
 };
+

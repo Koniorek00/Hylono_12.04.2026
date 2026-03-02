@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Briefcase, Stethoscope, DollarSign, ChevronRight, Check } from 'lucide-react';
 
 type Role = 'operator' | 'manager' | 'sales';
@@ -138,3 +138,4 @@ export const RolePathSelector: React.FC<RolePathSelectorProps> = ({ onSelectPath
         </div>
     );
 };
+

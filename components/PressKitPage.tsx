@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { useReducedMotion } from 'framer-motion';
+import { motion } from 'motion/react';
+import { useReducedMotion } from 'motion/react';
 import { Download, FileText, Image, Film, Mail, ExternalLink, Newspaper, Globe } from 'lucide-react';
 import { NavigateFunction } from '../types';
 
@@ -209,3 +209,4 @@ export const PressKitPage: React.FC<PressKitPageProps> = ({ onNavigate }) => {
         </div>
     );
 };
+

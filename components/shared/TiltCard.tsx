@@ -12,7 +12,7 @@
  *   </TiltCard>
  */
 import React, { useRef, useCallback } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 
 interface TiltCardProps {
     children: React.ReactNode;
@@ -117,3 +117,4 @@ const TiltCardComponent: React.FC<TiltCardProps> & { Layer: typeof TiltCardLayer
 
 TiltCardComponent.Layer = TiltCardLayer;
 export const TiltCard = TiltCardComponent;
+

@@ -10,8 +10,8 @@
  * - Global keyboard shortcut (?)
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { X, Compass } from 'lucide-react';
 import { useMultitoolStore, type ToolId } from '../../../stores/multitoolStore';
 import { ReadingTools, FocusMode, PageNavigator } from './tools';
@@ -558,3 +558,4 @@ export const MultitoolContainer: React.FC<MultitoolContainerProps> = ({
 };
 
 export default MultitoolContainer;
+

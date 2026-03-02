@@ -1,5 +1,8 @@
-import React, { useCallback } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import { MenuContext, TECH_COLOR_MAP } from './MegaMenuData';
+
+const isInternalHref = (href: string): boolean => href.startsWith('/') && !href.startsWith('//');
 
 export const SectionHeader = React.memo(({ icon, title, color }: { icon: React.ReactNode; title: string; color: string }) => (
     <div className={`flex items-center gap-3 select-none opacity-70`}>
@@ -77,8 +80,16 @@ export const TechHoloCard = React.memo(({ context, title, subtitle, icon, active
         </>
     );
 
-    // Use <a> tag when href is provided for SEO crawlability
+    // Internal routes use Next.js Link. External/hash/mailto/tel keep anchor semantics.
     if (href) {
+        if (isInternalHref(href)) {
+            return (
+                <Link href={href} onClick={onClick} {...commonProps}>
+                    {content}
+                </Link>
+            );
+        }
+
         return (
             <a href={href} onClick={onClick} {...commonProps}>
                 {content}
@@ -117,8 +128,29 @@ export const GlassLink = React.memo(({ icon, title, sub, onClick, onHover, dimme
         `
     };
 
-    // Use <a> tag when href is provided for SEO crawlability
+    // Internal routes use Next.js Link. External/hash/mailto/tel keep anchor semantics.
     if (href) {
+        if (isInternalHref(href)) {
+            return (
+                <Link
+                    href={href}
+                    onClick={onClick}
+                    {...commonProps}
+                >
+                    <div className={`p-2.5 rounded-lg transition-all bg-white/5
+                        ${dimmed ? 'text-slate-500' : `${color} ${bg}`}
+                    `}>
+                        {icon}
+                    </div>
+                    <div className="flex-1">
+                        <div className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors futuristic-font">{title}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-500 group-hover:text-slate-400 transition-colors">{sub}</div>
+                    </div>
+
+                </Link>
+            );
+        }
+
         return (
             <a
                 href={href}
@@ -173,8 +205,16 @@ export const SimpleLink = React.memo(({ label, onClick, onHover, href }: {
         className: "block text-sm font-medium text-slate-500 hover:text-white transition-all text-left uppercase tracking-widest hover:translate-x-2 duration-300 py-1 futuristic-font"
     };
 
-    // Use <a> tag when href is provided for SEO crawlability
+    // Internal routes use Next.js Link. External/hash/mailto/tel keep anchor semantics.
     if (href) {
+        if (isInternalHref(href)) {
+            return (
+                <Link href={href} onClick={onClick} {...commonProps}>
+                    {label}
+                </Link>
+            );
+        }
+
         return (
             <a href={href} onClick={onClick} {...commonProps}>
                 {label}

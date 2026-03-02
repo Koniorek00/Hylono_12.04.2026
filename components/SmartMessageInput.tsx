@@ -8,14 +8,21 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
+import type { Variants } from 'motion/react';
 import {
   MessageSquare, Package, BookOpen, Target, X, Plus,
   ChevronLeft, Send, Check, ArrowLeft
 } from 'lucide-react';
 import { ProductProtocolBrowser, SelectedItem } from './ProductProtocolBrowser';
 import { QUICK_TAGS, TAG_COLOR_CLASSES, MESSAGE_TEMPLATES } from '../utils/messageSuggestions';
+
+const DEFAULT_TAG_COLORS = TAG_COLOR_CLASSES.slate ?? {
+  bg: 'bg-slate-50',
+  text: 'text-slate-700',
+  border: 'border-slate-200',
+  hover: 'hover:bg-slate-100 hover:border-slate-300',
+};
 
 interface SmartMessageInputProps {
   value: string;
@@ -106,7 +113,7 @@ export const SmartMessageInput: React.FC<SmartMessageInputProps> = ({
     if (messageHistory.length > 0) {
       const previousMessage = messageHistory[messageHistory.length - 1];
       setMessageHistory(prev => prev.slice(0, -1));
-      onChange(previousMessage);
+      onChange(previousMessage ?? '');
     }
   };
 
@@ -405,7 +412,7 @@ export const SmartMessageInput: React.FC<SmartMessageInputProps> = ({
               <p className="text-xs font-semibold text-slate-600 mb-2">Or use a quick tag:</p>
               <div className="flex flex-wrap gap-1.5">
                 {QUICK_TAGS.slice(0, 5).map((tag) => {
-                  const colors = TAG_COLOR_CLASSES[tag.color] || TAG_COLOR_CLASSES.slate;
+                  const colors = TAG_COLOR_CLASSES[tag.color] ?? DEFAULT_TAG_COLORS;
                   return (
                     <button
                       key={tag.id}

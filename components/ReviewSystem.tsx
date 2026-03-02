@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Star, User, ThumbsUp, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Star Rating Component
@@ -117,6 +117,11 @@ export const TestimonialCarousel: React.FC = () => {
         { name: 'Katarzyna Nowak', role: 'CEO', company: 'Wellness Retreats EU', text: 'We equipped all 5 of our wellness centers with Hylono systems. Guest satisfaction increased 300% and our ROI was achieved in 8 months.', image: 'from-emerald-500 to-teal-500' },
     ];
 
+    const currentTestimonial = testimonials[current] ?? testimonials[0];
+    if (!currentTestimonial) {
+        return null;
+    }
+
     const next = () => setCurrent((c) => (c + 1) % testimonials.length);
     const prev = () => setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length);
 
@@ -142,14 +147,14 @@ export const TestimonialCarousel: React.FC = () => {
                             className="text-center"
                         >
                             <p className="text-xl text-white/90 leading-relaxed mb-8 italic">
-                                "{testimonials[current].text}"
+                                "{currentTestimonial.text}"
                             </p>
                             <div className="flex items-center justify-center gap-4">
-                                <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${testimonials[current].image}`} />
+                                <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${currentTestimonial.image}`} />
                                 <div className="text-left">
-                                    <p className="font-bold text-white">{testimonials[current].name}</p>
-                                    <p className="text-sm text-slate-400">{testimonials[current].role}</p>
-                                    <p className="text-xs text-cyan-400">{testimonials[current].company}</p>
+                                    <p className="font-bold text-white">{currentTestimonial.name}</p>
+                                    <p className="text-sm text-slate-400">{currentTestimonial.role}</p>
+                                    <p className="text-xs text-cyan-400">{currentTestimonial.company}</p>
                                 </div>
                             </div>
                         </motion.div>

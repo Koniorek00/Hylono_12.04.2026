@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TechData, SafetyStatus, Contraindication } from '../types';
 import { AlertCircle, CheckCircle, ShieldAlert, ChevronDown, Activity } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ContraindicationCheckerProps {
     techData: TechData;
@@ -182,3 +182,4 @@ export const ContraindicationChecker: React.FC<ContraindicationCheckerProps> = (
         </div>
     );
 };
+

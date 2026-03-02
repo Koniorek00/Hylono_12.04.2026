@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Heart, MessageCircle, Share2, Play, Pause, ChevronDown, CheckCircle, Zap, Headphones } from 'lucide-react';
 import { BookmarkNotes } from './BookmarkNotes';
 
@@ -386,3 +386,4 @@ const ClockIcon = ({ className }: { className?: string }) => (
         <polyline points="12 6 12 12 16 14" />
     </svg>
 )
+

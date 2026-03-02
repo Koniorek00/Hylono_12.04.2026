@@ -12,7 +12,7 @@
  */
 
 import React, { useActionState, useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
     HelpCircle, ChevronDown, Search, MessageCircle, Mail, Phone, MapPin,
     Send, Clock, AlertTriangle, ChevronRight, ChevronLeft, Calendar,

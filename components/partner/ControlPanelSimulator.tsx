@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Power, Gauge, Play, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface ControlPanelSimulatorProps {
@@ -149,3 +149,4 @@ export const ControlPanelSimulator: React.FC<ControlPanelSimulatorProps> = ({ on
         </div>
     );
 };
+

@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { ConditionsClient } from './ConditionsClient';
 
-export const revalidate = 3600;
-
 export const metadata: Metadata = createPageMetadata({
   title: 'Conditions',
   description: 'Explore Hylono condition-focused wellness guides with protocol pathways, modality relevance, and research references.',

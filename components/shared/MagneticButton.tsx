@@ -6,7 +6,7 @@
  * it snaps back with momentum. Premium Awwwards-tier interaction.
  */
 import React, { useRef, useCallback } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'motion/react';
 
 interface MagneticButtonProps {
     children: React.ReactNode;
@@ -70,3 +70,4 @@ export const MagneticButton: React.FC<MagneticButtonProps> = ({
         </motion.button>
     );
 };
+

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Mic, MicOff, Sparkles, Activity, Volume2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface VoiceAnalysis {
     type: 'condition' | 'biometric' | 'protocol';
@@ -155,3 +155,4 @@ export const VoiceCommand: React.FC<VoiceCommandProps> = ({ onCommand }) => {
         </div>
     );
 };
+

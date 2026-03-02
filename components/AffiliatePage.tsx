@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Users, DollarSign, Gift, TrendingUp, CheckCircle, ArrowRight, Mail, Globe, Building } from 'lucide-react';
 
 export const AffiliatePage: React.FC = () => {
@@ -109,3 +109,4 @@ export const AffiliatePage: React.FC = () => {
         </div>
     );
 };
+

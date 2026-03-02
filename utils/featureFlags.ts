@@ -3,6 +3,8 @@
  * Allows for safe, conditional feature activation.
  */
 
+import { readFeatureFlagEnvOverride } from './featureFlagEnv';
+
 export type FeatureFlag =
     | 'FEAT_AUTH_V2'
     | 'FEAT_NEW_TECH_DETAILS'
@@ -71,8 +73,7 @@ export const isFeatureEnabled = (flag: FeatureFlag): boolean => {
     }
 
     // 2. Check Environment Variables (Next.js public env format)
-    const envKey = `NEXT_PUBLIC_FLAG_${flag}`;
-    const envValue = process.env[envKey];
+    const envValue = readFeatureFlagEnvOverride(flag);
     if (envValue === 'true') return true;
     if (envValue === 'false') return false;
 

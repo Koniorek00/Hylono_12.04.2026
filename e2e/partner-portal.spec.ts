@@ -30,10 +30,12 @@ test.describe('Partner Portal', () => {
 
     test('unauthenticated user visiting /partner/dashboard is redirected or sees auth gate', async ({ page }) => {
         await page.goto('/partner/dashboard');
-        // Should either redirect to /login, /partner, or show a login prompt
-        const isRedirected = page.url().includes('/login')
-            || page.url().includes('/partner')
-            || page.url() === (process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173') + '/partner/dashboard';
+        // Should either redirect to /login, /partner, remain on dashboard,
+        // or show a login/auth gate prompt.
+        const currentPath = new URL(page.url()).pathname;
+        const isRedirected = currentPath === '/login'
+            || currentPath === '/partner'
+            || currentPath === '/partner/dashboard';
 
         // Check for either a redirect or an auth gate UI
         const hasAuthGate = await page.getByText(/sign in|log in|login|access denied|unauthorized/i)
@@ -67,8 +69,7 @@ test.describe('Partner Portal', () => {
         const errors: string[] = [];
         page.on('pageerror', (err) => errors.push(err.message));
 
-        await page.goto('/partners');
-        await page.waitForLoadState('networkidle');
+        await page.goto('/partners', { waitUntil: 'domcontentloaded' });
 
         // Filter out known non-critical errors (e.g., browser extension noise)
         const criticalErrors = errors.filter(
@@ -81,8 +82,7 @@ test.describe('Partner Portal', () => {
         const errors: string[] = [];
         page.on('pageerror', (err) => errors.push(err.message));
 
-        await page.goto('/partner/dashboard');
-        await page.waitForLoadState('networkidle');
+        await page.goto('/partner/dashboard', { waitUntil: 'domcontentloaded' });
 
         const criticalErrors = errors.filter(
             (e) => !e.includes('extension') && !e.includes('net::ERR')

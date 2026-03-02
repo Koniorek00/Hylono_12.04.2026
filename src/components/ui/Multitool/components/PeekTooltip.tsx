@@ -5,8 +5,8 @@
  * Uses glassmorphic styling consistent with Hylono design system.
  */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import type { ExtractedMetric, SectionType } from '../utils/extractMetrics';
 
 interface PeekTooltipProps {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'motion/react';
 
 interface ReadingProgressProps {
     color?: string;
@@ -52,7 +52,12 @@ export const SectionProgress: React.FC<SectionProgressProps> = ({ sections }) =>
             const scrollPosition = window.scrollY + window.innerHeight / 3;
 
             for (let i = sections.length - 1; i >= 0; i--) {
-                const element = document.getElementById(sections[i].id);
+                const section = sections[i];
+                if (!section) {
+                    continue;
+                }
+
+                const element = document.getElementById(section.id);
                 if (element && element.offsetTop <= scrollPosition) {
                     setActiveSection(i);
                     break;

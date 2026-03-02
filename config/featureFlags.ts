@@ -1,3 +1,5 @@
+import { readFeatureFlagEnvOverride } from '../utils/featureFlagEnv';
+
 export const featureFlags = {
   // PDP
   feature_pdp_dual_track: false,
@@ -75,7 +77,6 @@ export type Batch4FeatureFlag = Extract<
   | 'feature_checkout_trust'
 >;
 
-const getEnvKey = (flagName: string): string => `NEXT_PUBLIC_FLAG_${flagName.toUpperCase()}`;
 const getStorageKey = (flagName: string): string => `HYLO_${flagName}`;
 
 export const isFeatureEnabled = (flagName: string): boolean => {
@@ -89,7 +90,7 @@ export const isFeatureEnabled = (flagName: string): boolean => {
     if (localOverride === 'false') return false;
   }
 
-  const envValue = process.env[getEnvKey(flagName)];
+  const envValue = readFeatureFlagEnvOverride(flagName.toUpperCase());
   if (envValue === 'true') return true;
   if (envValue === 'false') return false;
 

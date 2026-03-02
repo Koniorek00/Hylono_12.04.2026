@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   ArrowRight, ArrowLeft, CheckCircle, Shield, Zap, Fuel, Wind,
   ChevronDown, ChevronUp, Star, Package, Settings, Gauge,
@@ -208,6 +208,10 @@ export const HHOCarKitPage: React.FC<HHOCarKitPageProps> = ({
   const [activeTab, setActiveTab] = useState<'simple' | 'tech'>('simple');
 
   const v = VARIANTS[variant];
+  const selectedTruckSubModel =
+    variant === 'truck'
+      ? v.subModels?.[selectedSubModel] ?? v.subModels?.[0] ?? null
+      : null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -375,7 +379,7 @@ export const HHOCarKitPage: React.FC<HHOCarKitPageProps> = ({
           </section>
 
           {/* ── TRUCK SUB-MODELS (only for truck variant) ──────── */}
-          {variant === 'truck' && v.subModels && (
+          {variant === 'truck' && v.subModels && selectedTruckSubModel && (
             <section className="py-20 bg-white">
               <div className="max-w-6xl mx-auto px-6">
                 <div className="text-center mb-12">
@@ -414,12 +418,12 @@ export const HHOCarKitPage: React.FC<HHOCarKitPageProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                       <div>
                         <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-black text-lg mb-4">
-                          {v.subModels[selectedSubModel].name}
+                          {selectedTruckSubModel.name}
                         </div>
-                        <p className="text-slate-600 leading-relaxed text-lg">{v.subModels[selectedSubModel].desc}</p>
+                        <p className="text-slate-600 leading-relaxed text-lg">{selectedTruckSubModel.desc}</p>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        {v.subModels[selectedSubModel].specs.map((spec) => (
+                        {selectedTruckSubModel.specs.map((spec) => (
                           <div key={spec.label} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
                             <span className="text-[10px] uppercase tracking-wider text-slate-400 block mb-1">{spec.label}</span>
                             <span className="text-sm font-bold text-slate-900">{spec.value}</span>

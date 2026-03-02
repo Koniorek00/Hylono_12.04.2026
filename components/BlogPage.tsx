@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     BookOpen, Calendar, Clock, ArrowRight, Tag, Search, Filter,
     Bookmark, BookmarkCheck, TrendingUp, Sparkles, Shield,
@@ -337,15 +337,22 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
     const handleNavigateArticle = useCallback((direction: 'prev' | 'next') => {
         if (!selectedPost) return;
         const currentIndex = filteredPosts.findIndex(p => p.id === selectedPost.id);
+        const previousPost = currentIndex > 0 ? filteredPosts[currentIndex - 1] : undefined;
+        const nextPost = currentIndex < filteredPosts.length - 1 ? filteredPosts[currentIndex + 1] : undefined;
+
         if (direction === 'prev' && currentIndex > 0) {
-            setSelectedPost(filteredPosts[currentIndex - 1]);
+            if (previousPost) {
+                setSelectedPost(previousPost);
+            }
         } else if (direction === 'next' && currentIndex < filteredPosts.length - 1) {
-            setSelectedPost(filteredPosts[currentIndex + 1]);
+            if (nextPost) {
+                setSelectedPost(nextPost);
+            }
         }
     }, [selectedPost, filteredPosts]);
 
     // Featured post (first post or first with trace_id)
-    const featuredPost = BLOG_POSTS.find(p => p.trace_id) || BLOG_POSTS[0];
+    const featuredPost = BLOG_POSTS.find(p => p.trace_id) ?? BLOG_POSTS[0] ?? null;
 
     // === RENDER ===
     return (
@@ -491,7 +498,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
                 </motion.div>
 
                 {/* Featured Article */}
-                {!searchQuery && !selectedCategory && (
+                {!searchQuery && !selectedCategory && featuredPost && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}

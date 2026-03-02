@@ -182,7 +182,7 @@ export const useMultitoolStore = create<MultitoolState>()(
         const { textSize, lineHeight, readingFont } = get();
         const currentIndex = TEXT_SIZE_ORDER.indexOf(textSize);
         const nextIndex = (currentIndex + 1) % TEXT_SIZE_ORDER.length;
-        const newSize = TEXT_SIZE_ORDER[nextIndex];
+        const newSize = TEXT_SIZE_ORDER[nextIndex] ?? textSize;
         applyReadingPreferences(newSize, lineHeight, readingFont);
         set({ textSize: newSize });
       },
@@ -197,7 +197,7 @@ export const useMultitoolStore = create<MultitoolState>()(
         const { textSize, lineHeight, readingFont } = get();
         const currentIndex = LINE_HEIGHT_ORDER.indexOf(lineHeight);
         const nextIndex = (currentIndex + 1) % LINE_HEIGHT_ORDER.length;
-        const newHeight = LINE_HEIGHT_ORDER[nextIndex];
+        const newHeight = LINE_HEIGHT_ORDER[nextIndex] ?? lineHeight;
         applyReadingPreferences(textSize, newHeight, readingFont);
         set({ lineHeight: newHeight });
       },

@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import {
     Gift, Copy, CheckCircle, Share2, Users, TrendingUp, ArrowRight,
     Award, Star, Crown, Zap, Trophy, ChevronRight

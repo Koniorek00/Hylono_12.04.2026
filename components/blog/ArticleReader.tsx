@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     X, Clock, Calendar, Tag, User, Share2, Bookmark, BookmarkCheck,
     ArrowLeft, ArrowRight, Volume2, VolumeX, ChevronUp,
@@ -546,3 +546,4 @@ Not everyone needs the full protocol every day. Consider:
 }
 
 export default ArticleReader;
+

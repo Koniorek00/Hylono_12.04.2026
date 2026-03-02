@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants } from 'motion/react';
 
 interface ScrollRevealProps {
     children: React.ReactNode;
@@ -147,3 +147,4 @@ export const StaggerItem: React.FC<StaggerItemProps> = ({ children, className = 
         </motion.div>
     );
 };
+

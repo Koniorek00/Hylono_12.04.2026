@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useInView } from 'framer-motion';
+import { useInView } from 'motion/react';
 
 interface AnimatedCounterProps {
     end: number;
@@ -69,3 +69,4 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
         </span>
     );
 };
+

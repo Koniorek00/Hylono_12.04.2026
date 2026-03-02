@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Trophy, Medal, Award, Crown } from 'lucide-react';
 
 interface LeaderboardEntry {
@@ -68,3 +68,4 @@ export const Leaderboard: React.FC = () => {
         </div>
     );
 };
+

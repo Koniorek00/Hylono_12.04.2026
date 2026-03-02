@@ -24,7 +24,7 @@ export const useTech = () => {
      */
     const getTechKnowledge = (type: TechType): KnowledgePack | undefined => {
         // Map TechType (enum) to Registry Key (string)
-        const keyMap: Record<string, string> = {
+        const keyMap: Partial<Record<TechType, keyof typeof KNOWLEDGE_REGISTRY>> = {
             [TechType.HBOT]: 'HBOT',
             [TechType.PEMF]: 'PEMF',
             [TechType.RLT]: 'RLT',
@@ -36,7 +36,11 @@ export const useTech = () => {
             [TechType.HYPOXIC]: 'HYPOXIC',
             [TechType.CRYO]: 'CRYO',
         };
-        return KNOWLEDGE_REGISTRY[keyMap[type]];
+
+        const knowledgeKey = keyMap[type];
+        if (!knowledgeKey) return undefined;
+
+        return KNOWLEDGE_REGISTRY[knowledgeKey];
     };
 
     /**

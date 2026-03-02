@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { FileText, Download, Image, Mail, ExternalLink, Calendar } from 'lucide-react';
 
 export const PressPage: React.FC = () => {
@@ -108,3 +108,4 @@ export const PressPage: React.FC = () => {
         </div>
     );
 };
+

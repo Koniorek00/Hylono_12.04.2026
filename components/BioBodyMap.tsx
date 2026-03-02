@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface BioBodyMapProps {
     scores: {
@@ -105,3 +105,4 @@ export const BioBodyMap: React.FC<BioBodyMapProps> = ({ scores, hoveredMetric })
         </div>
     );
 };
+

@@ -10,6 +10,7 @@
  */
 
 import { z } from 'zod';
+import { env } from '@/lib/env';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface OrderItem {
@@ -96,7 +97,7 @@ export async function POST(request: Request): Promise<Response> {
 
         // --- Stripe Payment Intent (card payments) ---
         if (paymentMethod === 'card') {
-            const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+            const stripeSecretKey = env.STRIPE_SECRET_KEY;
 
             if (stripeSecretKey) {
                 // Real Stripe integration

@@ -63,7 +63,7 @@ export async function POST(request: Request): Promise<Response> {
         // TODO: Replace with your transactional email provider (Resend, Postmark, SendGrid).
         //
         // Example with Resend:
-        // const resendApiKey = process.env.RESEND_API_KEY;
+        // const resendApiKey = env.RESEND_API_KEY;
         // await fetch('https://api.resend.com/emails', {
         //     method: 'POST',
         //     headers: {

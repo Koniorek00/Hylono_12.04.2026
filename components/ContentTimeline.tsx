@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface TimelineEvent {
     date: string;
@@ -111,3 +111,4 @@ export const CompanyTimeline: React.FC = () => {
         </section>
     );
 };
+

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     QrCode,
-    Share2,
-    Link,
     Printer,
     Copy,
     Check,
@@ -33,7 +31,12 @@ const OFFERS = [
 ];
 
 export const GrowthCatalyst: React.FC = () => {
-    const [selectedOffer, setSelectedOffer] = useState(OFFERS[0]);
+    const defaultOffer = OFFERS[0];
+    if (!defaultOffer) {
+        return null;
+    }
+
+    const [selectedOffer, setSelectedOffer] = useState(defaultOffer);
     const [showQR, setShowQR] = useState(false);
     const [copied, setCopied] = useState(false);
 

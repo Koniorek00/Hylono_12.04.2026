@@ -150,14 +150,21 @@ export const MockAuthService = {
         const session = this.getSession();
         if (!session) return { data: { user: null, session: null }, error: { message: 'No session' } };
 
-        const updatedUser = { ...session.user, ...updates };
+        const sanitizedUpdates: Partial<AuthUser> = {};
+        if (updates.email !== undefined) sanitizedUpdates.email = updates.email;
+        if (updates.name !== undefined) sanitizedUpdates.name = updates.name;
+
+        const updatedUser: AuthUser = { ...session.user, ...sanitizedUpdates };
 
         // Update in storage
         const users = this.getStoredUsers();
         const userIndex = users.findIndex(u => u.id === session.user.id);
         if (userIndex >= 0) {
-            users[userIndex] = { ...users[userIndex], ...updates };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            const existingUser = users[userIndex];
+            if (existingUser) {
+                users[userIndex] = { ...existingUser, ...sanitizedUpdates };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            }
         }
 
         const newSession = { ...session, user: updatedUser };

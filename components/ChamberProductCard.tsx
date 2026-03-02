@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { ArrowRight, Check, Star, ShieldCheck, Zap, Users, Maximize2, Weight, Plus } from 'lucide-react';
 import { ChamberProduct } from '../types';
 import { OptimizedImage } from './shared/OptimizedImage';
@@ -62,8 +62,14 @@ export const ChamberProductCard: React.FC<ChamberProductCardProps> = ({
     isInCompare = false,
     preferredMode = 'buy',
 }) => {
+    const initialTab: 'buy' | 'rent' = chamber.transactionModes.includes(preferredMode)
+        ? preferredMode
+        : chamber.transactionModes[0] === 'rent'
+          ? 'rent'
+          : 'buy';
+
     const [activeTab, setActiveTab] = useState<'buy' | 'rent'>(
-        chamber.transactionModes.includes(preferredMode) ? preferredMode : chamber.transactionModes[0]
+        initialTab
     );
 
     const brand = BRAND_CONFIG[chamber.brand];

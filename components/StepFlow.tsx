@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Check, ArrowRight } from 'lucide-react';
 
 interface Step {
@@ -110,3 +110,4 @@ export const HBOTProtocolFlow: React.FC = () => {
         </section>
     );
 };
+

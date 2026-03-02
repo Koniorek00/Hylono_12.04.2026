@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Activity, TrendingUp } from 'lucide-react';
 
 
@@ -105,3 +105,4 @@ export const CoherenceOrb: React.FC<CoherenceOrbProps> = ({ baseScore = 65 }) =>
         </div>
     );
 };
+

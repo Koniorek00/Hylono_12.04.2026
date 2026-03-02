@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     ShieldCheck, Flame, ChevronDown, ChevronUp, ArrowRight,
     CheckCircle, AlertTriangle, Phone, Package, Award,
@@ -726,3 +726,4 @@ export const FiresafePage: React.FC = () => {
         </div>
     );
 };
+

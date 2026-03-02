@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Calendar, CheckCircle2, Circle, ExternalLink, LifeBuoy, Users } from 'lucide-react';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import Link from 'next/link';
@@ -52,7 +52,9 @@ const CHECKLIST: ChecklistItem[] = [
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
     const onboardingEnabled = useFeatureFlag('feature_onboarding');
-    const [expandedItem, setExpandedItem] = useState<string | null>(CHECKLIST[2].id);
+    const [expandedItem, setExpandedItem] = useState<string | null>(
+        CHECKLIST[2]?.id ?? CHECKLIST[0]?.id ?? null
+    );
 
     if (!onboardingEnabled) {
         return (

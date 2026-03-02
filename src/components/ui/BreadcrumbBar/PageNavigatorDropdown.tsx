@@ -9,7 +9,7 @@
  * - Compact styling for dropdown
  */
 import React, { useMemo, useEffect, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { Clock, Sparkles, ArrowUp, Settings, DollarSign, FileText, Heart, Target, HelpCircle, BookOpen, Zap, Shield, Truck, Flag, Layers, Package, PlayCircle, Award, Clock3, Info } from 'lucide-react';
 import { usePageStructure } from '../Multitool/hooks/usePageStructure';
 import type { SectionType } from '../Multitool/utils/extractMetrics';

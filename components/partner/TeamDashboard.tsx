@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import {
     Users,
     TrendingUp,
@@ -278,3 +278,4 @@ export const TeamDashboard: React.FC = () => {
         </PartnerLayout>
     );
 };
+

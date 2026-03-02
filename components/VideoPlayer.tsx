@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
 import Image from 'next/image';
 
@@ -104,3 +104,4 @@ export const TechVideoSection: React.FC<{ techName: string }> = ({ techName }) =
         </p>
     </div>
 );
+

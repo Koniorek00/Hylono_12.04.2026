@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Cookie, X, Settings, Check } from 'lucide-react';
 import Link from 'next/link';
 
@@ -232,3 +232,4 @@ export const CookieConsent: React.FC = () => {
         </AnimatePresence>
     );
 };
+

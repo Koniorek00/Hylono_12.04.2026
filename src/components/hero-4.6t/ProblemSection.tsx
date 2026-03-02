@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { CheckCircle, ShieldCheck, Microscope } from 'lucide-react'; // Approximated icons
 
 export const ProblemSection: React.FC = () => {
@@ -113,3 +113,4 @@ const HandshakeIcon = () => (
         <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 2 0l.28-.28a5.79 5.79 0 0 1 7.06-.87l6 6a2.23 2.23 0 0 1-3.14 3.14l-.5-.5a2.76 2.76 0 0 0-3.92 0c-.43.43-.5.91-.78 1.41"></path>
     </svg>
 );
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 export const ClinicPulse: React.FC = () => {
     // Generate mock data points
@@ -56,3 +56,4 @@ export const ClinicPulse: React.FC = () => {
         </div>
     );
 };
+

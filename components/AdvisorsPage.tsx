@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, Calendar, Phone, Users } from 'lucide-react';
 import { NavigateFunction } from '../types';
 import { advisorsContent } from '../content/advisors';
@@ -130,3 +130,4 @@ export const AdvisorsPage: React.FC<AdvisorsPageProps> = ({ onNavigate }) => {
         </FeatureGate>
     );
 };
+

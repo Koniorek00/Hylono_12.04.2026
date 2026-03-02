@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { ConditionDetailClient } from './ConditionDetailClient';
 
-export const revalidate = 3600;
-
 const formatSlugTitle = (slug: string) =>
   slug
     .split('-')

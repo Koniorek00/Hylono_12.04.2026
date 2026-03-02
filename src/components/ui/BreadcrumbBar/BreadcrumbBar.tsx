@@ -10,8 +10,8 @@
  * - WCAG compliant
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { ChevronDown, List } from 'lucide-react';
 import { BreadcrumbNav, type BreadcrumbItem } from './BreadcrumbNav';
 import { PageNavigatorDropdown } from './PageNavigatorDropdown';

@@ -11,11 +11,10 @@ import {
     Plus,
     FileText,
     Calendar,
-    ChevronDown,
     X,
     Save
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 // Mock Data
 interface ServiceLog {
@@ -38,6 +37,8 @@ interface Device {
     logs: ServiceLog[];
     image: string; // Placeholder color/gradient for now
 }
+
+const getTodayDate = (): string => new Date().toISOString().split('T')[0] ?? '';
 
 const INITIAL_DEVICES: Device[] = [
     {
@@ -100,7 +101,7 @@ const DeviceModal: React.FC<{
 }> = ({ device, onClose, onAddLog }) => {
     const [isAddingLog, setIsAddingLog] = useState(false);
     const [newLog, setNewLog] = useState<Omit<ServiceLog, 'id'>>({
-        date: new Date().toISOString().split('T')[0],
+        date: getTodayDate(),
         type: 'routine',
         description: '',
         technician: ''
@@ -111,7 +112,7 @@ const DeviceModal: React.FC<{
         onAddLog(device.id, newLog);
         setIsAddingLog(false);
         setNewLog({
-            date: new Date().toISOString().split('T')[0],
+            date: getTodayDate(),
             type: 'routine',
             description: '',
             technician: ''

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { PartnerLayout } from './PartnerLayout';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
     Search,
     Plus,
@@ -659,3 +659,4 @@ export const Nexus: React.FC = () => {
         </PartnerLayout>
     );
 };
+
