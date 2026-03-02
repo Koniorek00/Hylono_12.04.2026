@@ -342,7 +342,7 @@ ALL analytics MUST respect CookieConsent (Zustand Tri-State). No tracking before
 | Step | T1 | T2/T3 |
 | --- | --- | --- |
 | 1. ANALYZE | Internal: restate → goal → constraints → pre-mortem → rendering strategy → server/client boundary → done definition | Same |
-| 2. LOAD CONTEXT | Skip | Read: project-state, handoff-queue, anti-patterns, registry (components + api-endpoints), preferences, errors, patterns, decisions, codemap (if refactor or new feature) |
+| 2. LOAD CONTEXT | Skip | Read: project-state, handoff-queue, anti-patterns, registry (components + api-endpoints), preferences, errors, patterns, decisions, codemap (if refactor or new feature), evolution/changelog.md (latest health score), evolution/watchlist.md (open items) |
 | 3. RESEARCH | Library API → Context7 · Pattern → Filesystem · Medical → BioMCP | Same |
 | 4. ELEVATE | Responsive · Loading/error boundaries · ARIA · Touch ≥44px · Strict types · Server/client split | Same |
 | 5. PLAN | Inline checklist | Create `tasks/TaskName_PLAN.md` → delete after `pnpm check` passes |
@@ -363,6 +363,7 @@ ALL analytics MUST respect CookieConsent (Zustand Tri-State). No tracking before
 | Security concern | Semgrep MCP | Scan for vulnerabilities |
 | Design implementation | Figma MCP | Extract specs → check existing components |
 | UI debugging | browser-tools-mcp | Console logs, network, screenshots, a11y audit |
+| System drift / audit | system-architect | Full 5-phase cycle: SCAN → DETECT → PROPAGATE → VERIFY → REPORT |
 
 ---
 
@@ -522,6 +523,16 @@ Figma MCP (extract specs) → check `src/components/ui/` for matches → `@21st-
 | Documentation | docs-specialist |
 | Testing | test-engineer |
 | i18n, translations | i18n-specialist |
+| System maintenance, meta-agent | system-architect |
+
+### Role Boundary: system-architect vs skill-architect
+
+- Change affects MORE than one SKILL.md or any shared contract (.clinerules,
+  registry, memory) → system-architect owns it.
+- Change affects ONLY one SKILL.md and no shared contracts →
+  skill-architect owns it.
+- If both have been triggered on the same change: system-architect takes
+  precedence. skill-architect defers.
 
 Multi-domain → primary role, handoff secondary. Ambiguous → `architect-orchestrator`. Check `.agent/modes/[role].md` if exists.
 
@@ -544,6 +555,9 @@ Hierarchy: Temporary (`tasks/*_PLAN.md`) → Active (`.agent/memory/active/*`) �
 | .agent/decisions/decisions.md | Persistent [DECISION] log | After any [DECISION] logged |
 | .agent/registry/components.md | Every component (server/client tagged) | Before/after UI work |
 | .agent/registry/api-endpoints.md | Every endpoint + server action | Before/after API work |
+| .agent/evolution/changelog.md | System change audit trail (append-only) | Cycle start | After every cycle |
+| .agent/evolution/drift-log.md | Current cycle findings (ephemeral) | N/A (system-architect only) | During DETECT phase, wiped each cycle |
+| .agent/evolution/watchlist.md | Flagged items for attention (max 30) | Cycle start | During DETECT phase |
 
 DLMS: Delete plan files after `pnpm check` passes. Max entries → archive oldest 50%. Missing file → create it.
 
@@ -551,6 +565,7 @@ DLMS: Delete plan files after `pnpm check` passes. Max entries → archive oldes
 Every file in `.agent/` (except modes/ and skills/) MUST be referenced
 in this section with a read and write trigger. No ghost files.
 If Cline creates a file not listed here → add it to this table or delete it.
+The system-architect specialist enforces this rule automatically.
 Audit: compare `tree /f .agent` against this table monthly.
 
 ---

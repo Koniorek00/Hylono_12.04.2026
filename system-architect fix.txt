@@ -1,0 +1,445 @@
+ACT AS: system-architect | T3
+CYCLE: targeted: self-hardening
+
+# TASK: Harden system-architect with structural safeguards
+
+You are patching your own mode file, SKILL.md, and evolution workspace files
+with battle-tested improvements. These changes prevent runaway complexity,
+define the health score, add safety mechanisms, and sharpen boundaries.
+
+DO NOT ask questions. Read, patch, verify.
+
+## STEP 0: READ
+
+Read these files completely:
+- `.clinerules` (full)
+- `.agent/modes/system-architect.md`
+- `.agent/skills/system-architecture/SKILL.md`
+- `.agent/evolution/changelog.md`
+- `.agent/evolution/drift-log.md`
+- `.agent/evolution/watchlist.md`
+- `.agent/memory/active/handoff-queue.md`
+
+---
+
+## WHAT TO IMPLEMENT (approved changes)
+
+### 1. HEALTH SCORE FORMULA
+
+The health score is currently undefined. Add this to `.agent/modes/system-architect.md`
+inside Phase 5 (REPORT), right after the "System Health" line:
+
+```markdown
+### Health Score Calculation
+
+```
+Base: 100
+Per P0 found:              -15
+Per P1 found:               -5
+Per P2 found:               -2
+Per P3 found:               -1
+Per failed verification:   -10
+Bonus — zero issues:        +5
+Floor: 0 | Ceiling: 100
+```
+
+Calculate at end of every cycle. Record in changelog.md.
+```
+
+Also add to SKILL.md under a new section `## HEALTH SCORE` with the same formula.
+
+---
+
+### 2. DETECTION RULES LIMIT + CONSOLIDATION
+
+Add to `.agent/skills/system-architecture/SKILL.md` at the top of § DETECTION RULES:
+
+```markdown
+### Detection Rules Governance
+
+- Maximum detection rules: 40
+- If rule count exceeds 40: consolidate overlapping rules BEFORE adding new ones.
+  Merge rules that scan the same files or detect the same category of issue.
+- If § DETECTION RULES section exceeds 400 lines: trigger a dedicated
+  consolidation cycle. Log [DECISION: consolidated N rules into M].
+- Every new rule MUST have: a clear trigger, a severity level, and an action.
+  No vague rules.
+```
+
+---
+
+### 3. CONFLICT RESOLUTION: system-architect vs skill-architect
+
+Add to `.clinerules` in § AGENT ROLES (after the role table):
+
+```markdown
+### Role Boundary: system-architect vs skill-architect
+
+- Change affects MORE than one SKILL.md or any shared contract (.clinerules,
+  registry, memory) → system-architect owns it.
+- Change affects ONLY one SKILL.md and no shared contracts →
+  skill-architect owns it.
+- If both have been triggered on the same change: system-architect takes
+  precedence. skill-architect defers.
+```
+
+Also add a brief reference to this rule in `.agent/modes/skill-architect.md`
+under CRITICAL CONSTRAINTS:
+
+```markdown
+- If a change spans multiple SKILL.md files or shared contracts: defer to
+  system-architect. See .clinerules § AGENT ROLES boundary rule.
+```
+
+---
+
+### 4. FAILURE CLASSIFICATION FOR RETRY LOOPS
+
+Replace the current retry logic in `.agent/modes/system-architect.md` Phase 4 (VERIFY).
+Find the line about "loop back to PROPAGATE (max 3 loops)" and replace with:
+
+```markdown
+If verification fails, classify the failure before retrying:
+
+| Type | Description | Strategy |
+|---|---|---|
+| A — System-file syntax | Broken markdown, bad table format | Re-read file, fix syntax |
+| B — Contract mismatch | File exists but contract wrong or vice versa | Re-check § MEMORY SYSTEM, fix contract |
+| C — Product-code failure | pnpm build fails due to src/ code | DO NOT fix. Create handoff-queue entry. Skip this check. |
+| D — Environment failure | Build hangs, MCP unavailable, network issue | Log [BLOCKED: reason]. Skip affected check. Continue cycle. |
+
+Max 3 retry loops. Each retry MUST use a different strategy than the previous.
+If same failure type 3 times → skip that check + log P2 in drift-log.md.
+Type C and D: never retry. Handle immediately per strategy above.
+```
+
+---
+
+### 5. LAYER 0 DRIFT HANDLING (GUARDRAIL PROPOSALS)
+
+Add to `.agent/modes/system-architect.md` inside the MUTABILITY HIERARCHY section,
+after the Layer 0 row:
+
+```markdown
+**Layer 0 Drift Protocol:**
+If system-architect detects that a LAYER 0 section (guardrails, priority order,
+working agreement) may be outdated, factually incorrect, or inconsistent with
+the actual project state:
+
+1. DO NOT modify the section.
+2. Log `[GUARDRAIL-DRIFT: description of what appears outdated and why]`
+   in `.agent/decisions/decisions.md`.
+3. Add to drift-log.md as informational (not P0 — system-architect cannot
+   classify Layer 0 issues as actionable).
+4. Surface in REPORT under a dedicated `## ⚠️ Layer 0 Review Needed` section.
+5. Only the user can modify Layer 0. No exceptions.
+```
+
+---
+
+### 6. WATCHLIST FORMAT UPGRADE
+
+Update the format in `.agent/evolution/watchlist.md` AND in the SKILL.md where
+the watchlist format is defined:
+
+Old:
+```
+[DATE] | [P-LEVEL] | [DESCRIPTION] | [RECOMMENDATION] | [STATUS: open|vetoed|resolved]
+```
+
+New:
+```
+[DATE] | [P-LEVEL] | [CATEGORY] | [OWNER] | [DESCRIPTION] | [RECOMMENDATION] | [STATUS: open|vetoed|resolved]
+```
+
+Where:
+- CATEGORY: one of `architecture | tooling | performance | complexity | compliance | drift`
+- OWNER: the specialist role that should address it (e.g., `frontend-specialist`, `user`)
+
+Update any existing entries to match the new format. If the watchlist is empty,
+just update the template header.
+
+---
+
+### 7. IDEMPOTENCY CHECK
+
+Add to `.agent/modes/system-architect.md` in Phase 5 (REPORT), as a final check
+before delivering:
+
+```markdown
+### Idempotency Verification
+
+After completing PROPAGATE + VERIFY, mentally simulate: "If I ran this exact
+same full cycle again right now with no external changes, would I change anything?"
+
+If YES → something is non-deterministic in the cycle. Log as:
+`[IDEMPOTENCY-VIOLATION: description]` — P1 priority.
+Investigate: is a detection rule too sensitive? Is a propagation creating
+drift that triggers another detection? Fix the root cause.
+
+If NO → system is stable. Note in report: "Idempotency: ✅ verified"
+```
+
+---
+
+### 8. SAFE MODE
+
+Add to `.agent/modes/system-architect.md` as a new section after the 5-PHASE CYCLE:
+
+```markdown
+## SAFE MODE
+
+Safe mode activates automatically when the system is unstable.
+
+**Triggers:**
+- Health score < 60 for 2 consecutive cycles
+- 3+ P0 issues found in a single cycle
+- Idempotency violation detected
+
+**Behavior in Safe Mode:**
+- ONLY fix P0 issues. Skip P1/P2/P3 entirely.
+- NO self-evolution (do not modify own SKILL.md).
+- NO optimization suggestions.
+- DO run full SCAN and DETECT (need to see everything).
+- Report includes: `## ⚠️ SAFE MODE ACTIVE — reason: [trigger]`
+
+**Exit condition:**
+- Health score ≥ 75 on a safe-mode cycle
+- OR user explicitly says `exit safe mode`
+```
+
+---
+
+### 9. META GOAL (prevents governance from exceeding development)
+
+Add to `.agent/skills/system-architecture/SKILL.md` at the very top, before § PURPOSE:
+
+```markdown
+## META GOAL
+
+The agent system exists to REDUCE human cognitive load, not increase it.
+If system maintenance overhead ever exceeds feature development velocity,
+the system is too complex and must be simplified.
+
+This specialist must continuously evaluate:
+- Am I adding complexity or removing it?
+- Would the human need to understand this change, or is it invisible?
+- Is this improvement worth the token cost?
+
+If the answer to any of these suggests overhead is growing:
+flag as P3 in watchlist with category `complexity`.
+```
+
+---
+
+### 10. SELF-INTEGRITY CHECK
+
+Add to `.agent/modes/system-architect.md` in Phase 1 (SCAN), as the VERY FIRST
+action before anything else:
+
+```markdown
+**Step 0 — Self-Integrity (before any other scan):**
+1. Read own mode file (`.agent/modes/system-architect.md`)
+2. Read own SKILL.md (`.agent/skills/system-architecture/SKILL.md`)
+3. Verify both files are readable and contain expected sections:
+   - Mode file must contain: IDENTITY, WHEN YOU ACTIVATE, MUTABILITY HIERARCHY,
+     THE 5-PHASE CYCLE, SAFE MODE, CRITICAL RULES
+   - SKILL.md must contain: META GOAL, PURPOSE, CRITICAL CONSTRAINTS,
+     DETECTION RULES, PROPAGATION RULES, SELF-EVOLUTION PROTOCOL
+4. If either file is missing or malformed:
+   - Log `[CRITICAL: system-architect self-integrity failure]`
+   - Report immediately: "⛔ system-architect files corrupted. Manual repair needed.
+     Restore from git: `git checkout -- .agent/modes/system-architect.md .agent/skills/system-architecture/SKILL.md`"
+   - HALT cycle. Do not proceed.
+5. If both valid → continue to normal SCAN.
+```
+
+---
+
+### 11. MALFORMED FILE DETECTION
+
+Add to `.agent/skills/system-architecture/SKILL.md` in § DETECTION RULES, as a
+new subsection:
+
+```markdown
+### Malformed File Detection
+- Empty .md file (0 bytes or whitespace only) in .agent/: P1 — populate with
+  correct template or delete if ghost.
+- Contracted memory/registry file missing its required header sections: P1 —
+  add headers from template.
+- SKILL.md missing required sections (PURPOSE, CONSTRAINTS, STACK AWARENESS
+  at minimum): P0 — flag for immediate repair.
+- Mode file missing required sections (name/description frontmatter at minimum):
+  P0 — flag for immediate repair.
+```
+
+---
+
+### 12. ENHANCED FIRST OUTPUT
+
+Update `.agent/modes/system-architect.md` FIRST OUTPUT section:
+
+Old:
+```
+ACT AS: system-architect | T[tier]
+CYCLE: [full | quick | targeted: topic]
+```
+
+New:
+```
+ACT AS: system-architect | T[tier]
+CYCLE: [full | quick | targeted: topic]
+LAST RUN: [date from changelog.md] | HEALTH: [last score] | MODE: [normal | safe]
+```
+
+Read the last entry from `evolution/changelog.md` to populate LAST RUN and HEALTH.
+If no previous run exists, use: `LAST RUN: none | HEALTH: unassessed | MODE: normal`
+
+---
+
+### 13. METRICS TRACKING IN CHANGELOG
+
+Update `.agent/evolution/changelog.md`. Add a metrics table at the top (after
+the health score line):
+
+```markdown
+## Metrics History
+
+| Date | Health | P0 | P1 | P2 | P3 | Files Modified | Self-Evolutions | Mode |
+|------|--------|----|----|----|----|----------------|-----------------|------|
+
+(Append a row after every cycle)
+```
+
+Update the SKILL.md § SELF-EVOLUTION PROTOCOL to include:
+```
+After every cycle: append a row to the Metrics History table in changelog.md.
+This enables trend analysis — is the system improving or degrading over time?
+```
+
+---
+
+### 14. SEMANTIC VERIFICATION
+
+Add to `.agent/modes/system-architect.md` Phase 4 (VERIFY), after the existing
+checks:
+
+```markdown
+SEMANTIC CHECKS (after build/biome pass):
+├── Every SKILL.md has at minimum: PURPOSE, CONSTRAINTS sections
+├── Every mode file (not archive/) has: name/description frontmatter
+├── No duplicate entries in registry files (same component/endpoint twice)
+├── No duplicate entries in handoff-queue (same task for same specialist)
+├── Every specialist in § AGENT ROLES has a corresponding .agent/modes/ file
+├── Every mode file (not archive/) has a corresponding § AGENT ROLES entry
+```
+
+---
+
+### 15. EMERGENCY SELF-MODIFICATION OVERRIDE
+
+Update the self-modification rule in `.agent/modes/system-architect.md`
+CRITICAL RULES section. Find rule 10 about "max 3 SKILL.md updates per cycle"
+and replace with:
+
+```markdown
+10. Self-rewrite loop guard: max 3 SKILL.md updates per cycle.
+    EMERGENCY OVERRIDE: if a P0 fix requires a 4th or 5th self-modification,
+    log [EMERGENCY-OVERRIDE: reason] and proceed. Hard cap: 5. If 5 reached:
+    STOP self-modification + flag for user review. Never exceed 5.
+```
+
+---
+
+## WHAT TO REJECT (do NOT implement these)
+
+These were suggested but would create more mess than they solve. Do NOT add any of these:
+
+| Rejected Suggestion | Why |
+|---|---|
+| Snapshot/backup system with timestamped copies | Git IS the backup. Adding .agent/evolution/snapshots/ creates more files to manage — exactly what we just cleaned up. User can `git stash` or `git checkout` to rollback. |
+| Delta-based scanning with hash manifests | Cline cannot natively hash files. Adding .last-scan-hash with checksums requires tooling that doesn't exist. The scan reads markdown — it's fast enough. |
+| YAML-style detection rules | The entire system is markdown. Adding YAML parsing contradicts the standard. AI reads natural language better than structured schemas anyway. |
+| File locking mechanism (.agent/locks/) | Cline is single-threaded. One agent runs at a time. Concurrent access doesn't happen. This solves a non-existent problem. |
+| Error codes (SA-001, SA-002...) | Over-formalization. AI reads "[P0] ghost file detected in memory/" better than "[SA-001]". Adds a lookup table nobody benefits from. |
+| Inter-specialist alerts.md | handoff-queue.md already does this. Adding alerts.md creates a parallel messaging system — duplicate governance we just eliminated. |
+| Archive retrieval with _index.md | Git history serves this purpose. Adding index files for archives adds maintenance overhead. |
+| Change size limits (500 lines) | Cline cannot measure line diffs. Unenforceable. |
+| Circular dependency detection with topological sort | Theoretical for markdown files referencing each other. The 3-attempt loop guard already handles stuck loops. |
+| Timeout handling (120s build limit) | Cline has no timer/clock access. Cannot enforce timeouts. The existing loop guard and "skip + log" approach handles stuck situations. |
+| Splitting into sub-agents (auditor/propagator/evolver) | .clinerules says "Never spawn subagents." Acknowledged as premature even by the suggester. |
+| Complexity budget with reference counting | Manual counting of inter-file references is slow and error-prone. The meta goal + detection rules limit serves this purpose better. |
+| DRY RUN mode | Useful in theory but makes every write in PROPAGATE conditional. Premature for v1.0. Can add later if needed. The meta goal check provides sufficient caution. |
+| Breaking change impact graph | Cascade awareness already exists in PROPAGATE rules. A formal graph adds overhead without new capability. |
+| Escalation levels (NORMAL/URGENT/CRITICAL) | P0-P3 already provides this. Adding emoji-coded urgency on top is cosmetic duplication. |
+
+---
+
+## STEP 1: APPLY ALL 15 APPROVED CHANGES
+
+Apply them in this order:
+1. First: SKILL.md changes (meta goal, health score, detection rules limit, malformed file detection, metrics tracking)
+2. Second: Mode file changes (health formula, failure classification, Layer 0 drift, self-integrity, safe mode, enhanced first output, semantic verification, emergency override, idempotency)
+3. Third: .clinerules changes (conflict resolution rule)
+4. Fourth: Evolution workspace changes (watchlist format, changelog metrics table)
+5. Last: skill-architect.md coordination update
+
+---
+
+## STEP 2: VERIFY
+
+1. ✅ `.agent/modes/system-architect.md` contains all new sections
+2. ✅ `.agent/skills/system-architecture/SKILL.md` contains all new sections
+3. ✅ `.clinerules § AGENT ROLES` has conflict resolution rule
+4. ✅ `.agent/modes/skill-architect.md` has coordination note
+5. ✅ `.agent/evolution/watchlist.md` has updated format
+6. ✅ `.agent/evolution/changelog.md` has metrics table
+7. ✅ No rejected suggestions were implemented
+8. ✅ `pnpm build` passes
+9. ✅ `pnpm exec biome check .` passes
+10. ✅ SKILL.md version bumped to 1.1.0 (new detection rules + meta goal = minor version)
+
+---
+
+## STEP 3: RUN FIRST HARDENED CYCLE
+
+After all changes are applied and verified, immediately run a quick cycle
+to validate the new capabilities work:
+
+```
+CYCLE: quick
+```
+
+Specifically test:
+- Health score calculation produces a real number
+- Self-integrity check passes on own files
+- Malformed file detection works (scan .agent/ for any empty files)
+- Enhanced first output shows LAST RUN info
+- Metrics row is appended to changelog.md
+
+---
+
+## DELIVERY FORMAT
+
+Standard .clinerules delivery format.
+
+### Changes
+Group by file modified, show what was added and why.
+
+### Decisions
+Log all changes with [DECISION] entries.
+
+### Self-Evolution
+Log: "v1.0.0 → v1.1.0: Added 15 hardening improvements. Detection rules limit,
+health score formula, safe mode, self-integrity check, meta goal, failure
+classification, Layer 0 drift protocol, enhanced watchlist format, idempotency
+verification, semantic verification, emergency self-modification override,
+malformed file detection, metrics tracking, conflict resolution with skill-architect,
+enhanced first output."
+
+### Memory Updates
+- Update changelog.md with this hardening cycle
+- Append first metrics row to changelog.md
+- Log anti-patterns if discovered during verification
+````
+

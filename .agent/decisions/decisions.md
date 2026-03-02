@@ -24,3 +24,23 @@ architect-orchestrator | T3
 [DECISION-2026-03-02-005]: Rename `api-design-zod-old-orm` skill directory to `api-design-zod-drizzle` |
 Skill content is Drizzle-aligned; legacy ORM naming contradicted workspace guardrails and caused policy ambiguity | If workspace ORM policy changes from Drizzle-only |
 architect-orchestrator | T3
+
+[DECISION-2026-03-02-006]: Keep `src/generated/prisma-client/` for now and do not delete |
+Static audit found one live import in `lib/rbac/permissions.ts` (`UserRole` from `../../src/generated/prisma-client`), so deletion would break type resolution; queued Drizzle migration handoff first | If that import is migrated to Drizzle-safe role types/enums and no remaining references exist |
+backend-specialist | T2
+
+[DECISION-2026-03-02-007]: Create system-architect governance layer (`.agent/modes/system-architect.md`, `.agent/skills/system-architecture/SKILL.md`, `.agent/evolution/*`) |
+User-provided implementation plan required a dedicated meta-agent and evolution workspace for system integrity cycles | If governance model is replaced by a different canonical system-management architecture |
+skill-architect | T3
+
+[DECISION-2026-03-02-008]: Adapt system-architect scan targets to real project paths (`app/`, `components/`, `lib/actions` optional) while preserving intent |
+Workspace uses `app/` and `components/` roots (not `src/`) and has no `lib/db/schema.ts`; strict literal paths would create false-positive drift | If repository is migrated back to `src/` canonical layout and Drizzle schema file is introduced |
+skill-architect | T3
+
+[DECISION-2026-03-02-009]: Treat missing pnpm runtime as environment-blocked verification and create handoff instead of product/system workaround |
+`pnpm` is unavailable in current shell, making mandatory checks non-executable; forcing alternate tooling would violate workspace command policy | If pnpm is restored in PATH and verification can run normally |
+system-architect | T3
+
+[DECISION-2026-03-02-010]: Apply system-architect hardening package v1.1.0 across mode/skill/evolution contracts |
+User-provided fix spec requires structural safeguards (health formula, safe mode, integrity checks, failure classification, semantic checks, watchlist/metrics upgrades, role boundary) and explicit self-hardening cycle output | If user supersedes this governance model with a newer canonical hardening spec |
+system-architect | T3
