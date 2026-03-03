@@ -18,6 +18,8 @@
     "test:e2e": "pnpm exec playwright install --with-deps && pnpm exec playwright test",
     "compliance": "pnpm exec tsx scripts/compliance-check.ts",
     "compliance:strict": "pnpm exec tsx scripts/compliance-check.ts --strict",
+    "system:test": "node tools/system-tests/run-system-pressure-tests.mjs",
+    "system:autofix": "node tools/system-tests/auto-fix-toolchain.mjs",
     "prepare": "husky"
   },
   "dependencies": {

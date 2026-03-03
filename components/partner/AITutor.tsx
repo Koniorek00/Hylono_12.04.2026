@@ -21,6 +21,7 @@ const MOCK_RESPONSES: Record<string, string> = {
 };
 
 export const AITutor: React.FC<AITutorProps> = ({ videoTitle, onClose }) => {
+    const [messageCounter, setMessageCounter] = useState(2);
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
@@ -36,8 +37,12 @@ export const AITutor: React.FC<AITutorProps> = ({ videoTitle, onClose }) => {
     const handleSend = () => {
         if (!input.trim()) return;
 
+        const userMessageId = `msg-${messageCounter}`;
+        const aiMessageId = `msg-${messageCounter + 1}`;
+        setMessageCounter((prev) => prev + 2);
+
         const userMessage: Message = {
-            id: Date.now().toString(),
+            id: userMessageId,
             role: 'user',
             content: input
         };
@@ -56,7 +61,7 @@ export const AITutor: React.FC<AITutorProps> = ({ videoTitle, onClose }) => {
             else if (lowerInput.includes('emergency')) response = MOCK_RESPONSES.emergency ?? response;
 
             const aiMessage: Message = {
-                id: (Date.now() + 1).toString(),
+                id: aiMessageId,
                 role: 'ai',
                 content: response
             };

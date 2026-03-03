@@ -25,6 +25,11 @@ interface ReadingListItem {
     addedAt: string;
 }
 
+const deterministicMetric = (seed: number, min: number, max: number): number => {
+    const normalized = Math.abs(Math.sin(seed * 12.9898) * 43758.5453) % 1;
+    return Math.floor(normalized * (max - min + 1)) + min;
+};
+
 // === FEATURED ARTICLE CARD ===
 const FeaturedArticleCard: React.FC<{ post: BlogPost; onClick: () => void }> = ({ post, onClick }) => (
     <motion.article
@@ -65,7 +70,7 @@ const FeaturedArticleCard: React.FC<{ post: BlogPost; onClick: () => void }> = (
                     </span>
                     {post.trace_id && (
                         <span className="flex items-center gap-1 text-emerald-400">
-                            <Shield size={14} /> Evidence Verified
+                            <Shield size={12} /> {post.trace_id}
                         </span>
                     )}
                 </div>
@@ -128,7 +133,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
                                 {post.category}
                             </span>
                             <span className="flex items-center gap-1 text-xs text-slate-400">
-                                <Clock size={12} /> {post.readTime}
+                                <Eye size={12} /> {deterministicMetric(post.id, 100, 600)}
                             </span>
                         </div>
 
@@ -208,7 +213,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
                             <Calendar size={12} /> {post.date}
                         </span>
                         <span className="flex items-center gap-1">
-                            <Eye size={12} /> {Math.floor(Math.random() * 500) + 100}
+                            <Eye size={12} /> {deterministicMetric(post.id, 100, 600)}
                         </span>
                     </div>
                 </div>
@@ -304,8 +309,12 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
         // Sort
         switch (sortBy) {
             case 'popular':
-                // Simulated popularity (in production, would use actual metrics)
-                posts.sort(() => Math.random() - 0.5);
+                // Deterministic popularity proxy to avoid SSR/client hydration drift
+                posts.sort((a, b) => {
+                    const scoreA = deterministicMetric(a.id, 1, 1000);
+                    const scoreB = deterministicMetric(b.id, 1, 1000);
+                    return scoreB - scoreA;
+                });
                 break;
             case 'readTime':
                 posts.sort((a, b) => parseInt(a.readTime) - parseInt(b.readTime));

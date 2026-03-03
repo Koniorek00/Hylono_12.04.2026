@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, X, ShoppingCart, Trash2 } from 'lucide-react';
@@ -26,14 +28,21 @@ export const useWishlist = () => {
 };
 
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [items, setItems] = useState<WishlistItem[]>(() => {
-        if (typeof window === 'undefined') return [];
-        const saved = localStorage.getItem('hylono_wishlist');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [items, setItems] = useState<WishlistItem[]>([]);
 
     useEffect(() => {
-        if (typeof window === 'undefined') return;
+        const saved = localStorage.getItem('hylono_wishlist');
+        if (!saved) return;
+
+        try {
+            const parsed = JSON.parse(saved) as WishlistItem[];
+            setItems(parsed);
+        } catch {
+            localStorage.removeItem('hylono_wishlist');
+        }
+    }, []);
+
+    useEffect(() => {
         localStorage.setItem('hylono_wishlist', JSON.stringify(items));
     }, [items]);
 

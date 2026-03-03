@@ -1099,20 +1099,28 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                                                     </div>
 
                                                                     <div className="mt-3 pt-3 border-t border-slate-200/70">
-                                                                        <button
-                                                                            type="button"
+                                                                        <span
+                                                                            role="button"
+                                                                            tabIndex={0}
                                                                             onClick={(event) => {
                                                                                 event.stopPropagation();
                                                                                 toggleCompareChamber(chamber.id);
                                                                             }}
+                                                                            onKeyDown={(event) => {
+                                                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                                                    event.preventDefault();
+                                                                                    event.stopPropagation();
+                                                                                    toggleCompareChamber(chamber.id);
+                                                                                }
+                                                                            }}
                                                                             aria-pressed={isChamberInCompare(chamber.id)}
-                                                                            className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${isChamberInCompare(chamber.id)
+                                                                            className={`inline-flex min-h-11 items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${isChamberInCompare(chamber.id)
                                                                                     ? 'bg-cyan-500 text-white border-cyan-500'
                                                                                     : 'bg-transparent text-slate-600 border-slate-300 hover:border-cyan-300 hover:text-cyan-700'
                                                                                 }`}
                                                                         >
                                                                             {isChamberInCompare(chamber.id) ? 'In compare' : 'Compare'}
-                                                                        </button>
+                                                                        </span>
                                                                     </div>
                                                                 </button>
                                                             );

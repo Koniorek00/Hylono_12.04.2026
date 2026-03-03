@@ -87,7 +87,7 @@ Safe mode activates automatically when the system is unstable.
 
 **Step 0 — Self-Integrity (before any other scan):**
 1. Read own mode file (`.agent/modes/system-architect.md`)
-2. Read own SKILL.md (`.agent/skills/system-architecture/SKILL.md`)
+2. Read own SKILL.md (`.agent/skills/system-architect/SKILL.md`)
 3. Verify both files are readable and contain expected sections:
    - Mode file must contain: IDENTITY, WHEN YOU ACTIVATE, MUTABILITY HIERARCHY,
      THE 5-PHASE CYCLE, SAFE MODE, CRITICAL RULES
@@ -96,7 +96,7 @@ Safe mode activates automatically when the system is unstable.
 4. If either file is missing or malformed:
    - Log `[CRITICAL: system-architect self-integrity failure]`
    - Report immediately: "⛔ system-architect files corrupted. Manual repair needed.
-     Restore from git: `git checkout -- .agent/modes/system-architect.md .agent/skills/system-architecture/SKILL.md`"
+     Restore from git: `git checkout -- .agent/modes/system-architect.md .agent/skills/system-architect/SKILL.md`"
    - HALT cycle. Do not proceed.
 5. If both valid → continue to normal SCAN.
 
@@ -168,8 +168,8 @@ Only a direct user instruction can override a veto.
 
 ```
 MANDATORY CHECKS:
-├── pnpm build (must pass)
-├── pnpm exec biome check . (must pass)
+├── pnpm build (must pass) OR `corepack pnpm build` when `pnpm` shim is unavailable
+├── pnpm exec biome check . (must pass) OR `corepack pnpm exec biome check .` when `pnpm` shim is unavailable
 ├── Re-scan .agent/ tree → confirm zero ghost files
 ├── Cross-validate: every § MEMORY SYSTEM row has a real file
 ├── Cross-validate: every .agent/modes/ file (not archive/) maps to § AGENT ROLES
@@ -183,14 +183,27 @@ MANDATORY CHECKS:
 | A — System-file syntax | Broken markdown, bad table format | Re-read file, fix syntax |
 | B — Contract mismatch | File exists but contract wrong or vice versa | Re-check § MEMORY SYSTEM, fix contract |
 | C — Product-code failure | pnpm build fails due to src/ code | DO NOT fix. Create handoff-queue entry. Skip this check. |
-| D — Environment failure | Build hangs, MCP unavailable, network issue | Log [BLOCKED: reason]. Skip affected check. Continue cycle. |
+| D — Environment failure | Build hangs, MCP unavailable, network issue, and no viable pnpm runtime (both `pnpm` and `corepack pnpm` fail) | Log [BLOCKED: reason]. Skip affected check. Continue cycle. |
+| E — Partial-success misreport | Command completed but output does not satisfy user intent (e.g., reduced scope, excluded data, fallback artifact) | Treat as FAILED. Do not mark task complete. Apply corrective action and re-verify against intent-level acceptance criteria. |
 
 Max 3 retry loops. Each retry MUST use a different strategy than the previous.
 If same failure type 3 times → skip that check + log P2 in drift-log.md.
 Type C and D: never retry. Handle immediately per strategy above.
 ```
 
-If pnpm build or biome check fails due to PRODUCT CODE (not system files):
+### Intent-Level Acceptance Verification (all specialists, all tasks)
+
+Before reporting success, verify **intent-level acceptance criteria**, not only exit code:
+
+1. Restate requested scope in one sentence.
+2. Verify command/artifact satisfies full scope (not fallback scope).
+3. If fallback excluded data/steps/areas, report as partial and continue until full scope is met.
+4. Run a quantitative sanity check where possible (size/count/hash/path diff).
+5. If quantitative signal contradicts expectation, classify as Type E and continue fixing.
+
+Example (backup): if user requested full project backup and expected ~1.5 GB, a 4 MB archive is **automatic Type E failure** until reconciled.
+
+If pnpm/corepack checks fail due to PRODUCT CODE (not system files):
 DO NOT fix product code. Log the issue and create handoff-queue entry for
 the appropriate specialist. Your job is system files only.
 
@@ -201,6 +214,22 @@ SEMANTIC CHECKS (after build/biome pass):
 ├── No duplicate entries in handoff-queue (same task for same specialist)
 ├── Every specialist in § AGENT ROLES has a corresponding .agent/modes/ file
 └── Every mode file (not archive/) has a corresponding § AGENT ROLES entry
+
+### Long-Running Command Reliability (anti-timeout)
+
+For commands known to exceed interactive command windows (Playwright suites,
+`pnpm check`, full build+test pipelines):
+
+1. Prefer scoped verification first (single spec/project) before full-suite.
+2. If command output reports timeout but background logging is active,
+   treat it as `Type D — Environment failure` for the interactive channel,
+   NOT as a product-code failure.
+3. Continue by tailing the provided background log path until completion,
+   then classify outcome from log content.
+4. If no log path is provided, rerun with narrower scope (`--project`, single
+   spec path, `--workers=1`) to keep execution observable.
+5. Never issue `cancel` unless explicitly requested by user or runaway process
+   is confirmed.
 
 ### Phase 5: REPORT (deliver + self-evolve)
 
@@ -273,7 +302,7 @@ After reporting, self-evolve:
 3. NEVER spawn subagents. Execute sequentially.
 4. NEVER ask "should I proceed?" — decide, log [DECISION], proceed.
 5. ALWAYS read real files during SCAN. Never trust memory alone.
-6. ALWAYS run pnpm build + biome check after making changes.
+6. ALWAYS run pnpm verification checks after making changes; if `pnpm` command is unavailable but `corepack` exists, use `corepack pnpm ...` as the canonical fallback.
 7. ALWAYS log changes in evolution/changelog.md.
 8. ALWAYS check cascade impact before modifying shared files.
 9. Loop guard: 3 attempts per issue, different strategy each. Then escalate.
@@ -284,3 +313,6 @@ After reporting, self-evolve:
 11. If .clinerules and a SKILL.md conflict: .clinerules wins. Fix the SKILL.md.
 12. If user instruction and .clinerules conflict: user wins (unless guardrail).
 13. If user instruction and guardrail conflict: guardrail wins. Log [GUARDRAIL: modified because X would violate Y].
+14. Timeout resilience: for long-running commands, do not conclude failure from
+    an interactive timeout alone; inspect continuation logs first.
+15. NEVER report success from command exit code alone. Validate outcome against user-intent scope + quantitative sanity checks first.

@@ -1,6 +1,11 @@
 import React from 'react';
 import { TechType } from '../types';
 
+const deterministicUnit = (seed: number, salt: number): number => {
+    const normalized = Math.abs(Math.sin(seed * 12.9898 + salt * 78.233) * 43758.5453) % 1;
+    return normalized;
+};
+
 export const HbotVisual: React.FC = () => {
     // Concept: The Breath of the Universe (Pearl/Turquoise)
     return (
@@ -33,12 +38,12 @@ export const HbotVisual: React.FC = () => {
                     className="absolute rounded-full bg-gradient-to-t from-white to-cyan-100 shadow-[0_0_10px_rgba(34,211,238,0.4)] animate-float-complex backdrop-blur-md"
                     aria-hidden="true"
                     style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 120}%`,
-                        width: `${Math.random() * 12 + 4}px`,
-                        height: `${Math.random() * 12 + 4}px`,
-                        animationDuration: `${Math.random() * 15 + 10}s`,
-                        opacity: Math.random() * 0.6 + 0.2
+                        left: `${deterministicUnit(i, 1) * 100}%`,
+                        top: `${deterministicUnit(i, 2) * 120}%`,
+                        width: `${deterministicUnit(i, 3) * 12 + 4}px`,
+                        height: `${deterministicUnit(i, 4) * 12 + 4}px`,
+                        animationDuration: `${deterministicUnit(i, 5) * 15 + 10}s`,
+                        opacity: deterministicUnit(i, 6) * 0.6 + 0.2
                     }}
                 />
             ))}
@@ -126,11 +131,11 @@ export const RltVisual: React.FC = () => {
                     className="absolute w-1.5 h-1.5 bg-red-500 rounded-full animate-float-complex"
                     aria-hidden="true"
                     style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 100}%`,
+                        left: `${deterministicUnit(i, 7) * 100}%`,
+                        top: `${deterministicUnit(i, 8) * 100}%`,
                         boxShadow: '0 0 15px rgba(239, 68, 68, 0.8)',
-                        animationDelay: `${Math.random() * 3}s`,
-                        animationDuration: `${Math.random() * 5 + 5}s`
+                        animationDelay: `${deterministicUnit(i, 9) * 3}s`,
+                        animationDuration: `${deterministicUnit(i, 10) * 5 + 5}s`
                     }}
                 />
             ))}
@@ -155,10 +160,10 @@ export const HydrogenVisual: React.FC = () => {
                     className="absolute flex items-center justify-center animate-float-complex"
                     aria-hidden="true"
                     style={{
-                        left: `${Math.random() * 80 + 10}%`,
-                        top: `${Math.random() * 80 + 10}%`,
-                        transform: `scale(${Math.random() * 0.6 + 0.6})`,
-                        animationDuration: `${Math.random() * 15 + 15}s`
+                        left: `${deterministicUnit(i, 11) * 80 + 10}%`,
+                        top: `${deterministicUnit(i, 12) * 80 + 10}%`,
+                        transform: `scale(${deterministicUnit(i, 13) * 0.6 + 0.6})`,
+                        animationDuration: `${deterministicUnit(i, 14) * 15 + 15}s`
                     }}
                 >
                     {/* H2 */}

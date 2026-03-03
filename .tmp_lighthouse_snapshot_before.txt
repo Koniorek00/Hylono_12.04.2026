@@ -1,6 +1,0 @@
-reports/lighthouse-home.json|perf=85|acc=95|bp=96|seo=82
-reports/lighthouse-rental.json|perf=95|acc=95|bp=96|seo=82
-reports/lighthouse-product.json|perf=76|acc=95|bp=96|seo=82
-.tmp_lh617_home.json|perf=86|acc=95|bp=96|seo=100
-.tmp_lh617_rental.json|perf=82|acc=95|bp=96|seo=100
-.tmp_lh617_product.json|perf=80|acc=95|bp=96|seo=100

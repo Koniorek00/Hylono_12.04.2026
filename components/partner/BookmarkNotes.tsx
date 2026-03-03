@@ -16,6 +16,7 @@ interface BookmarkNotesProps {
 }
 
 export const BookmarkNotes: React.FC<BookmarkNotesProps> = ({ videoId, currentProgress, onSeek }) => {
+    const [bookmarkCounter, setBookmarkCounter] = useState(3);
     const [bookmarks, setBookmarks] = useState<BookmarkNote[]>([
         { id: '1', timestamp: 25, note: 'Important safety tip here!', createdAt: '2 min ago' },
         { id: '2', timestamp: 60, note: 'Remember this sequence', createdAt: '1 min ago' }
@@ -26,8 +27,11 @@ export const BookmarkNotes: React.FC<BookmarkNotesProps> = ({ videoId, currentPr
     const addBookmark = () => {
         if (!newNote.trim()) return;
 
+        const bookmarkId = `bookmark-${bookmarkCounter}`;
+        setBookmarkCounter((prev) => prev + 1);
+
         const bookmark: BookmarkNote = {
-            id: Date.now().toString(),
+            id: bookmarkId,
             timestamp: Math.round(currentProgress),
             note: newNote,
             createdAt: 'Just now'

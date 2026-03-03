@@ -1,4 +1,5 @@
-import { UserRole } from '../../src/generated/prisma-client';
+export const USER_ROLES = ['ADMIN', 'MANAGER', 'STAFF'] as const;
+export type UserRole = (typeof USER_ROLES)[number];
 
 export type Permission =
     | 'view:dashboard'

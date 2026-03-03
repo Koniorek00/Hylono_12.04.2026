@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { Inter } from 'next/font/google';
-import { connection } from 'next/server';
 import { env } from '@/lib/env';
 import './globals.css';
 import { Providers } from '../components/providers/Providers';
@@ -33,20 +32,20 @@ interface RootLayoutContentProps {
   children: ReactNode;
 }
 
-async function RootLayoutContent({ children }: RootLayoutContentProps) {
-  await connection();
-
+function RootLayoutContent({ children }: RootLayoutContentProps) {
   return (
     <>
-      <Providers>
-        <Suspense fallback={null}>
-          <Header />
-        </Suspense>
-        <main>{children}</main>
-        <Suspense fallback={null}>
-          <Footer />
-        </Suspense>
-      </Providers>
+      <Suspense fallback={null}>
+        <Providers>
+          <Suspense fallback={null}>
+            <Header />
+          </Suspense>
+          <main className="relative z-0 pt-[72px] md:pt-[104px]">{children}</main>
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
+        </Providers>
+      </Suspense>
       <Suspense fallback={null}>
         <GlobalOverlays />
       </Suspense>
@@ -71,9 +70,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             </p>
           </main>
         </noscript>
-        <Suspense fallback={null}>
-          <RootLayoutContent>{children}</RootLayoutContent>
-        </Suspense>
+        <RootLayoutContent>{children}</RootLayoutContent>
       </body>
     </html>
   );

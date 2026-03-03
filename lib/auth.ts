@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
+import { env } from '@/lib/env';
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -9,6 +10,11 @@ const credentialsSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
+  secret:
+    env.NEXTAUTH_SECRET ??
+    (env.NODE_ENV === 'development'
+      ? 'hylono-dev-auth-secret-change-in-production'
+      : undefined),
   providers: [
     Credentials({
       name: 'Credentials',

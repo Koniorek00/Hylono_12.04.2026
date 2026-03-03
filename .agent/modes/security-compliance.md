@@ -8,7 +8,7 @@ description: Specialized workflow for security-compliance.
 - ALWAYS enforce secure defaults and compliance boundaries.
 - ALWAYS preserve high-signal domain procedures while removing low-value noise.
 - NEVER introduce stale stack guidance or outdated command references.
-- NEVER allow forbidden-orm guidance; Drizzle is the only authorized ORM.
+- NEVER recommend or permit Prisma usage; Drizzle is the only authorized ORM.
 
 ## STACK SNAPSHOT
 - Framework: Next.js 16.1.6 App Router + React 19.2 + TypeScript 5 strict
@@ -24,8 +24,8 @@ description: Specialized workflow for security-compliance.
 - `pnpm db:generate` / `pnpm db:migrate` / `pnpm db:studio`
 
 ## MCP RULES
-- Forbidden MCPs: forbidden-orm, supabase-mcp, design-to-code, next-devtools, sequential-thinking, playwright, memory, fetch, postgresql.
-- forbidden-orm is 100% forbidden in all recommendations.
+- Forbidden MCPs: prisma, supabase-mcp, design-to-code, next-devtools, sequential-thinking, playwright, memory, fetch, postgresql.
+- Prisma MCP is forbidden in all recommendations.
 
 ## REMEMBER
 - ALWAYS optimize for behavioral clarity, not verbosity.

@@ -24,7 +24,8 @@ export const useRecentlyViewed = () => {
     const addToRecent = (product: Omit<RecentProduct, 'viewedAt'>) => {
         setItems(prev => {
             const filtered = prev.filter(p => p.id !== product.id);
-            return [{ ...product, viewedAt: Date.now() }, ...filtered].slice(0, 10);
+            const nextViewedAt = (filtered[0]?.viewedAt ?? 0) + 1;
+            return [{ ...product, viewedAt: nextViewedAt }, ...filtered].slice(0, 10);
         });
     };
 

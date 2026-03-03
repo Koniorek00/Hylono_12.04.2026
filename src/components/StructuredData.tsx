@@ -30,6 +30,7 @@ export default async function StructuredData({ data, id }: StructuredDataProps) 
   return (
     <script
       id={id}
+      suppressHydrationWarning
       nonce={nonce ?? undefined}
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: safeJsonStringify(data) }}

@@ -9,6 +9,11 @@ import {
 import { SmartText } from '../SmartText';
 import { BlogPost, BLOG_POSTS, RESEARCH_STUDIES } from '../../constants/content';
 
+const deterministicMetric = (seed: number, min: number, max: number): number => {
+    const normalized = Math.abs(Math.sin(seed * 12.9898) * 43758.5453) % 1;
+    return Math.floor(normalized * (max - min + 1)) + min;
+};
+
 // === ARTICLE READER TYPES ===
 interface ArticleReaderProps {
     post: BlogPost;
@@ -83,7 +88,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
     const [copied, setCopied] = useState(false);
     const [isReading, setIsReading] = useState(false);
     const [hoveredMention, setHoveredMention] = useState<{ type: string; id: string; pos: { x: number; y: number } } | null>(null);
-    const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50) + 10);
+    const [likeCount, setLikeCount] = useState(() => deterministicMetric(post.id, 10, 60));
     const [hasLiked, setHasLiked] = useState(false);
 
     const contentRef = useRef<HTMLDivElement>(null);
@@ -355,7 +360,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
 
                         <div className="flex items-center gap-2">
                             <Eye size={14} className="text-slate-400" />
-                            <span className="text-xs text-slate-400">{Math.floor(Math.random() * 500) + 100} views</span>
+                            <span className="text-xs text-slate-400">{deterministicMetric(post.id, 100, 600)} views</span>
                         </div>
                     </div>
                 </article>
