@@ -221,7 +221,7 @@ export const goals: Goal[] = [
         a: 'Yes, this goal is designed around short windows and practical scheduling constraints.',
       },
       {
-        q: 'Is this intended as a medical treatment?',
+        q: 'Is this intended as medical care?',
         a: 'No, these routines are for wellness support and do not replace medical care.',
       },
     ],

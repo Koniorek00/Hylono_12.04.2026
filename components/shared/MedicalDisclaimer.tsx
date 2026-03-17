@@ -86,7 +86,7 @@ export const MedicalDisclaimer: React.FC<MedicalDisclaimerProps> = ({
 
   if (compact) {
     return (
-      <p className={`text-[10px] text-slate-400 italic leading-relaxed ${className}`}>
+      <p className={`text-xs text-slate-400 italic leading-relaxed ${className}`}>
         {text}
       </p>
     );
@@ -112,7 +112,7 @@ export const MedicalDisclaimer: React.FC<MedicalDisclaimerProps> = ({
           {/* MDR Compliance Statement */}
           {showMdrStatement && (
             <div className="mt-3 pt-3 border-t border-current/10">
-              <p className="text-[11px] text-slate-600 leading-relaxed flex items-start gap-2">
+              <p className="text-xs text-slate-600 leading-relaxed flex items-start gap-2">
                 <FileCheck size={12} className="text-emerald-500 shrink-0 mt-0.5" />
                 {MDR_COMPLIANCE_STATEMENT}
               </p>
@@ -122,7 +122,7 @@ export const MedicalDisclaimer: React.FC<MedicalDisclaimerProps> = ({
           {/* Citation Disclaimer */}
           {showCitationDisclaimer && (
             <div className="mt-3 pt-3 border-t border-current/10">
-              <p className="text-[11px] text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 {CITATION_DISCLAIMER}
               </p>
             </div>
@@ -137,7 +137,7 @@ export const MedicalDisclaimer: React.FC<MedicalDisclaimerProps> = ({
  * Short inline disclaimer for cards and mobile views
  */
 export const ShortDisclaimer: React.FC<{ className?: string }> = ({ className }) => (
-  <span className={`text-[9px] text-slate-400 italic ${className}`}>
+  <span className={`text-xs text-slate-400 italic ${className}`}>
     {disclaimers.short}
   </span>
 );
@@ -151,7 +151,7 @@ export const MdrComplianceBadge: React.FC<{ className?: string }> = ({ className
     role="status"
   >
     <Shield size={12} className="text-emerald-600" />
-    <span className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wide">
+    <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
       EU MDR Compliant
     </span>
   </div>

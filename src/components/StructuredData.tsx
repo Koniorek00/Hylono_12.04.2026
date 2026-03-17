@@ -6,11 +6,11 @@ type JsonObject = { [key: string]: JsonValue };
 type JsonArray = JsonValue[];
 
 interface StructuredDataProps {
-  data: JsonObject | JsonArray;
+  data: object;
   id?: string;
 }
 
-const safeJsonStringify = (value: JsonObject | JsonArray): string =>
+const safeJsonStringify = (value: object): string =>
   JSON.stringify(value).replace(/</g, '\\u003c');
 
 const extractNonce = (cspHeader: string | null): string | null => {

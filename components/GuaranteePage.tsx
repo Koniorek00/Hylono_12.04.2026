@@ -29,13 +29,13 @@ const NOT_COVERED = [
 ];
 
 const TESTIMONIALS = [
-  { quote: "I was sceptical, so the guarantee was the only reason I pulled the trigger. Ended up keeping it. Results were undeniable within 2 weeks.", name: "James O.", role: "Biohacker, London", initials: "JO", gradient: "from-cyan-500 to-blue-600" },
-  { quote: "The peace of mind was huge. Knowing I could return it removed all the risk. Month four and I never looked back.", name: "Lena M.", role: "Functional Medicine Coach", initials: "LM", gradient: "from-purple-500 to-pink-600" },
+  { quote: "I was sceptical, so the return policy was the reason I tried it. The trial window gave me enough time to decide whether the routine fit my goals.", name: "James O.", role: "Biohacker, London", initials: "JO", gradient: "from-cyan-500 to-blue-600" },
+  { quote: "The peace of mind was huge. Knowing I could return it removed the pressure and let me evaluate the system on my own schedule.", name: "Lena M.", role: "Wellness Coach", initials: "LM", gradient: "from-purple-500 to-pink-600" },
 ];
 
 /**
  * GuaranteePage
- * Risk-free 30-day trial guarantee landing page.
+ * Risk-free 30-day trial policy landing page.
  * Sections: Hero, Promise, How It Works, Coverage, Testimonials, CTA.
  */
 export const GuaranteePage: React.FC = () => {
@@ -59,9 +59,9 @@ export const GuaranteePage: React.FC = () => {
               Risk-Free Trial
             </span>
             <h1 className="text-5xl md:text-7xl font-black mb-6 futuristic-font leading-none">
-              30-Day Transformation
+              30-Day Trial
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Guarantee</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Return Policy</span>
             </h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
               If you don’t feel a measurable difference in 30 days, we’ll collect the device and refund every penny. No small print. No hassle.
@@ -89,7 +89,7 @@ export const GuaranteePage: React.FC = () => {
           <span className="text-xs font-bold uppercase tracking-[0.35em] text-slate-400">Section 01</span>
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mt-3 mb-4 futuristic-font">Our Promise</h2>
           <p className="text-slate-500 text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
-            We believe so deeply in our technology that we’re willing to back every purchase with a no-questions-asked return policy. Here’s exactly what we guarantee.
+            We back every eligible purchase with a straightforward return policy so customers can evaluate fit without hidden friction. Here’s exactly what is covered.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {[

@@ -44,7 +44,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         ],
         forbiddenTerms: ["cure", "treat", "diagnose", "heal", "prevents disease", "medical treatment"],
         disclaimers: [
-            "EWOT is designed to support wellness goals and is not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before beginning any exercise-based oxygen protocol, particularly if you have cardiovascular or respiratory conditions."
+            "EWOT is designed to support wellness goals and educational planning. Consult a qualified healthcare professional before beginning an exercise-based oxygen routine, particularly if you have cardiovascular or respiratory conditions."
         ],
         synergies: [
             { target: "HBOT", label: "Oxygen Amplifier", description: "EWOT primes circulatory pathways for enhanced HBOT delivery", boost: 40 },
@@ -70,7 +70,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         ],
         forbiddenTerms: ["cure", "treat", "diagnose", "detoxify completely", "eliminates toxins", "prevents disease"],
         disclaimers: [
-            "The Sauna Blanket is designed to support wellness and recovery goals and is not intended to diagnose, treat, cure, or prevent any disease. Adequate hydration is essential before and after use. Consult your healthcare provider before use if you have cardiovascular conditions, are pregnant, or have any chronic health condition."
+            "The Sauna Blanket is designed to support wellness and recovery goals for general wellbeing. Adequate hydration is essential before and after use. Consult a qualified healthcare professional before use if you have cardiovascular concerns, are pregnant, or have a chronic health condition."
         ],
         synergies: [
             { target: "RLT", label: "Collagen & Heat Stack", description: "Heat primes tissue for deeper photobiomodulation penetration", boost: 30 },
@@ -96,7 +96,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         ],
         forbiddenTerms: ["cure", "treat", "diagnose", "replaces surgery", "prevents disease", "weight loss guarantee"],
         disclaimers: [
-            "EMS is designed to support fitness and wellness goals and is not intended to diagnose, treat, cure, or prevent any disease. EMS is contraindicated for individuals with pacemakers, implanted defibrillators, or during pregnancy. Always begin at low intensity. Consult your healthcare provider before use."
+            "EMS is designed to support fitness and wellness goals for general wellbeing. EMS is contraindicated for individuals with pacemakers, implanted defibrillators, or during pregnancy. Always begin at low intensity and consult a qualified healthcare professional before use."
         ],
         synergies: [
             { target: "SAUNA_BLANKET", label: "Activation & Recovery", description: "Infrared heat flushes metabolic waste after EMS-induced muscle fatigue", boost: 25 },
@@ -122,7 +122,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         ],
         forbiddenTerms: ["cure", "treat", "diagnose", "replaces medication", "prevents seizures", "prevents disease"],
         disclaimers: [
-            "The VNS Device is designed to support nervous system wellness and is not intended to diagnose, treat, cure, or prevent any disease. Contraindicated for individuals with pacemakers, implanted VNS devices, or carotid artery disease. Consult your healthcare provider before use, especially if you take cardiac or neurological medications."
+            "The VNS Device is designed to support nervous system wellness for general wellbeing. It is contraindicated for individuals with pacemakers, implanted VNS devices, or carotid artery disease. Consult a qualified healthcare professional before use, especially if you take cardiac or neurological medication."
         ],
         synergies: [
             { target: "PEMF", label: "Nervous System Reset", description: "PEMF and VNS create comprehensive autonomic recalibration together", boost: 45 },
@@ -148,7 +148,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         ],
         forbiddenTerms: ["cure", "treat", "diagnose", "safe for everyone", "prevents disease", "guaranteed results"],
         disclaimers: [
-            "The Hypoxic Generator is designed for athletic performance and wellness optimization and is not intended to diagnose, treat, cure, or prevent any disease. Contraindicated during pregnancy and for individuals with severe respiratory or cardiovascular conditions. SpO2 monitoring is required during all sessions. Consult your healthcare provider before beginning altitude simulation training."
+            "The Hypoxic Generator is designed for athletic performance and wellness optimization. It is contraindicated during pregnancy and for individuals with severe respiratory or cardiovascular conditions. SpO2 monitoring is required during sessions, and a qualified healthcare professional should be consulted before beginning altitude simulation training."
         ],
         synergies: [
             { target: "HBOT", label: "Altitude-Oxygen Paradox", description: "Contrast hypoxic training with HBOT recovery for maximum HIF-1α adaptation", boost: 55 },
@@ -174,7 +174,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         ],
         forbiddenTerms: ["cure", "treat", "diagnose", "prevents injury", "cures inflammation", "prevents disease"],
         disclaimers: [
-            "The Cryo Chamber is designed to support recovery and wellness goals and is not intended to diagnose, treat, cure, or prevent any disease. Contraindicated for individuals with Raynaud's disease, cold urticaria, cryoglobulinemia, cardiovascular conditions, during pregnancy, or with open wounds. Consult your healthcare provider before use."
+            "The Cryo Chamber is designed to support recovery and wellness goals for general wellbeing. It is contraindicated for individuals with Raynaud's disease, cold urticaria, cryoglobulinemia, cardiovascular conditions, during pregnancy, or with open wounds. Consult a qualified healthcare professional before use."
         ],
         synergies: [
             { target: "SAUNA_BLANKET", label: "Hot-Cold Contrast", description: "Alternating cryo and infrared creates powerful cardiovascular conditioning", boost: 50 },
@@ -190,7 +190,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         tags: ["HBOT", "Compliance", "Safety", "Legal"],
         approvedClaims: ["Optimizes cellular oxygenation", "Supports mitochondrial efficiency", "Enhances ATP energy production", "Aids in reducing oxidative stress", "Supports post-workout recovery", "Helps flush metabolic waste (lactate)", "Promotes natural regeneration cycles", "Supports cognitive clarity and focus", "Revitalizes energy levels", "Promotes deep relaxation", "Supports healthy circulation"],
         forbiddenTerms: ["Cures Cancer", "Treats Autism / ASD", "Heals Lyme Disease", "Prevents Alzheimer's", "Fixes Long COVID", "Guaranteed healing", "Reverses aging", "Alternative to surgery"],
-        disclaimers: ["Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease."],
+        disclaimers: ["Hylono technology is designed for wellness and bio-optimization in a general-wellbeing context. Confirm suitability with a qualified healthcare professional before use."],
         synergies: [        {
             target: "PEMF",
             label: "Electromagnetic Priming",
@@ -219,7 +219,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         tags: ["Hydrogen", "Compliance", "Safety", "Selective Antioxidant"],
         approvedClaims: ["Provides selective antioxidant support against oxidative stress", "Helps maintain physiological redox homeostasis", "Supports cognitive clarity and neurological wellness", "Assists in optimizing metabolic vitality", "Promotes natural recovery from physical exertion"],
         forbiddenTerms: ["Cures Diabetes", "Treats Alzheimer's", "Eliminates systemic inflammation", "Guarantees 20% increase in athletic output", "Reverses cellular damage"],
-        disclaimers: ["Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease."],
+        disclaimers: ["Hylono technology is designed for wellness and bio-optimization in a general-wellbeing context. Confirm suitability with a qualified healthcare professional before use."],
         synergies: [        {
             target: "HBOT",
             label: "Oxidative Balance",
@@ -248,7 +248,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         tags: ["PEMF", "Compliance", "Safety", "Cellular Energy"],
         approvedClaims: ["Supports cellular energy optimization", "Encourages healthy microcirculation", "Helps manage daily stress through electromagnetic support", "Uses Earth-mimicking Schumann resonance for relaxation", "Supports natural recovery and regeneration"],
         forbiddenTerms: ["Cures chronic pain", "Heals broken bones", "Treats fibromyalgia", "Alternative to physical therapy", "Instant relief from inflammation"],
-        disclaimers: ["Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease."],
+        disclaimers: ["Hylono technology is designed for wellness and bio-optimization in a general-wellbeing context. Confirm suitability with a qualified healthcare professional before use."],
         synergies: [        {
             target: "HBOT",
             label: "Electromagnetic Priming",
@@ -277,7 +277,7 @@ export const KNOWLEDGE_REGISTRY: Record<string, KnowledgePack> = {
         tags: ["RLT", "PBM", "Compliance", "Safety", "Mitochondrial Health"],
         approvedClaims: ["Supports mitochondrial energy production (ATP)", "Promotes a healthy, radiant glow and skin resilience", "Assists in post-exercise recovery and fatigue management", "Helps regulate natural sleep-wake cycles through light exposure", "Enhances cellular vitality and resilience"],
         forbiddenTerms: ["Cures skin cancer", "Treats eczema", "Improves eyesight", "Cures chronic inflammation", "Permanent fat loss"],
-        disclaimers: ["Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease."],
+        disclaimers: ["Hylono technology is designed for wellness and bio-optimization in a general-wellbeing context. Confirm suitability with a qualified healthcare professional before use."],
         synergies: [        {
             target: "HBOT",
             label: "Mitochondrial Cascading",

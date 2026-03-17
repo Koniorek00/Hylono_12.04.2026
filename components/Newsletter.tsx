@@ -148,8 +148,8 @@ export const NewsletterSection: React.FC = () => {
                 )}
 
                 {homeError && (
-                    <div className="flex items-start gap-2 mt-4 text-amber-400 text-xs text-left max-w-md mx-auto">
-                        <AlertTriangle size={14} className="shrink-0 mt-0.5" />
+                    <div role="alert" className="flex items-start gap-2 mt-4 text-amber-400 text-xs text-left max-w-md mx-auto">
+                        <AlertTriangle size={14} className="shrink-0 mt-0.5" aria-hidden="true" />
                         <span>{homeError}</span>
                     </div>
                 )}

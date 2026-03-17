@@ -1,0 +1,5 @@
+/*
+ * Canonical app-level global stylesheet entry for Next.js App Router.
+ * Theme tokens and global utilities are owned in /index.css (Tailwind v4 CSS-first).
+ */
+@import '../index.css';

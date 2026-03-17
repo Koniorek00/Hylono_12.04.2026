@@ -20,14 +20,14 @@ export const featureFlags = {
   feature_account_rentals: false,
 
   // Protocols
-  feature_protocols_listing: false,
-  feature_protocols_detail: false,
+  feature_protocols_listing: true,
+  feature_protocols_detail: true,
 
   // Builder
   feature_builder: true,
 
   // Goals/Conditions
-  feature_condition_pages: false,
+  feature_condition_pages: true,
 
   // Navigation
   feature_nav_goals: false,
@@ -52,7 +52,7 @@ export const featureFlags = {
   feature_financing_page: false,
   feature_onboarding: false,
   feature_referral: false,
-  feature_research_library: false,
+  feature_research_library: true,
   feature_videos_page: false,
 
   // Checkout

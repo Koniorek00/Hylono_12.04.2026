@@ -2,11 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { BlogArticle } from '@/components/BlogArticle';
-
-const toPath = (page: string) => {
-  if (page.startsWith('/')) return page;
-  return page === 'home' ? '/' : `/${page}`;
-};
+import { navigateToPage, navigateWithScroll } from '@/src/lib/navigation';
 
 export function BlogArticleClient({ slug }: { slug: string }) {
   const router = useRouter();
@@ -15,12 +11,10 @@ export function BlogArticleClient({ slug }: { slug: string }) {
     <BlogArticle
       slug={slug}
       onBack={() => {
-        router.push('/blog');
-        window.scrollTo(0, 0);
+        navigateWithScroll(router, '/blog');
       }}
       onNavigate={(page) => {
-        router.push(toPath(page));
-        window.scrollTo(0, 0);
+        navigateToPage(router, page);
       }}
     />
   );

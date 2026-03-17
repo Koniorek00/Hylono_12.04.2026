@@ -1,0 +1,10 @@
+@import "./motion-core.css";
+@import "./motion-typography.css";
+
+/*
+  MED-01 modularization complete:
+  - motion-core.css keeps animation keyframes/utilities
+  - motion-typography.css keeps typography utility classes
+  Keep additional keyframes route-scoped when possible.
+*/
+

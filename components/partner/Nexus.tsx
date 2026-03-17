@@ -641,6 +641,9 @@ export const Nexus: React.FC = () => {
                         {selectedClient && (
                             <motion.div
                                 key={`mobile-${selectedClient.id}`}
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label="Client details"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 20 }}

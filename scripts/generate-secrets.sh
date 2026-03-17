@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
-ENV_FILE=".env"
-EXAMPLE=".env.example"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+STACK_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="$STACK_DIR/.env"
+EXAMPLE="$STACK_DIR/.env.example"
 
 if [ -f "$ENV_FILE" ]; then
   echo ".env already exists. Skipping."

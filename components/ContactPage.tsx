@@ -90,13 +90,11 @@ export const ContactPage: React.FC = () => {
         if (!selectedDate) return;
 
         setSelectedSlot(slot);
-        const dateStr = selectedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
         setTimeout(() => {
             setShowCallbackModal(false);
             setSelectedDate(null);
             // TODO: connect to /api/callback endpoint when implemented
-            window.alert(`Callback scheduled for ${dateStr} at ${slot}`);
         }, 500);
     };
 
@@ -125,6 +123,9 @@ export const ContactPage: React.FC = () => {
                         onClick={() => setShowEmergencyModal(false)}
                     >
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="emergency-modal-title"
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
@@ -132,8 +133,8 @@ export const ContactPage: React.FC = () => {
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex items-center gap-4 text-red-600 mb-4">
-                                <AlertTriangle size={32} />
-                                <h3 className="text-xl font-bold">Medical Emergency Warning</h3>
+                                <AlertTriangle size={32} aria-hidden="true" />
+                                <h3 id="emergency-modal-title" className="text-xl font-bold">Medical Emergency Warning</h3>
                             </div>
                             <p className="text-slate-600 mb-6">
                                 It looks like you might be describing a medical emergency.
@@ -169,6 +170,9 @@ export const ContactPage: React.FC = () => {
                         onClick={() => setShowCallbackModal(false)}
                     >
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="callback-modal-title"
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
@@ -177,7 +181,7 @@ export const ContactPage: React.FC = () => {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h3 className="text-2xl font-bold text-slate-900">Schedule a Callback</h3>
+                                    <h3 id="callback-modal-title" className="text-2xl font-bold text-slate-900">Schedule a Callback</h3>
                                     <p className="text-slate-500">Pick a 15-minute slot that works for you.</p>
                                 </div>
                                 <div className="p-3 bg-cyan-50 rounded-full text-cyan-600">
@@ -251,8 +255,8 @@ export const ContactPage: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-16"
                 >
-                    <h1 className="text-5xl font-bold text-slate-900 mb-4">Contact Us</h1>
-                    <p className="text-xl text-slate-500">We're here to help with your regeneration journey</p>
+                    <h1 id="contact-hero-headline" className="text-5xl font-bold text-slate-900 mb-4">Contact Us</h1>
+                    <p id="contact-hero-description" className="text-xl text-slate-500">We're here to help with your regeneration journey</p>
                 </motion.div>
 
                 <div className="grid md:grid-cols-2 gap-12">
@@ -513,7 +517,7 @@ export const ContactPage: React.FC = () => {
                                     ) : (
                                     <>
                                             {submitError && (
-                                                <p className="ml-auto text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+                                                <p role="alert" className="ml-auto text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
                                                     {submitError}
                                                 </p>
                                             )}

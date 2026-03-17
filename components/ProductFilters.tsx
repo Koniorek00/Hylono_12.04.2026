@@ -234,6 +234,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                             onClick={() => setIsOpen(false)}
                         />
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="product-filters-title"
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
@@ -242,9 +245,9 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
                         >
                             <div className="p-6">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-xl font-bold text-slate-900">Filters</h2>
-                                    <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-slate-100 rounded-lg">
-                                        <X size={24} />
+                                    <h2 id="product-filters-title" className="text-xl font-bold text-slate-900">Filters</h2>
+                                    <button onClick={() => setIsOpen(false)} aria-label="Close filters" className="p-2 hover:bg-slate-100 rounded-lg">
+                                        <X size={24} aria-hidden="true" />
                                     </button>
                                 </div>
 

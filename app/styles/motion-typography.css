@@ -1,0 +1,47 @@
+/* ===== TYPOGRAPHY SYSTEM ===== */
+
+/* Syncopate Font Classes */
+.syncopate-regular {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.syncopate-bold {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* All heading and title treatments use Syncopate */
+h1, h2, h3, h4, h5, h6,
+.heading,
+.title,
+.section-title,
+.page-title,
+.hero-title,
+.futuristic-font {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Heading weight variations */
+h3, h4, h5, h6 {
+  font-weight: 400;
+}
+
+/* Description text - optimized for readability (elderly users) */
+.description,
+.prose p,
+[data-description] {
+  font-family: var(--font-description);
+  font-size: var(--text-description);
+  line-height: var(--leading-description);
+  font-weight: 400;
+}
+
+/* Large description variant */
+.description-lg {
+  font-size: var(--text-description-lg);
+}

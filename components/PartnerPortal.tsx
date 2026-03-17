@@ -208,18 +208,18 @@ export const PartnerPortal: React.FC = () => {
                     >
                         <h2 className="text-xl font-bold text-slate-900 mb-6">Partner Application</h2>
                         <form onSubmit={handleApplicationSubmit} className="grid md:grid-cols-2 gap-4">
-                            <input placeholder="Company Name" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                            <input placeholder="Contact Name" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                            <input placeholder="Email" type="email" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                            <input placeholder="Phone" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                            <select className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none text-slate-600">
+                            <input aria-label="Company Name" placeholder="Company Name" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <input aria-label="Contact Name" placeholder="Contact Name" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <input aria-label="Email" placeholder="Email" type="email" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <input aria-label="Phone" placeholder="Phone" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <select aria-label="Partnership Type" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none text-slate-600">
                                 <option>Partnership Type</option>
                                 <option>Clinic Partner</option>
                                 <option>Distributor</option>
                                 <option>Integrator</option>
                             </select>
-                            <input placeholder="Country" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                            <textarea placeholder="Tell us about your business..." className="md:col-span-2 px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none h-24 resize-none" />
+                            <input aria-label="Country" placeholder="Country" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <textarea aria-label="Tell us about your business" placeholder="Tell us about your business..." className="md:col-span-2 px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none h-24 resize-none" />
                             <button type="submit" className="md:col-span-2 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800">
                                 Submit Application
                             </button>

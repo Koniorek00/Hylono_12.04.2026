@@ -145,15 +145,15 @@ export const CartSidebar: React.FC<{ isOpen: boolean; onClose: () => void; onChe
                                                 <h3 className="font-medium text-slate-900 text-sm">{item.name}</h3>
                                                 <p className="text-cyan-600 font-bold">{item.price.toLocaleString()} PLN</p>
                                                 <div className="flex items-center gap-2 mt-2">
-                                                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 bg-white rounded border flex items-center justify-center">
-                                                        <Minus size={14} />
+                                                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label={`Decrease quantity of ${item.name}`} className="w-7 h-7 bg-white rounded border flex items-center justify-center">
+                                                        <Minus size={14} aria-hidden="true" />
                                                     </button>
-                                                    <span className="w-8 text-center text-sm">{item.quantity}</span>
-                                                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 bg-white rounded border flex items-center justify-center">
-                                                        <Plus size={14} />
+                                                    <span className="w-8 text-center text-sm" aria-live="polite">{item.quantity}</span>
+                                                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)} aria-label={`Increase quantity of ${item.name}`} className="w-7 h-7 bg-white rounded border flex items-center justify-center">
+                                                        <Plus size={14} aria-hidden="true" />
                                                     </button>
-                                                    <button onClick={() => removeItem(item.id)} className="ml-auto text-red-400 hover:text-red-600">
-                                                        <Trash2 size={16} />
+                                                    <button onClick={() => removeItem(item.id)} aria-label={`Remove ${item.name} from cart`} className="ml-auto text-red-400 hover:text-red-600">
+                                                        <Trash2 size={16} aria-hidden="true" />
                                                     </button>
                                                 </div>
                                             </div>

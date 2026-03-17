@@ -13,11 +13,11 @@ import { createJSONStorage, persist, type StateStorage } from 'zustand/middlewar
 
 export type ToolId = 'navigator' | 'reading' | 'support' | 'focus';
 
-export type TextSize = 'xs' | 'sm' | 'default' | 'lg' | 'xl';
+export type TextSize = 'xs' | 'sm' | 'default' | 'lg';
 
 export type LineHeight = 'compact' | 'default' | 'relaxed' | 'loose';
 
-export type ReadingFont = 'default' | 'dyslexic' | 'mono';
+export type ReadingFont = 'default' | 'dyslexic';
 
 export interface MultitoolPosition {
   x: number;
@@ -72,10 +72,9 @@ const TEXT_SIZE_VALUES: Record<TextSize, string> = {
   sm: '100%',
   default: '120%',
   lg: '140%',
-  xl: '160%',
 };
 
-const TEXT_SIZE_ORDER: TextSize[] = ['xs', 'sm', 'default', 'lg', 'xl'];
+const TEXT_SIZE_ORDER: TextSize[] = ['xs', 'sm', 'default', 'lg'];
 
 // Line height values
 const LINE_HEIGHT_VALUES: Record<LineHeight, string> = {
@@ -91,8 +90,67 @@ const LINE_HEIGHT_ORDER: LineHeight[] = ['compact', 'default', 'relaxed', 'loose
 const FONT_FAMILIES: Record<ReadingFont, string> = {
   default: "'Outfit', sans-serif",
   dyslexic: "'OpenDyslexic', 'OpenDyslexicAlta', 'Lexie Readable', sans-serif",
-  mono: "'JetBrains Mono', 'Fira Code', monospace",
 };
+
+const isTextSize = (value: unknown): value is TextSize =>
+  typeof value === 'string' && value in TEXT_SIZE_VALUES;
+
+const isLineHeight = (value: unknown): value is LineHeight =>
+  typeof value === 'string' && value in LINE_HEIGHT_VALUES;
+
+const isReadingFont = (value: unknown): value is ReadingFont =>
+  typeof value === 'string' && value in FONT_FAMILIES;
+
+const normalizeTextSize = (value: unknown): TextSize => (isTextSize(value) ? value : 'sm');
+
+const normalizeLineHeight = (value: unknown): LineHeight =>
+  isLineHeight(value) ? value : 'default';
+
+const normalizeReadingFont = (value: unknown): ReadingFont =>
+  isReadingFont(value) ? value : 'default';
+
+const sanitizePersistedMultitoolStorage = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    const raw = window.localStorage.getItem('hylono-multitool');
+    if (!raw) {
+      return;
+    }
+
+    const parsed = JSON.parse(raw) as
+      | {
+          state?: Partial<MultitoolState>;
+          version?: number;
+        }
+      | null;
+
+    if (!parsed?.state) {
+      return;
+    }
+
+    const sanitized = {
+      ...parsed,
+      state: {
+        ...parsed.state,
+        textSize: normalizeTextSize(parsed.state.textSize),
+        lineHeight: normalizeLineHeight(parsed.state.lineHeight),
+        readingFont: normalizeReadingFont(parsed.state.readingFont),
+      },
+    };
+
+    const sanitizedRaw = JSON.stringify(sanitized);
+    if (sanitizedRaw !== raw) {
+      window.localStorage.setItem('hylono-multitool', sanitizedRaw);
+    }
+  } catch {
+    // Ignore malformed storage and let Zustand continue with defaults.
+  }
+};
+
+sanitizePersistedMultitoolStorage();
 
 const DEFAULT_POSITION: MultitoolPosition = { x: 0, y: 0 };
 
@@ -118,18 +176,24 @@ const initialState = {
 };
 
 // Apply reading preferences to DOM
-const applyReadingPreferences = (textSize: TextSize, lineHeight: LineHeight, font: ReadingFont) => {
+const applyReadingPreferences = (
+  textSize: TextSize | string,
+  lineHeight: LineHeight | string,
+  font: ReadingFont | string,
+) => {
   const root = document.documentElement;
-  root.style.fontSize = TEXT_SIZE_VALUES[textSize];
-  root.style.setProperty('--reading-line-height', LINE_HEIGHT_VALUES[lineHeight]);
-  root.style.setProperty('--reading-font', FONT_FAMILIES[font]);
+  const resolvedTextSize = normalizeTextSize(textSize);
+  const resolvedLineHeight = normalizeLineHeight(lineHeight);
+  const resolvedFont = normalizeReadingFont(font);
+
+  root.style.fontSize = TEXT_SIZE_VALUES[resolvedTextSize];
+  root.style.setProperty('--reading-line-height', LINE_HEIGHT_VALUES[resolvedLineHeight]);
+  root.style.setProperty('--reading-font', FONT_FAMILIES[resolvedFont]);
   
   // Apply font class to body
   document.body.classList.remove('font-dyslexic', 'font-mono');
-  if (font === 'dyslexic') {
+  if (resolvedFont === 'dyslexic') {
     document.body.classList.add('font-dyslexic');
-  } else if (font === 'mono') {
-    document.body.classList.add('font-mono');
   }
 };
 
@@ -244,6 +308,17 @@ export const useMultitoolStore = create<MultitoolState>()(
     {
       name: 'hylono-multitool',
       storage: createJSONStorage(() => (typeof window !== 'undefined' ? localStorage : noopStorage)),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<MultitoolState> | undefined;
+
+        return {
+          ...currentState,
+          ...persisted,
+          textSize: normalizeTextSize(persisted?.textSize ?? currentState.textSize),
+          lineHeight: normalizeLineHeight(persisted?.lineHeight ?? currentState.lineHeight),
+          readingFont: normalizeReadingFont(persisted?.readingFont ?? currentState.readingFont),
+        };
+      },
       partialize: (state) => ({
         isOpen: state.isOpen,
         textSize: state.textSize,
@@ -254,7 +329,15 @@ export const useMultitoolStore = create<MultitoolState>()(
       // Rehydrate on load
       onRehydrateStorage: () => (state) => {
         if (state) {
-          applyReadingPreferences(state.textSize, state.lineHeight, state.readingFont);
+          const textSize = normalizeTextSize(state.textSize);
+          const lineHeight = normalizeLineHeight(state.lineHeight);
+          const readingFont = normalizeReadingFont(state.readingFont);
+
+          state.textSize = textSize;
+          state.lineHeight = lineHeight;
+          state.readingFont = readingFont;
+
+          applyReadingPreferences(textSize, lineHeight, readingFont);
           if (state.highContrast) {
             document.body.classList.add('high-contrast-mode');
           }

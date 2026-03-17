@@ -6,6 +6,8 @@
 
 import { z } from 'zod';
 import { env } from '@/lib/env';
+import { bookingRequestsTable } from '@/lib/db/schema';
+import { getDb, isDatabaseConfigured } from '@/lib/db/client';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface BookingRequest {
@@ -26,20 +28,19 @@ interface BookingResponse {
     bookingRef?: string;
 }
 
-function isValidDate(dateStr: string): boolean {
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return false;
-    // Must be in the future
-    return date > new Date();
+interface ResendSendPayload {
+    from: string;
+    to: string[];
+    reply_to: string;
+    subject: string;
+    text: string;
 }
 
 const bookingSchema = z.object({
     name: z.string().trim().min(2, 'Please enter your full name.').max(100),
     email: z.string().trim().email('Please enter a valid email address.'),
     phone: z.string().trim().max(30).optional(),
-    preferredDate: z.string().trim().optional().refine((date) => !date || isValidDate(date), {
-        message: 'Preferred date must be a future date.',
-    }),
+    preferredDate: z.string().trim().max(100).optional(),
     preferredTime: z.string().trim().max(20).optional(),
     timezone: z.string().trim().max(80).optional().default('Europe/Amsterdam'),
     techInterest: z.string().trim().max(50).optional(),
@@ -72,46 +73,122 @@ export async function POST(request: Request): Promise<Response> {
         // --- Sanitize ---
         const sanitized = {
             name: sanitizeText(name, 100),
-            email: email.trim().toLowerCase(),
-            phone: phone ? sanitizeText(phone, 30) : undefined,
+            email: sanitizeText(email, {
+                maxLength: 254,
+                context: 'email',
+            }),
+            phone: phone
+                ? sanitizeText(phone, {
+                    maxLength: 30,
+                    context: 'phone',
+                })
+                : undefined,
             preferredDate,
             preferredTime,
             timezone,
             techInterest: techInterest ? sanitizeText(techInterest, 50) : undefined,
-            notes: notes ? sanitizeText(notes, 1000) : undefined,
+            notes: notes
+                ? sanitizeText(notes, {
+                    maxLength: 1000,
+                    context: 'multiline',
+                })
+                : undefined,
             bookingType,
         };
 
         // Generate booking reference
         const bookingRef = `BK-${Date.now().toString(36).toUpperCase()}`;
 
-        if (!env.DATABASE_URL) {
+        if (!isDatabaseConfigured()) {
+            console.error('[booking] DATABASE_URL missing; cannot persist booking request', {
+                bookingRef,
+            });
+
             return Response.json(
                 {
                     success: false,
-                    message: 'Booking endpoint is not implemented on this environment.',
+                    message: 'Booking channel is temporarily unavailable. Please try again shortly.',
                 } satisfies BookingResponse,
-                { status: 501 }
+                { status: 503 }
             );
         }
 
-        // --- Create booking record ---
-        // TODO: Integrate with your calendar/booking system.
-        // Options:
-        //   - Calendly API: Create an invitee for a specific event type
-        //   - Cal.com API: Create a booking
-        //   - Google Calendar API: Create an event with attendee
-        //   - Store in Prisma DB: await prisma.booking.create({ data: { ...sanitized, ref: bookingRef } })
-        //
-        // Also send confirmation email to the customer:
-        // await sendEmail({
-        //     to: sanitized.email,
-        //     subject: `[${bookingRef}] Your Hylono consultation is confirmed`,
-        //     template: 'booking-confirmation',
-        //     data: { name: sanitized.name, date: sanitized.preferredDate, ref: bookingRef },
-        // });
+        const db = getDb();
+        await db.insert(bookingRequestsTable).values({
+            id: crypto.randomUUID(),
+            bookingRef,
+            name: sanitized.name,
+            email: sanitized.email,
+            phone: sanitized.phone,
+            preferredDate: sanitized.preferredDate,
+            preferredTime: sanitized.preferredTime,
+            timezone: sanitized.timezone,
+            techInterest: sanitized.techInterest,
+            notes: sanitized.notes,
+            bookingType: sanitized.bookingType,
+        });
 
-        console.info(`[booking] Booking request accepted ${bookingRef}: ${sanitized.bookingType} for ${sanitized.email}`);
+        const resendApiKey = env.RESEND_API_KEY;
+        if (!resendApiKey) {
+            return Response.json(
+                {
+                    success: true,
+                    message: `Booking request received! Reference: ${bookingRef}. We'll confirm your slot within 24 hours.`,
+                    bookingRef,
+                } satisfies BookingResponse,
+                { status: 202 }
+            );
+        }
+
+        const bookingSummary = [
+            `Booking reference: ${bookingRef}`,
+            `Type: ${sanitized.bookingType}`,
+            `Customer: ${sanitized.name} <${sanitized.email}>`,
+            `Phone: ${sanitized.phone ?? 'N/A'}`,
+            `Preferred date: ${sanitized.preferredDate ?? 'N/A'}`,
+            `Preferred time: ${sanitized.preferredTime ?? 'N/A'}`,
+            `Timezone: ${sanitized.timezone ?? 'N/A'}`,
+            `Technology interest: ${sanitized.techInterest ?? 'N/A'}`,
+            '',
+            `Notes: ${sanitized.notes ?? 'N/A'}`,
+        ].join('\n');
+
+        const emailPayload: ResendSendPayload = {
+            from: 'Hylono Booking <contact@hylono.eu>',
+            to: ['contact@hylono.eu'],
+            reply_to: sanitized.email,
+            subject: `[${bookingRef}] ${sanitized.bookingType} request`,
+            text: bookingSummary,
+        };
+
+        const resendResponse = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${resendApiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emailPayload),
+        });
+
+        if (!resendResponse.ok) {
+            const resendErrorText = await resendResponse.text();
+            console.error('[booking] Resend send failed', {
+                bookingRef,
+                status: resendResponse.status,
+                body: resendErrorText,
+            });
+
+            return Response.json(
+                {
+                    success: true,
+                    message: `Booking request received! Reference: ${bookingRef}. We'll confirm your slot within 24 hours.`,
+                    bookingRef,
+                } satisfies BookingResponse,
+                { status: 202 }
+            );
+        }
+
+        console.info(`[booking] Booking request accepted: ref=${bookingRef}, type=${sanitized.bookingType}`);
 
         return Response.json(
             {

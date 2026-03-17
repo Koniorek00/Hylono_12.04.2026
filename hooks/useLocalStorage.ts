@@ -202,7 +202,11 @@ export function useLocalStorage<T>(
     // Check if value exists
     const exists = useCallback((): boolean => {
         if (typeof window === 'undefined') return false;
-        return window.localStorage.getItem(key) !== null;
+        try {
+            return window.localStorage.getItem(key) !== null;
+        } catch {
+            return false;
+        }
     }, [key]);
 
     // Clear all localStorage

@@ -2,11 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { RentalCheckoutPage } from '@/components/RentalCheckoutPage';
-
-const toPath = (page: string) => {
-  if (page.startsWith('/')) return page;
-  return page === 'home' ? '/' : `/${page}`;
-};
+import { navigateToPage } from '@/src/lib/navigation';
 
 export function RentalCheckoutClient() {
   const router = useRouter();
@@ -14,8 +10,7 @@ export function RentalCheckoutClient() {
   return (
     <RentalCheckoutPage
       onNavigate={(page) => {
-        router.push(toPath(page));
-        window.scrollTo(0, 0);
+        navigateToPage(router, page);
       }}
     />
   );

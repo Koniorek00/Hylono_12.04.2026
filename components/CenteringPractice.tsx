@@ -88,6 +88,9 @@ export const CenteringPractice: React.FC<CenteringPracticeProps> = ({
         <AnimatePresence>
             {isOpen && (
                 <motion.div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Centering practice"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -96,8 +99,8 @@ export const CenteringPractice: React.FC<CenteringPracticeProps> = ({
                     <div className="absolute inset-0 bg-slate-50" />
 
                     <div className="relative z-10 text-center">
-                        <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-slate-600">
-                            <X size={24} />
+                        <button onClick={onClose} aria-label="Close centering practice" className="absolute top-8 right-8 text-slate-400 hover:text-slate-600">
+                            <X size={24} aria-hidden="true" />
                         </button>
 
                         {/* Breathing Orb */}

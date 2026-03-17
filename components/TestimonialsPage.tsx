@@ -1,23 +1,91 @@
+"use client";
+
 import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Star, ArrowRight, Quote } from 'lucide-react';
 import { NavigateFunction } from '../types';
+import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
 
-interface TestimonialsPageProps { onNavigate: NavigateFunction; }
+interface TestimonialsPageProps {
+    onNavigate: NavigateFunction;
+}
 
 const TESTIMONIALS = [
-    { name: 'Dr. Marcus Van den Berg', role: 'Performance Physician, Amsterdam', modality: 'HBOT', quote: 'I added the HBOT chamber to my clinic 14 months ago. The patient outcomes have been exceptional — particularly for neurological recovery and post-surgical rehab. The Hylono support team is unmatched.', rating: 5, initials: 'MV', gradient: 'from-blue-500 to-cyan-500' },
-    { name: 'Sophie L.', role: 'Triathlete, Lyon', modality: 'PEMF + RLT', quote: 'I rent two modalities — PEMF and red light. My recovery windows have dropped dramatically. I\'m back in full training within 24 hours of a race now. Genuinely changed my career trajectory.', rating: 5, initials: 'SL', gradient: 'from-orange-400 to-red-500' },
-    { name: 'Clinic Director, Vienna', role: 'Wellness Centre Owner', modality: 'Full Stack', quote: 'We kitted out our entire clinic through Hylono\'s wholesale programme. The training for our staff was thorough, the devices are rock solid, and our client retention has improved significantly.', rating: 5, initials: 'CD', gradient: 'from-purple-500 to-violet-500' },
-    { name: 'Tomasz K.', role: 'Longevity Enthusiast, Warsaw', modality: 'Hydrogen Inhalation', quote: 'I was sceptical about H2 therapy, but within 6 weeks my inflammation markers dropped significantly. The 30-day guarantee gave me the confidence to try it. Kept it. No regrets.', rating: 5, initials: 'TK', gradient: 'from-teal-500 to-emerald-500' },
-    { name: 'Elena R.', role: 'Functional Medicine Practitioner, Madrid', modality: 'HBOT + PEMF', quote: 'I prescribe Hylono protocols to my clients as part of comprehensive treatment plans. The evidence base, the device quality, and the protocol support ecosystem are far ahead of the competition.', rating: 5, initials: 'ER', gradient: 'from-pink-500 to-rose-500' },
-    { name: 'James O.', role: 'Biohacker & Tech Founder, London', modality: 'HBOT', quote: 'I was sceptical, so the 30-day guarantee was the only reason I pulled the trigger. Ended up keeping it. Results were undeniable within 2 weeks — clarity, sleep, recovery. All improved.', rating: 5, initials: 'JO', gradient: 'from-cyan-500 to-blue-600' },
+    {
+        name: 'Dr. Marcus Van den Berg',
+        role: 'Performance Consultant, Amsterdam',
+        modality: 'HBOT',
+        quote: 'I added the HBOT chamber to my clinic 14 months ago. We observed encouraging user-reported progress, especially in post-surgical rehabilitation support pathways. The Hylono onboarding and documentation quality has been excellent.',
+        rating: 5,
+        initials: 'MV',
+        gradient: 'from-blue-500 to-cyan-500',
+    },
+    {
+        name: 'Sophie L.',
+        role: 'Triathlete, Lyon',
+        modality: 'PEMF + RLT',
+        quote: 'I rent two modalities, PEMF and red light. Over several weeks, my recovery routine felt more structured and I was able to return to training with better consistency. The protocol guidance helped me stay disciplined.',
+        rating: 5,
+        initials: 'SL',
+        gradient: 'from-orange-400 to-red-500',
+    },
+    {
+        name: 'Clinic Director, Vienna',
+        role: 'Wellness Centre Owner',
+        modality: 'Full Stack',
+        quote: "We expanded our clinic offering through Hylono's wholesale programme. Staff training was thorough, devices have been reliable, and client engagement with our wellness programmes has improved.",
+        rating: 5,
+        initials: 'CD',
+        gradient: 'from-purple-500 to-violet-500',
+    },
+    {
+        name: 'Tomasz K.',
+        role: 'Longevity Enthusiast, Warsaw',
+        modality: 'Hydrogen Inhalation',
+        quote: 'I was sceptical about hydrogen inhalation, but the trial period helped me evaluate it safely. After six weeks, I noticed better routine consistency and decided to keep the system.',
+        rating: 5,
+        initials: 'TK',
+        gradient: 'from-teal-500 to-emerald-500',
+    },
+    {
+        name: 'Elena R.',
+        role: 'Functional Wellness Practitioner, Madrid',
+        modality: 'HBOT + PEMF',
+        quote: 'I include Hylono protocols in broader client wellness plans where appropriate. The evidence summaries, device quality, and support ecosystem make it easier to deploy responsibly in a structured workflow.',
+        rating: 5,
+        initials: 'ER',
+        gradient: 'from-pink-500 to-rose-500',
+    },
+    {
+        name: 'James O.',
+        role: 'Biohacker & Tech Founder, London',
+        modality: 'HBOT',
+        quote: 'I started with the trial window to evaluate fit. Within the first weeks, I noticed improvements in sleep routine consistency and subjective recovery, so I chose to continue.',
+        rating: 5,
+        initials: 'JO',
+        gradient: 'from-cyan-500 to-blue-600',
+    },
 ];
 
 const CASE_STUDIES = [
-    { title: 'Triathlon Recovery Protocol', tag: 'PEMF + RLT', result: '40% faster recovery time', desc: 'A professional triathlete implemented a dual-modality protocol combining PEMF stimulation and red light photobiomodulation. Recovery windows dropped from 72 hours to under 48 hours across a 12-week season.' },
-    { title: 'Post-Surgical Rehabilitation', tag: 'HBOT', result: '3x faster tissue repair', desc: 'A 54-year-old patient used mild HBOT as an adjunct to standard physiotherapy following knee replacement surgery. Surgeon noted significantly accelerated tissue healing at the 8-week assessment.' },
-    { title: 'Executive Cognitive Performance', tag: 'H2 + PEMF', result: 'Sustained focus improvement', desc: 'A C-suite executive implemented a morning hydrogen inhalation and PEMF stack. Self-reported cognitive performance scores increased by 31% over 60 days using validated assessment tools.' },
+    {
+        title: 'Triathlon Recovery Protocol',
+        tag: 'PEMF + RLT',
+        result: 'Shorter recovery intervals reported',
+        desc: 'A professional triathlete implemented a dual-modality protocol combining PEMF stimulation and red light photobiomodulation. Across a 12-week season, self-reported recovery windows trended downward compared with their previous baseline.',
+    },
+    {
+        title: 'Post-Surgical Rehabilitation',
+        tag: 'HBOT',
+        result: 'Encouraging rehabilitation support trend',
+        desc: 'A 54-year-old user incorporated mild HBOT alongside standard physiotherapy following knee replacement surgery. Progress notes suggested results consistent with structured adherence and multidisciplinary follow-up.',
+    },
+    {
+        title: 'Executive Cognitive Performance',
+        tag: 'H2 + PEMF',
+        result: 'Sustained focus routine improvements',
+        desc: 'A C-suite executive implemented a morning hydrogen inhalation and PEMF stack. Self-reported cognitive performance scores trended upward over 60 days using repeated assessment prompts.',
+    },
 ];
 
 export const TestimonialsPage: React.FC<TestimonialsPageProps> = ({ onNavigate }) => {
@@ -25,55 +93,92 @@ export const TestimonialsPage: React.FC<TestimonialsPageProps> = ({ onNavigate }
     const [filter, setFilter] = useState<string>('All');
     const modalities = ['All', 'HBOT', 'PEMF', 'PEMF + RLT', 'Hydrogen', 'Full Stack'];
 
-    const filtered = filter === 'All' ? TESTIMONIALS : TESTIMONIALS.filter(t => t.modality.includes(filter));
+    const filtered =
+        filter === 'All' ? TESTIMONIALS : TESTIMONIALS.filter((testimonial) => testimonial.modality.includes(filter));
 
     return (
         <div className="min-h-screen bg-white">
-            <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-950 text-white py-24 px-6 overflow-hidden">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-                <div className="max-w-4xl mx-auto text-center relative z-10">
-                    <motion.div initial={reduced ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-950 px-6 py-24 text-white">
+                <div className="pointer-events-none absolute top-0 right-0 h-[600px] w-[600px] rounded-full bg-cyan-500/5 blur-3xl" />
+                <div className="relative z-10 mx-auto max-w-4xl text-center">
+                    <motion.div
+                        initial={reduced ? false : { opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-yellow-400">
                             <Star size={12} /> Verified Reviews
                         </span>
-                        <h1 className="text-5xl md:text-6xl font-black mb-6 futuristic-font leading-tight">
-                            Results That<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-yellow-400">Speak for Themselves</span>
+                        <h1 className="mb-6 text-5xl font-black leading-tight futuristic-font md:text-6xl">
+                            Results That
+                            <br />
+                            <span className="bg-gradient-to-r from-cyan-400 to-yellow-400 bg-clip-text text-transparent">
+                                Speak for Themselves
+                            </span>
                         </h1>
-                        <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                            From elite athletes to functional medicine practitioners — real people, real results, real data.
+                        <p className="mx-auto max-w-2xl text-xl leading-relaxed text-slate-300">
+                            From elite athletes to functional wellness practitioners, experience-led
+                            stories show how people integrate structured wellness protocols.
                         </p>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Testimonials */}
-            <section className="py-20 px-6 bg-white">
-                <div className="max-w-6xl mx-auto">
-                    <div className="flex flex-wrap gap-3 justify-center mb-12">
-                        {modalities.map(m => (
-                            <button key={m} onClick={() => setFilter(m)}
-                                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${filter === m ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                                {m}
+            <section className="bg-white px-6 py-20">
+                <div className="mx-auto max-w-6xl">
+                    <div className="mb-12 flex flex-wrap justify-center gap-3">
+                        {modalities.map((modality) => (
+                            <button
+                                key={modality}
+                                onClick={() => setFilter(modality)}
+                                className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                                    filter === modality
+                                        ? 'bg-slate-900 text-white'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                }`}
+                            >
+                                {modality}
                             </button>
                         ))}
                     </div>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filtered.map((t, i) => (
-                            <motion.div key={t.name} initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                                className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                                <Quote size={20} className="text-slate-200 mb-4" />
-                                <div className="flex gap-0.5 mb-4">
-                                    {Array.from({ length: t.rating }).map((_, j) => <Star key={j} size={13} className="fill-yellow-400 text-yellow-400" />)}
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {filtered.map((testimonial, index) => (
+                            <motion.div
+                                key={testimonial.name}
+                                initial={reduced ? false : { opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.08 }}
+                                className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm transition-shadow hover:shadow-md"
+                            >
+                                <Quote size={20} className="mb-4 text-slate-200" />
+                                <div className="mb-4 flex gap-0.5">
+                                    {Array.from({ length: testimonial.rating }).map((_, ratingIndex) => (
+                                        <Star
+                                            key={ratingIndex}
+                                            size={13}
+                                            className="fill-yellow-400 text-yellow-400"
+                                        />
+                                    ))}
                                 </div>
-                                <p className="text-slate-600 text-sm italic leading-relaxed mb-6">"{t.quote}"</p>
-                                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                                    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center text-white font-bold text-xs`}>{t.initials}</div>
-                                    <div>
-                                        <p className="font-bold text-slate-900 text-sm">{t.name}</p>
-                                        <p className="text-xs text-slate-400">{t.role}</p>
+                                <p className="mb-6 text-sm italic leading-relaxed text-slate-600">
+                                    "{testimonial.quote}"
+                                </p>
+                                <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
+                                    <div
+                                        className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${testimonial.gradient} text-xs font-bold text-white`}
+                                    >
+                                        {testimonial.initials}
                                     </div>
-                                    <span className="ml-auto text-[10px] font-bold uppercase tracking-wider text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-full">{t.modality}</span>
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-900">
+                                            {testimonial.name}
+                                        </p>
+                                        <p className="text-xs text-slate-400">{testimonial.role}</p>
+                                    </div>
+                                    <span className="ml-auto rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-600">
+                                        {testimonial.modality}
+                                    </span>
                                 </div>
                             </motion.div>
                         ))}
@@ -81,32 +186,61 @@ export const TestimonialsPage: React.FC<TestimonialsPageProps> = ({ onNavigate }
                 </div>
             </section>
 
-            {/* Case Studies */}
-            <section className="py-20 px-6 bg-slate-50">
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-14">
-                        <span className="text-xs font-bold uppercase tracking-[0.35em] text-slate-400">Clinical Outcomes</span>
-                        <h2 className="text-3xl font-bold text-slate-900 mt-3 futuristic-font">Case Studies</h2>
+            <section className="bg-slate-50 px-6 py-20">
+                <div className="mx-auto max-w-5xl">
+                    <div className="mb-14 text-center">
+                        <span className="text-xs font-bold uppercase tracking-[0.35em] text-slate-400">
+                            Practice Outcomes
+                        </span>
+                        <h2 className="mt-3 text-3xl font-bold text-slate-900 futuristic-font">
+                            Case Studies
+                        </h2>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {CASE_STUDIES.map((cs, i) => (
-                            <motion.div key={cs.title} initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                                className="bg-white rounded-3xl p-8 border border-slate-100">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">{cs.tag}</span>
-                                <h3 className="font-bold text-slate-900 mt-4 mb-2">{cs.title}</h3>
-                                <p className="text-2xl font-black text-cyan-500 mb-4">{cs.result}</p>
-                                <p className="text-slate-500 text-sm leading-relaxed">{cs.desc}</p>
+                    <div className="grid gap-6 md:grid-cols-3">
+                        {CASE_STUDIES.map((caseStudy, index) => (
+                            <motion.div
+                                key={caseStudy.title}
+                                initial={reduced ? false : { opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.1 }}
+                                className="rounded-3xl border border-slate-100 bg-white p-8"
+                            >
+                                <span className="rounded-full bg-purple-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-purple-600">
+                                    {caseStudy.tag}
+                                </span>
+                                <h3 className="mt-4 mb-2 font-bold text-slate-900">
+                                    {caseStudy.title}
+                                </h3>
+                                <p className="mb-4 text-2xl font-black text-cyan-500">
+                                    {caseStudy.result}
+                                </p>
+                                <p className="text-sm leading-relaxed text-slate-500">
+                                    {caseStudy.desc}
+                                </p>
                             </motion.div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            <section className="py-20 px-6 bg-gradient-to-br from-slate-900 to-cyan-950 text-white text-center">
-                <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl font-bold mb-4 futuristic-font">Start Your Story</h2>
-                    <p className="text-slate-300 mb-8 text-sm">Join 2,500+ people who have transformed their performance with Hylono. 30-day guarantee. Zero risk.</p>
-                    <button onClick={() => onNavigate('store')} className="inline-flex items-center gap-2 px-10 py-4 bg-white text-slate-900 rounded-2xl font-bold uppercase tracking-widest text-sm hover:bg-slate-100 transition-colors shadow-xl">
+            <section className="px-6 pb-4">
+                <div className="mx-auto max-w-5xl">
+                    <MedicalDisclaimer type="testimonial" showCitationDisclaimer variant="info" />
+                </div>
+            </section>
+
+            <section className="bg-gradient-to-br from-slate-900 to-cyan-950 px-6 py-20 text-center text-white">
+                <div className="mx-auto max-w-3xl">
+                    <h2 className="mb-4 text-3xl font-bold futuristic-font">Start Your Story</h2>
+                    <p className="mb-8 text-sm text-slate-300">
+                        Join 2,500+ people building more consistent wellness routines with Hylono.
+                        30-day evaluation window. Terms apply.
+                    </p>
+                    <button
+                        onClick={() => onNavigate('store')}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-white px-10 py-4 text-sm font-bold uppercase tracking-widest text-slate-900 shadow-xl transition-colors hover:bg-slate-100"
+                    >
                         Shop Devices <ArrowRight size={15} />
                     </button>
                 </div>
@@ -114,4 +248,3 @@ export const TestimonialsPage: React.FC<TestimonialsPageProps> = ({ onNavigate }
         </div>
     );
 };
-

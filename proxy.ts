@@ -1,11 +1,17 @@
 import arcjet, { detectBot, shield, type ArcjetBotCategory } from '@arcjet/next';
 import * as nosecone from '@nosecone/next';
 import { NextRequest, NextResponse } from 'next/server';
+import { getBlogPostBySlug } from './lib/blog';
+import { conditionGoalBySlug } from './content/conditions';
+import { protocolBySlug } from './content/protocols';
+import {
+    getTechRouteSlug,
+    getTechTypeFromRouteSlug,
+    LEGACY_PRODUCT_ROUTE_REDIRECTS,
+} from './lib/product-routes';
 import { readRuntimeEnv } from './lib/env';
 
-const EU_LOCALES = ['en', 'de', 'pl', 'nl'] as const;
 const AUTH_PROTECTED_PREFIXES = ['/dashboard', '/account', '/partner'] as const;
-const BOT_UA_PATTERN = /(googlebot|bingbot|duckduckbot|baiduspider|yandexbot|slurp|facebookexternalhit|twitterbot|linkedinbot|applebot)/i;
 const BOT_ALLOW_LIST: ArcjetBotCategory[] = ['CATEGORY:SEARCH_ENGINE'];
 const CSP_CONNECT_SOURCES = [
     'https://eu.i.posthog.com',
@@ -13,6 +19,12 @@ const CSP_CONNECT_SOURCES = [
 ] as const;
 const NEXT_INLINE_BOOTSTRAP_SCRIPT_HASH =
     "'sha256-7mu4H06fwDCjmnxxr/xNHyuQC6pLTHr4M2E4jXw5WZs='";
+const NEXT_RENDER_TIMING_SCRIPT_HASH =
+    "'sha256-B4nomcLy87+8Sl1HZWbqw3Y85Yd1EEHdZsYWYiDmlhM='";
+const NEXT_STREAMING_INLINE_SCRIPT_HASH =
+    "'sha256-gyoCZzNah8wEykphZNKy7mjyLzh/qR5B7AfXhI6AouY='";
+const NEXT_STREAMING_INLINE_MAP_SCRIPT_HASH =
+    "'sha256-rimaae54utIpqXy4SfzTCYOBzW44nNmADdqfIGg1pkE='";
 
 const ARCJET_KEY = readRuntimeEnv('ARCJET_KEY');
 const ARCJET_MODE = ARCJET_KEY ? 'LIVE' : 'DRY_RUN';
@@ -49,28 +61,105 @@ type ConsentRecord = {
     marketing?: boolean;
 };
 
-const getPreferredLocale = (acceptLanguage: string | null): (typeof EU_LOCALES)[number] => {
-    if (!acceptLanguage) return 'en';
-
-    const normalized = acceptLanguage
-        .split(',')
-        .map((part) => part.trim().split(';')[0]?.toLowerCase())
-        .filter((part): part is string => Boolean(part));
-
-    for (const lang of normalized) {
-        const base = lang.split('-')[0];
-        if (base && EU_LOCALES.includes(base as (typeof EU_LOCALES)[number])) {
-            return base as (typeof EU_LOCALES)[number];
-        }
-    }
-
-    return 'en';
-};
-
 const isProtectedPath = (pathname: string): boolean =>
     AUTH_PROTECTED_PREFIXES.some(
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
     );
+
+type SeoRouteResolution =
+    | { kind: 'ok' }
+    | { kind: 'redirect'; location: URL }
+    | { kind: 'not-found'; location: URL };
+
+const createSeoRouteResolver = (request: NextRequest): SeoRouteResolution => {
+    const { pathname, search } = request.nextUrl;
+    const withSameOriginPath = (targetPath: string): URL => new URL(`${targetPath}${search}`, request.url);
+    const notFoundLocation = (): URL => new URL('/_not-found', request.url);
+    const getSingleSegment = (prefix: string): string | null => {
+        if (!pathname.startsWith(`${prefix}/`)) return null;
+
+        const segment = pathname.slice(prefix.length + 1);
+        if (!segment || segment.includes('/')) return null;
+
+        return decodeURIComponent(segment);
+    };
+
+    const productSlug = getSingleSegment('/product');
+    if (productSlug) {
+        const normalizedProductSlug = productSlug.toLowerCase();
+        const legacyRedirect =
+            LEGACY_PRODUCT_ROUTE_REDIRECTS[
+                normalizedProductSlug as keyof typeof LEGACY_PRODUCT_ROUTE_REDIRECTS
+            ];
+
+        if (legacyRedirect) {
+            return {
+                kind: 'redirect',
+                location: withSameOriginPath(`/product/${legacyRedirect}`),
+            };
+        }
+
+        const techType = getTechTypeFromRouteSlug(normalizedProductSlug);
+        if (!techType) {
+            return { kind: 'not-found', location: notFoundLocation() };
+        }
+
+        const canonicalSlug = getTechRouteSlug(techType);
+        if (productSlug !== canonicalSlug) {
+            return {
+                kind: 'redirect',
+                location: withSameOriginPath(`/product/${canonicalSlug}`),
+            };
+        }
+    }
+
+    const conditionSlug = getSingleSegment('/conditions');
+    if (conditionSlug) {
+        const canonicalConditionSlug = conditionSlug.toLowerCase();
+        if (!conditionGoalBySlug[canonicalConditionSlug]) {
+            return { kind: 'not-found', location: notFoundLocation() };
+        }
+
+        if (conditionSlug !== canonicalConditionSlug) {
+            return {
+                kind: 'redirect',
+                location: withSameOriginPath(`/conditions/${canonicalConditionSlug}`),
+            };
+        }
+    }
+
+    const protocolSlug = getSingleSegment('/protocols');
+    if (protocolSlug) {
+        const canonicalProtocolSlug = protocolSlug.toLowerCase();
+        if (!protocolBySlug[canonicalProtocolSlug]) {
+            return { kind: 'not-found', location: notFoundLocation() };
+        }
+
+        if (protocolSlug !== canonicalProtocolSlug) {
+            return {
+                kind: 'redirect',
+                location: withSameOriginPath(`/protocols/${canonicalProtocolSlug}`),
+            };
+        }
+    }
+
+    const blogSlug = getSingleSegment('/blog');
+    if (blogSlug) {
+        const canonicalBlogSlug = blogSlug.toLowerCase();
+        if (!getBlogPostBySlug(canonicalBlogSlug)) {
+            return { kind: 'not-found', location: notFoundLocation() };
+        }
+
+        if (blogSlug !== canonicalBlogSlug) {
+            return {
+                kind: 'redirect',
+                location: withSameOriginPath(`/blog/${canonicalBlogSlug}`),
+            };
+        }
+    }
+
+    return { kind: 'ok' };
+};
 
 const parseConsentCookie = (rawValue: string | undefined): ConsentRecord => {
     if (!rawValue) return {};
@@ -91,11 +180,20 @@ const createNonce = (): string => btoa(crypto.randomUUID());
 const applyNonceToCsp = (cspHeader: string, nonce: string): string => {
     const nonceAdjusted = cspHeader.replace(/'nonce-[^']+'/g, `'nonce-${nonce}'`);
 
-    return nonceAdjusted.replace(/script-src([^;]*);/i, (fullMatch, directiveValue) =>
-        directiveValue.includes(NEXT_INLINE_BOOTSTRAP_SCRIPT_HASH)
-            ? fullMatch
-            : `script-src${directiveValue} ${NEXT_INLINE_BOOTSTRAP_SCRIPT_HASH};`
-    );
+    return nonceAdjusted.replace(/script-src([^;]*);/i, (fullMatch, directiveValue) => {
+        const requiredHashes = [
+            NEXT_INLINE_BOOTSTRAP_SCRIPT_HASH,
+            NEXT_RENDER_TIMING_SCRIPT_HASH,
+            NEXT_STREAMING_INLINE_SCRIPT_HASH,
+            NEXT_STREAMING_INLINE_MAP_SCRIPT_HASH,
+        ].filter((hash) => !directiveValue.includes(hash));
+
+        if (requiredHashes.length === 0) {
+            return fullMatch;
+        }
+
+        return `script-src${directiveValue} ${requiredHashes.join(' ')};`;
+    });
 };
 
 type SecurityHeaders = {
@@ -161,8 +259,6 @@ const withNoseconeHeaders = (
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
     const { pathname, searchParams } = request.nextUrl;
-    const userAgent = request.headers.get('user-agent') ?? '';
-    const isBotTraffic = BOT_UA_PATTERN.test(userAgent);
     const nonce = createNonce();
     const securityHeaders = await resolveSecurityHeaders(nonce);
 
@@ -174,6 +270,23 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         }
     }
 
+    const seoRouteResolution = createSeoRouteResolver(request);
+    if (seoRouteResolution.kind === 'redirect') {
+        return withNoseconeHeaders(
+            NextResponse.redirect(seoRouteResolution.location, { status: 308 }),
+            securityHeaders,
+            nonce
+        );
+    }
+
+    if (seoRouteResolution.kind === 'not-found') {
+        return withNoseconeHeaders(
+            NextResponse.rewrite(seoRouteResolution.location, { status: 404 }),
+            securityHeaders,
+            nonce
+        );
+    }
+
     // 2) Auth route protection (cookie-based proxy check)
     if (isProtectedPath(pathname) && !hasSessionCookie(request)) {
         const loginUrl = new URL('/login', request.url);
@@ -183,17 +296,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         return withNoseconeHeaders(NextResponse.redirect(loginUrl), securityHeaders, nonce);
     }
 
-    // 3) Geo-locale detection (bot-safe): redirect root visitors to locale hint URL
-    if (!isBotTraffic && pathname === '/' && !searchParams.has('hl')) {
-        const preferredLocale = getPreferredLocale(request.headers.get('accept-language'));
-        if (preferredLocale !== 'en') {
-            const localizedUrl = new URL(request.url);
-            localizedUrl.searchParams.set('hl', preferredLocale);
-            return withNoseconeHeaders(NextResponse.redirect(localizedUrl), securityHeaders, nonce);
-        }
-    }
-
-    // 4) GDPR tracking gate cookies (default denied unless explicit cookie consent indicates granted)
+    // 3) GDPR tracking gate cookies (default denied unless explicit cookie consent indicates granted)
     const consent = parseConsentCookie(request.cookies.get('cookieConsent')?.value);
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-nonce', nonce);
@@ -234,3 +337,16 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
     return withNoseconeHeaders(response, securityHeaders, nonce);
 }
+
+export const config = {
+    matcher: [
+        {
+            source:
+                '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map|txt|xml|woff|woff2|ttf)$).*)',
+            missing: [
+                { type: 'header', key: 'next-router-prefetch' },
+                { type: 'header', key: 'purpose', value: 'prefetch' },
+            ],
+        },
+    ],
+};

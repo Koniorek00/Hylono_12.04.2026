@@ -15,6 +15,7 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
     const [orderId, setOrderId] = useState<string | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [intendedUseAttestation, setIntendedUseAttestation] = useState(false);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'card' | 'bank_transfer' | 'financing'>('card');
 
     const checkoutTrustEnabled = useFeatureFlag('feature_checkout_trust');
 
@@ -78,7 +79,7 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                     </p>
                     {orderId && <p className="text-sm text-slate-400 mb-8">{checkoutContent.success.orderPrefix} {orderId}</p>}
                     <button
-                        onClick={() => onNavigate('order-success')}
+                        onClick={() => onNavigate('account')}
                         className="px-8 py-4 bg-slate-900 text-white rounded-xl font-bold"
                     >
                         {checkoutContent.success.cta}
@@ -147,18 +148,21 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                     </h2>
                                     <div className="grid grid-cols-2 gap-4">
                                         <input
+                                            aria-label={checkoutContent.shipping.firstName}
                                             placeholder={checkoutContent.shipping.firstName}
                                             value={shipping.firstName}
                                             onChange={(event) => setShipping({ ...shipping, firstName: event.target.value })}
                                             className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none min-h-11"
                                         />
                                         <input
+                                            aria-label={checkoutContent.shipping.lastName}
                                             placeholder={checkoutContent.shipping.lastName}
                                             value={shipping.lastName}
                                             onChange={(event) => setShipping({ ...shipping, lastName: event.target.value })}
                                             className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none min-h-11"
                                         />
                                         <input
+                                            aria-label={checkoutContent.shipping.email}
                                             placeholder={checkoutContent.shipping.email}
                                             type="email"
                                             value={shipping.email}
@@ -166,24 +170,28 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                             className="col-span-2 px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none min-h-11"
                                         />
                                         <input
+                                            aria-label={checkoutContent.shipping.phone}
                                             placeholder={checkoutContent.shipping.phone}
                                             value={shipping.phone}
                                             onChange={(event) => setShipping({ ...shipping, phone: event.target.value })}
                                             className="col-span-2 px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none min-h-11"
                                         />
                                         <input
+                                            aria-label={checkoutContent.shipping.streetAddress}
                                             placeholder={checkoutContent.shipping.streetAddress}
                                             value={shipping.address}
                                             onChange={(event) => setShipping({ ...shipping, address: event.target.value })}
                                             className="col-span-2 px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none min-h-11"
                                         />
                                         <input
+                                            aria-label={checkoutContent.shipping.city}
                                             placeholder={checkoutContent.shipping.city}
                                             value={shipping.city}
                                             onChange={(event) => setShipping({ ...shipping, city: event.target.value })}
                                             className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none min-h-11"
                                         />
                                         <input
+                                            aria-label={checkoutContent.shipping.postalCode}
                                             placeholder={checkoutContent.shipping.postalCode}
                                             value={shipping.postalCode}
                                             onChange={(event) => setShipping({ ...shipping, postalCode: event.target.value })}
@@ -212,21 +220,21 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                     </h2>
                                     <div className="space-y-4">
                                         <label className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-cyan-500 min-h-11">
-                                            <input type="radio" name="payment" defaultChecked className="accent-cyan-500" />
+                                            <input type="radio" name="payment" value="card" checked={selectedPaymentMethod === 'card'} onChange={() => setSelectedPaymentMethod('card')} className="accent-cyan-500" />
                                             <div className="flex-1">
                                                 <span className="font-medium">{checkoutContent.payment.cardTitle}</span>
                                                 <p className="text-xs text-slate-400">{checkoutContent.payment.cardDescription}</p>
                                             </div>
                                         </label>
                                         <label className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-cyan-500 min-h-11">
-                                            <input type="radio" name="payment" className="accent-cyan-500" />
+                                            <input type="radio" name="payment" value="bank_transfer" checked={selectedPaymentMethod === 'bank_transfer'} onChange={() => setSelectedPaymentMethod('bank_transfer')} className="accent-cyan-500" />
                                             <div className="flex-1">
                                                 <span className="font-medium">{checkoutContent.payment.bankTransferTitle}</span>
                                                 <p className="text-xs text-slate-400">{checkoutContent.payment.bankTransferDescription}</p>
                                             </div>
                                         </label>
                                         <label className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-cyan-500 min-h-11">
-                                            <input type="radio" name="payment" className="accent-cyan-500" />
+                                            <input type="radio" name="payment" value="financing" checked={selectedPaymentMethod === 'financing'} onChange={() => setSelectedPaymentMethod('financing')} className="accent-cyan-500" />
                                             <div className="flex-1">
                                                 <span className="font-medium">{checkoutContent.payment.financingTitle}</span>
                                                 <p className="text-xs text-slate-400">{checkoutContent.payment.financingFromPrefix} {Math.round(total / 36).toLocaleString()} {checkoutContent.payment.financingPerMonthSuffix}</p>
@@ -317,7 +325,7 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                                 )}
                                             />
                                             <input type="hidden" name="shippingJson" value={JSON.stringify(shipping)} />
-                                            <input type="hidden" name="paymentMethod" value="card" />
+                                            <input type="hidden" name="paymentMethod" value={selectedPaymentMethod} />
                                             <button
                                                 type="submit"
                                                 disabled={checkoutPending || (checkoutTrustEnabled && !intendedUseAttestation)}

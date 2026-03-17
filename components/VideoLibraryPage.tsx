@@ -189,10 +189,10 @@ export const VideoLibraryPage: React.FC<VideoLibraryPageProps> = ({ onNavigate }
             </section>
 
             {selectedVideo && (
-                <div className="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto" role="dialog" aria-modal="true">
+                <div className="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
                     <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 overflow-hidden">
                         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="font-semibold text-slate-900">{selectedVideo.title}</h3>
+                            <h3 id="video-modal-title" className="font-semibold text-slate-900">{selectedVideo.title}</h3>
                             <button
                                 onClick={() => setSelectedVideo(null)}
                                 className="min-h-11 min-w-11 px-3 py-2 rounded-lg border border-slate-200 text-slate-600"

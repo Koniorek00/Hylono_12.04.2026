@@ -52,7 +52,7 @@ export const EducationSender: React.FC = () => {
                     <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-slate-900">Patient Education Hub</h3>
+                    <h3 className="font-bold text-slate-900">Client Education Hub</h3>
                     <p className="text-xs text-slate-500">Send knowledge resources to improve retention</p>
                 </div>
             </div>
@@ -87,7 +87,7 @@ export const EducationSender: React.FC = () => {
                 {/* Sender Form */}
                 <form onSubmit={handleSend} className="pt-4 border-t border-slate-100">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">
-                        Send to Patient (Mobile or Email)
+                        Send to Client (Mobile or Email)
                     </label>
                     <div className="flex gap-2">
                         <input

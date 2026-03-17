@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { SmartText } from '../SmartText';
 import { BlogPost, BLOG_POSTS, RESEARCH_STUDIES } from '../../constants/content';
+import { toBlogSlug } from '@/lib/blog';
 
 const deterministicMetric = (seed: number, min: number, max: number): number => {
     const normalized = Math.abs(Math.sin(seed * 12.9898) * 43758.5453) % 1;
@@ -33,10 +34,10 @@ const MentionCard: React.FC<MentionCardProps> = ({ type, id, position }) => {
     // Mock data lookup - in production this would query the actual databases
     const cardData = {
         machine: {
-            HBOT: { title: 'HBOT Chamber', desc: 'Hyperbaric Oxygen Therapy', color: 'from-cyan-500 to-blue-600', link: '/tech/HBOT' },
-            PEMF: { title: 'PEMF Mat', desc: 'Pulsed Electromagnetic Field', color: 'from-purple-500 to-pink-600', link: '/tech/PEMF' },
-            RLT: { title: 'Red Light Panel', desc: 'Red Light Therapy', color: 'from-red-500 to-orange-600', link: '/tech/RLT' },
-            HYDROGEN: { title: 'Hydrogen Generator', desc: 'Molecular Hydrogen', color: 'from-sky-500 to-teal-600', link: '/tech/HYDROGEN' }
+            HBOT: { title: 'HBOT Chamber', desc: 'Hyperbaric Oxygen Therapy', color: 'from-cyan-500 to-blue-600', link: '/product/hbot' },
+            PEMF: { title: 'PEMF Mat', desc: 'Pulsed Electromagnetic Field', color: 'from-purple-500 to-pink-600', link: '/product/pemf' },
+            RLT: { title: 'Red Light Panel', desc: 'Red Light Therapy', color: 'from-red-500 to-orange-600', link: '/product/rlt' },
+            HYDROGEN: { title: 'Hydrogen Generator', desc: 'Molecular Hydrogen', color: 'from-sky-500 to-teal-600', link: '/product/hydrogen' }
         }
     };
 
@@ -134,7 +135,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
 
     // Copy link
     const copyLink = () => {
-        navigator.clipboard.writeText(window.location.origin + `/blog/${post.id}`);
+        navigator.clipboard.writeText(window.location.origin + `/blog/${toBlogSlug(post.title)}`).catch(() => null);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -151,6 +152,9 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
     // === RENDER ===
     return (
         <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="article-reader-title"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -171,7 +175,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
                         onClick={onClose}
                         className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={20} aria-hidden="true" />
                         <span className="text-sm font-medium">Back to Hub</span>
                     </button>
 
@@ -184,33 +188,36 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
                         {/* Audio Toggle */}
                         <button
                             onClick={toggleReading}
+                            aria-label={isReading ? 'Stop reading' : 'Read aloud'}
                             className={`p-2 rounded-lg transition-all ${isReading
                                     ? 'bg-cyan-100 text-cyan-700'
                                     : 'hover:bg-slate-100 text-slate-500'
                                 }`}
-                            title={isReading ? 'Stop reading' : 'Read aloud'}
                         >
-                            {isReading ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                            {isReading ? <VolumeX size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
                         </button>
 
                         {/* Bookmark */}
                         <button
                             onClick={() => setIsBookmarked(!isBookmarked)}
+                            aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark article'}
                             className={`p-2 rounded-lg transition-all ${isBookmarked
                                     ? 'bg-amber-100 text-amber-700'
                                     : 'hover:bg-slate-100 text-slate-500'
                                 }`}
                         >
-                            {isBookmarked ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
+                            {isBookmarked ? <BookmarkCheck size={18} aria-hidden="true" /> : <Bookmark size={18} aria-hidden="true" />}
                         </button>
 
                         {/* Share */}
                         <div className="relative">
                             <button
                                 onClick={() => setShowShareMenu(!showShareMenu)}
+                                aria-label="Share article"
+                                aria-expanded={showShareMenu}
                                 className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-all"
                             >
-                                <Share2 size={18} />
+                                <Share2 size={18} aria-hidden="true" />
                             </button>
 
                             <AnimatePresence>
@@ -271,12 +278,12 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
                         </div>
 
                         {/* Title */}
-                        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
+                        <h1 id="article-reader-title" className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
                             {post.title}
                         </h1>
 
                         {/* Excerpt */}
-                        <p className="text-xl text-slate-500 leading-relaxed">
+                        <p id="article-reader-excerpt" className="text-xl text-slate-500 leading-relaxed">
                             <SmartText>{post.excerpt}</SmartText>
                         </p>
 
@@ -384,9 +391,10 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
                     {/* Scroll to top */}
                     <button
                         onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                        aria-label="Scroll to top"
                         className="p-2 bg-slate-100 rounded-lg text-slate-500 hover:bg-slate-200 transition-all"
                     >
-                        <ChevronUp size={18} />
+                        <ChevronUp size={18} aria-hidden="true" />
                     </button>
 
                     <button
@@ -411,7 +419,7 @@ function getFullContent(post: BlogPost): string {
     // In a real app, this would come from a CMS or database
     const contentTemplates: Record<string, string> = {
         'HBOT': `
-The science of hyperbaric oxygen therapy represents one of the most exciting frontiers in regenerative medicine and bio-optimization.
+The science of hyperbaric oxygen therapy represents one of the most compelling frontiers in research-backed wellness support and bio-optimization.
 
 ## How HBOT Works
 
@@ -423,7 +431,7 @@ When you enter a hyperbaric chamber, atmospheric pressure increases to 1.3-2.0 A
 
 **Stem Cell Mobilization**: Research suggests that HBOT may support the body's natural stem cell production, potentially enhancing regenerative capacity.
 
-**Inflammation Modulation**: The increased oxygen availability may help modulate inflammatory responses, supporting the body's natural healing processes.
+**Inflammation Modulation**: The increased oxygen availability may help modulate inflammatory responses, supporting the body's natural recovery responses.
 
 ## Practical Applications
 
@@ -433,7 +441,7 @@ Many wellness-focused individuals incorporate HBOT into their routines for:
 - General wellness maintenance
 - Travel recovery (jet lag support)
 
-*Note: Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease.*
+*Note: Hylono technology is presented for wellness planning and educational review. It is not positioned as disease-management equipment, and suitability should be confirmed with a qualified healthcare professional.*
         `,
         'PEMF': `
 Pulsed Electromagnetic Field therapy works by delivering electromagnetic pulses that interact with your body's natural electrical systems.
@@ -456,7 +464,7 @@ PEMF sessions can be seamlessly integrated into your routine:
 - Evening sessions may support relaxation and sleep quality
 - Pre/post-workout sessions may enhance recovery
 
-*Note: Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease.*
+*Note: Hylono technology is presented for wellness planning and educational review. It is not positioned as disease-management equipment, and suitability should be confirmed with a qualified healthcare professional.*
         `,
         'RLT': `
 Red light therapy (photobiomodulation) harnesses specific wavelengths of light to support cellular health at the mitochondrial level.
@@ -485,7 +493,7 @@ At the heart of RLT's mechanism is the mitochondria - your cellular powerhouses.
 - Morning light exposure may help circadian rhythm
 - Post-workout application may support recovery
 
-*Note: Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease.*
+*Note: Hylono technology is presented for wellness planning and educational review. It is not positioned as disease-management equipment, and suitability should be confirmed with a qualified healthcare professional.*
         `,
         'Hydrogen': `
 Molecular hydrogen (H2) represents a unique approach to antioxidant support, with properties that set it apart from traditional antioxidants.
@@ -515,7 +523,7 @@ Many bio-optimizers pair hydrogen with other modalities:
 - Post-workout (for recovery support)
 - During high-stress periods
 
-*Note: Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease.*
+*Note: Hylono technology is presented for wellness planning and educational review. It is not positioned as disease-management equipment, and suitability should be confirmed with a qualified healthcare professional.*
         `,
         'Protocols': `
 The art of protocol stacking lies in understanding how different modalities can work together synergistically.
@@ -543,7 +551,7 @@ Not everyone needs the full protocol every day. Consider:
 - **Cognitive focus**: HBOT + Hydrogen
 - **Deep regeneration**: Full stack
 
-*Note: Hylono technology is designed for wellness and bio-optimization. It is not intended to diagnose, treat, cure, or prevent any disease.*
+*Note: Hylono technology is presented for wellness planning and educational review. It is not positioned as disease-management equipment, and suitability should be confirmed with a qualified healthcare professional.*
         `
     };
 
@@ -551,4 +559,3 @@ Not everyone needs the full protocol every day. Consider:
 }
 
 export default ArticleReader;
-

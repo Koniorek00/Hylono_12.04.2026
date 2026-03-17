@@ -157,7 +157,7 @@ export const UnsubscribePage: React.FC<UnsubscribePageProps> = ({ onNavigate }) 
                                 </div>
 
                                 {emailError && (
-                                    <p className="text-red-400 text-sm">{emailError}</p>
+                                    <p role="alert" className="text-red-400 text-sm">{emailError}</p>
                                 )}
 
                                 <button

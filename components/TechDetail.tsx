@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ViewMode, TechType, ChamberType } from '../types';
 import { HbotVisual, PemfVisual, RltVisual, HydrogenVisual } from './Visualizations';
-import { ArrowLeft, ArrowRight, Play, CheckCircle, Shield, Zap, Brain, Activity, Wind, Sun, Droplets, Sparkles, ChevronDown, ChevronUp, Clock, AlertTriangle, Calendar, Phone, Star, Quote, Moon, Sunrise, Building2, TrendingUp, Users, Pill, BarChart2, Target, FlaskConical, BookOpen, Truck, Video, ChevronRight, Flame, Thermometer, Radio, Mountain, Snowflake, Package, Headphones, Eye, Ear, Leaf, Heart, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Play, CheckCircle, Shield, Zap, Brain, Activity, Wind, Sun, Droplets, Sparkles, ChevronDown, ChevronUp, Clock, AlertTriangle, Phone, Star, Quote, Moon, Sunrise, Building2, TrendingUp, Users, Pill, BarChart2, Target, FlaskConical, BookOpen, Video, ChevronRight, Flame, Thermometer, Radio, Mountain, Snowflake, Package, Headphones, Eye, Ear, Leaf, Heart, X } from 'lucide-react';
 import { SmartText } from './SmartText';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTech } from '../hooks/useTech';
-import { ProductStructuredData, BreadcrumbStructuredData } from './StructuredData';
 import { TechAddons } from './product/detail/TechAddons';
 import { TechHero } from './product/detail/TechHero';
 import { productById } from '../content/products';
@@ -25,7 +25,12 @@ import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { pdpCommerceContent } from '../content/pdpCommerce';
 import { ChamberCompare5, ChamberCompareDock5 } from './ChamberCompare5';
 import { OptimizedImage } from './shared/OptimizedImage';
+import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
 import { useCart } from './Cart';
+import { ResearchOverviewSection } from './product/detail/ResearchOverviewSection';
+import { TechDetailDeliverySection } from './product/detail/TechDetailDeliverySection';
+import { TechDetailTimelineSection } from './product/detail/TechDetailTimelineSection';
+import { RESULT_TIMELINES } from './product/detail/resultTimelines';
 
 function renderChamberDescription(text: string): React.ReactNode {
     return text.split('\n').map((line, i) => {
@@ -113,6 +118,27 @@ const HBOT_TYPE_LABELS: Record<ChamberType, string> = {
     multiplace: 'Multiplace',
     soft: 'Soft Chamber',
 };
+
+const TECH_ROUTE_CLUSTER_LINKS: Partial<
+    Record<TechType, Array<{ href: string; label: string }>>
+> = {
+    [TechType.HBOT]: [
+        { href: '/conditions/recovery', label: 'Recovery condition' },
+        { href: '/conditions/vitality', label: 'Vitality condition' },
+    ],
+    [TechType.PEMF]: [
+        { href: '/conditions/recovery', label: 'Recovery condition' },
+        { href: '/conditions/sleep', label: 'Sleep condition' },
+    ],
+    [TechType.RLT]: [
+        { href: '/conditions/comfort', label: 'Comfort condition' },
+        { href: '/conditions/recovery', label: 'Recovery condition' },
+    ],
+    [TechType.HYDROGEN]: [
+        { href: '/conditions/stress', label: 'Stress condition' },
+        { href: '/conditions/vitality', label: 'Vitality condition' },
+    ],
+};
 const HBOT_TYPE_BADGE_CLASSES: Record<ChamberType, string> = {
     monoplace: 'bg-blue-100 text-blue-700',
     multiplace: 'bg-violet-100 text-violet-700',
@@ -197,6 +223,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
     const isExpert = mode === ViewMode.EXPERT;
     const gradientClass = TECH_GRADIENTS[data.id];
     const productDocuments = batch3DocumentsByTech[data.id] ?? [];
+    const techSlug = data.id.toLowerCase();
+    const productRentalHref = `/rental?device=${techSlug}`;
+    const productContactHref = `/contact?tech=${techSlug}`;
+    const guidanceUpdatedLabel = data.lastReviewed
+        ? new Date(data.lastReviewed).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        : null;
     const rentalCommitmentMonths = parsePeriodToMonths(data.rentalTerms ?? '1 month');
     const mappedProduct = useMemo(() => {
         const productId = TECH_TO_CONTENT_PRODUCT_ID[data.id];
@@ -267,7 +299,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
             return;
         }
 
-        navigateToPage('rental/checkout');
+        navigateToPage(`rental?device=${techSlug}`);
     };
 
     const handleSwitchTrack = (track: PurchaseTrack) => {
@@ -314,60 +346,30 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
             .filter((card): card is NonNullable<typeof card> => Boolean(card))
             .filter((card) => card.modalities.some((modality) => mappedModalities.includes(modality)));
     }, [data.id]);
+    const routeClusterLinks = useMemo(() => {
+        const baseLinks = TECH_ROUTE_CLUSTER_LINKS[data.id] ?? [];
+        const protocolLinks = relatedProtocolCards.slice(0, 2).map((protocolCard) => ({
+            href: `/protocols/${protocolCard.slug}`,
+            label: protocolCard.title,
+        }));
+        const utilityLinks = [
+            { href: '/research', label: 'Research evidence' },
+            { href: '/rental', label: 'Rental planning' },
+            { href: '/contact', label: 'Talk to Hylono' },
+        ];
 
-    // Result timelines per modality
-    const RESULT_TIMELINES: Record<TechType, Array<{ phase: string; timeframe: string; outcomes: string[] }>> = {
-        [TechType.HBOT]: [
-            { phase: 'Early Response', timeframe: 'Week 1–2', outcomes: ['Improved sleep depth', 'Morning energy shift', 'Reduced brain fog'] },
-            { phase: 'Adaptation', timeframe: 'Month 1', outcomes: ['Measurable recovery speed', 'Post-workout soreness reduced by 40–60%', 'Cognitive clarity improvements'] },
-            { phase: 'Cumulative', timeframe: 'Month 3+', outcomes: ['Neurological resilience', 'Immune system optimization', 'Tissue regeneration markers'] },
-        ],
-        [TechType.PEMF]: [
-            { phase: 'Immediate', timeframe: 'Session 1–3', outcomes: ['Tension release and relaxation', 'Improved sleep onset', 'Stress reduction'] },
-            { phase: 'Consistent', timeframe: 'Week 2–4', outcomes: ['Better deep sleep architecture', 'Decreased muscle soreness', 'Energy stabilization'] },
-            { phase: 'Optimized', timeframe: 'Month 2+', outcomes: ['Chronic stress load reduction', 'Cellular voltage normalized', 'Circulatory improvements'] },
-        ],
-        [TechType.RLT]: [
-            { phase: 'Visible', timeframe: 'Week 2–3', outcomes: ['Improved skin texture and tone', 'Subtle radiance increase', 'Muscle recovery acceleration'] },
-            { phase: 'Structural', timeframe: 'Month 1', outcomes: ['Reduced fine lines', 'Collagen density increase', 'Inflammation markers reduced'] },
-            { phase: 'Long-Term', timeframe: 'Month 3+', outcomes: ['Cumulative collagen synthesis', 'Circadian rhythm optimization', 'Mitochondrial density increase'] },
-        ],
-        [TechType.HYDROGEN]: [
-            { phase: 'Within Session', timeframe: 'First 30 min', outcomes: ['Mental clarity lift', 'Reduced brain fog', 'Antioxidant protection onset'] },
-            { phase: 'Daily Use', timeframe: 'Week 1–2', outcomes: ['Consistent energy levels', 'Faster cognitive recovery', 'Improved focus duration'] },
-            { phase: 'Systemic', timeframe: 'Month 1+', outcomes: ['Systemic oxidative load reduction', 'Metabolic vitality markers', 'Nrf2 pathway upregulation'] },
-        ],
-        [TechType.EWOT]: [
-            { phase: 'Immediate', timeframe: 'First Session', outcomes: ['Post-exercise energy lift', 'Reduced breathlessness', 'Improved recovery speed'] },
-            { phase: 'Building', timeframe: 'Week 2–4', outcomes: ['Noticeable aerobic endurance gains', 'Reduced post-workout fatigue', 'Mental clarity improvement'] },
-            { phase: 'Adaptive', timeframe: 'Month 2+', outcomes: ['Measurable VO2 Max improvement', 'Microcirculatory restoration', 'Sustained energy baseline elevation'] },
-        ],
-        [TechType.SAUNA_BLANKET]: [
-            { phase: 'Immediate', timeframe: 'First Session', outcomes: ['Deep muscular relaxation', 'Tension release', 'Warmth and calm throughout body'] },
-            { phase: 'Consistent', timeframe: 'Week 1–3', outcomes: ['Improved sleep quality', 'Reduced post-exercise soreness', 'Skin radiance improvement'] },
-            { phase: 'Systemic', timeframe: 'Month 1+', outcomes: ['Cardiovascular conditioning markers', 'Heat adaptation and stress resilience', 'Sustained metabolic clearance support'] },
-        ],
-        [TechType.EMS]: [
-            { phase: 'Activation', timeframe: 'Session 1–2', outcomes: ['Novel muscle fatigue sensation (normal)', 'Deep muscle engagement felt', 'Full-body activation confirmed'] },
-            { phase: 'Adaptation', timeframe: 'Week 2–4', outcomes: ['Strength and tone improvement', 'Reduced soreness duration', 'Posture and stability gains'] },
-            { phase: 'Performance', timeframe: 'Month 2+', outcomes: ['Measurable muscle density increase', 'Metabolic rate elevation', 'Athletic performance enhancement'] },
-        ],
-        [TechType.VNS]: [
-            { phase: 'Within Session', timeframe: 'First Use', outcomes: ['Perceptible calm and relaxation', 'Reduced mental chatter', 'Heart rate deceleration'] },
-            { phase: 'Regular Use', timeframe: 'Week 1–3', outcomes: ['Improved HRV baseline', 'Faster sleep onset', 'Reduced stress reactivity'] },
-            { phase: 'Resilience', timeframe: 'Month 2+', outcomes: ['Sustained autonomic flexibility', 'Reduced inflammatory load markers', 'Emotional baseline stabilization'] },
-        ],
-        [TechType.HYPOXIC]: [
-            { phase: 'Signaling', timeframe: '48–72 hrs post-session', outcomes: ['EPO response initiated', 'Initial altitude adaptation discomfort normalizes', 'Aerobic threshold awareness sharpens'] },
-            { phase: 'Hematological', timeframe: 'Week 3–6', outcomes: ['Hemoglobin mass increase', 'VO2 Max measurably improved', 'Cardiovascular efficiency gains'] },
-            { phase: 'Peak Adaptation', timeframe: 'Month 2+', outcomes: ['Maximum mitochondrial density', 'Elite-level endurance baseline', 'Permanent aerobic capacity shift'] },
-        ],
-        [TechType.CRYO]: [
-            { phase: 'Immediate', timeframe: 'Within 30 min', outcomes: ['Norepinephrine surge and mood lift', 'Inflammation markers drop rapidly', 'Pain relief within hours'] },
-            { phase: 'Recovery', timeframe: 'Session 2–5', outcomes: ['Significantly reduced DOMS', 'Training load tolerance increase', 'Consistent energy post-session'] },
-            { phase: 'Chronic', timeframe: 'Month 1+', outcomes: ['Sustained inflammation control', 'Cold adaptation and resilience', 'Mood and stress baseline improvement'] },
-        ],
-    };
+        const seen = new Set<string>();
+
+        return [...baseLinks, ...protocolLinks, ...utilityLinks].filter((link) => {
+            if (seen.has(link.href)) {
+                return false;
+            }
+
+            seen.add(link.href);
+            return true;
+        });
+    }, [data.id, relatedProtocolCards]);
+
     const resultTimeline = RESULT_TIMELINES[data.id];
 
     const hbotChambersByType = useMemo(() => {
@@ -560,14 +562,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
 
     return (
         <div className="min-h-screen bg-white">
-            {/* JSON-LD Structured Data for SEO */}
-            <ProductStructuredData techId={techId} />
-            <BreadcrumbStructuredData items={[
-                { name: 'Home', url: 'https://hylono.com/' },
-                { name: 'Store', url: 'https://hylono.com/store' },
-                { name: data.name, url: `https://hylono.com/product/${techId}` }
-            ]} />
-
             {/* === HERO SECTION === */}
             <TechHero data={data} onBack={onBack} onNavigate={onNavigate} />
 
@@ -686,13 +680,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         )}
 
                                         <div className="mt-5">
-                                            <button
-                                                type="button"
-                                                onClick={handlePrimaryTrackAction}
-                                                className="w-full sm:w-auto min-h-11 px-8 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-[0.18em] hover:bg-slate-800 transition-colors"
+                                            <Link
+                                                href={productRentalHref}
+                                                className="inline-flex w-full sm:w-auto min-h-11 items-center justify-center px-8 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-[0.18em] hover:bg-slate-800 transition-colors"
                                             >
                                                 {pdpCommerceContent.cta.tryIt}
-                                            </button>
+                                            </Link>
                                         </div>
                                     </motion.div>
                                 )}
@@ -715,6 +708,33 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                     </div>
                 </section>
             </FeatureGate>
+
+            <section className="py-8 bg-slate-50 border-b border-slate-100">
+                <div className="max-w-6xl mx-auto px-6">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+                            Browse the route
+                        </p>
+                        <h2 className="mt-2 text-xl font-bold text-slate-900">
+                            Connect this device to conditions, research, protocols, and next steps
+                        </h2>
+                        <p className="mt-2 max-w-3xl text-sm text-slate-600">
+                            Use these direct links to move from the product detail into planning, evidence review, and practical next-step pages.
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {routeClusterLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* === HBOT TOP MODEL SPOTLIGHT === */}
             {data.id === TechType.HBOT && selectedHbotChamber && (
@@ -756,108 +776,11 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                 </section>
             )}
 
-            
-            {/* === DELIVERY INFORMATION === */}
-            <section id="delivery" className="py-6 bg-slate-50 border-b border-slate-200">
-                <div className="max-w-4xl mx-auto px-6">
-                    <button
-                        onClick={() => setShowDelivery(!showDelivery)}
-                        className="w-full flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 transition-all"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-cyan-100 rounded-lg text-cyan-600">
-                                <Truck size={20} />
-                            </div>
-                            <div className="text-left">
-                                <span className="font-bold text-slate-900 block">Delivery and Installation Information</span>
-                                <span className="text-xs text-slate-500">Shipping timelines, white-glove setup and what to expect on delivery day</span>
-                            </div>
-                        </div>
-                        {showDelivery ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
-                    </button>
-                    <AnimatePresence>
-                        {showDelivery && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="mt-4 p-6 bg-white rounded-2xl border border-slate-200 space-y-8">
-                                    <div>
-                                        <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                            <Truck size={14} className="text-cyan-500" /> Estimated Delivery Times
-                                        </h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                            {[
-                                                { region: 'European Union', flag: 'EU', days: '5-10 business days', note: 'Most orders arrive within 7 days' },
-                                                { region: 'United Kingdom', flag: 'UK', days: '7-14 business days', note: 'Customs clearance may add 1-2 days' },
-                                                { region: 'United States', flag: 'US', days: '10-21 business days', note: 'Express shipping available at checkout' },
-                                            ].map((r) => (
-                                                <div key={r.region} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                                    <div className="font-bold text-slate-900 text-sm">{r.region}</div>
-                                                    <div className="text-cyan-600 font-bold text-sm mt-1">{r.days}</div>
-                                                    <div className="text-xs text-slate-400 mt-1">{r.note}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                            <Sparkles size={14} className="text-cyan-500" /> White Glove Installation Service
-                                        </h4>
-                                        <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                                            Every {data.name} order includes our premium white-glove delivery service at no extra cost. Our certified technicians handle everything from unboxing and placement to full system calibration and your first guided session.
-                                        </p>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {[
-                                                'Professional unpacking and debris removal',
-                                                'Optimal placement consultation',
-                                                'Full system setup and calibration',
-                                                'Safety briefing and protocol walkthrough',
-                                                'First session guided by a trained specialist',
-                                                '30-day follow-up support call included',
-                                            ].map((item) => (
-                                                <div key={item} className="flex items-start gap-2 text-sm text-slate-600">
-                                                    <CheckCircle size={14} className="text-emerald-500 mt-0.5 shrink-0" />
-                                                    <span>{item}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                            <Calendar size={14} className="text-cyan-500" /> What Happens on Delivery Day
-                                        </h4>
-                                        <div className="flex flex-col gap-3">
-                                            {[
-                                                { time: 'Morning', event: 'Our logistics team calls to confirm your 2-hour arrival window' },
-                                                { time: 'On arrival', event: 'Technicians unbox and begin systematic setup in your chosen room' },
-                                                { time: 'After 2 hrs', event: 'System calibrated and ready - your specialist guides your first session' },
-                                                { time: 'Same evening', event: 'Digital setup guide and protocol library sent to your email' },
-                                            ].map((step, i) => (
-                                                <div key={i} className="flex items-start gap-4 p-3 bg-slate-50 rounded-xl">
-                                                    <span className="text-xs font-black text-cyan-600 uppercase tracking-wider w-24 shrink-0 mt-0.5">{step.time}</span>
-                                                    <span className="text-sm text-slate-600">{step.event}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="p-4 bg-cyan-50 rounded-xl border border-cyan-100 flex items-start gap-3">
-                                        <div className="p-1.5 bg-cyan-100 rounded-lg text-cyan-600 shrink-0">
-                                            <Truck size={16} />
-                                        </div>
-                                        <div>
-                                            <span className="text-sm font-bold text-cyan-900 block">Track Your Order</span>
-                                            <span className="text-xs text-cyan-700">Once shipped, you will receive a tracking link via email and SMS. Our support team is available 24/7 for delivery queries.</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </section>
+            <TechDetailDeliverySection
+                dataName={data.name}
+                showDelivery={showDelivery}
+                onToggleDelivery={() => setShowDelivery((current) => !current)}
+            />
 
 {/* === RESEARCH SOCIAL PROOF STRIP === */}
             {relatedStudy && (
@@ -973,24 +896,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                         )}
                     </AnimatePresence>
 
-                    {/* Clinical Review Badge */}
-                    {(data.lastReviewed || data.reviewedBy) && (
+                    {/* Content Freshness */}
+                    {guidanceUpdatedLabel && (
                         <div className="mt-8 pt-6 border-t border-slate-100">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-slate-400">
-                                {data.lastReviewed && (
-                                    <div className="flex items-center gap-1.5">
-                                        <CheckCircle size={12} className="text-emerald-500" />
-                                        <span>
-                                            Last clinically reviewed: {new Date(data.lastReviewed).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                                        </span>
-                                    </div>
-                                )}
-                                {data.reviewedBy && (
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="hidden sm:inline text-slate-300">|</span>
-                                        <span>Reviewed by {data.reviewedBy}</span>
-                                    </div>
-                                )}
+                            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                                <CheckCircle size={12} className="text-emerald-500" />
+                                <span>Guidance updated: {guidanceUpdatedLabel}</span>
                             </div>
                         </div>
                     )}
@@ -1022,9 +933,9 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                 <p className="text-sm font-semibold text-slate-900">{batch3PdpContent.trustHierarchy.protocolSignal}</p>
                             </div>
                             <div className="bg-white rounded-2xl border border-slate-200 p-5">
-                                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Clinical Review</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Content Status</span>
                                 <p className="text-sm font-semibold text-slate-900">
-                                    {data.reviewedBy ? `Reviewed by ${data.reviewedBy}` : 'Aligned to internal clinical safety checklist'}
+                                    {guidanceUpdatedLabel ? `Updated ${guidanceUpdatedLabel}` : 'Evidence and policy links available on this route'}
                                 </p>
                             </div>
                         </div>
@@ -1158,6 +1069,9 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     onClick={() => setShowChamberCompareModal(false)}
                                 />
                                 <motion.div
+                                    role="dialog"
+                                    aria-modal="true"
+                                    aria-labelledby="chamber-compare-modal-title"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 20 }}
@@ -1165,7 +1079,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     className="fixed inset-x-3 md:inset-x-8 top-[5vh] bottom-[5vh] z-[96] rounded-2xl border border-white/10 bg-slate-950 shadow-2xl overflow-hidden"
                                 >
                                     <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-                                        <h3 className="text-base font-bold text-white">HBOT Chamber Comparison</h3>
+                                        <h3 id="chamber-compare-modal-title" className="text-base font-bold text-white">HBOT Chamber Comparison</h3>
                                         <button
                                             type="button"
                                             onClick={() => setShowChamberCompareModal(false)}
@@ -1231,88 +1145,41 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
 
             {/* === HYDROGEN: WHAT IS H2 THERAPY? === */}
             {data.id === TechType.HYDROGEN && (
-                <section className="py-20 bg-slate-50">
-                    <div className="max-w-6xl mx-auto px-6">
-                        {/* Header */}
-                        <div className="text-center mb-14">
-                            <span className="text-[10px] text-sky-600 font-bold uppercase tracking-widest block mb-2">The Science of Small</span>
-                            <h2 className="text-4xl font-bold text-slate-900 mb-4">What is Hydrogen Therapy?</h2>
-                            <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                                Molecular hydrogen (H₂) is the smallest molecule in existence — so small it crosses every barrier in your body, including the blood-brain barrier and mitochondrial membranes. It is the only antioxidant that selectively targets the most harmful free radicals while leaving beneficial signalling molecules untouched.
-                            </p>
-                        </div>
-
-                        {/* Key Science Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-                            {[
-                                { value: '99.99%', label: 'H₂ Purity', sub: 'PEM electrolysis standard' },
-                                { value: '>1200 ppb', label: 'Water Concentration', sub: 'Per litre, therapeutic dose' },
-                                { value: '0.28 nm', label: 'Molecular Size', sub: 'Smallest therapeutic molecule' },
-                                { value: '40%+', label: 'Nrf2 Upregulation', sub: 'Endogenous antioxidant boost' },
-                            ].map((stat, i) => (
-                                <motion.div
-                                    key={stat.label}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: i * 0.1 }}
-                                    className="bg-white rounded-2xl p-6 text-center border border-sky-100 shadow-sm"
-                                >
-                                    <div className="text-3xl font-black text-sky-600 mb-1">{stat.value}</div>
-                                    <div className="font-bold text-slate-900 text-sm mb-0.5">{stat.label}</div>
-                                    <div className="text-xs text-slate-400">{stat.sub}</div>
-                                </motion.div>
-                            ))}
-                        </div>
-
-                        {/* What H2 Helps With — 12-item grid */}
-                        <div className="text-center mb-10">
-                            <span className="text-[10px] text-sky-600 font-bold uppercase tracking-widest block mb-2">Research-Backed Applications</span>
-                            <h3 className="text-3xl font-bold text-slate-900">What Molecular Hydrogen May Support</h3>
-                            <p className="text-slate-500 mt-3 text-sm max-w-lg mx-auto">Based on peer-reviewed research. Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use.</p>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                            {[
-                                { icon: <Flame size={18} />, title: 'Chronic Inflammation', desc: 'Reduces inflammatory cytokines at the cellular level, supporting conditions from arthritis to cardiovascular health.' },
-                                { icon: <Brain size={18} />, title: 'Neuroprotection', desc: 'Crosses the blood-brain barrier to protect neurons from oxidative damage linked to neurodegeneration.' },
-                                { icon: <Zap size={18} />, title: 'Athletic Recovery', desc: 'Reduces post-exercise muscle fatigue and oxidative stress for faster return to peak performance.' },
-                                { icon: <Activity size={18} />, title: 'Metabolic Health', desc: 'May support insulin sensitivity, healthy cholesterol levels, and metabolic syndrome management.' },
-                                { icon: <Sparkles size={18} />, title: 'Skin Health', desc: 'Combats UV-induced oxidative damage, supporting skin elasticity and a more youthful appearance.' },
-                                { icon: <Wind size={18} />, title: 'Respiratory Support', desc: 'May alleviate oxidative burden in lung tissue, supporting asthma and COPD symptom management.' },
-                                { icon: <Shield size={18} />, title: 'Immune Modulation', desc: 'Strengthens the immune system by reducing oxidative stress and modulating inflammatory responses.' },
-                                { icon: <Leaf size={18} />, title: 'Gut Health', desc: 'Reduces gastrointestinal inflammation, benefiting conditions such as IBS and leaky gut syndrome.' },
-                                { icon: <Heart size={18} />, title: 'Mental Well-being', desc: 'Research suggests H₂ may reduce anxiety and depression symptoms by lowering brain oxidative load.' },
-                                { icon: <Target size={18} />, title: 'Gene Regulation', desc: 'Activates Nrf2 and HO-1 pathways involved in detoxification, antioxidant production, and cellular repair.' },
-                                { icon: <BarChart2 size={18} />, title: 'Autoimmune Support', desc: 'By modulating the immune response and reducing oxidative stress, H₂ may assist in managing autoimmune conditions.' },
-                                { icon: <CheckCircle size={18} />, title: 'Wound Healing', desc: 'Anti-inflammatory and antioxidant properties may accelerate wound healing and tissue repair processes.' },
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={item.title}
-                                    initial={{ opacity: 0, y: 16 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: i * 0.05 }}
-                                    className="bg-white rounded-2xl p-5 border border-slate-100 hover:border-sky-200 hover:shadow-md transition-all"
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-9 h-9 bg-sky-100 rounded-xl flex items-center justify-center text-sky-600 shrink-0">
-                                            {item.icon}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-slate-900 text-sm mb-1">{item.title}</h4>
-                                            <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-
-                        <p className="text-center text-[10px] text-slate-400 mt-8 italic max-w-2xl mx-auto">
-                            Research citations available in the Deep Intelligence section below. This content is based on published peer-reviewed studies. Not intended to diagnose, treat, cure, or prevent any disease. Always consult your healthcare provider.
-                        </p>
-                    </div>
-                </section>
+                <>
+                    <ResearchOverviewSection
+                        themeLabel="The Science of Small"
+                        themeColorClass="text-sky-600"
+                        title="What is Hydrogen Therapy?"
+                        intro="Molecular hydrogen (H₂) is the smallest molecule in existence — so small it crosses every barrier in your body, including the blood-brain barrier and mitochondrial membranes. It is the only antioxidant that selectively targets the most harmful free radicals while leaving beneficial signalling molecules untouched."
+                        stats={[
+                            { value: '99.99%', label: 'H₂ Purity', sub: 'PEM electrolysis standard' },
+                            { value: '>1200 ppb', label: 'Water Concentration', sub: 'Per litre, support-level concentration' },
+                            { value: '0.28 nm', label: 'Molecular Size', sub: 'Smallest bioactive support molecule' },
+                            { value: '40%+', label: 'Nrf2 Upregulation', sub: 'Endogenous antioxidant boost' },
+                        ]}
+                        supportTitle="What Molecular Hydrogen May Support"
+                        applications={[
+                            { icon: <Flame size={18} />, title: 'Inflammatory Balance', desc: 'May support a balanced inflammatory response at the cellular level and day-to-day recovery comfort.' },
+                            { icon: <Brain size={18} />, title: 'Neurological Support', desc: 'Can reach systemic circulation and may assist cellular resilience pathways linked to cognitive performance.' },
+                            { icon: <Zap size={18} />, title: 'Athletic Recovery', desc: 'Reduces post-exercise muscle fatigue and oxidative stress for faster return to peak performance.' },
+                            { icon: <Activity size={18} />, title: 'Metabolic Health', desc: 'May support healthy metabolic signaling, energy use efficiency, and routine wellness goals.' },
+                            { icon: <Sparkles size={18} />, title: 'Skin Health', desc: 'Combats UV-induced oxidative damage, supporting skin elasticity and a more youthful appearance.' },
+                            { icon: <Wind size={18} />, title: 'Respiratory Support', desc: 'May assist respiratory wellness by supporting oxidative balance in everyday breathing routines.' },
+                            { icon: <Shield size={18} />, title: 'Immune Modulation', desc: 'May assist healthy immune signaling by supporting oxidative and inflammatory balance.' },
+                            { icon: <Leaf size={18} />, title: 'Gut Health', desc: 'May support digestive comfort and overall gastrointestinal resilience as part of a broader wellness routine.' },
+                            { icon: <Heart size={18} />, title: 'Mental Well-being', desc: 'Emerging research suggests molecular hydrogen may assist calm focus and cognitive recovery patterns.' },
+                            { icon: <Target size={18} />, title: 'Gene Regulation', desc: 'Activates Nrf2 and HO-1 pathways involved in detoxification, antioxidant production, and cellular repair.' },
+                            { icon: <BarChart2 size={18} />, title: 'Immune Balance Support', desc: 'By supporting immune signaling and oxidative balance, H₂ may assist systemic recovery capacity.' },
+                            { icon: <CheckCircle size={18} />, title: 'Tissue Recovery', desc: 'Antioxidant activity may support natural tissue recovery and cellular repair processes.' },
+                        ]}
+                        hoverBorderClass="hover:border-sky-200"
+                        iconBgClass="bg-sky-100"
+                        iconColorClass="text-sky-600"
+                    />
+                    <p className="text-center text-[10px] text-slate-400 mt-[-2rem] mb-8 italic max-w-2xl mx-auto">
+                        Research citations available in the Deep Intelligence section below.
+                    </p>
+                </>
             )}
 
             {/* === HYDROGEN: DELIVERY ECOSYSTEM === */}
@@ -1323,7 +1190,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             <span className="text-[10px] text-sky-600 font-bold uppercase tracking-widest block mb-2">Complete System</span>
                             <h2 className="text-4xl font-bold text-slate-900 mb-4">Four Ways to Receive H₂</h2>
                             <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                                The Hydrogen ecosystem delivers molecular H₂ to different areas of the body simultaneously — inhalation for systemic coverage, goggles for eye health, earmuffs for auricular therapy, and the rod for hydrogen-rich water all day long.
+                                The Hydrogen ecosystem delivers molecular H₂ to different areas of the body simultaneously — inhalation for systemic coverage, goggles for eye support, earmuffs for auricular wellness routines, and the rod for hydrogen-rich water all day long.
                             </p>
                         </div>
 
@@ -1420,7 +1287,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     </div>
                                 </div>
                                 <p className="text-slate-600 text-sm leading-relaxed mb-6">
-                                    Soft hydrogen-delivery earmuffs for targeted auricular therapy. Designed to support inner ear health, reduce local oxidative stress, and may assist with tinnitus discomfort. Adjustable fit with a soft silicone seal — connects to the HOP-450 secondary output port alongside the goggles.
+                                    Soft hydrogen-delivery earmuffs for targeted auricular support. Designed to assist local oxidative balance and comfort-focused routines with an adjustable silicone seal that connects to the HOP-450 secondary output port.
                                 </p>
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     {['Connects to HOP-450', 'Adjustable fit', 'Inner ear support', 'Anti-inflammatory'].map(tag => (
@@ -1495,7 +1362,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             <span className="text-[10px] text-red-600 font-bold uppercase tracking-widest block mb-2">The Science of Light</span>
                             <h2 className="text-4xl font-bold text-slate-900 mb-4">What is Red Light Therapy?</h2>
                             <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                                Red and near-infrared light therapy uses specific wavelengths to stimulate cellular energy production. Unlike UV light, which damages cells, therapeutic wavelengths (630–660nm red, 810–850nm NIR) penetrate tissue and activate mitochondrial function without thermal damage or DNA harm.
+                                Red and near-infrared light routines use specific wavelengths to support cellular energy production. Unlike UV exposure, these wellness wavelengths (630–660nm red, 810–850nm NIR) are selected to reach tissue depth bands without thermal stress.
                             </p>
                         </div>
 
@@ -1526,7 +1393,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                         <div className="text-center mb-10">
                             <span className="text-[10px] text-red-600 font-bold uppercase tracking-widest block mb-2">Research-Backed Applications</span>
                             <h3 className="text-3xl font-bold text-slate-900">What Red Light Therapy May Support</h3>
-                            <p className="text-slate-500 mt-3 text-sm max-w-lg mx-auto">Based on peer-reviewed research. Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use.</p>
+                            <MedicalDisclaimer type="research" compact className="mt-3 text-center max-w-lg mx-auto" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1537,7 +1404,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                 { icon: <Activity size={18} />, title: 'Joint Comfort', desc: 'Anti-inflammatory effects may support mobility and reduce localised discomfort.' },
                                 { icon: <Sun size={18} />, title: 'Skin Health', desc: 'Improves texture, reduces UV damage signs, and supports overall skin vitality.' },
                                 { icon: <Moon size={18} />, title: 'Sleep Quality', desc: 'Morning red light exposure may help regulate circadian rhythms and sleep-wake cycles.' },
-                                { icon: <Target size={18} />, title: 'Wound Healing', desc: 'Enhances tissue repair processes and supports natural healing mechanisms.' },
+                                { icon: <Target size={18} />, title: 'Tissue Recovery Support', desc: 'Supports tissue recovery processes and natural restoration mechanisms.' },
                                 { icon: <Shield size={18} />, title: 'Inflammation Reduction', desc: 'Modulates inflammatory markers and supports balanced immune response.' },
                                 { icon: <Heart size={18} />, title: 'Hair Health', desc: 'May stimulate follicular activity and support hair thickness with consistent use.' },
                                 { icon: <Wind size={18} />, title: 'Cellular Energy', desc: 'Activates cytochrome c oxidase in mitochondria for enhanced ATP production.' },
@@ -1565,9 +1432,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             ))}
                         </div>
 
-                        <p className="text-center text-[10px] text-slate-400 mt-8 italic max-w-2xl mx-auto">
-                            Research citations available in the Evidence Snapshot section below. This content is based on published peer-reviewed studies. Not intended to diagnose, treat, cure, or prevent any disease. Always consult your healthcare provider.
-                        </p>
+                        <p className="text-center text-[10px] text-slate-400 mt-8 italic max-w-2xl mx-auto">Research citations available in the Evidence Snapshot section below.</p>
                     </div>
                 </section>
             )}
@@ -1605,7 +1470,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         </div>
                                     </div>
                                     <p className="text-red-100 text-sm leading-relaxed mb-6">
-                                        Absorbed near the skin surface, ideal for dermatological applications. Targets fibroblasts to stimulate collagen production, improves skin texture, and supports wound healing.
+                                        Absorbed near the skin surface, ideal for dermatological applications. Targets fibroblasts to stimulate collagen production, improves skin texture, and supports tissue recovery.
                                     </p>
                                     <div className="flex flex-wrap gap-2 mb-6">
                                         {['Skin health', 'Collagen synthesis', 'Surface wounds', '5–10mm depth'].map(tag => (
@@ -1634,7 +1499,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     </div>
                                 </div>
                                 <p className="text-slate-600 text-sm leading-relaxed mb-6">
-                                    Penetrates deeper into muscle, joint, and bone tissue. Reaches structures red light cannot, making it ideal for recovery, pain management, and deeper tissue concerns.
+                                    Penetrates deeper into muscle, joint, and bone tissue. Reaches structures red light cannot, making it well-suited for recovery routines, comfort support, and deeper tissue-focused sessions.
                                 </p>
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     {['Deep tissue', 'Muscle recovery', 'Joint support', '20–50mm depth'].map(tag => (
@@ -1652,7 +1517,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             <div>
                                 <h4 className="font-black text-slate-900 mb-1">Pro Tip: Use Both Together</h4>
                                 <p className="text-sm text-slate-600 leading-relaxed">
-                                    Most research uses combination red + NIR light for comprehensive treatment. Red light treats the surface while NIR reaches deeper structures simultaneously. Our devices allow you to select both wavelengths for full-spectrum sessions.
+                                    Most research uses combination red + NIR light for comprehensive coverage. Red light supports surface-level tissue while NIR reaches deeper structures simultaneously. Our devices allow you to select both wavelengths for full-spectrum sessions.
                                 </p>
                             </div>
                         </div>
@@ -1669,14 +1534,14 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             <span className="text-[10px] text-purple-600 font-bold uppercase tracking-widest block mb-2">The Science of Electromagnetism</span>
                             <h2 className="text-4xl font-bold text-slate-900 mb-4">What is PEMF Therapy?</h2>
                             <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                                Pulsed Electromagnetic Field therapy uses dynamic magnetic fields to induce electrical currents in your body's tissues. Unlike static magnets, PEMF's time-varying fields can stimulate cellular activity through electromagnetic induction — essentially "recharging" cellular energy systems.
+                                Pulsed Electromagnetic Field sessions use dynamic magnetic fields to induce gentle electrical activity in tissues. Unlike static magnets, PEMF's time-varying fields are designed to support cellular signaling through electromagnetic induction.
                             </p>
                         </div>
 
                         {/* Key Science Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
                             {[
-                                { value: '1–100 Hz', label: 'Frequency Range', sub: 'Therapeutic window' },
+                                { value: '1–100 Hz', label: 'Frequency Range', sub: 'Supportive frequency window' },
                                 { value: '7.83 Hz', label: 'Schumann Resonance', sub: "Earth's natural frequency" },
                                 { value: '-70 to -90mV', label: 'Healthy Cell Voltage', sub: 'Transmembrane potential' },
                                 { value: '19%', label: 'Deep Sleep Increase', sub: 'In clinical studies' },
@@ -1700,7 +1565,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                         <div className="text-center mb-10">
                             <span className="text-[10px] text-purple-600 font-bold uppercase tracking-widest block mb-2">Research-Backed Applications</span>
                             <h3 className="text-3xl font-bold text-slate-900">What PEMF Therapy May Support</h3>
-                            <p className="text-slate-500 mt-3 text-sm max-w-lg mx-auto">Based on peer-reviewed research. Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use.</p>
+                            <MedicalDisclaimer type="research" compact className="mt-3 text-center max-w-lg mx-auto" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1714,7 +1579,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                 { icon: <Target size={18} />, title: 'Pain Management', desc: 'Analgesic effects reported for various localised discomfort conditions.' },
                                 { icon: <Sun size={18} />, title: 'Energy Levels', desc: 'Morning use may support natural alertness and vitality throughout the day.' },
                                 { icon: <Heart size={18} />, title: 'Joint Mobility', desc: 'Supports comfortable movement and may reduce stiffness.' },
-                                { icon: <Sparkles size={18} />, title: 'Tissue Repair', desc: 'Enhanced protein synthesis and cell proliferation for healing support.' },
+                                { icon: <Sparkles size={18} />, title: 'Tissue Repair', desc: 'Enhanced protein synthesis and cell proliferation for tissue recovery support.' },
                                 { icon: <Wind size={18} />, title: 'Relaxation Response', desc: 'Delta-wave entrainment promotes deep relaxation and calm states.' },
                                 { icon: <CheckCircle size={18} />, title: 'Circadian Alignment', desc: 'Schumann resonance protocols may support natural sleep-wake cycles.' },
                             ].map((item, i) => (
@@ -1739,9 +1604,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             ))}
                         </div>
 
-                        <p className="text-center text-[10px] text-slate-400 mt-8 italic max-w-2xl mx-auto">
-                            Research citations available in the Evidence Snapshot section below. This content is based on published peer-reviewed studies. Not intended to diagnose, treat, cure, or prevent any disease. Always consult your healthcare provider.
-                        </p>
+                        <p className="text-center text-[10px] text-slate-400 mt-8 italic max-w-2xl mx-auto">Research citations available in the Evidence Snapshot section below.</p>
                     </div>
                 </section>
             )}
@@ -1798,7 +1661,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
                             <div>
                                 <span className="text-sm font-bold text-red-800 block">Important Safety Note</span>
-                                <span className="text-xs text-red-700">PEMF devices can interfere with pacemakers and implanted electronic devices. If you have a pacemaker, insulin pump, or any implanted electronic device, you should NOT use PEMF therapy.</span>
+                                <span className="text-xs text-red-700">PEMF devices can interfere with pacemakers and implanted electronic devices. If you have a pacemaker, insulin pump, or other implanted electronics, do not use PEMF sessions unless explicitly cleared by your licensed clinician.</span>
                             </div>
                         </div>
                     </div>
@@ -1936,9 +1799,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         </li>
                                     ))}
                                 </ul>
-                                <p className="text-[11px] text-slate-400 mt-4 italic leading-relaxed">
-                                    Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use.
-                                </p>
+                                <MedicalDisclaimer type="research" compact className="text-[11px] mt-4" />
                             </div>
                         </div>
                     </div>
@@ -2091,12 +1952,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
 
                             {onNavigate && (
                                 <div className="text-center mt-10">
-                                    <button
-                                        onClick={() => onNavigate('protocols')}
+                                    <Link
+                                        href="/protocols"
                                         className="inline-flex items-center gap-2 text-sm font-bold text-cyan-600 hover:text-cyan-700 transition-colors"
                                     >
                                         Explore all protocols <ArrowRight size={16} />
-                                    </button>
+                                    </Link>
                                 </div>
                             )}
                         </div>
@@ -2147,7 +2008,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         {(()=>{const p=parseFloat(data.price.replace(/[^0-9.]/g,''))||0;return 'EUR '+(p*1.15).toLocaleString('de-DE',{maximumFractionDigits:0})})()}
                                     </span>
                                 </div>
-                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-400 transition-all">Request Essential Bundle</button>
+                                <Link href={productContactHref} className="block w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm text-center hover:bg-cyan-400 transition-all">Request Essential Bundle</Link>
                             </div>
                         </div>
                         {/* Bundle 2: Pro Protocol */}
@@ -2174,7 +2035,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         {(()=>{const p=parseFloat(data.price.replace(/[^0-9.]/g,''))||0;return 'EUR '+(p*0.85+600).toLocaleString('de-DE',{maximumFractionDigits:0})})()}
                                     </span>
                                 </div>
-                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-400 transition-all">Request Pro Bundle</button>
+                                <Link href={productContactHref} className="block w-full py-3 bg-cyan-500 text-white rounded-xl font-bold text-sm text-center hover:bg-cyan-400 transition-all">Request Pro Bundle</Link>
                             </div>
                         </div>
                         {/* Bundle 3: Clinic Edition */}
@@ -2201,7 +2062,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     </span>
                                     <span className="text-xs text-slate-400">clinic pricing</span>
                                 </div>
-                                <button onClick={() => onNavigate?.('contact')} className="w-full py-3 bg-purple-500 text-white rounded-xl font-bold text-sm hover:bg-purple-400 transition-all">Request Clinic Quote</button>
+                                <Link href={`${productContactHref}&intent=b2b`} className="block w-full py-3 bg-purple-500 text-white rounded-xl font-bold text-sm text-center hover:bg-purple-400 transition-all">Request Clinic Quote</Link>
                             </div>
                         </div>
                     </div>
@@ -2219,12 +2080,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     <p className="text-sm text-slate-600 mt-1">
                                         Get a modality recommendation based on your goals, timing, and space constraints.
                                     </p>
-                                    <button
-                                        onClick={() => navigateToPage(batch3PdpContent.advisorCta.path)}
+                                    <Link
+                                        href={`/${batch3PdpContent.advisorCta.path}?tech=${techSlug}`}
                                         className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800"
                                     >
                                         {batch3PdpContent.advisorCta.linkLabel}
-                                    </button>
+                                    </Link>
                                 </div>
                             )}
 
@@ -2234,12 +2095,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     <p className="text-sm text-slate-600 mt-1">
                                         Typical rental commitment starts at {rentalCommitmentMonths} month{rentalCommitmentMonths > 1 ? 's' : ''}. Upgrade later and apply eligible value from your previous device.
                                     </p>
-                                    <button
-                                        onClick={() => navigateToPage(`${batch3PdpContent.tradeInCta.path}?product=${contentCommerceProductId}`)}
+                                    <Link
+                                        href={`/${batch3PdpContent.tradeInCta.path}?product=${contentCommerceProductId}`}
                                         className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-slate-900 hover:text-slate-700"
                                     >
                                         {batch3PdpContent.tradeInCta.linkLabel}
-                                    </button>
+                                    </Link>
                                 </div>
                             )}
                         </div>
@@ -2260,45 +2121,11 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                 </div>
             </section>
 
-{/* === WHAT TO EXPECT — Result Timeline === */}
-            <section id="what-to-expect" className="py-20 bg-slate-50 border-t border-slate-100">
-                <div className="max-w-4xl mx-auto px-6">
-                    <div className="text-center mb-12">
-                        <span className="text-[10px] text-cyan-600 font-bold uppercase tracking-widest block mb-2">Expected Results</span>
-                        <h2 className="text-3xl font-bold text-slate-900">What to Expect</h2>
-                        <p className="text-slate-500 mt-3 max-w-md mx-auto text-sm">Your progress unfolds in phases. Consistency is the key variable.</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {resultTimeline.map((phase, idx) => (
-                            <motion.div
-                                key={phase.phase}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: idx * 0.12 }}
-                                className="bg-white rounded-2xl p-6 border border-slate-200 hover:border-cyan-200 hover:shadow-md transition-all"
-                            >
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className={`w-8 h-8 ${data.accentColor} rounded-xl flex items-center justify-center text-white text-xs font-black shrink-0`}>{idx + 1}</div>
-                                    <div>
-                                        <span className="font-black text-slate-900 text-sm block">{phase.phase}</span>
-                                        <span className={`text-[10px] font-bold uppercase tracking-wider ${data.themeColor}`}>{phase.timeframe}</span>
-                                    </div>
-                                </div>
-                                <ul className="space-y-2">
-                                    {phase.outcomes.map((outcome) => (
-                                        <li key={outcome} className="flex items-start gap-2 text-xs text-slate-600">
-                                            <CheckCircle size={11} className="text-emerald-500 mt-0.5 shrink-0" />
-                                            {outcome}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-                        ))}
-                    </div>
-                    <p className="text-center text-xs text-slate-400 mt-6 italic">Results are based on consistent use and may vary. Individual response depends on baseline health, frequency of use, and protocol adherence. Not a guarantee of medical outcome.</p>
-                </div>
-            </section>
+            <TechDetailTimelineSection
+                phases={resultTimeline}
+                accentColor={data.accentColor}
+                themeColor={data.themeColor}
+            />
 
             {/* === VIDEO PLACEHOLDER === */}
             <section className="py-16 bg-white border-t border-slate-100">
@@ -2352,12 +2179,12 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                         </div>
                                     ))}
                                 </div>
-                                <button
-                                    onClick={() => onNavigate?.('contact')}
+                                <Link
+                                    href={`${productContactHref}&intent=b2b`}
                                     className="flex items-center gap-2 px-8 py-4 bg-cyan-500 text-white rounded-2xl font-bold text-sm hover:bg-cyan-400 transition-all"
                                 >
                                     Request B2B Pricing <ArrowRight size={18} />
-                                </button>
+                                </Link>
                             </div>
                             <div className="bg-slate-800 rounded-3xl p-8 border border-slate-700">
                                 <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
@@ -2535,9 +2362,11 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     )}
 
                                     {/* Disclaimer */}
-                                    <p className="text-[10px] text-slate-400 italic leading-relaxed">
-                                        {knowledge?.disclaimers[0] || 'Consult your physician before beginning any new health program. This device is not intended to diagnose, treat, cure, or prevent any disease.'}
-                                    </p>
+                                    <MedicalDisclaimer
+                                        compact
+                                        customText={knowledge?.disclaimers[0] ?? disclaimers.pdp}
+                                        className="text-[10px]"
+                                    />
                                 </div>
                             </motion.div>
                         )}
@@ -2550,8 +2379,8 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                     <div className="max-w-4xl mx-auto px-6">
                         <div className="flex items-center justify-between gap-4 mb-5">
                             <div>
-                                <span className="text-[10px] text-cyan-600 font-bold uppercase tracking-widest block mb-1">Documentation</span>
-                                <h2 className="text-2xl font-bold text-slate-900">Product documents</h2>
+                                <span className="text-[10px] text-cyan-600 font-bold uppercase tracking-widest block mb-1">Resources</span>
+                                <h2 className="text-2xl font-bold text-slate-900">Planning and policy resources</h2>
                             </div>
                             <BookOpen className="text-cyan-500" size={20} />
                         </div>
@@ -2670,6 +2499,9 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     onClick={() => setShowMobileTrackDrawer(false)}
                                 />
                                 <motion.div
+                                    role="dialog"
+                                    aria-modal="true"
+                                    aria-labelledby="mobile-track-drawer-title"
                                     initial={{ y: '100%' }}
                                     animate={{ y: 0 }}
                                     exit={{ y: '100%' }}
@@ -2677,7 +2509,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     className="fixed inset-x-0 bottom-0 z-[81] md:hidden rounded-t-3xl bg-white border-t border-slate-200 p-6"
                                 >
                                     <div className="flex items-center justify-between gap-4 mb-3">
-                                        <h3 className="text-base font-bold text-slate-900">{pdpCommerceContent.switchTrack.titlePrefix} {alternativeTrack === 'purchase' ? pdpCommerceContent.trackLabels.buy : pdpCommerceContent.trackLabels.rent}</h3>
+                                        <h3 id="mobile-track-drawer-title" className="text-base font-bold text-slate-900">{pdpCommerceContent.switchTrack.titlePrefix} {alternativeTrack === 'purchase' ? pdpCommerceContent.trackLabels.buy : pdpCommerceContent.trackLabels.rent}</h3>
                                         <button
                                             type="button"
                                             onClick={() => setShowMobileTrackDrawer(false)}
@@ -2739,6 +2571,9 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                 onClick={() => setShowFinancing(false)}
                             />
                             <motion.aside
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="financing-drawer-title"
                                 initial={{ x: '100%' }}
                                 animate={{ x: 0 }}
                                 exit={{ x: '100%' }}
@@ -2747,7 +2582,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                             >
                                 <div className="h-full overflow-y-auto p-6">
                                     <div className="flex items-center justify-between mb-6">
-                                        <h3 className="text-xl font-bold text-slate-900">{pdpCommerceContent.pricing.financingTitle}</h3>
+                                        <h3 id="financing-drawer-title" className="text-xl font-bold text-slate-900">{pdpCommerceContent.pricing.financingTitle}</h3>
                                         <button
                                             type="button"
                                             onClick={() => setShowFinancing(false)}

@@ -1,6 +1,10 @@
 # ADR-MCP-001: MCP Server Optimization
 Status: Accepted | Date: 2026-02-28
 
+> ⚠️ **Historical ADR (non-authoritative for current guardrails):**
+> This document is retained for decision history only. The canonical, enforceable MCP policy is `.clinerules` (§ MCP TOOLS).
+> If this ADR conflicts with `.clinerules`, treat this ADR as superseded and update/ignore the conflicting section.
+
 ## Context
 Default MCP configurations were wasting tokens scanning irrelevant files,
 contained conflicting Prisma guidance, and lacked a strict canonical

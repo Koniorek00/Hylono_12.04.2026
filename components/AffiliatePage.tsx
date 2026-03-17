@@ -87,17 +87,17 @@ export const AffiliatePage: React.FC = () => {
                         <>
                             <h2 className="text-2xl font-bold mb-6 text-center">Apply Now</h2>
                             <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
-                                <input placeholder="Full Name" required className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none" />
-                                <input placeholder="Email" type="email" required className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none" />
-                                <input placeholder="Website / Social Media URL" className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none" />
-                                <select required className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white/70 focus:border-cyan-400 focus:outline-none">
+                                <input aria-label="Full Name" placeholder="Full Name" required className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none" />
+                                <input aria-label="Email" placeholder="Email" type="email" required className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none" />
+                                <input aria-label="Website or Social Media URL" placeholder="Website / Social Media URL" className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none" />
+                                <select aria-label="Audience Size" required className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white/70 focus:border-cyan-400 focus:outline-none">
                                     <option value="">Audience Size</option>
                                     <option>Under 1,000</option>
                                     <option>1,000 - 10,000</option>
                                     <option>10,000 - 100,000</option>
                                     <option>100,000+</option>
                                 </select>
-                                <textarea placeholder="Tell us about your audience..." rows={4} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none resize-none" />
+                                <textarea aria-label="Tell us about your audience" placeholder="Tell us about your audience..." rows={4} className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/50 focus:border-cyan-400 focus:outline-none resize-none" />
                                 <button type="submit" className="w-full py-4 bg-cyan-500 text-white rounded-xl font-bold hover:bg-cyan-400 transition-colors">
                                     Submit Application
                                 </button>

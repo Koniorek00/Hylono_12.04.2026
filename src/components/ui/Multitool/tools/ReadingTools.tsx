@@ -1,23 +1,19 @@
+"use client";
+
 /**
  * ReadingTools — Accessibility toggles for enhanced reading
  * 
  * Features:
- * - Text size control (5 levels)
+ * - Text size control (4 levels)
  * - Font family selection (default, dyslexic)
  * - High contrast mode toggle
  * - Visual feedback for current settings
  */
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Type, Contrast, RotateCcw, Check } from 'lucide-react';
-import { 
-  useMultitoolStore, 
-  TEXT_SIZE_VALUES,
-} from '../../../../stores/multitoolStore';
-import type { 
-  TextSize, 
-  ReadingFont,
-} from '../../../../stores/multitoolStore';
+import { Contrast, RotateCcw, Check } from 'lucide-react';
+import { useMultitoolStore } from '../../../../stores/multitoolStore';
+import type { TextSize, ReadingFont } from '../../../../stores/multitoolStore';
 import type { ReadingToolsProps } from '../types';
 
 const TEXT_SIZE_LABELS: Record<TextSize, string> = {
@@ -25,13 +21,11 @@ const TEXT_SIZE_LABELS: Record<TextSize, string> = {
   sm: '100%',
   default: '120%',
   lg: '140%',
-  xl: '160%',
 };
 
 const FONT_LABELS: Record<ReadingFont, { name: string; description: string }> = {
   default: { name: 'Default', description: 'Outfit' },
   dyslexic: { name: 'Dyslexic', description: 'Accessible' },
-  mono: { name: 'Mono', description: 'Monospace' },
 };
 
 export const ReadingTools: React.FC<ReadingToolsProps> = ({ className = '' }) => {
@@ -60,7 +54,7 @@ export const ReadingTools: React.FC<ReadingToolsProps> = ({ className = '' }) =>
           <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 mb-2 block">
             Text Size
           </span>
-          <div className="grid grid-cols-5 gap-1" role="radiogroup" aria-label="Text size options">
+          <div className="grid grid-cols-4 gap-1" role="radiogroup" aria-label="Text size options">
             {(Object.keys(TEXT_SIZE_LABELS) as TextSize[]).map((size) => (
               <motion.button
                 key={size}

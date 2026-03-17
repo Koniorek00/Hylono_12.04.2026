@@ -43,7 +43,11 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('hylono_wishlist', JSON.stringify(items));
+        try {
+            localStorage.setItem('hylono_wishlist', JSON.stringify(items));
+        } catch {
+            // Ignore storage errors (private browsing, quota exceeded)
+        }
     }, [items]);
 
     const addItem = (item: WishlistItem) => {

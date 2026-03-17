@@ -21,77 +21,87 @@ export interface PartnerProfile {
 
 export type LayoutVariation = 0 | 1 | 2; // 0: Standard/Overlay, 1: Split, 2: Frame
 
-export const COPY_LIBRARY: Record<string, { title: string; body: string; caption: string; hashtags: string }> = {
+export const COPY_LIBRARY: Record<
+    string,
+    { title: string; body: string; caption: string; hashtags: string }
+> = {
     'promotion-HBOT': {
-        title: 'Revitalize Your Health',
-        body: 'Experience the power of Hyperbaric Oxygen Therapy. Boost energy, recover faster, and enhance your wellness journey today. Limited time offer available.',
-        caption: 'Feeling drained? 🔋 Recharge at the cellular level with Hyperbaric Oxygen Therapy. 💨\n\nIncreased oxygen = Increased energy, faster recovery, and better sleep. ✨\n\nClaim your intro offer via the link in bio! 👇',
-        hashtags: '#HBOT #OxygenTherapy #Biohacking #Wellness #Recovery'
+        title: 'Revitalize Your Routine',
+        body: 'Experience Hyperbaric Oxygen Therapy in a guided wellness setting. Support energy, recovery, and a more structured routine today. Limited-time introductory offer available.',
+        caption:
+            'Feeling drained? Recharge your routine with Hyperbaric Oxygen Therapy.\n\nMore oxygen support can fit recovery planning, energy routines, and better wind-down habits.\n\nClaim your introductory offer via the link in bio.',
+        hashtags: '#HBOT #OxygenSupport #Biohacking #Wellness #Recovery',
     },
     'education-HBOT': {
         title: 'The Science of Oxygen',
-        body: 'Did you know? Hyperbaric Oxygen Therapy delivers up to 15x more oxygen to your tissues, promoting deep cellular healing and cognitive sharpness.',
-        caption: 'Did you know? 🧠 Your brain uses 20% of your body\'s oxygen.\n\nHBOT drives oxygen into plasma, lymph, and bone marrow—healing tissues that regular breathing can\'t reach. 🔬\n\nLearn more about the science of healing at our clinic.',
-        hashtags: '#ScienceFacts #HBOT #Hyperbaric #HealthOptimization #BrainHealth'
+        body: 'Did you know? Hyperbaric Oxygen Therapy delivers up to 15x more oxygen to your tissues, supporting recovery-focused routines and cognitive sharpness.',
+        caption:
+            "Did you know? Your brain uses 20% of your body's oxygen.\n\nHBOT drives oxygen into plasma, lymph, and bone marrow, supporting areas that regular breathing cannot reach as directly.\n\nLearn more about oxygen session science at our clinic.",
+        hashtags: '#ScienceFacts #HBOT #Hyperbaric #HealthOptimization #BrainHealth',
     },
     'launch-HBOT': {
         title: 'New at Our Clinic',
-        body: 'We are thrilled to introduce state-of-the-art Hyperbaric Oxygen Therapy. Elevate your recovery with appropriate clinical technology.',
-        caption: '📢 BIG NEWS: Hyperbaric Oxygen Therapy has arrived! 🚀\n\nExperience the therapy used by top athletes and wellness experts to stay at their peak. 🏆\n\nBookings are now OPEN. DM us or check the link in bio to grab your spot!',
-        hashtags: '#NewService #HBOT #ClinicLaunch #WellnessJourney #Biohacking'
+        body: 'We are thrilled to introduce state-of-the-art Hyperbaric Oxygen Therapy. Elevate your recovery with professionally guided wellness technology.',
+        caption:
+            'Big news: Hyperbaric Oxygen Therapy has arrived.\n\nExperience the modality used by top athletes and wellness experts to stay at their peak.\n\nBookings are now open. DM us or check the link in bio to reserve your spot.',
+        hashtags: '#NewService #HBOT #ClinicLaunch #WellnessJourney #Biohacking',
     },
     'event-HBOT': {
         title: 'Oxygen Deep Dive',
         body: 'Join us for an exclusive evening learning about the benefits of pressure and oxygen. Live demos, Q&A, and exclusive booking perks.',
-        caption: 'You\'re invited! 💌 Join us for an exclusive look at the power of Hyperbaric Oxygen.\n\n🍷 Sips, snacks, and deep dives into pressure therapy.\n\n📍 Link in bio to RSVP (Spots are limited!)',
-        hashtags: '#WellnessEvent #OpenHouse #HBOT #CommunityHealth #Oxygen'
+        caption:
+            "You're invited. Join us for an exclusive look at the role of Hyperbaric Oxygen.\n\nEnjoy refreshments and practical sessions on pressure-based wellness routines.\n\nUse the link in bio to RSVP. Spots are limited.",
+        hashtags: '#WellnessEvent #OpenHouse #HBOT #CommunityHealth #Oxygen',
     },
-    // PEMF
     'promotion-PEMF': {
         title: 'Recharge Your Cells',
-        body: 'Pulsed Electromagnetic Field therapy mimics the earth\'s natural frequency to reset your body\'s battery. 50% off your first session.',
-        caption: 'Low battery? 🪫 Recharge your body\'s cells with PEMF Therapy. ⚡\n\nReset your natural rhythm, reduce inflammation, and feel optimized in just 12 minutes. ⏱️\n\nTap the link in bio to book your recharge session!',
-        hashtags: '#PEMF #EnergyHealing #Biohacking #CellularHealth #VibrationTherapy'
+        body: "Pulsed Electromagnetic Field sessions follow the earth's natural frequency patterns to support your body's recharge routine. 50% off your first session.",
+        caption:
+            "Low battery? Recharge your routine with PEMF sessions.\n\nReset your natural rhythm, support comfort, and feel more organised in just 12 minutes.\n\nTap the link in bio to book your session.",
+        hashtags: '#PEMF #RecoverySupport #Biohacking #CellularHealth #VibrationTherapy',
     },
     'education-PEMF': {
-        title: 'Frequency Healing',
-        body: 'PEMF therapy enhances cellular metabolism and oxygenation. A non-invasive way to reduce inflammation and optimize performance.',
-        caption: 'Good vibes only. 🌊 PEMF therapy uses safe electromagnetic frequencies to stimulate cell repair and reduce pain. \n\nIt\'s like a charger for your human battery. 🔋\n\nCurious? Read more on our website.',
-        hashtags: '#FrequencyMedicine #PEMF #PainRelief #HolisticHealth #Science'
+        title: 'Frequency Support',
+        body: 'PEMF sessions are designed to support cellular metabolism and oxygenation. A non-invasive way to support comfort and optimize performance routines.',
+        caption:
+            "Good vibes only. PEMF sessions use safe electromagnetic frequencies to support recovery-focused routines and everyday comfort.\n\nIt's like a charger for your human battery.\n\nCurious? Read more on our website.",
+        hashtags: '#FrequencyWellness #PEMF #ComfortSupport #HolisticHealth #Science',
     },
-    // RLT
     'promotion-RLT': {
         title: 'Light Up Your Wellbeing',
-        body: 'Discover the rejuvenating power of Red Light Therapy. Improve skin health, reduce pain, and boost collagen production.',
-        caption: 'Glow from the inside out. ✨ Red Light Therapy is your secret weapon for collagen, recovery, and energy. 💡\n\nTry it this week and see the difference. Book now via link in bio!',
-        hashtags: '#RedLightTherapy #Skincare #Collagen #Biohacking #RLT'
+        body: 'Discover the restorative potential of Red Light Therapy. Support skin vitality, routine comfort, and collagen-focused care.',
+        caption:
+            'Glow from the inside out. Red Light Therapy can support collagen routines, recovery planning, and day-to-day energy.\n\nTry it this week and see whether it fits your routine. Book now via the link in bio.',
+        hashtags: '#RedLightTherapy #Skincare #Collagen #Biohacking #RLT',
     },
     'education-RLT': {
         title: 'Powered by Light',
-        body: 'Red and Near-Infrared wavelengths penetrate deep into tissue to stimulate mitochondrial function. Feel the glow from the inside out.',
-        caption: 'Not all light is created equal. ☀️ Red and Near-Infrared light penetrates deep to power up your mitochondria (your cell\'s power plant). 🏭\n\nMore cellular energy = Better health. Simple as that. 💡',
-        hashtags: '#RLT #RedLight #Mitochondria #HealthTips #LightTherapy'
+        body: 'Red and near-infrared wavelengths penetrate deep into tissue to stimulate mitochondrial function. Feel the glow from the inside out.',
+        caption:
+            "Not all light is created equal. Red and near-infrared light reaches deep enough to support your mitochondria, the cell's power plant.\n\nMore cellular energy can support better routines.\n\nLearn more on our website.",
+        hashtags: '#RLT #RedLight #Mitochondria #HealthTips #LightTherapy',
     },
-    // Hydrogen
     'promotion-Hydrogen': {
         title: 'The Ultimate Antioxidant',
-        body: 'Molecular Hydrogen is the smallest, most powerful antioxidant. Neutralize free radicals and reduce oxidative stress instantly.',
-        caption: 'Meet the tiny molecule with BIG impact. 💧 Molecular Hydrogen neutralizes oxidative stress instantly.\n\nDetox, recover, and protect your cells. 🛡️\n\nAvailable now at our clinic!',
-        hashtags: '#MolecularHydrogen #Antioxidant #Detox #Biohacking #HydrogenWater'
+        body: 'Molecular Hydrogen is a compact antioxidant-support modality. Help manage oxidative stress and recovery routines with flexible session options.',
+        caption:
+            'Meet the tiny molecule with big impact. Molecular Hydrogen supports recovery planning around oxidative stress.\n\nUse it to explore a more structured wellness routine.\n\nAvailable now at our clinic.',
+        hashtags: '#MolecularHydrogen #Antioxidant #RecoverySupport #Biohacking #HydrogenWater',
     },
     'education-Hydrogen': {
         title: 'Why Hydrogen?',
-        body: 'Hydrogen water and inhalation therapy can selectively target harmful free radicals, protecting your cells and delaying aging.',
-        caption: 'Rust happens. 🍂 Oxidative stress "rusts" our cells over time. \n\nHydrogen is the selective antioxidant that stops the rust without blocking beneficial processes. 🛑\n\nLearn the science at our clinic.',
-        hashtags: '#AntiAging #HydrogenTherapy #ScienceOfHealth #Wellness #Longevity'
+        body: 'Hydrogen water and inhalation sessions can selectively target harmful free radicals, supporting your cells and healthy ageing routines.',
+        caption:
+            'Oxidative stress can wear down cells over time.\n\nHydrogen is a selective antioxidant that may help manage that wear without blocking useful processes.\n\nLearn the science at our clinic.',
+        hashtags: '#HealthyAgeing #HydrogenSessions #ScienceOfHealth #Wellness #Longevity',
     },
-    // Fallback
-    'default': {
+    default: {
         title: 'Your Wellness Journey',
-        body: 'Unlock your potential with our advanced bio-optimization therapies. Book your consultation today to learn more.',
-        caption: 'Ready to optimize your health? 🌟 innovative therapies designed to help you look, feel, and perform your best.\n\nBook a consultation today! 👇',
-        hashtags: '#Wellness #HealthOptimization #Biohacking #SelfCare'
-    }
+        body: 'Unlock your potential with advanced bio-optimization sessions. Book a consultation today to learn more.',
+        caption:
+            'Ready to optimize your routine? Explore guided sessions designed to help you look, feel, and perform at your best.\n\nBook a consultation today.',
+        hashtags: '#Wellness #HealthOptimization #Biohacking #SelfCare',
+    },
 };
 
 interface PartnerStore {

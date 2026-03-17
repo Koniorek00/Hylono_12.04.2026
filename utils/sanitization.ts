@@ -12,6 +12,30 @@
 // when using the default import. Named Config export is the correct pattern.
 import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
 
+const fallbackSanitizeHtml = (html: string): string =>
+    html
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/\son\w+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+        .replace(/\s(?:href|src)\s*=\s*(["'])javascript:[\s\S]*?\1/gi, '');
+
+const sanitizeWithDomPurify = (
+    html: string,
+    config: DOMPurifyConfig
+): string | null => {
+    const sanitizer = (
+        DOMPurify as unknown as {
+            sanitize?: (dirty: string, cfg?: DOMPurifyConfig) => string | TrustedHTML;
+        }
+    ).sanitize;
+
+    if (typeof sanitizer !== 'function') {
+        return null;
+    }
+
+    return sanitizer(html, config) as unknown as string;
+};
+
 /**
  * Default allowed HTML tags for blog/article content
  * Includes common formatting tags while excluding dangerous elements
@@ -95,7 +119,7 @@ export function sanitizeHtml(
 ): string {
     // Handle null/undefined gracefully
     if (html === null || html === undefined) {
-        return options.graceful ? '' : '';
+        return '';
     }
 
     // Ensure input is a string
@@ -138,10 +162,12 @@ export function sanitizeHtml(
     if (options.allowVideos || options.allowIframes) {
         config.ALLOWED_TAGS?.push('iframe');
         config.ALLOWED_ATTR?.push('allowfullscreen', 'allow', 'frameborder');
-        
+        // Remove iframe from FORBID_TAGS so ALLOWED_TAGS can take effect
+        config.FORBID_TAGS = (config.FORBID_TAGS as string[]).filter((t) => t !== 'iframe');
+
         // Add specific iframe src restrictions
         config.ADD_ATTR = ['allow', 'allowfullscreen'];
-        
+
         // Only allow iframes from trusted video sources
         config.ALLOWED_URI_REGEXP = /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i;
     }
@@ -153,11 +179,11 @@ export function sanitizeHtml(
         // DOMPurify.sanitize() returns `string | TrustedHTML` depending on config.
         // We always get a plain string here (no RETURN_DOM / RETURN_DOM_FRAGMENT),
         // so the double-cast via unknown is intentional and safe.
-        const sanitized = DOMPurify.sanitize(html, config) as unknown as string;
-        return sanitized;
+        const sanitized = sanitizeWithDomPurify(html, config);
+        return sanitized ?? fallbackSanitizeHtml(html);
     } catch (error) {
         console.error('sanitizeHtml: Error during sanitization:', error);
-        return '';
+        return fallbackSanitizeHtml(html);
     }
 }
 
@@ -207,8 +233,8 @@ export function stripHtml(html: string | null | undefined): string {
         KEEP_CONTENT: true
     };
 
-    // Cast for same reason as sanitizeHtml — returns string when not using RETURN_DOM
-    return DOMPurify.sanitize(html, config) as unknown as string;
+    const sanitized = sanitizeWithDomPurify(html, config);
+    return sanitized ?? html.replace(/<[^>]+>/g, ' ');
 }
 
 /**

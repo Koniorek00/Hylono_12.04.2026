@@ -105,7 +105,7 @@ export const AUTOCOMPLETE_TERMS = [
   'Neuroprotection',
   'Brain health',
   'Skin health',
-  'Wound healing',
+  'Wound recovery support',
   'Muscle recovery',
   'Joint pain',
   'Arthritis',

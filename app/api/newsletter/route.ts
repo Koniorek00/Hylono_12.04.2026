@@ -5,7 +5,11 @@
  */
 
 import { z } from 'zod';
-import { readJsonBody, validationErrorResponse } from '../_shared/validation';
+import { eq } from 'drizzle-orm';
+import { env } from '@/lib/env';
+import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { newsletterSubscriptionsTable } from '@/lib/db/schema';
+import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface NewsletterRequest {
     email: string;
@@ -16,6 +20,12 @@ interface NewsletterRequest {
 interface NewsletterResponse {
     success: boolean;
     message: string;
+}
+
+interface ResendAudiencePayload {
+    email: string;
+    first_name?: string;
+    unsubscribed: boolean;
 }
 
 const newsletterSchema = z.object({
@@ -33,34 +43,95 @@ export async function POST(request: Request): Promise<Response> {
             return validationErrorResponse(parsed.error);
         }
 
-        const { email, source = 'unknown' } = parsed.data;
-        const sanitizedEmail = email.trim().toLowerCase();
+        const { email, firstName, source = 'unknown' } = parsed.data;
 
-        // --- Send to email provider ---
-        // TODO: Replace this block with your actual email provider integration.
-        // Options:
-        //   - Mailchimp: POST to /3.0/lists/{list_id}/members
-        //   - Resend: POST to /audiences/{audience_id}/contacts
-        //   - Brevo (Sendinblue): POST to /contacts
-        //
-        // Example with Resend:
-        // const resendApiKey = env.RESEND_API_KEY;
-        // const audienceId = env.RESEND_AUDIENCE_ID;
-        // await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Authorization': `Bearer ${resendApiKey}`,
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //         email: sanitizedEmail,
-        //         first_name: firstName?.trim(),
-        //         unsubscribed: false,
-        //     }),
-        // });
+        const sanitizedEmail = sanitizeText(email, {
+            maxLength: 254,
+            context: 'email',
+        });
+        const sanitizedFirstName = firstName?.trim()
+            ? sanitizeText(firstName, 100)
+            : undefined;
 
-        // Log for now (remove when real provider is wired)
-        console.warn(`[newsletter] New subscription: ${sanitizedEmail} via ${source}`);
+        if (!isDatabaseConfigured()) {
+            console.error('[newsletter] DATABASE_URL missing; cannot persist subscription');
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Newsletter subscription is temporarily unavailable. Please try again shortly.',
+                } satisfies NewsletterResponse,
+                { status: 503 }
+            );
+        }
+
+        const db = getDb();
+
+        try {
+            await db.insert(newsletterSubscriptionsTable).values({
+                id: crypto.randomUUID(),
+                email: sanitizedEmail,
+                firstName: sanitizedFirstName,
+                source,
+                providerSynced: false,
+            });
+        } catch {
+            await db
+                .update(newsletterSubscriptionsTable)
+                .set({
+                    firstName: sanitizedFirstName,
+                    source,
+                    providerSynced: false,
+                    updatedAt: new Date(),
+                })
+                .where(eq(newsletterSubscriptionsTable.email, sanitizedEmail));
+        }
+
+        const resendApiKey = env.RESEND_API_KEY;
+        const resendAudienceId = env.RESEND_AUDIENCE_ID;
+
+        let providerSynced = false;
+
+        if (resendApiKey && resendAudienceId) {
+            const audiencePayload: ResendAudiencePayload = {
+                email: sanitizedEmail,
+                ...(sanitizedFirstName ? { first_name: sanitizedFirstName } : {}),
+                unsubscribed: false,
+            };
+
+            const audienceResponse = await fetch(
+                `https://api.resend.com/audiences/${resendAudienceId}/contacts`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${resendApiKey}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(audiencePayload),
+                }
+            );
+
+            if (!audienceResponse.ok && audienceResponse.status !== 409) {
+                const audienceErrorText = await audienceResponse.text();
+                console.error('[newsletter] Resend audience upsert failed', {
+                    source,
+                    status: audienceResponse.status,
+                    body: audienceErrorText,
+                });
+            } else {
+                providerSynced = true;
+            }
+        }
+
+        await db
+            .update(newsletterSubscriptionsTable)
+            .set({
+                providerSynced,
+                updatedAt: new Date(),
+            })
+            .where(eq(newsletterSubscriptionsTable.email, sanitizedEmail));
+
+        // Non-PII operational log (keep for observability until provider integration is wired)
+        console.info(`[newsletter] Subscription accepted: source=${source}`);
 
         return Response.json(
             { success: true, message: 'Thank you for subscribing! Check your inbox to confirm.' } satisfies NewsletterResponse,

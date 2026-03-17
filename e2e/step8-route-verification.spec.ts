@@ -1,4 +1,9 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { BLOG_POSTS } from '@/constants/content';
+import { conditionGoals } from '@/content/conditions';
+import { protocols } from '@/content/protocols';
+import { toBlogSlug } from '@/lib/blog';
+import { getAllTechRouteSlugs } from '@/lib/product-routes';
 
 const ROUTES_TO_VERIFY = [
   '/',
@@ -6,11 +11,11 @@ const ROUTES_TO_VERIFY = [
   '/account',
   '/affiliate',
   '/blog',
-  '/blog/recovery-oxygen-foundation',
+  `/blog/${toBlogSlug(BLOG_POSTS[0]!.title)}`,
   '/careers',
   '/checkout',
   '/conditions',
-  '/conditions/recovery',
+  `/conditions/${conditionGoals[0]!.slug}`,
   '/contact',
   '/cookie-policy',
   '/faq',
@@ -25,9 +30,9 @@ const ROUTES_TO_VERIFY = [
   '/partners',
   '/press',
   '/privacy',
-  '/product/mhbot-st1700',
+  `/product/${getAllTechRouteSlugs()[0]!}`,
   '/protocols',
-  '/protocols/recovery-oxygen-foundation',
+  `/protocols/${protocols[0]!.slug}`,
   '/rental',
   '/rental/checkout',
   '/research',
@@ -40,24 +45,50 @@ const ROUTES_TO_VERIFY = [
   '/wishlist',
 ];
 
-test('Step 8.9 route verification: render + html source + zero console errors', async ({
-  page,
-  context,
-  baseURL,
-}) => {
-  test.setTimeout(180_000);
-  expect(baseURL).toBeTruthy();
+async function requestHtml(context: BrowserContext, baseURL: string, route: string) {
+  const htmlResponse = await context.request.get(`${baseURL}${route}`);
+  expect(htmlResponse.status(), `HTML response status for route ${route}`).toBeLessThan(400);
+  const html = await htmlResponse.text();
+  expect(html, `No server HTML for route ${route}`).toContain('<html');
+  return htmlResponse;
+}
 
-  await context.addCookies([
-    {
-      name: 'hylono_session',
-      value: 'step8-route-session',
-      domain: 'localhost',
-      path: '/',
-    },
-  ]);
+async function gotoWithRetry(
+  page: Page,
+  route: string,
+  attempts = [20_000, 30_000]
+) {
+  let lastError: unknown;
 
-  for (const route of ROUTES_TO_VERIFY) {
+  for (const timeout of attempts) {
+    try {
+      const response = await page.goto(route, { waitUntil: 'domcontentloaded', timeout });
+      if (response) {
+        return response;
+      }
+    } catch (error) {
+      lastError = error;
+      await page.goto('about:blank').catch(() => null);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(`Navigation failed for route ${route}`);
+}
+
+for (const route of ROUTES_TO_VERIFY) {
+  test(`Step 8.9 route verification: ${route}`, async ({ page, context, baseURL }) => {
+    test.setTimeout(90_000);
+    expect(baseURL).toBeTruthy();
+
+    await context.addCookies([
+      {
+        name: 'hylono_session',
+        value: 'step8-route-session',
+        domain: 'localhost',
+        path: '/',
+      },
+    ]);
+
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];
 
@@ -69,14 +100,10 @@ test('Step 8.9 route verification: render + html source + zero console errors', 
     page.on('console', onConsole);
     page.on('pageerror', onPageError);
 
-    const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
+    await requestHtml(context, baseURL, route);
+    const response = await gotoWithRetry(page, route);
     expect(response, `Missing navigation response for route ${route}`).toBeTruthy();
     expect(response?.status(), `Unexpected status for route ${route}`).toBeLessThan(400);
-
-    const htmlResponse = await context.request.get(`${baseURL}${route}`);
-    expect(htmlResponse.status(), `HTML response status for route ${route}`).toBeLessThan(400);
-    const html = await htmlResponse.text();
-    expect(html, `No server HTML for route ${route}`).toContain('<html');
 
     expect(consoleErrors, `Console errors on route ${route}:\n${consoleErrors.join('\n')}`).toEqual(
       []
@@ -85,5 +112,5 @@ test('Step 8.9 route verification: render + html source + zero console errors', 
 
     page.off('console', onConsole);
     page.off('pageerror', onPageError);
-  }
-});
+  });
+}

@@ -98,7 +98,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                         Your first payment of €{firstPayment} was authorized using {paymentMethod === 'card' ? 'card' : 'bank transfer'}.
                     </p>
                     <button
-                        onClick={() => onNavigate('order-success')}
+                        onClick={() => onNavigate('account')}
                         className="min-h-11 px-6 py-3 rounded-xl bg-slate-900 text-white font-semibold inline-flex items-center gap-2"
                     >
                         Continue to order confirmation

@@ -161,6 +161,7 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
 
         {/* Brand name */}
         <motion.h1
+          id="home-hero-headline"
           className="text-[13vmin] md:text-[11vmin] font-thin tracking-[0.25em] text-slate-900 leading-none mb-4"
           style={{ fontFamily: '"Syncopate", "Outfit", sans-serif' }}
           initial={{ opacity: 0, y: 24 }}
@@ -210,6 +211,10 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
                 transition={{ duration: 0.6, delay: 1.4 }}
               />
             </span>
+          </p>
+          <p id="home-hero-description" className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-slate-500 md:text-base">
+            Compare oxygen, hydrogen, red-light, and signal-based systems, choose a rental or
+            purchase path, and follow structured protocols built for practical daily routines.
           </p>
         </motion.div>
 

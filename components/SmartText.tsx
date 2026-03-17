@@ -10,16 +10,16 @@ interface SmartTextProps {
 }
 
 const TERM_MAPPINGS: { [key: string]: string } = {
-    'PEMF': '/product/PEMF',
-    'HBOT': '/product/HBOT',
-    'RLT': '/product/RLT',
-    'Hydrogen': '/product/HYDROGEN',
-    'Support Hub': '/support',
+    'PEMF': '/product/pemf',
+    'HBOT': '/product/hbot',
+    'RLT': '/product/rlt',
+    'Hydrogen': '/product/hydrogen',
+    'Support Hub': '/help?tab=support',
     'Superhuman Protocol': '/protocols',
     'Zone Builder': '/builder',
     'Bio-Assessment': '/dashboard',
     'Hylono Rewards': '/rewards',
-    'Support': '/support'
+    'Support': '/help?tab=support'
 };
 
 export const SmartText: React.FC<SmartTextProps> = ({ children, onNavigate, className = '' }) => {
@@ -45,15 +45,24 @@ export const SmartText: React.FC<SmartTextProps> = ({ children, onNavigate, clas
 
     return (
         <span className={className}>
-            {parts.map((part) => {
+            {parts.map((part, index) => {
                 const link = TERM_MAPPINGS[part];
                 if (link) {
                     return (
                         <span
-                            key={part}
+                            key={index}
+                            role="link"
+                            tabIndex={0}
                             onClick={(e) => {
                                 e.stopPropagation(); // Prevent parent clicks (like accordion toggles)
                                 handleNavigate(link);
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleNavigate(link);
+                                }
                             }}
                             className="text-cyan-600 font-bold hover:text-cyan-400 cursor-pointer underline decoration-cyan-500/30 underline-offset-4 transition-colors"
                         >
@@ -61,7 +70,7 @@ export const SmartText: React.FC<SmartTextProps> = ({ children, onNavigate, clas
                         </span>
                     );
                 }
-                return <span key={part}>{part}</span>;
+                return <span key={index}>{part}</span>;
             })}
         </span>
     );

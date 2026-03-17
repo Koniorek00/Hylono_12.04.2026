@@ -24,14 +24,14 @@ export const rentalLandingContent = {
     {
       number: 3,
       title: 'Decide',
-      text: 'After your period, return, extend, or buy. 70% of rental payments are credited toward purchase.',
+      text: 'After your period, return, extend, or buy. Eligible rental payments can be credited toward purchase where offered.',
     },
   ],
   comparisonRows: [
     { label: 'Upfront cost', purchase: 'Full price', rental: 'Deposit + 1 month' },
     { label: 'Commitment', purchase: 'None', rental: 'Minimum 1 month' },
     { label: 'Service', purchase: 'Warranty', rental: 'Included' },
-    { label: 'Can I buy later?', purchase: '—', rental: 'Yes, with 70% credit' },
+    { label: 'Can I buy later?', purchase: '-', rental: 'Yes, where purchase credit is offered' },
     { label: 'Best for', purchase: "I'm sure about my choice", rental: 'I want to try first' },
   ],
   faq: [
@@ -41,33 +41,33 @@ export const rentalLandingContent = {
     },
     {
       q: 'What happens if the device breaks?',
-      a: "Service is included in the rental price. We'll repair or replace the device at no extra cost.",
+      a: "Service is included in the rental price. We'll repair or replace the device in line with the published support process.",
     },
     {
       q: 'Can I buy the device afterwards?',
-      a: 'Yes. 70% of your rental payments are credited toward the purchase price.',
+      a: 'Yes, when a purchase-credit path is available for that product and plan.',
     },
     {
       q: 'How does the return work?',
-      a: 'We arrange courier pickup. You just pack the device in its original packaging.',
+      a: 'We arrange courier pickup. Pack the device using the supplied or agreed return materials.',
     },
     {
       q: 'What does the deposit cover?',
-      a: 'The deposit is refundable and covers potential damage beyond normal use. We return it within 14 days of device inspection.',
+      a: 'The deposit is refundable and covers potential damage beyond normal use. Return timing depends on inspection and policy terms.',
     },
   ],
   testimonials: [
     {
       id: 'rent-1',
       quote:
-        'Rental was the easiest way to start. Setup support was excellent and we decided to buy after month three.',
-      author: 'Anna, Warsaw',
+        'Rental plans are designed to help you evaluate fit, space, and routine adherence before making a longer-term purchase decision.',
+      author: 'Rental planning note',
     },
     {
       id: 'rent-2',
       quote:
-        'I wanted to test mHBOT at home before full purchase. The rental path gave me confidence and flexibility.',
-      author: 'Marek, Wrocław',
+        'Delivery, support, and next-step guidance should always be reviewed together with the linked policy and contact pages.',
+      author: 'Support and policy note',
     },
   ],
   finalCta: {

@@ -4,18 +4,13 @@ import { useRouter } from 'next/navigation';
 import { FeatureGate } from '@/components/FeatureGate';
 import { ErrorPage } from '@/components/ErrorPage';
 import { RentalLandingPage } from '@/components/RentalLandingPage';
-
-const toPath = (page: string) => {
-  if (page.startsWith('/')) return page;
-  return page === 'home' ? '/' : `/${page}`;
-};
+import { navigateToPage } from '@/src/lib/navigation';
 
 export function RentalClient() {
   const router = useRouter();
 
   const navigateTo = (page: string) => {
-    router.push(toPath(page));
-    window.scrollTo(0, 0);
+    navigateToPage(router, page);
   };
 
   return (

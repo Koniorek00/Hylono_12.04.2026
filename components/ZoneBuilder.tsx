@@ -168,10 +168,14 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
   };
 
   const saveConfiguration = () => {
-    window.localStorage.setItem(
-      'hylono_builder_configuration',
-      JSON.stringify({ entryPath, selectedGoals, budgetMode, budget, selectedModality, selectedSpace, selectedProductIds })
-    );
+    try {
+      window.localStorage.setItem(
+        'hylono_builder_configuration',
+        JSON.stringify({ entryPath, selectedGoals, budgetMode, budget, selectedModality, selectedSpace, selectedProductIds })
+      );
+    } catch {
+      // Ignore storage errors (private browsing, quota exceeded)
+    }
   };
 
   const shareConfiguration = async () => {
@@ -184,7 +188,11 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
     if (selectedSpace) params.set('space', selectedSpace);
 
     const shareUrl = `${window.location.origin}/builder?${params.toString()}`;
-    await navigator.clipboard.writeText(shareUrl);
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      // Clipboard API unavailable or permission denied — silently ignore
+    }
   };
 
   const startRentalFlow = () => {
@@ -288,10 +296,11 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
             </div>
 
             <div className="mt-5">
-              <label className="text-sm font-semibold text-slate-700">
+              <label htmlFor="zb-budget" className="text-sm font-semibold text-slate-700">
                 {budgetMode === 'purchase' ? `Budget: €${budget.toLocaleString('de-DE')}` : `Budget: €${budget}/mo`}
               </label>
               <input
+                id="zb-budget"
                 type="range"
                 min={budgetMode === 'purchase' ? 5000 : 500}
                 max={budgetMode === 'purchase' ? 80000 : 5000}
@@ -468,7 +477,7 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
                 <button
                   type="button"
                   onClick={() => {
-                    router.push('/advisors');
+                    router.push('/contact');
                     window.scrollTo(0, 0);
                   }}
                   className="min-h-11 rounded-xl border border-slate-200 px-4 text-sm text-slate-600 hover:bg-slate-50"

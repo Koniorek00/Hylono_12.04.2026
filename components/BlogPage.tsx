@@ -278,13 +278,22 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
 
     // Load reading list from localStorage
     useEffect(() => {
-        const saved = localStorage.getItem('hylono_reading_list');
-        if (saved) setReadingList(JSON.parse(saved));
+        try {
+            const saved = localStorage.getItem('hylono_reading_list');
+            if (!saved) return;
+            setReadingList(JSON.parse(saved));
+        } catch {
+            try { localStorage.removeItem('hylono_reading_list'); } catch { /* ignore */ }
+        }
     }, []);
 
     // Save reading list to localStorage
     useEffect(() => {
-        localStorage.setItem('hylono_reading_list', JSON.stringify(readingList));
+        try {
+            localStorage.setItem('hylono_reading_list', JSON.stringify(readingList));
+        } catch {
+            // Ignore storage errors (private browsing, quota exceeded)
+        }
     }, [readingList]);
 
     // Filter and sort posts
@@ -377,10 +386,10 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
                         <Sparkles size={14} />
                         Knowledge Hub
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+                    <h1 id="blog-hero-headline" className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
                         Bio-Optimization Insights
                     </h1>
-                    <p className="text-slate-500 max-w-xl mx-auto">
+                    <p id="blog-hero-description" className="text-slate-500 max-w-xl mx-auto">
                         Evidence-based articles, research summaries, and protocol guides for your regeneration journey
                     </p>
                 </motion.div>
@@ -633,6 +642,9 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
                         onClick={() => setShowEditor(false)}
                     >
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Blog editor"
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
@@ -642,9 +654,10 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
                             <div className="flex justify-end mb-4">
                                 <button
                                     onClick={() => setShowEditor(false)}
+                                    aria-label="Close blog editor"
                                     className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
                                 >
-                                    <X size={20} />
+                                    <X size={20} aria-hidden="true" />
                                 </button>
                             </div>
                             <BlogEditor />

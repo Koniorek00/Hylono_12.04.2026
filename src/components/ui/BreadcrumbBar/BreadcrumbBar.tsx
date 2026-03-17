@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * BreadcrumbBar — Navigation bar with breadcrumbs and page navigator dropdown
  * 
@@ -107,8 +109,8 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
     <div
       className={`
         fixed top-[72px] left-0 right-0 z-40
-        bg-[rgba(250,250,247,0.95)] backdrop-blur-md
-        border-b border-[#E0DED6]/80
+        bg-slate-50/95 backdrop-blur-md
+        border-b border-slate-200/80
         ${className}
       `}
       role="navigation"
@@ -127,11 +129,11 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
               flex items-center gap-2 px-3 py-1.5
               text-sm font-medium rounded-lg
               ui-transition-fast
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A6E6E] focus-visible:ring-offset-2
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700 focus-visible:ring-offset-2
               ${
                 isDropdownOpen
-                  ? 'bg-[#0A6E6E] text-white'
-                  : 'text-[#6B6B60] hover:text-[#0A6E6E] hover:bg-[#F0F0EB]'
+                  ? 'bg-cyan-700 text-white'
+                  : 'text-slate-600 hover:text-cyan-700 hover:bg-slate-100'
               }
             `}
             aria-expanded={isDropdownOpen}

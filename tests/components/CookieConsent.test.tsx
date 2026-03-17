@@ -13,17 +13,37 @@ import { CookieConsent } from '../../components/CookieConsent';
 
 // ─── Constants matching the component's internals ─────────────────────────────
 const STORAGE_KEY = 'cookieConsent';   // matches CONSENT_KEY in component
+const COOKIE_KEY = 'cookieConsent';
 const CONSENT_VERSION = '1.1';         // matches CONSENT_VERSION in component
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function clearConsent() {
     localStorage.removeItem(STORAGE_KEY);
+    document.cookie = `${COOKIE_KEY}=; path=/; max-age=0`;
 }
 
 function getStoredConsent() {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
+}
+
+function getCookieConsent() {
+    const cookie = document.cookie
+        .split('; ')
+        .find((entry) => entry.startsWith(`${COOKIE_KEY}=`));
+
+    if (!cookie) {
+        return null;
+    }
+
+    const value = cookie.slice(`${COOKIE_KEY}=`.length);
+
+    try {
+        return JSON.parse(decodeURIComponent(value));
+    } catch {
+        return null;
+    }
 }
 
 function preStoreConsent(overrides: Record<string, unknown> = {}) {
@@ -83,6 +103,23 @@ describe('CookieConsent', () => {
         expect(screen.queryByRole('dialog')).toBeNull();
     });
 
+    it('synchronizes cookieConsent cookie for returning visitors with valid stored consent', async () => {
+        preStoreConsent({ analytics: true, marketing: false });
+        render(<CookieConsent />);
+        await showBanner();
+
+        expect(screen.queryByRole('dialog')).toBeNull();
+
+        await waitFor(() => {
+            const cookieConsent = getCookieConsent();
+            expect(cookieConsent).not.toBeNull();
+            expect(cookieConsent?.analytics).toBe(true);
+            expect(cookieConsent?.marketing).toBe(false);
+            expect(cookieConsent?.essential).toBe(true);
+            expect(cookieConsent?.version).toBe(CONSENT_VERSION);
+        });
+    });
+
     it('re-prompts when stored consent has an old version', async () => {
         preStoreConsent({ version: '1.0' }); // outdated → should re-prompt
         render(<CookieConsent />);
@@ -105,6 +142,12 @@ describe('CookieConsent', () => {
         expect(stored.analytics).toBe(true);
         expect(stored.marketing).toBe(true);
         expect(stored.essential).toBe(true);
+
+        const cookieConsent = getCookieConsent();
+        expect(cookieConsent).not.toBeNull();
+        expect(cookieConsent?.analytics).toBe(true);
+        expect(cookieConsent?.marketing).toBe(true);
+        expect(cookieConsent?.essential).toBe(true);
     });
 
     it('persists a timestamp when accepting all', async () => {
@@ -146,6 +189,12 @@ describe('CookieConsent', () => {
         expect(stored.analytics).toBe(false);
         expect(stored.marketing).toBe(false);
         expect(stored.essential).toBe(true);
+
+        const cookieConsent = getCookieConsent();
+        expect(cookieConsent).not.toBeNull();
+        expect(cookieConsent?.analytics).toBe(false);
+        expect(cookieConsent?.marketing).toBe(false);
+        expect(cookieConsent?.essential).toBe(true);
     });
 
     // ── Banner dismissal ─────────────────────────────────────────────────────
@@ -215,6 +264,10 @@ describe('CookieConsent', () => {
         expect(stored).not.toBeNull();
         expect(stored.version).toBe(CONSENT_VERSION);
         expect(stored.essential).toBe(true);
+
+        const cookieConsent = getCookieConsent();
+        expect(cookieConsent).not.toBeNull();
+        expect(cookieConsent?.version).toBe(CONSENT_VERSION);
     });
 
     // ── Global event trigger ──────────────────────────────────────────────────

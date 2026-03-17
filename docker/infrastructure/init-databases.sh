@@ -13,14 +13,30 @@ create_db() {
 EOSQL
 }
 
+grant_createdb() {
+  local user=$1
+  psql -v ON_ERROR_STOP=1 --username "postgres" <<-EOSQL
+    ALTER ROLE $user CREATEDB;
+EOSQL
+}
+
+enable_extension() {
+  local db=$1
+  local extension=$2
+  psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "$db" <<-EOSQL
+    CREATE EXTENSION IF NOT EXISTS $extension;
+EOSQL
+}
+
 # Phase 1A
 create_db "medusa" "medusa_db" "${MEDUSA_DB_PASSWORD}"
 create_db "lago" "lago_db" "${LAGO_DB_PASSWORD}"
+grant_createdb "lago"
+enable_extension "lago_db" "pg_partman"
 create_db "twenty" "twenty_db" "${TWENTY_DB_PASSWORD}"
 create_db "n8n" "n8n_db" "${N8N_DB_PASSWORD}"
 create_db "zitadel" "zitadel_db" "${ZITADEL_DB_PASSWORD}"
 create_db "leihs" "leihs_db" "${LEIHS_DB_PASSWORD}"
-create_db "snipeit" "snipeit_db" "${SNIPEIT_DB_PASSWORD}"
 create_db "calcom" "calcom_db" "${CALCOM_DB_PASSWORD}"
 create_db "documenso" "documenso_db" "${DOCUMENSO_DB_PASSWORD}"
 

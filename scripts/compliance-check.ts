@@ -2,7 +2,7 @@
  * Compliance Check Script
  * 
  * Scans content files for medical compliance issues before deployment.
- * Run with: npx tsx scripts/compliance-check.ts
+ * Run with: pnpm exec tsx scripts/compliance-check.ts
  * 
  * @module scripts/compliance-check
  */
@@ -30,8 +30,14 @@ interface ScanSummary {
 
 // Directories and file patterns to scan
 const SCAN_PATHS = [
+  'app',
   'content',
   'components',
+  'src',
+  'lib',
+  'hooks',
+  'utils',
+  'constants',
 ];
 
 const FILE_EXTENSIONS = ['.ts', '.tsx'];
@@ -54,7 +60,22 @@ const SKIP_PATTERNS = [
   /__tests__/,
   /compliance\.ts$/, // Don't scan the compliance utility itself
   /disclaimers\.ts$/, // Disclaimers contain medical terms for legitimate reasons
+  /constants[\/\\]knowledge\.ts$/, // Internal banned-term registry, not public copy
+  /src[\/\\]components[\/\\]ui[\/\\]Multitool[\/\\]utils[\/\\]extractMetrics\.ts$/, // Internal tooling
+  /src[\/\\]lib[\/\\]stripe\.ts$/, // Server utility
+  /hooks[\/\\]useFocusTrap\.tsx$/, // Accessibility utility
+  /utils[\/\\]csrf\.ts$/, // Security utility
+  /utils[\/\\]sanitization\.ts$/, // Sanitization utility
 ];
+
+const RESEARCH_CITATION_SOURCE_PATTERNS = [
+  /content[\/\\]evidence\.ts$/,
+  /content[\/\\]research\.ts$/,
+  /constants[\/\\]content\.ts$/,
+];
+
+const RESEARCH_CITATION_CONTEXT =
+  /pubmed|doi|randomized|systematic review|meta-analysis|trial|study|research|publication|journal|participants?|patients?|fracture|syndrome|cardiac arrest|fatigue/i;
 
 /**
  * Extract text content from a file
@@ -76,11 +97,47 @@ function extractContent(filePath: string): string[] {
   return extracts;
 }
 
+const CLI_ARGS = process.argv.slice(2);
+
+const findFlagValue = (flag: string): string | null => {
+  const entry = CLI_ARGS.find((argument) => argument.startsWith(`${flag}=`));
+  if (!entry) {
+    return null;
+  }
+
+  return entry.slice(flag.length + 1);
+};
+
+const parseLimitFlag = (flag: string): number => {
+  const value = findFlagValue(flag);
+  if (!value) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  return parsed;
+};
+
+const OUTPUT_LIMIT_FILES = parseLimitFlag('--limit-files');
+const OUTPUT_LIMIT_ISSUES_PER_FILE = parseLimitFlag('--limit-issues');
+const STRICT_MODE = !CLI_ARGS.includes('--non-strict');
+
 /**
  * Check if path should be skipped
  */
 function shouldSkip(filePath: string): boolean {
   return SKIP_PATTERNS.some(pattern => pattern.test(filePath));
+}
+
+function shouldIgnoreExtract(filePath: string, text: string): boolean {
+  return (
+    RESEARCH_CITATION_SOURCE_PATTERNS.some((pattern) => pattern.test(filePath)) &&
+    RESEARCH_CITATION_CONTEXT.test(text)
+  );
 }
 
 /**
@@ -107,6 +164,14 @@ function getFiles(dir: string): string[] {
 
   return files;
 }
+
+const toSafeLimit = (value: number): number => {
+  if (!Number.isFinite(value) || value <= 0) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  return value;
+};
 
 /**
  * Scan all content files for compliance issues
@@ -137,7 +202,11 @@ function scanContent(basePath: string): ScanSummary {
     let fileHighestSeverity: 'low' | 'medium' | 'high' | 'critical' = 'low';
 
     for (const text of extracts) {
-      const result = validateCompliance(text, { strict: false });
+      if (shouldIgnoreExtract(file, text)) {
+        continue;
+      }
+
+      const result = validateCompliance(text, { strict: STRICT_MODE });
       
       if (!result.isValid) {
         // Deduplicate issues by term
@@ -226,20 +295,23 @@ if (summary.results.length > 0) {
   console.log('🚨 ISSUES FOUND');
   console.log('━'.repeat(50));
 
-  for (const result of summary.results.slice(0, 20)) { // Limit output
+  const fileOutputLimit = toSafeLimit(OUTPUT_LIMIT_FILES);
+  const issueOutputLimit = toSafeLimit(OUTPUT_LIMIT_ISSUES_PER_FILE);
+
+  for (const result of summary.results.slice(0, fileOutputLimit)) {
     console.log(`\n${formatSeverity(result.severity)} ${result.file}`);
     
-    for (const issue of result.issues.slice(0, 5)) { // Limit issues per file
+    for (const issue of result.issues.slice(0, issueOutputLimit)) {
       console.log(`  └─ "${issue.term}" → ${issue.suggestion}`);
     }
     
-    if (result.issues.length > 5) {
-      console.log(`  └─ ... and ${result.issues.length - 5} more`);
+    if (result.issues.length > issueOutputLimit) {
+      console.log(`  └─ ... and ${result.issues.length - issueOutputLimit} more`);
     }
   }
 
-  if (summary.results.length > 20) {
-    console.log(`\n  ... and ${summary.results.length - 20} more files with issues`);
+  if (summary.results.length > fileOutputLimit) {
+    console.log(`\n  ... and ${summary.results.length - fileOutputLimit} more files with issues`);
   }
 }
 

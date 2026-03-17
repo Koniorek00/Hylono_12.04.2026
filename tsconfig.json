@@ -54,7 +54,9 @@
     "e2e",
     "playwright.config.ts",
     /* ── Separate Next.js workspace (validated independently) ────────────── */
-    "control-panel"
+    "control-panel",
+    /* Vendored third-party workspaces are not part of the app TypeScript program. */
+    "docker/phase-1a/vendor"
   ],
   "include": [
     "next-env.d.ts",

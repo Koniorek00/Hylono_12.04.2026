@@ -123,8 +123,8 @@ export const protocols: Protocol[] = [
     evidenceIds: ['ev-hbot-001', 'ev-hbot-002', 'ev-hbot-003'],
     relatedProtocolSlugs: ['vitality-dual-stack'],
     reviewer: {
-      name: 'Dr. Elena Vasquez',
-      credentials: 'MD, Integrative Recovery Specialist',
+      name: 'Hylono Research Review',
+      credentials: 'Editorial review team',
     },
     version: '1.0.0',
   },
@@ -206,8 +206,8 @@ export const protocols: Protocol[] = [
     evidenceIds: ['ev-h2-001', 'ev-h2-002', 'ev-h2-003'],
     relatedProtocolSlugs: ['vitality-dual-stack'],
     reviewer: {
-      name: 'Dr. James Wright',
-      credentials: 'MD, Preventive Wellness',
+      name: 'Hylono Research Review',
+      credentials: 'Editorial review team',
     },
     version: '1.0.0',
   },
@@ -296,8 +296,8 @@ export const protocols: Protocol[] = [
     evidenceIds: ['ev-hbot-001', 'ev-h2-001', 'ev-combo-001'],
     relatedProtocolSlugs: ['recovery-oxygen-foundation', 'stress-balance-h2-foundation'],
     reviewer: {
-      name: 'Dr. Elena Vasquez',
-      credentials: 'MD, Integrative Recovery Specialist',
+      name: 'Hylono Research Review',
+      credentials: 'Editorial review team',
     },
     version: '1.0.0',
   },

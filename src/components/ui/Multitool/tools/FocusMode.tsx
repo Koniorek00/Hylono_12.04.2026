@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * FocusMode — Distraction-free reading mode
  * 

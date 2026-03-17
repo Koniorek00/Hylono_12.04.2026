@@ -53,23 +53,27 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectTech }) => {
 
                         <div className="relative max-w-2xl mx-auto mt-32 px-4">
                             <motion.div
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label="Search"
                                 initial={{ scale: 0.95, y: -20 }}
                                 animate={{ scale: 1, y: 0 }}
                                 exit={{ scale: 0.95, y: -20 }}
                                 className="bg-white rounded-2xl shadow-2xl overflow-hidden"
                             >
                                 <div className="p-4 flex items-center gap-4 border-b border-slate-100">
-                                    <Search size={20} className="text-slate-400" />
+                                    <Search size={20} className="text-slate-400" aria-hidden="true" />
                                     <input
                                         ref={inputRef}
                                         type="text"
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
                                         placeholder="Search technologies, protocols..."
+                                        aria-label="Search technologies, protocols"
                                         className="flex-1 text-lg outline-none"
                                     />
-                                    <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-600">
-                                        <X size={20} />
+                                    <button onClick={() => setIsOpen(false)} aria-label="Close search" className="text-slate-400 hover:text-slate-600">
+                                        <X size={20} aria-hidden="true" />
                                     </button>
                                 </div>
 

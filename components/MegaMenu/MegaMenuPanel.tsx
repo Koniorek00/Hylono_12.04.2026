@@ -101,7 +101,7 @@ const FilterTagBar: React.FC<FilterTagBarProps> = ({ activeFilter, onFilterChang
             <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/40 flex items-center gap-1.5 shrink-0 mb-2">
                 <Filter size={10} /> Filter
             </span>
-            <div className="flex flex-wrap items-center gap-1.5" role="radiogroup">
+            <div className="flex flex-wrap items-center gap-1.5">
                 {FILTER_TAGS.map((tag, index) => {
                     const isActive = activeFilter === tag.value;
                     const count = resultCounts[tag.value];

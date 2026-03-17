@@ -11,7 +11,8 @@ volumes:
 
 services:
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: ./postgres
     container_name: hylono-postgres
     restart: unless-stopped
     networks: [hylono]
@@ -75,5 +76,5 @@ services:
     container_name: hylono-uptime-kuma
     restart: unless-stopped
     networks: [hylono]
-    ports: ["3001:3001"]
+    ports: ["3002:3001"]
     volumes: [uptimekuma:/app/data]

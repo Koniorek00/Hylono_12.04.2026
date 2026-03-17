@@ -1,0 +1,234 @@
+/* Resonance / Breathing UI - 6 cycles per minute (10s per cycle) */
+@keyframes breathe-border {
+
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  50% {
+    border-color: rgba(6, 182, 212, 0.4);
+  }
+}
+
+@keyframes breathe-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+  }
+}
+
+.animate-resonance {
+  animation: breathe-border 10s ease-in-out infinite, breathe-glow 10s ease-in-out infinite;
+}
+
+/* ===== LIVING ENERGY ANIMATIONS ===== */
+
+/* Breathing - Scale and opacity pulse like a living organism */
+@keyframes breathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.08);
+    opacity: 0.9;
+  }
+}
+
+/* Floating - Gentle vertical movement like clouds */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+
+  50% {
+    transform: translateY(-10px) translateX(-5px);
+  }
+
+  75% {
+    transform: translateY(-25px) translateX(5px);
+  }
+}
+
+/* Shimmer - Horizontal light sweep */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  50%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Shimmer Gradient - Background position movement for text effects */
+@keyframes shimmer-gradient {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Wave - Subtle horizontal flow */
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: translateX(-10%) translateY(-50%);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateX(10%) translateY(-50%);
+    opacity: 0.6;
+  }
+}
+
+/* Pulse - Simple opacity pulse for particles */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.5);
+  }
+}
+
+/* Expand - Width expansion for lines */
+@keyframes expand {
+
+  0%,
+  100% {
+    width: 8rem;
+  }
+
+  50% {
+    width: 12rem;
+  }
+}
+
+/* Fade In Up - Entry animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In - Simple opacity transition */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Slow Spin for background elements */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 30s linear infinite;
+}
+
+/* Rotate gradient angle for aurora borders */
+@keyframes rotate-gradient {
+  0% { --gradient-angle: 0deg; }
+  100% { --gradient-angle: 360deg; }
+}
+
+/* Infinite marquee / ticker */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-slow {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee 25s linear infinite reverse;
+}
+
+/* Number ticker / count-up shimmer */
+@keyframes count-glow {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.3) drop-shadow(0 0 8px rgba(6,182,212,0.6)); }
+  100% { filter: brightness(1); }
+}
+
+.animate-count-glow {
+  animation: count-glow 1.5s ease-out forwards;
+}
+
+/* Text reveal via clip path (word by word) */
+@keyframes text-reveal {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+
+.text-reveal {
+  animation: text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Floating badge pulse */
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-4px) scale(1.02); }
+}
+
+.animate-badge-float {
+  animation: badge-float 3s ease-in-out infinite;
+}
+
+/* Gradient border rotation (conic) */
+@keyframes border-spin {
+  to { --gradient-angle: 360deg; }
+}

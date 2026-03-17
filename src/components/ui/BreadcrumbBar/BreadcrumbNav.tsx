@@ -9,6 +9,7 @@
  * - WCAG compliant with proper aria-current
  */
 import React from 'react';
+import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 
 export interface BreadcrumbItem {
@@ -26,6 +27,13 @@ export interface BreadcrumbNavProps {
   /** Show home icon instead of "Home" text */
   showHomeIcon?: boolean;
 }
+
+const isExternalHref = (href: string): boolean =>
+  href.startsWith('http://') ||
+  href.startsWith('https://') ||
+  href.startsWith('mailto:') ||
+  href.startsWith('tel:') ||
+  href.startsWith('#');
 
 export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
   items,
@@ -47,7 +55,7 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
               {index > 0 && (
                 <ChevronRight
                   size={14}
-                  className="text-[#B0B0A8] shrink-0"
+                  className="text-slate-400 shrink-0"
                   aria-hidden="true"
                 />
               )}
@@ -55,33 +63,41 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
               {/* Link or current page */}
               {item.isCurrent || isLast ? (
                 <span
-                  className="text-[#1A1A1A] font-medium truncate max-w-[150px] sm:max-w-[200px]"
+                  className="text-slate-900 font-medium truncate max-w-[150px] sm:max-w-[200px]"
                   aria-current="page"
                 >
                   {item.label}
                 </span>
-              ) : (
-                <a
-                  href={item.href || '#'}
-                  className={`
-                    flex items-center gap-1
-                    text-[#6B6B60] hover:text-[#0A6E6E]
-                    transition-colors duration-200
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A6E6E] focus-visible:ring-offset-2 rounded
-                    ${isHome && showHomeIcon ? 'hidden sm:flex' : ''}
-                  `}
-                >
-                  {isHome && showHomeIcon ? (
-                    <Home size={14} aria-hidden="true" />
-                  ) : (
-                    <span className="truncate max-w-[100px]">{item.label}</span>
-                  )}
-                </a>
-              )}
+              ) : (() => {
+                const href = item.href ?? '#';
+                const commonClasses = `
+                  flex items-center gap-1
+                  text-slate-600 hover:text-cyan-700
+                  transition-colors duration-200
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700 focus-visible:ring-offset-2 rounded
+                  ${isHome && showHomeIcon ? 'hidden sm:flex' : ''}
+                `;
+
+                const content = isHome && showHomeIcon ? (
+                  <Home size={14} aria-hidden="true" />
+                ) : (
+                  <span className="truncate max-w-[100px]">{item.label}</span>
+                );
+
+                return isExternalHref(href) ? (
+                  <a href={href} className={commonClasses} {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}>
+                    {content}
+                  </a>
+                ) : (
+                  <Link href={href} className={commonClasses} {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}>
+                    {content}
+                  </Link>
+                );
+              })()}
 
               {/* Home text on desktop */}
               {isHome && showHomeIcon && !item.isCurrent && (
-                <span className="hidden sm:inline text-[#6B6B60] truncate max-w-[100px]">
+                <span className="hidden sm:inline text-slate-600 truncate max-w-[100px]">
                   {item.label}
                 </span>
               )}

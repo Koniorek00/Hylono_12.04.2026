@@ -1,8 +1,12 @@
 'use server';
 
 import { revalidateTag, updateTag } from 'next/cache';
+import { headers } from 'next/headers';
 import { z } from 'zod';
+import { TECH_DETAILS } from '@/constants';
+import { env } from '@/lib/env';
 import { actionClient } from '@/lib/safe-action';
+import { TechType } from '@/types';
 
 export interface FormActionResult {
   success: boolean;
@@ -11,6 +15,52 @@ export interface FormActionResult {
   ticketId?: string;
   bookingRef?: string;
   orderId?: string;
+  statusCode?: number;
+}
+
+interface RentalActionItem {
+  techId: string;
+  quantity: number;
+  monthlyPrice: number;
+}
+
+interface RentalActionResponse {
+  id: string;
+  userId: string;
+  items: RentalActionItem[];
+  termMonths: number;
+  status: 'pending' | 'active' | 'cancelled';
+  totalMonthly: number;
+  createdAt: string;
+}
+
+interface ContactApiResponse {
+  success: boolean;
+  message: string;
+  ticketId?: string;
+}
+
+interface BookingApiResponse {
+  success: boolean;
+  message: string;
+  bookingRef?: string;
+}
+
+interface CheckoutApiResponse {
+  success: boolean;
+  message: string;
+  orderId?: string;
+}
+
+interface NewsletterApiResponse {
+  success: boolean;
+  message: string;
+}
+
+interface RentalApiResponse {
+  success: boolean;
+  message: string;
+  rental?: RentalActionResponse;
 }
 
 const contactSchema = z.object({
@@ -42,11 +92,162 @@ const bookingSchema = z.object({
   type: z.string().trim().optional(),
 });
 
+const rentalSchema = z.object({
+  itemsJson: z.string().min(1),
+  userId: z.string().trim().min(1),
+  termMonths: z.coerce.number().int().min(1).max(60).optional().default(12),
+});
+
 const checkoutSchema = z.object({
   itemsJson: z.string().min(1),
   shippingJson: z.string().min(1),
   paymentMethod: z.enum(['card', 'bank_transfer', 'financing']),
 });
+
+const checkoutItemSchema = z.object({
+  id: z.string().trim().min(1),
+  quantity: z.number().int().min(1).max(100),
+});
+
+const shippingSchema = z.object({
+  firstName: z.string().trim().min(1).max(50),
+  lastName: z.string().trim().min(1).max(50),
+  email: z.string().trim().email().max(254),
+  phone: z.string().trim().max(30).optional(),
+  address: z.string().trim().min(1).max(200),
+  city: z.string().trim().min(1).max(100),
+  postalCode: z.string().trim().min(1).max(20),
+  country: z.string().trim().min(1).max(50),
+});
+
+const rentalItemSchema = z.object({
+  techId: z.string().trim().min(1),
+  quantity: z.number().int().min(1).max(100),
+  monthlyPrice: z.number().nonnegative(),
+});
+
+const TECH_ID_TO_TYPE: Record<string, TechType> = {
+  'tech-hbot': TechType.HBOT,
+  'tech-pemf': TechType.PEMF,
+  'tech-rlt': TechType.RLT,
+  'tech-hydrogen': TechType.HYDROGEN,
+  'tech-ewot': TechType.EWOT,
+  'tech-sauna_blanket': TechType.SAUNA_BLANKET,
+  'tech-ems': TechType.EMS,
+  'tech-vns': TechType.VNS,
+  'tech-hypoxic': TechType.HYPOXIC,
+  'tech-cryo': TechType.CRYO,
+};
+
+const parsePriceToMinorUnit = (amountText: string): number => {
+  const parsed = Number(amountText.replace(/[^0-9.]/g, ''));
+
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 0;
+  }
+
+  return Math.round(parsed * 100);
+};
+
+const getTrustedUnitPriceCents = (itemId: string): number | null => {
+  const techType = TECH_ID_TO_TYPE[itemId.trim().toLowerCase()];
+
+  if (!techType) {
+    return null;
+  }
+
+  const techDetails = TECH_DETAILS[techType];
+  const unitPriceCents = parsePriceToMinorUnit(techDetails.price);
+
+  return unitPriceCents > 0 ? unitPriceCents : null;
+};
+
+const safeParseJson = <T>(value: string): T | null => {
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
+};
+
+async function parseApiResponse<T>(response: Response): Promise<T | null> {
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+const resolveApiBaseUrl = async (): Promise<string> => {
+  try {
+    const headerList = await headers();
+    const host =
+      headerList.get('x-forwarded-host') ??
+      headerList.get('host') ??
+      headerList.get('x-original-host');
+
+    if (host) {
+      const protocol =
+        headerList.get('x-forwarded-proto') ??
+        (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https');
+
+      return `${protocol}://${host}`.replace(/\/$/, '');
+    }
+  } catch {
+    // no-op: fallback below handles environments without request context
+  }
+
+  const configured = env.NEXT_PUBLIC_API_BASE_URL.trim();
+  if (/^https?:\/\//i.test(configured)) {
+    return configured.replace(/\/$/, '');
+  }
+
+  return 'http://localhost:3000';
+};
+
+const toApiUrl = async (path: string): Promise<string> => {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${await resolveApiBaseUrl()}${normalizedPath}`;
+};
+
+const createApiRequestInit = (body: unknown): RequestInit => ({
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(body),
+  cache: 'no-store',
+});
+
+const asFallbackStatusCode = (error: unknown): number => {
+  if (error instanceof TypeError) {
+    return 503;
+  }
+
+  return 500;
+};
+
+const normalizeInquiryType = (
+  userType: string | undefined
+): 'general' | 'rental' | 'b2b' | 'support' | 'press' => {
+  if (userType === 'clinic') {
+    return 'b2b';
+  }
+
+  if (userType === 'owner') {
+    return 'support';
+  }
+
+  if (userType === 'press') {
+    return 'press';
+  }
+
+  if (userType === 'rental') {
+    return 'rental';
+  }
+
+  return 'general';
+};
 
 function flattenFieldErrors(error: z.ZodError): Record<string, string[]> | undefined {
   const flattened = z.flattenError(error);
@@ -84,12 +285,45 @@ export async function submitContactFormAction(
     };
   }
 
-  const ticketId = `HYL-${Date.now().toString(36).toUpperCase()}`;
-  return {
-    success: true,
-    message: `Thank you! We'll respond within 1 business day. Reference: ${ticketId}`,
-    ticketId,
+  const payload = {
+    name: parsed.data.name,
+    email: parsed.data.email,
+    subject: parsed.data.subject,
+    message: parsed.data.message,
+    phone: undefined,
+    company: parsed.data.clinicName,
+    inquiryType: normalizeInquiryType(parsed.data.userType),
   };
+
+  try {
+    const response = await fetch(
+      await toApiUrl('/api/contact'),
+      createApiRequestInit(payload)
+    );
+    const result = await parseApiResponse<ContactApiResponse>(response);
+
+    if (!result) {
+      return {
+        success: false,
+        message: 'Contact submission failed. Please try again shortly.',
+        statusCode: response.status,
+      };
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      ticketId: result.ticketId,
+      statusCode: response.status,
+    };
+  } catch (error) {
+    console.error('[formActions] submitContactFormAction failed:', error);
+    return {
+      success: false,
+      message: 'Unable to submit contact request right now. Please try again shortly.',
+      statusCode: asFallbackStatusCode(error),
+    };
+  }
 }
 
 export async function submitNewsletterFormAction(
@@ -108,14 +342,44 @@ export async function submitNewsletterFormAction(
       fieldErrors: flattenFieldErrors(parsed.error),
     };
   }
-
-  updateTag('newsletter');
-  revalidateTag('newsletter', 'max');
-
-  return {
-    success: true,
-    message: 'Thank you for subscribing! Check your inbox to confirm.',
+  const payload = {
+    email: parsed.data.email,
+    source: parsed.data.source,
   };
+
+  try {
+    const response = await fetch(
+      await toApiUrl('/api/newsletter'),
+      createApiRequestInit(payload)
+    );
+    const result = await parseApiResponse<NewsletterApiResponse>(response);
+
+    if (!result) {
+      return {
+        success: false,
+        message: 'Newsletter subscription failed. Please try again.',
+        statusCode: response.status,
+      };
+    }
+
+    if (result.success) {
+      updateTag('newsletter');
+      revalidateTag('newsletter', 'max');
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      statusCode: response.status,
+    };
+  } catch (error) {
+    console.error('[formActions] submitNewsletterFormAction failed:', error);
+    return {
+      success: false,
+      message: 'Unable to subscribe right now. Please try again shortly.',
+      statusCode: asFallbackStatusCode(error),
+    };
+  }
 }
 
 export async function submitBookingFormAction(
@@ -141,12 +405,46 @@ export async function submitBookingFormAction(
     };
   }
 
-  const bookingRef = `BK-${Date.now().toString(36).toUpperCase()}`;
-  return {
-    success: true,
-    message: `Booking request received. Reference: ${bookingRef}`,
-    bookingRef,
+  const payload = {
+    name: parsed.data.name,
+    email: parsed.data.email,
+    phone: parsed.data.phone,
+    preferredDate: parsed.data.preferredDate,
+    preferredTime: parsed.data.preferredTime,
+    notes: parsed.data.notes,
+    bookingType: parsed.data.bookingType,
+    techInterest: parsed.data.interest,
   };
+
+  try {
+    const response = await fetch(
+      await toApiUrl('/api/booking'),
+      createApiRequestInit(payload)
+    );
+    const result = await parseApiResponse<BookingApiResponse>(response);
+
+    if (!result) {
+      return {
+        success: false,
+        message: 'Booking request failed. Please try again.',
+        statusCode: response.status,
+      };
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      bookingRef: result.bookingRef,
+      statusCode: response.status,
+    };
+  } catch (error) {
+    console.error('[formActions] submitBookingFormAction failed:', error);
+    return {
+      success: false,
+      message: 'Unable to submit booking request right now. Please try again shortly.',
+      statusCode: asFallbackStatusCode(error),
+    };
+  }
 }
 
 export async function submitCheckoutFormAction(
@@ -167,12 +465,173 @@ export async function submitCheckoutFormAction(
     };
   }
 
-  const orderId = `HYL-${Date.now().toString(36).toUpperCase()}`;
-  return {
-    success: true,
-    message: `Order ${orderId} received.`,
-    orderId,
+  const parsedItemsRaw = safeParseJson<unknown>(parsed.data.itemsJson);
+  const parsedShippingRaw = safeParseJson<unknown>(parsed.data.shippingJson);
+
+  if (!Array.isArray(parsedItemsRaw) || !parsedShippingRaw) {
+    return {
+      success: false,
+      message: 'Invalid checkout payload.',
+    };
+  }
+
+  const itemsResult = z.array(checkoutItemSchema).safeParse(parsedItemsRaw);
+  const shippingResult = shippingSchema.safeParse(parsedShippingRaw);
+
+  if (!itemsResult.success || !shippingResult.success) {
+    return {
+      success: false,
+      message: 'Invalid checkout payload.',
+    };
+  }
+
+  const trustedItems = itemsResult.data.map((item) => {
+    const unitPriceCents = getTrustedUnitPriceCents(item.id);
+
+    if (!unitPriceCents) {
+      return null;
+    }
+
+    return {
+      id: item.id,
+      quantity: item.quantity,
+      unitPriceCents,
+    };
+  });
+
+  if (trustedItems.some((item) => item === null)) {
+    return {
+      success: false,
+      message:
+        'One or more cart items are invalid. Please refresh your cart and try again.',
+    };
+  }
+
+  const resolvedItems = trustedItems.filter(
+    (item): item is NonNullable<typeof item> => Boolean(item)
+  );
+
+  const totalCents = resolvedItems.reduce(
+    (sum, item) => sum + item.unitPriceCents * item.quantity,
+    0
+  );
+
+  if (totalCents <= 0) {
+    return {
+      success: false,
+      message: 'Unable to process checkout for this cart.',
+    };
+  }
+
+  const payload = {
+    items: resolvedItems.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+    })),
+    shipping: shippingResult.data,
+    paymentMethod: parsed.data.paymentMethod,
   };
+
+  try {
+    const response = await fetch(
+      await toApiUrl('/api/checkout'),
+      createApiRequestInit(payload)
+    );
+    const result = await parseApiResponse<CheckoutApiResponse>(response);
+
+    if (!result) {
+      return {
+        success: false,
+        message: 'Checkout failed. Please try again shortly.',
+        statusCode: response.status,
+      };
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      orderId: result.orderId,
+      statusCode: response.status,
+    };
+  } catch (error) {
+    console.error('[formActions] submitCheckoutFormAction failed:', error);
+    return {
+      success: false,
+      message: 'Unable to process checkout right now. Please try again shortly.',
+      statusCode: asFallbackStatusCode(error),
+    };
+  }
+}
+
+export async function submitRentalFormAction(
+  _prevState: FormActionResult,
+  formData: FormData
+): Promise<FormActionResult> {
+  const parsed = rentalSchema.safeParse({
+    itemsJson: formData.get('itemsJson'),
+    userId: formData.get('userId'),
+    termMonths: formData.get('termMonths') || undefined,
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? 'Invalid rental payload.',
+      fieldErrors: flattenFieldErrors(parsed.error),
+    };
+  }
+
+  const parsedItemsRaw = safeParseJson<unknown>(parsed.data.itemsJson);
+  if (!Array.isArray(parsedItemsRaw)) {
+    return {
+      success: false,
+      message: 'Invalid rental payload.',
+    };
+  }
+
+  const itemsResult = z.array(rentalItemSchema).safeParse(parsedItemsRaw);
+  if (!itemsResult.success) {
+    return {
+      success: false,
+      message: 'Invalid rental payload.',
+      fieldErrors: flattenFieldErrors(itemsResult.error),
+    };
+  }
+
+  const payload = {
+    items: itemsResult.data,
+    userId: parsed.data.userId,
+    termMonths: parsed.data.termMonths,
+  };
+
+  try {
+    const response = await fetch(
+      await toApiUrl('/api/rental'),
+      createApiRequestInit(payload)
+    );
+    const result = await parseApiResponse<RentalApiResponse>(response);
+
+    if (!result) {
+      return {
+        success: false,
+        message: 'Rental request failed. Please try again shortly.',
+        statusCode: response.status,
+      };
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+      statusCode: response.status,
+    };
+  } catch (error) {
+    console.error('[formActions] submitRentalFormAction failed:', error);
+    return {
+      success: false,
+      message: 'Unable to submit rental request right now. Please try again shortly.',
+      statusCode: asFallbackStatusCode(error),
+    };
+  }
 }
 
 const submitNewsletterInputSchema = z.object({

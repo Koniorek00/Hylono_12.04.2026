@@ -38,7 +38,7 @@ export const ProductMention: React.FC<ProductMentionProps> = ({ productId, conte
                     </p>
                 </div>
                 <button
-                    onClick={() => navigateTo(`product/${product.id}`)}
+                    onClick={() => navigateTo(`product/${product.id.toLowerCase()}`)}
                     className="text-xs font-bold text-cyan-600 hover:text-cyan-700 inline-flex items-center gap-1"
                     aria-label={`View product ${product.name}`}
                 >

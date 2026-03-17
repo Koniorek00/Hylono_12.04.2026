@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     ArrowLeft, ArrowRight, Calendar, Shield, CheckCircle, Phone, ShoppingBag,
@@ -76,8 +77,6 @@ interface TechHeroProps {
 
 export const TechHero: React.FC<TechHeroProps> = ({
     data,
-    onBack,
-    onNavigate,
 }) => {
     const [selectedChamberId, setSelectedChamberId] = useState<string | null>(null);
     const [expandedTypes, setExpandedTypes] = useState<string[]>(['monoplace']);
@@ -143,13 +142,13 @@ export const TechHero: React.FC<TechHeroProps> = ({
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 {/* Back Button */}
-                <button
-                    onClick={onBack}
+                <Link
+                    href="/store"
                     className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors mb-12 group"
                 >
                     <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                     <span className="text-xs font-bold uppercase tracking-widest">Back to Store</span>
-                </button>
+                </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
                     {/* LEFT: Visual */}
@@ -232,14 +231,14 @@ export const TechHero: React.FC<TechHeroProps> = ({
                     </div>
 
                     {/* RIGHT: Product Info & Selector */}
-                    <div className="lg:sticky lg:top-32">
+                    <div id="product-hero" className="lg:sticky lg:top-32">
                         {/* Badges */}
                         <div className="flex items-center gap-3 mb-6">
                             <span className="text-[11px] bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
-                                <CheckCircle size={10} /> CE Marked
+                                <CheckCircle size={10} /> Guided Setup
                             </span>
                             <span className="text-[11px] bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider">
-                                HSA/FSA
+                                {(selectedChamber?.pricing.rent ?? data.rentalPrice) ? 'Rental Available' : 'Purchase Support'}
                             </span>
                         </div>
 
@@ -249,6 +248,11 @@ export const TechHero: React.FC<TechHeroProps> = ({
                         </h1>
                         <p className="text-xl text-slate-500 font-light mb-8 leading-relaxed">
                             {techConfig.tagline}
+                        </p>
+                        <p className="max-w-2xl text-sm leading-relaxed text-slate-600 mb-8">
+                            Compare configurations, review pricing and rental paths, and see how
+                            this device fits into a structured Hylono routine before you move into
+                            deeper specifications and support resources.
                         </p>
 
                         {/* Chamber Configuration Selector (HBOT only) */}
@@ -399,36 +403,36 @@ export const TechHero: React.FC<TechHeroProps> = ({
 
                         {/* Primary CTAs */}
                         <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                            <button
-                                onClick={() => onNavigate?.('store')}
+                            <Link
+                                href="/store"
                                 className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-900/20 active:scale-[0.98]"
                             >
                                 <ShoppingBag size={16} /> 
                                 {selectedChamber ? `Order ${selectedChamber.fullName}` : 'Order Now'}
                                 <ArrowRight size={16} />
-                            </button>
-                            <button 
-                                onClick={() => onNavigate?.('contact')}
+                            </Link>
+                            <Link
+                                href={`/contact?tech=${data.id.toLowerCase()}`}
                                 className="flex-1 px-8 py-4 bg-white text-slate-900 border-2 border-slate-200 rounded-xl font-bold text-xs uppercase tracking-widest hover:border-slate-400 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                             >
                                 <Calendar size={16} /> Book Demo
-                            </button>
+                            </Link>
                         </div>
 
                         {/* Trust Line */}
                         <div className="grid grid-cols-3 gap-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                            <div className="flex items-center gap-2">
+                            <Link href="/warranty" className="flex items-center gap-2 hover:text-slate-600 transition-colors">
                                 <Shield size={14} className="text-emerald-500" />
-                                <span>5-Year Warranty</span>
-                            </div>
-                            <div className="flex items-center gap-2">
+                                <span>Warranty Policy</span>
+                            </Link>
+                            <Link href="/returns" className="flex items-center gap-2 hover:text-slate-600 transition-colors">
                                 <CheckCircle size={14} className="text-emerald-500" />
-                                <span>30-Day Returns</span>
-                            </div>
-                            <div className="flex items-center gap-2">
+                                <span>Returns Policy</span>
+                            </Link>
+                            <Link href={`/contact?tech=${data.id.toLowerCase()}`} className="flex items-center gap-2 hover:text-slate-600 transition-colors">
                                 <Phone size={14} className="text-emerald-500" />
-                                <span>24/7 Support</span>
-                            </div>
+                                <span>Contact Support</span>
+                            </Link>
                         </div>
                     </div>
                 </div>

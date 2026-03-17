@@ -1,0 +1,346 @@
+# HYLONO CURRENT SEO STATE CHECKLIST WITH SCORES
+
+Purpose:
+This document defines the CURRENT SEO STATE baseline for the repository.
+
+Repository:
+F:\ag projects\Hylono_MAIN - SEO BOOST
+
+This is NOT an implementation prompt.
+This is a verification checklist for another agent.
+
+The goal is to measure the current SEO state consistently and produce a repeatable score.
+
+---
+
+## SCORING MODEL
+
+Total score: 10.0
+
+Sections and weights:
+
+- Host integrity — 1.0
+- Crawlability — 2.0
+- Rendering — 1.0
+- Metadata quality — 1.0
+- Structured data — 1.0
+- Internal link graph — 1.0
+- AI search readiness — 1.0
+- Build / compliance — 1.0
+- Design parity — 1.0
+
+Scoring rules:
+
+- PASS = full section score
+- PARTIAL = partial section score based on severity
+- FAIL = 0 for that section
+
+Important rule:
+If invalid dynamic routes return `200` instead of `404`, Crawlability must be scored as `0 / 2.0`.
+
+---
+
+## CURRENT BASELINE SCORECARD
+
+### 1. HOST INTEGRITY — `PARTIAL`
+Score: `0.5 / 1.0`
+
+Current status:
+- canonical tags resolve to `https://hylono.eu`
+- `robots.txt` resolves to `https://hylono.eu`
+- `sitemap.xml` resolves to `https://hylono.eu`
+- live JSON-LD resolves to `https://hylono.eu`
+
+Remaining issues:
+- `/product/hbot` still renders media from `oxyhelp.com`
+- hardcoded `.com` absolute URL remains in `components/partner/ReferralConnect.tsx`
+
+Checklist:
+- [x] primary canonical host is consistent
+- [x] robots points to the primary host
+- [x] sitemap points to the primary host
+- [x] schema uses the primary host
+- [ ] no secondary-domain leakage remains
+- [ ] no absolute `.com` URLs remain in the public site
+
+---
+
+### 2. CRAWLABILITY — `FAIL`
+Score: `0.0 / 2.0`
+
+Current status:
+Invalid dynamic URLs are soft-404ing.
+
+Observed failures:
+- `/product/not-a-real-tech`
+- `/conditions/not-a-real-condition`
+- `/protocols/not-a-real-protocol`
+- `/product/HBOT`
+- `/conditions/Recovery`
+- `/protocols/Recovery-Oxygen-Foundation`
+
+These returned `200` with not-found / noindex bodies instead of proper `404` or redirects.
+
+Responsible route families:
+- `app/product/[tech]/page.tsx`
+- `app/conditions/[slug]/page.tsx`
+- `app/protocols/[slug]/page.tsx`
+
+Checklist:
+- [ ] invalid product slugs return real `404`
+- [ ] invalid condition slugs return real `404`
+- [ ] invalid protocol slugs return real `404`
+- [ ] case-variant invalid URLs return `404` or canonical redirect
+- [ ] no soft-404 pages remain
+- [x] research invalid article path correctly returns `404`
+
+---
+
+### 3. RENDERING — `PASS`
+Score: `1.0 / 1.0`
+
+Current status:
+The following routes returned substantial initial HTML before hydration:
+- `/`
+- `/store`
+- `/product/hydrogen`
+- `/product/hbot`
+- `/conditions`
+- `/conditions/recovery`
+- `/research`
+- `/protocols`
+- `/protocols/recovery-oxygen-foundation`
+
+Confirmed:
+- `<main>` present
+- headings present
+- JSON-LD present
+- route-specific content present
+- no shell-only rendering found on tested routes
+
+Checklist:
+- [x] homepage renders meaningful initial HTML
+- [x] store renders meaningful initial HTML
+- [x] product routes render meaningful initial HTML
+- [x] conditions routes render meaningful initial HTML
+- [x] research renders meaningful initial HTML
+- [x] protocols render meaningful initial HTML
+- [x] key content does not depend entirely on hydration
+
+---
+
+### 4. METADATA QUALITY — `PARTIAL`
+Score: `0.7 / 1.0`
+
+Current status:
+- titles are unique across sampled routes
+- descriptions are unique across sampled routes
+- no generic titles like `Product Page` or `Technology` found
+
+Remaining issues:
+- missing root `title.template` in `app/layout.tsx`
+- generic product suffix `| Product Details` in `app/product/[tech]/page.tsx`
+
+Checklist:
+- [x] titles are unique
+- [x] descriptions are unique
+- [x] route-specific names are included
+- [ ] root metadata template is defined
+- [ ] product title suffixes are fully SERP-optimized
+- [ ] metadata copy reaches highest-quality commercial / informational standard
+
+---
+
+### 5. STRUCTURED DATA — `PASS`
+Score: `1.0 / 1.0`
+
+Current status:
+Structured-data governance passed in `pnpm check`.
+
+Confirmed schema types:
+- Organization
+- WebSite
+- Product
+- Breadcrumb
+- FAQ
+- MedicalWebPage
+- ItemList
+- BlogPosting
+
+Confirmed:
+- schema URLs use `https://hylono.eu`
+- schema matches visible page topics
+
+Checklist:
+- [x] Organization schema valid
+- [x] WebSite schema valid
+- [x] Product schema valid
+- [x] Breadcrumb schema valid
+- [x] Article / BlogPosting schema valid
+- [x] medical / research schema matches visible content
+- [x] schema host matches canonical host
+
+---
+
+### 6. INTERNAL LINK GRAPH — `PASS`
+Score: `1.0 / 1.0`
+
+Current status:
+The required crawlable graph exists in HTML:
+
+Condition → Research → Product → Protocol → Contact/Rental
+
+Confirmed examples:
+- `/conditions/recovery` links to research, protocols, products
+- `/research` links to products, protocols, contact
+- `/product/hbot` links to protocols, rental, contact
+- `/protocols/recovery-oxygen-foundation` links back to products, research, rental, contact
+
+Checklist:
+- [x] condition pages link to research
+- [x] research pages link to products
+- [x] product pages link to protocols
+- [x] protocol pages link back into the graph
+- [x] key internal links are crawlable href links
+- [x] graph is not dependent on JS-only navigation
+
+---
+
+### 7. AI SEARCH READINESS — `PARTIAL`
+Score: `0.7 / 1.0`
+
+Current status:
+Research is strong:
+- visible answer-first blocks exist
+- disclaimer blocks exist
+- entity references are clear
+- study cards are structured
+
+Remaining issues:
+Most of the site still relies too heavily on hidden `sr-only` extraction summaries instead of strong visible answer-first blocks.
+
+Affected areas include:
+- homepage
+- store
+- product detail
+- conditions detail
+- protocols detail
+- blog detail
+
+Checklist:
+- [x] research section has visible answer-first structure
+- [x] research section includes clear entity references
+- [x] research section includes visible qualification / disclaimer framing
+- [ ] homepage has strong visible answer-first summary
+- [ ] store has strong visible answer-first summary
+- [ ] product pages have strong visible answer-first summary
+- [ ] condition pages have strong visible answer-first summary
+- [ ] protocol pages have strong visible answer-first summary
+- [ ] blog pages have strong visible answer-first summary
+- [ ] AI-readable framing is visible, not mostly hidden in `sr-only`
+
+---
+
+### 8. BUILD / COMPLIANCE — `FAIL`
+Score: `0.0 / 1.0`
+
+Current status:
+- `pnpm build` passed
+- `pnpm check` passed
+- `pnpm compliance:strict` failed
+
+Compliance summary:
+- 94 issues
+- 38 files affected
+
+Critical / high-impact files include:
+- `components/blog/ArticleReader.tsx`
+- `components/LegalPages.tsx`
+- `constants/chambers.ts`
+- `constants/knowledge.ts`
+- `components/ChamberCompare.tsx`
+- `components/ChamberCompare5.tsx`
+- `components/RentalConfigurator.tsx`
+- `components/partner/PDFTemplates.tsx`
+- `hooks/usePartnerStore.ts`
+- `utils/searchStorage.ts`
+
+Checklist:
+- [x] build passes
+- [x] repo checks pass
+- [ ] strict compliance passes
+- [ ] no critical/high compliance issues remain
+
+---
+
+### 9. DESIGN PARITY — `PARTIAL`
+Score: `0.6 / 1.0`
+
+Current status:
+- homepage visual verification suggests premium design is intact
+- HTML on the other major routes does not show obvious SEO-only layout artifacts
+
+Limitation:
+Full screenshot-based parity confirmation failed on:
+- `/store`
+- `/product/hydrogen`
+- `/product/hbot`
+- `/conditions`
+- `/research`
+- `/protocols`
+
+The browser runtime timed out on those captures.
+
+Checklist:
+- [x] homepage visual baseline appears intact
+- [x] no obvious SEO-only visual artifacts found in HTML output
+- [ ] store visual parity fully confirmed
+- [ ] product route visual parity fully confirmed
+- [ ] conditions visual parity fully confirmed
+- [ ] research visual parity fully confirmed
+- [ ] protocols visual parity fully confirmed
+
+---
+
+## CURRENT TOTAL SCORE
+
+Host integrity: `0.5 / 1.0`
+Crawlability: `0.0 / 2.0`
+Rendering: `1.0 / 1.0`
+Metadata quality: `0.7 / 1.0`
+Structured data: `1.0 / 1.0`
+Internal link graph: `1.0 / 1.0`
+AI search readiness: `0.7 / 1.0`
+Build / compliance: `0.0 / 1.0`
+Design parity: `0.6 / 1.0`
+
+## FINAL CURRENT SEO SCORE
+
+`5.5 / 10`
+
+---
+
+## CURRENT STATE JUDGMENT
+
+Current SEO state is NOT yet production-ready at the highest standard.
+
+Primary blockers:
+1. soft-404 dynamic routes
+2. strict compliance failure
+3. residual host leakage
+4. incomplete AI-visible answer-first structure
+5. incomplete full-route visual parity confirmation
+
+---
+
+## REQUIRED FINAL STATEMENT FOR THE AUDITOR
+
+Use one of the following exact outcomes:
+
+- `CURRENT SEO STATE VERIFIED — NOT YET MAXIMUM STANDARD`
+or
+- `CURRENT SEO STATE VERIFIED — READY FOR FINAL SIGN-OFF`
+
+For the current baseline, the correct conclusion is:
+
+`CURRENT SEO STATE VERIFIED — NOT YET MAXIMUM STANDARD`

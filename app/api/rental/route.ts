@@ -1,13 +1,12 @@
-/**
- * Rental API Handler — Standard Web Fetch API (no Next.js dependency)
- * Compatible with: Vite dev server middleware, Cloudflare Workers, or any edge runtime.
- *
- * NOTE: This is a stateless handler stub. Wire `rentalService.createRental()`
- * to a real backend (Express server / Supabase Edge Function) before going to production.
- */
-
 import { z } from 'zod';
-import { readJsonBody, validationErrorResponse } from '../_shared/validation';
+import { and, eq, ne } from 'drizzle-orm';
+import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { rentalApplicationsTable } from '@/lib/db/schema';
+import {
+    readJsonBody,
+    sanitizeText,
+    validationErrorResponse,
+} from '../_shared/validation';
 
 export interface RentalItem {
     techId: string;
@@ -31,6 +30,19 @@ export interface RentalResponse {
     createdAt: string;
 }
 
+interface RentalCreateResponse {
+    success: boolean;
+    message: string;
+    rental?: RentalResponse;
+    fieldErrors?: Record<string, string[]>;
+}
+
+interface RentalListResponse {
+    success: boolean;
+    message: string;
+    rentals: RentalResponse[];
+}
+
 const createRentalPayloadSchema = z.object({
     items: z.array(
         z.object({
@@ -43,13 +55,31 @@ const createRentalPayloadSchema = z.object({
     termMonths: z.number().int().min(1).max(60).optional().default(12),
 }) satisfies z.ZodType<CreateRentalPayload>;
 
+const normalizeUserId = (userId: string): string =>
+    sanitizeText(userId, {
+        maxLength: 120,
+        context: 'slug',
+    }).toLowerCase();
+
+const normalizeRentalItems = (items: RentalItem[]): RentalItem[] =>
+    items.map((item) => ({
+        techId: sanitizeText(item.techId, {
+            maxLength: 80,
+            context: 'slug',
+        }).toLowerCase(),
+        quantity: item.quantity,
+        monthlyPrice: Number(item.monthlyPrice.toFixed(2)),
+    }));
+
+const toMinorUnit = (value: number): number => Math.round(value * 100);
+
+const fromMinorUnit = (value: number): number => Number((value / 100).toFixed(2));
+
 /**
  * POST /api/rental
  * Creates a new rental agreement record.
  */
 export async function POST(request: Request): Promise<Response> {
-    const headers = { 'Content-Type': 'application/json' };
-
     try {
         const rawBody = await readJsonBody(request);
         const parsed = createRentalPayloadSchema.safeParse(rawBody);
@@ -59,62 +89,143 @@ export async function POST(request: Request): Promise<Response> {
         }
 
         const { items, userId, termMonths = 12 } = parsed.data;
+        const normalizedUserId = normalizeUserId(userId);
+        const normalizedItems = normalizeRentalItems(items);
 
-        // TODO: Replace stub below with real DB call via Prisma:
-        // const rental = await prisma.rental.create({ data: { userId, items, termMonths } });
-        const totalMonthly = items.reduce(
+        if (!isDatabaseConfigured()) {
+            console.error('[RentalAPI] DATABASE_URL missing; cannot persist rental application');
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Rental channel is temporarily unavailable. Please try again shortly.',
+                } satisfies RentalCreateResponse,
+                { status: 503 }
+            );
+        }
+
+        const db = getDb();
+
+        const totalMonthlyAmount = normalizedItems.reduce(
             (sum, item) => sum + item.monthlyPrice * item.quantity,
             0
         );
 
-        const rental: RentalResponse = {
+        const rentalId = crypto.randomUUID();
+        const createdAt = new Date();
+
+        await db.insert(rentalApplicationsTable).values({
             id: crypto.randomUUID(),
-            userId,
-            items,
+            rentalId,
+            userId: normalizedUserId,
+            items: normalizedItems,
             termMonths,
             status: 'pending',
-            totalMonthly,
-            createdAt: new Date().toISOString(),
+            totalMonthlyCents: toMinorUnit(totalMonthlyAmount),
+            createdAt,
+        });
+
+        const rental: RentalResponse = {
+            id: rentalId,
+            userId: normalizedUserId,
+            items: normalizedItems,
+            termMonths,
+            status: 'pending',
+            totalMonthly: Number(totalMonthlyAmount.toFixed(2)),
+            createdAt: createdAt.toISOString(),
         };
 
-        return new Response(JSON.stringify(rental), { status: 201, headers });
+        return Response.json(
+            {
+                success: true,
+                message: `Rental application ${rental.id} received. Our team will contact you with next steps.`,
+                rental,
+            } satisfies RentalCreateResponse,
+            { status: 201 }
+        );
     } catch (error) {
         console.error('[RentalAPI] Error creating rental:', error);
-        return new Response(
-            JSON.stringify({ error: 'Internal Server Error' }),
-            { status: 500, headers }
+        return Response.json(
+            {
+                success: false,
+                message: 'An unexpected error occurred while creating the rental application.',
+            } satisfies RentalCreateResponse,
+            { status: 500 }
         );
     }
 }
 
 /**
  * GET /api/rental?userId=<id>
- * Fetches all active rentals for a given user. Stub — wire to Prisma.
+ * Fetches all non-cancelled rentals currently stored for a user.
  */
 export async function GET(request: Request): Promise<Response> {
-    const headers = { 'Content-Type': 'application/json' };
-
     try {
         const url = new URL(request.url);
-        const userId = url.searchParams.get('userId');
+        const rawUserId = url.searchParams.get('userId');
+        const userId = rawUserId ? normalizeUserId(rawUserId) : '';
 
-        if (!userId) {
-            return new Response(
-                JSON.stringify({ error: 'Missing query param: userId' }),
-                { status: 400, headers }
+        if (!isDatabaseConfigured()) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Rental channel is temporarily unavailable. Please try again shortly.',
+                    rentals: [],
+                } satisfies RentalListResponse,
+                { status: 503 }
             );
         }
 
-        // TODO: Replace stub below with:
-        // const rentals = await prisma.rental.findMany({ where: { userId } });
-        const rentals: RentalResponse[] = [];
+        if (!userId) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Missing query param: userId',
+                    rentals: [],
+                } satisfies RentalListResponse,
+                { status: 400 }
+            );
+        }
 
-        return new Response(JSON.stringify({ rentals }), { status: 200, headers });
+        const db = getDb();
+        const persistedRentals = await db
+            .select()
+            .from(rentalApplicationsTable)
+            .where(
+                and(
+                    eq(rentalApplicationsTable.userId, userId),
+                    ne(rentalApplicationsTable.status, 'cancelled')
+                )
+            );
+
+        const rentals = persistedRentals
+            .map((rental) => ({
+                id: rental.rentalId,
+                userId: rental.userId,
+                items: rental.items,
+                termMonths: rental.termMonths,
+                status: rental.status as RentalResponse['status'],
+                totalMonthly: fromMinorUnit(rental.totalMonthlyCents),
+                createdAt: rental.createdAt.toISOString(),
+            }))
+            .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+
+        return Response.json(
+            {
+                success: true,
+                message: 'Rental applications retrieved successfully.',
+                rentals,
+            } satisfies RentalListResponse,
+            { status: 200 }
+        );
     } catch (error) {
         console.error('[RentalAPI] Error fetching rentals:', error);
-        return new Response(
-            JSON.stringify({ error: 'Internal Server Error' }),
-            { status: 500, headers }
+        return Response.json(
+            {
+                success: false,
+                message: 'An unexpected error occurred while fetching rentals.',
+                rentals: [],
+            } satisfies RentalListResponse,
+            { status: 500 }
         );
     }
 }

@@ -1,13 +1,6 @@
-import type { Metadata } from 'next';
-import { createPageMetadata } from '@/lib/seo-metadata';
-import { SupportClient } from './SupportClient';
+import { permanentRedirect } from 'next/navigation';
 
-export const metadata: Metadata = createPageMetadata({
-  title: 'Support',
-  description: 'Get device support, troubleshooting guidance, and direct help from the Hylono support team.',
-  path: '/support',
-});
-
+// [DECISION: redirect because /support is a duplicate trust alias and should resolve to the canonical help center support tab.]
 export default function SupportPageRoute() {
-  return <SupportClient />;
+  permanentRedirect('/help?tab=support');
 }

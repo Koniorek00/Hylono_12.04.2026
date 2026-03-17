@@ -118,6 +118,7 @@ export const HeroSection: React.FC = () => {
 
                 {/* Main Headline */}
                 <motion.h1
+                    id="home-hero-headline"
                     className="text-[36px] md:text-[56px] text-[#1A1A1A] text-center leading-[1.2] mb-5"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -128,6 +129,7 @@ export const HeroSection: React.FC = () => {
 
                 {/* Subheadline - description style for readability */}
                 <motion.p
+                    id="home-hero-description"
                     className="text-[18px] text-[#6B6B60] text-center max-w-[580px] leading-[1.7] mb-9"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}

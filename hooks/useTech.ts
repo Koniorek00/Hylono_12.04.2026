@@ -1,6 +1,5 @@
 import { TechType, TechData } from '../types';
 import { TECH_DETAILS } from '../constants';
-import { pageSEO } from '../components/SEO';
 import { KNOWLEDGE_REGISTRY, KnowledgePack } from '../constants/knowledge';
 
 /**
@@ -44,13 +43,6 @@ export const useTech = () => {
     };
 
     /**
-     * Get SEO metadata for a tech detail page
-     */
-    const getTechSEO = (type: TechType) => {
-        return pageSEO[type] || pageSEO.home;
-    };
-
-    /**
      * List all available technologies
      */
     const getAllTech = (): TechData[] => {
@@ -67,7 +59,6 @@ export const useTech = () => {
     return {
         getTechDetails,
         getTechKnowledge,
-        getTechSEO,
         getAllTech,
         findTechByType,
         allTech: ALL_TECH

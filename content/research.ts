@@ -1,4 +1,4 @@
-export type ResearchModality = 'mHBOT' | 'H2' | 'RLT' | 'PEMF';
+export type ResearchModality = 'mHBOT' | 'H2';
 export type ResearchStudyType = 'RCT' | 'Meta-analysis' | 'Review' | 'Cohort';
 
 export interface ResearchStudyCard {
@@ -16,62 +16,61 @@ export interface ResearchStudyCard {
 export const researchContent = {
   title: 'Scientific research library',
   subtitle:
-    'Explore selected studies related to the technologies used in Hylono protocols. References are provided for educational review.',
-  technologyFilters: ['All', 'mHBOT', 'H2', 'RLT', 'PEMF'] as const,
+    'Explore selected peer-reviewed sources related to the technologies used in Hylono protocols. References are provided for educational review and limitations should be considered.',
+  technologyFilters: ['All', 'mHBOT', 'H2'] as const,
   studyTypeFilters: ['All', 'RCT', 'Meta-analysis', 'Review', 'Cohort'] as const,
   emptyState: 'No studies match your selected filters yet.',
-  productCtaLabel: 'View related products',
+  productCtaLabel: 'View related product hub',
   protocolCtaLabel: 'Browse protocols',
   disclaimer:
-    'Research references are provided for educational purposes and should not be interpreted as medical advice. Not intended to diagnose, treat, cure, or prevent any disease.',
+    'Research references are provided for educational purposes and should not be interpreted as personalized professional advice. They are intended to support evidence review rather than disease-management decisions.',
   studies: [
     {
-      id: 'study-hbot-recovery-2023',
-      title: 'mHBOT and post-exercise recovery markers in active adults',
+      id: 'study-hbot-athletes-2022',
+      title:
+        'Effects of Hyperbaric Oxygen Therapy on Mitochondrial Respiration and Physical Performance in Middle-Aged Athletes: A Blinded, Randomized Controlled Trial',
       modality: 'mHBOT',
       studyType: 'RCT',
-      population: 'N=48 active adults',
+      population: 'Healthy master athletes in a blinded randomized trial',
       summary:
-        'Participants using structured mHBOT sessions showed improved short-term recovery marker trends versus control in this cohort.',
-      year: 2023,
-      doi: '10.1000/hylono.hbot.2023.001',
-      url: 'https://doi.org/10.1000/hylono.hbot.2023.001',
+        'HBOT improved VO2 max, ventilatory threshold, and mitochondrial markers versus sham in this study population. Findings are performance-focused and may not generalize to every wellness use case.',
+      year: 2022,
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8825926/',
     },
     {
-      id: 'study-h2-fatigue-2022',
-      title: 'Molecular hydrogen supplementation and perceived fatigue outcomes',
+      id: 'study-h2-fatigue-2023',
+      title:
+        'Effects of molecular hydrogen supplementation on fatigue and aerobic capacity in healthy adults: A systematic review and meta-analysis',
       modality: 'H2',
       studyType: 'Meta-analysis',
-      population: '11 studies pooled',
+      population: 'Systematic review and meta-analysis of healthy-adult studies',
       summary:
-        'Meta-analysis reported supportive trends for fatigue-related outcomes in selected populations, with heterogeneity across protocols.',
-      year: 2022,
-      doi: '10.1000/hylono.h2.2022.004',
-      url: 'https://doi.org/10.1000/hylono.h2.2022.004',
+        'The review reported supportive effects on fatigue and aerobic-capacity outcomes, while also noting protocol heterogeneity and a limited evidence base.',
+      year: 2023,
+      url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9934906/',
     },
     {
-      id: 'study-rlt-sleep-2024',
-      title: 'Red light evening routines and sleep-quality questionnaires',
-      modality: 'RLT',
-      studyType: 'Cohort',
-      population: 'N=62 adults',
+      id: 'study-hbot-soreness-2025',
+      title:
+        'Effects of Hyperbaric Oxygen Therapy on Exercise-Induced Muscle Injury and Soreness: A Systematic Review and Meta-analysis',
+      modality: 'mHBOT',
+      studyType: 'Meta-analysis',
+      population: 'Randomized controlled trials on exercise-induced muscle injury and soreness',
       summary:
-        'This cohort analysis reported positive sleep-quality questionnaire changes after structured evening RLT routine adherence.',
-      year: 2024,
-      doi: '10.1000/hylono.rlt.2024.002',
-      url: 'https://doi.org/10.1000/hylono.rlt.2024.002',
+        'This review suggests hyperbaric oxygen may improve some post-exercise soreness and injury markers, but the underlying trials vary in quality and intervention design.',
+      year: 2025,
+      url: 'https://pubmed.ncbi.nlm.nih.gov/40784513/',
     },
     {
-      id: 'study-pemf-stress-2021',
-      title: 'PEMF use and stress-related self-report outcomes',
-      modality: 'PEMF',
+      id: 'study-h2-fatigue-review-2021',
+      title: 'Molecular Hydrogen as a Potential Treatment for Acute and Chronic Fatigue',
+      modality: 'H2',
       studyType: 'Review',
-      population: 'Narrative review',
+      population: 'Narrative review covering fatigue-related literature',
       summary:
-        'Review article summarised early evidence and highlighted the need for protocol-standardised trials in wellness settings.',
+        'The review summarizes early fatigue-related hydrogen literature and highlights the need for more rigorous clinical research before broad claims can be made.',
       year: 2021,
-      doi: '10.1000/hylono.pemf.2021.003',
-      url: 'https://doi.org/10.1000/hylono.pemf.2021.003',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/34202646/',
     },
   ] as ResearchStudyCard[],
 } as const;

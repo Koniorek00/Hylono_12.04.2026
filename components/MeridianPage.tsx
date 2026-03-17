@@ -551,10 +551,10 @@ export const MeridianPage = () => {
                         {
                             title: 'ECOSYSTEM',
                             links: [
-                                { label: 'Oxygen — mHBOT', href: '/product/HBOT' },
-                                { label: 'Hydrogen — H₂', href: '/product/HYDROGEN' },
-                                { label: 'Light — RLT', href: '/product/RLT' },
-                                { label: 'Signal — PEMF/VNS', href: '/product/PEMF' },
+                                { label: 'Oxygen — mHBOT', href: '/product/hbot' },
+                                { label: 'Hydrogen — H₂', href: '/product/hydrogen' },
+                                { label: 'Light — RLT', href: '/product/rlt' },
+                                { label: 'Signal — PEMF/VNS', href: '/product/pemf' },
                                 { label: 'Protocol Integration', href: '/protocols' },
                             ]
                         },

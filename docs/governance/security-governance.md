@@ -47,7 +47,7 @@ done < .env.example > .env
 
 ### 3.1 Docker Network Segmentation
 - All services run on `hylono-internal` bridge network (no public exposure)
-- Only Kong (port 8443) and Uptime Kuma (port 3001) are exposed to the host
+- Only Kong (port 8443) and Uptime Kuma (port 3002) are exposed to the host
 - Inter-service communication uses Docker internal DNS (`service-name:port`)
 
 ### 3.2 Port Policy

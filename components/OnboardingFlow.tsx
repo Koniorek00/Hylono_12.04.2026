@@ -75,10 +75,13 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="onboarding-title"
                 className="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-100 shadow-2xl"
             >
                 <div className="p-6 md:p-8 border-b border-slate-100">
-                    <h1 className="text-2xl md:text-3xl font-black text-slate-900 futuristic-font">Your getting started plan</h1>
+                    <h1 id="onboarding-title" className="text-2xl md:text-3xl font-black text-slate-900 futuristic-font">Your getting started plan</h1>
                     <p className="text-sm text-slate-600 mt-2">Track setup progress and open practical guides for your first sessions.</p>
                 </div>
 
@@ -149,7 +152,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                             <Link href="/support" className="min-h-11 px-4 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 inline-flex items-center gap-2">
                                 <LifeBuoy size={14} /> Contact support
                             </Link>
-                            <Link href="/advisors" className="min-h-11 px-4 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 inline-flex items-center gap-2">
+                            <Link href="/contact" className="min-h-11 px-4 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 inline-flex items-center gap-2">
                                 <Users size={14} /> Book a setup consultation
                             </Link>
                         </div>

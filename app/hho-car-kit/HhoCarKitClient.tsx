@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { HHOCarKitPage } from '@/components/HHOCarKitPage';
+import { navigateToPage, navigateWithScroll } from '@/src/lib/navigation';
 
 interface FuelData {
   petrol: number;
@@ -17,11 +18,6 @@ export interface InitialFuelContext {
   locationStatus: 'detected' | 'fallback';
 }
 
-const toPath = (page: string) => {
-  if (page.startsWith('/')) return page;
-  return page === 'home' ? '/' : `/${page}`;
-};
-
 interface HhoCarKitClientProps {
   initialFuelContext: InitialFuelContext;
 }
@@ -33,12 +29,10 @@ export function HhoCarKitClient({ initialFuelContext }: HhoCarKitClientProps) {
     <HHOCarKitPage
       initialFuelContext={initialFuelContext}
       onBack={() => {
-        router.push('/store');
-        window.scrollTo(0, 0);
+        navigateWithScroll(router, '/store');
       }}
       onNavigate={(page) => {
-        router.push(toPath(page));
-        window.scrollTo(0, 0);
+        navigateToPage(router, page);
       }}
     />
   );

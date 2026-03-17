@@ -20,5 +20,36 @@
       "type": "image/svg+xml"
     }
   ],
-  "categories": ["health", "medical", "wellness", "technology"]
+  "lang": "en",
+  "categories": ["health", "medical", "wellness", "technology"],
+  "shortcuts": [
+    {
+      "name": "Store",
+      "short_name": "Store",
+      "description": "Browse wellness technology devices",
+      "url": "/store",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Rental Plans",
+      "short_name": "Rental",
+      "description": "View monthly rental plans",
+      "url": "/rental",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Protocols",
+      "short_name": "Protocols",
+      "description": "Browse guided wellness protocols",
+      "url": "/protocols",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Research",
+      "short_name": "Research",
+      "description": "Explore evidence and research",
+      "url": "/research",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    }
+  ]
 }

@@ -201,7 +201,7 @@ export const ChamberHero: React.FC<ChamberHeroProps> = ({
                         {/* Badges */}
                         <div className="flex items-center gap-3 mb-6">
                             <span className="text-[11px] bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
-                                <CheckCircle size={10} /> FDA Cleared
+                                <CheckCircle size={10} /> CE Marked
                             </span>
                             <span className="text-[11px] bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider">
                                 HSA/FSA

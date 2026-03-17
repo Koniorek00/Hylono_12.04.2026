@@ -122,6 +122,9 @@ const DeviceModal: React.FC<{
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm">
             <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="fleet-health-modal-title"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
@@ -133,14 +136,14 @@ const DeviceModal: React.FC<{
                             <span className="text-xs font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700 text-cyan-400">{device.serial}</span>
                             <StatusBadge status={device.status} />
                         </div>
-                        <h2 className="text-lg md:text-2xl font-bold truncate">{device.model}</h2>
+                        <h2 id="fleet-health-modal-title" className="text-lg md:text-2xl font-bold truncate">{device.model}</h2>
                         <div className="flex flex-wrap items-center gap-2 md:gap-4 mt-3 md:mt-4 text-xs md:text-sm text-slate-400">
                             <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 md:w-4 md:h-4 text-emerald-400" /> Warranty: {device.warrantyDate}</span>
                             <span className="flex items-center gap-1"><Activity className="w-3 h-3 md:w-4 md:h-4 text-cyan-400" /> Health: {device.health}%</span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors shrink-0">
-                        <X className="w-5 h-5" />
+                    <button onClick={onClose} aria-label="Close device details" className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors shrink-0">
+                        <X className="w-5 h-5" aria-hidden="true" />
                     </button>
                 </div>
 

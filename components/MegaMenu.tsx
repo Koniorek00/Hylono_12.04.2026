@@ -157,9 +157,10 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
 
                         <button
                             onClick={onClose}
+                            aria-label="Close menu"
                             className="absolute top-6 right-6 p-2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all z-50 backdrop-blur-md border border-white/5"
                         >
-                            <X size={20} />
+                            <X size={20} aria-hidden="true" />
                         </button>
 
                         <div className="relative z-10 grid grid-cols-12 h-full">
@@ -178,7 +179,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                                             onHover={setActiveContext}
                                             onClick={() => handleTechClick(tech.context as 'HBOT' | 'PEMF' | 'RLT' | 'HYDROGEN')}
                                             color={tech.color}
-                                            href={`/product/${tech.context}`}
+                                            href={`/product/${tech.context.toLowerCase()}`}
                                         />
                                     ))}
                                 </div>
@@ -232,12 +233,11 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                                     <div className="space-y-4">
                                         <SimpleLink label="Mission" onHover={() => setActiveContext('MISSION')} onClick={navigateTo('about')} href="/about" />
                                         <SimpleLink label="Science" onHover={() => setActiveContext('SCIENCE')} onClick={navigateTo('blog')} href="/blog" />
-                                        <SimpleLink label="Careers" onHover={() => setActiveContext('CAREERS')} onClick={navigateTo('careers')} href="/careers" />
                                         <SimpleLink label="Contact" onHover={() => setActiveContext('CONTACT')} onClick={navigateTo('contact')} href="/contact" />
                                     </div>
                                     <div className="h-px w-12 bg-white/10" />
                                     <div className="space-y-4">
-                                        <SimpleLink label="Support" onHover={handleContextReset} onClick={navigateTo('support')} href="/support" />
+                                        <SimpleLink label="Support" onHover={handleContextReset} onClick={navigateTo('help?tab=support')} href="/help?tab=support" />
                                         <SimpleLink label="Warranty" onHover={handleContextReset} onClick={navigateTo('warranty')} href="/warranty" />
                                     </div>
                                     {navGoalsEnabled && (
@@ -284,4 +284,3 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
         </AnimatePresence>
     );
 };
-

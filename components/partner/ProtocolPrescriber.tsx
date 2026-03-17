@@ -10,7 +10,7 @@ export const ProtocolPrescriber: React.FC = () => (
             </div>
             <h1 className="text-xl font-bold text-slate-900 mb-2">Protocol Library — Coming Soon</h1>
             <p className="text-sm text-slate-500 leading-relaxed mb-6">
-                Evidence-based treatment pathways for HBOT, PEMF, Red Light Therapy, and combination protocols. Tailored to client presentation and clinical goals.
+                Evidence-informed wellness pathways for HBOT, PEMF, Red Light, and combination routines. Structured for professional coaching, safety checks, and consistent user support.
             </p>
             <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-xs text-slate-500 font-medium">
                 <Clock className="w-3.5 h-3.5" />

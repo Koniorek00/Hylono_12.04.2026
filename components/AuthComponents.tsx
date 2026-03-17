@@ -234,10 +234,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 {view === 'signup' && (
                                     <div>
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Name</label>
+                                        <label htmlFor="auth-name" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Name</label>
                                         <div className="relative">
                                             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <input
+                                                id="auth-name"
                                                 type="text"
                                                 required
                                                 value={formData.name}
@@ -250,10 +251,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
                                 )}
 
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Email</label>
+                                    <label htmlFor="auth-email" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Email</label>
                                     <div className="relative">
                                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <input
+                                                id="auth-email"
                                                 type="email"
                                                 required
                                                 value={formData.email}
@@ -268,10 +270,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
 
                                 {view !== 'forgot' && (
                                     <div>
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Password</label>
+                                        <label htmlFor="auth-password" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Password</label>
                                         <div className="relative">
                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <input
+                                                id="auth-password"
                                                 type={showPassword ? 'text' : 'password'}
                                                 required
                                                 minLength={6}

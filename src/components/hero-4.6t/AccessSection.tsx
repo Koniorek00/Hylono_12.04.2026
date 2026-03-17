@@ -1,6 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
 
+interface AccessCardProps {
+    title: string;
+    subtitle: string;
+    body: string;
+    features: string[];
+    cta: string;
+    outline?: boolean;
+}
+
 export const AccessSection: React.FC = () => {
     return (
         <section className="py-[120px] bg-[#F0F0EB]">
@@ -79,7 +88,14 @@ export const AccessSection: React.FC = () => {
     );
 };
 
-const AccessCard = ({ title, subtitle, body, features, cta, outline }: any) => (
+const AccessCard: React.FC<AccessCardProps> = ({
+    title,
+    subtitle,
+    body,
+    features,
+    cta,
+    outline,
+}) => (
     <motion.div
         className="bg-white rounded-[20px] p-10 shadow-sm border border-transparent hover:border-[#E0DED6] transition-colors"
         whileHover={{ y: -5 }}

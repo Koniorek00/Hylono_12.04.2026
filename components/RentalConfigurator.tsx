@@ -759,7 +759,7 @@ export const RentalConfigurator: React.FC<RentalConfiguratorProps> = ({ onChecko
 
                         {/* Medical disclaimer */}
                         <p className="text-[11px] text-slate-400 mt-4 leading-relaxed border-t border-slate-100 pt-4">
-                            Not intended to diagnose, treat, cure, or prevent any disease.
+                            Wellness equipment for general wellbeing planning only.
                             Hylono devices are designed to support general wellness. Consult your healthcare provider before use.
                         </p>
                     </motion.div>

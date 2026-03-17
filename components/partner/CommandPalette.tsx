@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import {
     Search,
     Command,
@@ -63,7 +64,7 @@ export const CommandPalette: React.FC = () => {
         // System
         { id: 's1', label: 'Back to Website', category: 'System', icon: Home, href: '/' },
         { id: 's2', label: 'Settings', category: 'System', icon: Settings, href: '/partner/settings' },
-        { id: 's3', label: 'Log Out', category: 'System', icon: LogOut, action: () => alert('Logging out...') },
+        { id: 's3', label: 'Log Out', category: 'System', icon: LogOut, action: () => signOut({ callbackUrl: '/login' }) },
     ];
 
     // Filter Items
@@ -152,6 +153,9 @@ export const CommandPalette: React.FC = () => {
 
                     {/* Window */}
                     <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Command palette"
                         initial={{ scale: 0.95, opacity: 0, y: -20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: -20 }}
@@ -160,11 +164,12 @@ export const CommandPalette: React.FC = () => {
                     >
                         {/* Search Bar */}
                         <div className="flex items-center px-4 py-4 border-b border-slate-100/50">
-                            <Search className="w-5 h-5 text-slate-400 mr-3" />
+                            <Search className="w-5 h-5 text-slate-400 mr-3" aria-hidden="true" />
                             <input
                                 ref={inputRef}
                                 type="text"
                                 placeholder="Where to? (e.g. 'Fleet', 'Patient', 'New Order')..."
+                                aria-label="Navigate to page or action"
                                 className="flex-1 bg-transparent border-none outline-none text-lg text-slate-800 placeholder-slate-400"
                                 value={query}
                                 onChange={e => {

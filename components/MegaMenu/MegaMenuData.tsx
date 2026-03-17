@@ -30,7 +30,7 @@ export const SEARCH_DATABASE: SearchDatabaseItem[] = [
         desc: '1.3 ATA Precision Oxygen', 
         type: 'hbot',
         keywords: ['hbot', 'hyperbaric', 'oxygen', 'chamber', 'pressure', 'ata', 'soft chamber', 'mild hbot', 'oxygen therapy', 'wellness chamber'],
-        relatedTerms: ['oxyhelp', 'oxylife', 'regeneration', 'recovery', 'athletic', 'anti-aging', 'longevity', 'wound healing', 'inflammation']
+        relatedTerms: ['oxyhelp', 'oxylife', 'regeneration', 'recovery', 'athletic', 'anti-aging', 'longevity', 'wound recovery support', 'inflammation']
     },
     { 
         id: 2, 
@@ -48,7 +48,7 @@ export const SEARCH_DATABASE: SearchDatabaseItem[] = [
         desc: 'Dual-sync photobiomodulation', 
         type: 'rlt',
         keywords: ['rlt', 'red light', 'near infrared', 'nir', 'photobiomodulation', 'pbm', 'light therapy', 'led panel', 'red light therapy', '660nm', '850nm'],
-        relatedTerms: ['skin', 'collagen', 'anti-aging', 'wrinkles', 'acne', 'wound healing', 'muscle recovery', 'inflammation', 'mitochondria', 'atp']
+        relatedTerms: ['skin', 'collagen', 'anti-aging', 'wrinkles', 'acne', 'wound recovery support', 'muscle recovery', 'inflammation', 'mitochondria', 'atp']
     },
     { 
         id: 4, 
@@ -111,7 +111,7 @@ export const SEARCH_DATABASE: SearchDatabaseItem[] = [
         desc: '100+ Research Papers', 
         type: 'protocols',
         keywords: ['protocol', 'codex', 'research', 'papers', 'library', 'guide', 'bio-stacks', 'combinations', 'therapy protocols'],
-        relatedTerms: ['evidence-based', 'clinical', 'treatment', 'regimens', 'safety']
+        relatedTerms: ['evidence-based', 'structured', 'protocol', 'regimens', 'safety']
     },
     { 
         id: 12, 
@@ -162,7 +162,7 @@ export const SEARCH_SYNONYMS: Record<string, string[]> = {
     'longevity': ['hbot', 'rlt', 'anti-aging', 'stack'],
     'wellness': ['hbot', 'rlt', 'pemf', 'hydrogen'],
     'therapy': ['hbot', 'rlt', 'pemf', 'hydrogen'],
-    'treatment': ['hbot', 'rlt', 'pemf', 'protocol'],
+    'protocol': ['hbot', 'rlt', 'pemf', 'routine'],
     'energy': ['pemf', 'mitochondria', 'atp', 'rlt'],
     'mitochondria': ['rlt', 'atp', 'energy', 'cellular'],
     'atp': ['mitochondria', 'energy', 'rlt', 'cellular'],
@@ -237,7 +237,7 @@ export const CONTEXT_CONFIG_STORE: Record<MenuContext, any> = {
         featured: {
             type: 'base',
             title: "Hylono\nIntelligence",
-            desc: "Navigate through our multi-modality ecosystem. Hover over any technology or tool to reveal clinical insights, protocols, and technical specifications.",
+            desc: "Navigate through our multi-modality ecosystem. Hover over any technology or tool to reveal structured insights, protocols, and technical specifications.",
             badge: "System Overview",
             badgeColor: "text-white/60",
             action: "Get Started",
@@ -348,12 +348,12 @@ export const CONTEXT_CONFIG_STORE: Record<MenuContext, any> = {
         featured: {
             type: 'narrative',
             title: "Elevate Your\nPractice",
-            desc: "Join 500+ global clinics integrating Hylono's unified bio-optimization OS into their treatment flow.",
+            desc: "Join 500+ global clinics integrating Hylono's unified bio-optimization OS into their workflow.",
             badge: "Innovation Partner",
             badgeColor: "text-amber-400",
             action: "Join Network",
             icon: CONTEXT_ICONS.users,
-            points: ["Clinical Training Academy", "Marketing ROI Kit", "Leads Generation System"],
+            points: ["Structured Training Academy", "Marketing ROI Kit", "Leads Generation System"],
         },
         trendingTags: ["ROI Calculator", "Marketing", "Clinic Setup"],
     },

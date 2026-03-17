@@ -107,6 +107,9 @@ export const NotificationCenter: React.FC = () => {
                         <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="notifications-panel-title"
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -115,7 +118,7 @@ export const NotificationCenter: React.FC = () => {
                         >
                             {/* Header */}
                             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 backdrop-blur">
-                                <h3 className="font-bold text-slate-900">Notifications</h3>
+                                <h3 id="notifications-panel-title" className="font-bold text-slate-900">Notifications</h3>
                                 <div className="flex gap-2">
                                     {unreadCount > 0 && (
                                         <button

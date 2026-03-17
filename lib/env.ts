@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 export const env = createEnv({
   server: {
+    AUTH_CREDENTIALS_EMAIL: z.string().email().optional(),
+    AUTH_CREDENTIALS_PASSWORD_HASH: z.string().min(1).optional(),
     ARCJET_KEY: z.string().min(1).optional(),
     DATABASE_URL: z.string().url().optional(),
     NODE_ENV: z
@@ -29,6 +31,8 @@ export const env = createEnv({
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().min(1).optional(),
   },
   runtimeEnv: {
+    AUTH_CREDENTIALS_EMAIL: process.env.AUTH_CREDENTIALS_EMAIL,
+    AUTH_CREDENTIALS_PASSWORD_HASH: process.env.AUTH_CREDENTIALS_PASSWORD_HASH,
     ARCJET_KEY: process.env.ARCJET_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,

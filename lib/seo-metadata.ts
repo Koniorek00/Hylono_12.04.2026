@@ -8,59 +8,84 @@ interface CreatePageMetadataInput {
   title: string;
   description: string;
   path: string;
+  forceNoIndex?: boolean;
+  ogImagePath?: string;
+  ogImageAlt?: string;
+  ogType?: 'website' | 'article';
 }
 
 const normalizeDescription = (description: string): string => {
   const cleaned = description.replace(/\s+/g, ' ').trim();
-  const suffix =
-    " Discover Hylono's evidence-informed wellness technologies, rental options, and guidance designed to support wellbeing.";
-
-  let result = cleaned;
-  if (result.length < 150) {
-    result = `${result}${suffix}`;
+  if (cleaned.length <= 160) {
+    return cleaned;
   }
 
-  while (result.length < 150) {
-    result = `${result} In Europe.`;
-  }
+  const truncated = cleaned.slice(0, 157);
+  const lastSentenceBreak = Math.max(
+    truncated.lastIndexOf('. '),
+    truncated.lastIndexOf('; ')
+  );
+  const lastSpace = truncated.lastIndexOf(' ');
+  const cutPoint =
+    lastSentenceBreak >= 120 ? lastSentenceBreak + 1 : lastSpace >= 120 ? lastSpace : 157;
 
-  if (result.length > 160) {
-    result = `${result.slice(0, 157).trimEnd()}...`;
-  }
-
-  return result;
+  return `${truncated.slice(0, cutPoint).trimEnd().replace(/[.,;:!?-]+$/, '')}...`;
 };
 
-export function createPageMetadata({ title, description, path }: CreatePageMetadataInput): Metadata {
+export function createPageMetadata({
+  title,
+  description,
+  path,
+  forceNoIndex = false,
+  ogImagePath = OG_IMAGE_PATH,
+  ogImageAlt = 'Hylono premium bio-optimization technologies',
+  ogType = 'website',
+}: CreatePageMetadataInput): Metadata {
   const canonical = path === '/' ? SITE_URL : `${SITE_URL}${path}`;
   const normalizedDescription = normalizeDescription(description);
+  const resolvedTitle: Metadata['title'] = /hylono/i.test(title) ? { absolute: title } : title;
 
   return {
-    title,
+    title: resolvedTitle,
     description: normalizedDescription,
+    robots: forceNoIndex
+      ? {
+          index: false,
+          follow: true,
+        }
+      : {
+          index: true,
+          follow: true,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+          'max-video-preview': -1,
+        },
     alternates: {
       canonical,
     },
     openGraph: {
-      type: 'website',
+      type: ogType,
+      locale: 'en_GB',
       url: canonical,
       siteName: 'Hylono',
       title,
       description: normalizedDescription,
       images: [
         {
-          url: OG_IMAGE_PATH,
+          url: ogImagePath,
           width: 1200,
           height: 630,
-          alt: 'Hylono premium bio-optimization technologies',
+          alt: ogImageAlt,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@hylono',
+      creator: '@hylono',
       title,
       description: normalizedDescription,
-      images: [OG_IMAGE_PATH],
+      images: [{ url: ogImagePath, alt: ogImageAlt }],
     },
   };
 }

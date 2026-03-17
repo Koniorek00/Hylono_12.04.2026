@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import { scryptSync, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { env } from '@/lib/env';
 
@@ -8,13 +9,41 @@ const credentialsSchema = z.object({
   password: z.string().min(1),
 });
 
+const PASSWORD_HASH_PREFIX = 'scrypt';
+
+const verifyScryptPassword = (
+  password: string,
+  encodedHash: string
+): boolean => {
+  const [prefix, salt, hashHex] = encodedHash.split('$');
+
+  if (
+    prefix !== PASSWORD_HASH_PREFIX ||
+    typeof salt !== 'string' ||
+    typeof hashHex !== 'string' ||
+    !salt ||
+    !hashHex
+  ) {
+    return false;
+  }
+
+  try {
+    const derived = scryptSync(password, salt, 64);
+    const expected = Buffer.from(hashHex, 'hex');
+
+    if (derived.length !== expected.length) {
+      return false;
+    }
+
+    return timingSafeEqual(derived, expected);
+  } catch {
+    return false;
+  }
+};
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
-  secret:
-    env.NEXTAUTH_SECRET ??
-    (env.NODE_ENV === 'development'
-      ? 'hylono-dev-auth-secret-change-in-production'
-      : undefined),
+  secret: env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: 'Credentials',
@@ -29,10 +58,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        const expectedEmail = env.AUTH_CREDENTIALS_EMAIL;
+        const expectedHash = env.AUTH_CREDENTIALS_PASSWORD_HASH;
+
+        if (!expectedEmail || !expectedHash) {
+          console.warn('[auth] Credentials provider is disabled: missing auth env configuration.');
+          return null;
+        }
+
+        const normalizedEmail = parsed.data.email.trim().toLowerCase();
+        const normalizedExpectedEmail = expectedEmail.trim().toLowerCase();
+
+        if (normalizedEmail !== normalizedExpectedEmail) {
+          return null;
+        }
+
+        const isValidPassword = verifyScryptPassword(
+          parsed.data.password,
+          expectedHash
+        );
+
+        if (!isValidPassword) {
+          return null;
+        }
+
         return {
-          id: parsed.data.email,
-          email: parsed.data.email,
-          name: parsed.data.email,
+          id: normalizedExpectedEmail,
+          email: normalizedExpectedEmail,
+          name: 'Hylono User',
         };
       },
     }),

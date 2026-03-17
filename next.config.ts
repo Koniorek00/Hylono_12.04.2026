@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
+import { seoRedirects } from './config/seo-redirects';
 import { env } from './lib/env';
 
 const nextConfig: NextConfig = {
@@ -26,13 +27,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'oxyhelp.com',
-      },
-      {
-        protocol: 'https',
         hostname: 'cdnjs.cloudflare.com',
       },
     ],
+  },
+  async redirects() {
+    return [...seoRedirects];
   },
 };
 

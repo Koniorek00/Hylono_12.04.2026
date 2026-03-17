@@ -29,6 +29,9 @@ export const FinancingModal: React.FC<FinancingModalProps> = ({ isOpen, onClose,
                         onClick={onClose}
                     />
                     <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="financing-modal-title"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -36,11 +39,11 @@ export const FinancingModal: React.FC<FinancingModalProps> = ({ isOpen, onClose,
                     >
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <Calculator className="text-cyan-500" size={24} />
-                                <h2 className="text-xl font-bold text-slate-900">Financing Options</h2>
+                                <Calculator className="text-cyan-500" size={24} aria-hidden="true" />
+                                <h2 id="financing-modal-title" className="text-xl font-bold text-slate-900">Financing Options</h2>
                             </div>
-                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-                                <X size={24} />
+                            <button onClick={onClose} aria-label="Close financing options" className="text-slate-400 hover:text-slate-600">
+                                <X size={24} aria-hidden="true" />
                             </button>
                         </div>
 
@@ -92,8 +95,12 @@ export const FinancingModal: React.FC<FinancingModalProps> = ({ isOpen, onClose,
                                 *Representative example: 8% APR. Subject to credit approval. Terms and conditions apply.
                             </p>
 
-                            <button className="w-full py-4 bg-cyan-500 text-white rounded-xl font-bold hover:bg-cyan-600 transition-colors flex items-center justify-center gap-2">
-                                <CreditCard size={18} /> Apply for Financing
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="w-full py-4 bg-cyan-500 text-white rounded-xl font-bold hover:bg-cyan-600 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <CreditCard size={18} aria-hidden="true" /> Apply for Financing
                             </button>
                         </div>
                     </motion.div>

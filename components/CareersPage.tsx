@@ -24,8 +24,8 @@ export const CareersPage: React.FC = () => {
                 {/* Header */}
                 <div className="text-center mb-16">
                     <Briefcase className="mx-auto text-cyan-500 mb-4" size={48} />
-                    <h1 className="text-4xl font-bold text-slate-900 mb-4">Join Our Team</h1>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <h1 id="careers-hero-headline" className="text-4xl font-bold text-slate-900 mb-4">Join Our Team</h1>
+                    <p id="careers-hero-description" className="text-lg text-slate-600 max-w-2xl mx-auto">
                         Help us democratize access to bio-optimization technology.
                         We're building the future of wellness.
                     </p>

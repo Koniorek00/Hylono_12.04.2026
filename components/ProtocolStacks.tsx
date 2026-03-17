@@ -2,13 +2,28 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Layers, ArrowRight, Zap, Activity, Brain, Plus } from 'lucide-react';
 import { TechType } from '../types';
+import type { LucideIcon } from 'lucide-react';
 
 interface StackProps {
     currentTech: TechType;
     onJump: (tech: TechType) => void;
 }
 
-const STACKS = {
+interface ProtocolStackItem {
+    id: TechType;
+    name: string;
+    role: string;
+    icon: LucideIcon;
+}
+
+interface ProtocolStackConfig {
+    title: string;
+    description: string;
+    items: ProtocolStackItem[];
+    benefit: string;
+}
+
+const STACKS: Partial<Record<TechType, ProtocolStackConfig>> = {
     [TechType.HBOT]: {
         title: "The Superhuman Protocol",
         description: "Sequence magnetism, oxygen, and light for maximum cellular uptake.",
@@ -52,7 +67,7 @@ const STACKS = {
 };
 
 export const ProtocolStacks: React.FC<StackProps> = ({ currentTech, onJump }) => {
-    const stack = (STACKS as Record<string, typeof STACKS[keyof typeof STACKS]>)[currentTech];
+    const stack = STACKS[currentTech];
 
     if (!stack) return null;
 
@@ -76,7 +91,7 @@ export const ProtocolStacks: React.FC<StackProps> = ({ currentTech, onJump }) =>
 
                 {/* Stack Visualizer */}
                 <div className="flex md:flex-1 items-center gap-2 justify-center">
-                    {stack.items.map((item: any, i: number) => (
+                    {stack.items.map((item, i) => (
                         <React.Fragment key={item.id}>
                             <motion.button
                                 whileHover={{ y: -5 }}

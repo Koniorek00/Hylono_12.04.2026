@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * PeekTooltip — Hover tooltip showing extracted section metrics
  * 
@@ -279,7 +281,7 @@ export const PeekTooltip: React.FC<PeekTooltipProps> = ({
           {/* Section type header */}
           <div className="flex items-center gap-1.5 mb-1.5 text-slate-400">
             {config.icon}
-            <span className="text-[9px] uppercase tracking-wider font-medium">
+            <span className="text-xs uppercase tracking-wider font-medium">
               {config.label}
             </span>
           </div>
@@ -300,7 +302,7 @@ export const PeekTooltip: React.FC<PeekTooltipProps> = ({
 
           {/* Preview text */}
           {preview && !metric && (
-            <p className="text-[10px] text-slate-500 leading-relaxed line-clamp-2">
+            <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
               {preview}
             </p>
           )}

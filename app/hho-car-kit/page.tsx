@@ -8,6 +8,7 @@ export const metadata: Metadata = createPageMetadata({
   title: 'HHO Car Kit',
   description: 'Explore Hylono HHO kits for cars and trucks with performance specs, ROI insights, and safety details.',
   path: '/hho-car-kit',
+  forceNoIndex: true,
 });
 
 interface FuelData {
@@ -31,8 +32,6 @@ const DEFAULT_FUEL_DATA: FuelData = {
   symbol: '€',
   countryName: 'your region',
 };
-
-const FUEL_REVALIDATE_SECONDS = 3600;
 
 const FUEL_PRICES: Record<string, FuelData> = {
   DE: { petrol: 1.76, diesel: 1.65, currency: 'EUR', symbol: '€', countryName: 'Germany' },
@@ -73,52 +72,80 @@ const FALLBACK_FUEL_CONTEXT: InitialFuelContext = {
   locationStatus: 'fallback',
 };
 
-const toPublicIp = (candidate: string | null): string | null => {
-  if (!candidate) return null;
+const LOCALE_TO_COUNTRY: Record<string, keyof typeof FUEL_PRICES> = {
+  de: 'DE',
+  pl: 'PL',
+  nl: 'NL',
+  fr: 'FR',
+  be: 'BE',
+  es: 'ES',
+  it: 'IT',
+  at: 'AT',
+  ch: 'CH',
+  se: 'SE',
+  dk: 'DK',
+  fi: 'FI',
+  no: 'NO',
+  cz: 'CZ',
+  sk: 'SK',
+  hu: 'HU',
+  ro: 'RO',
+  pt: 'PT',
+  gr: 'GR',
+  hr: 'HR',
+  gb: 'GB',
+  en: 'GB',
+  ie: 'IE',
+  us: 'US',
+  ca: 'CA',
+  au: 'AU',
+  nz: 'NZ',
+  za: 'ZA',
+  ae: 'AE',
+  tr: 'TR',
+};
 
-  const first = candidate.split(',')[0]?.trim();
-  if (!first) return null;
+const isSupportedCountryCode = (code: string): code is keyof typeof FUEL_PRICES =>
+  Object.prototype.hasOwnProperty.call(FUEL_PRICES, code);
 
-  const lowered = first.toLowerCase();
-  if (
-    lowered === '::1' ||
-    lowered.startsWith('10.') ||
-    lowered.startsWith('192.168.') ||
-    lowered.startsWith('172.16.') ||
-    lowered.startsWith('172.17.') ||
-    lowered.startsWith('172.18.') ||
-    lowered.startsWith('172.19.') ||
-    lowered.startsWith('172.2') ||
-    lowered.startsWith('127.')
-  ) {
+const inferCountryFromAcceptLanguage = (
+  acceptLanguage: string | null
+): keyof typeof FUEL_PRICES | null => {
+  if (!acceptLanguage) {
     return null;
   }
 
-  return first;
+  for (const part of acceptLanguage.split(',')) {
+    const languageTag = part.trim().split(';')[0]?.toLowerCase();
+    if (!languageTag) {
+      continue;
+    }
+
+    const [baseLocale, region] = languageTag.split('-');
+    const regionCode = region?.toUpperCase();
+
+    if (regionCode && isSupportedCountryCode(regionCode)) {
+      return regionCode;
+    }
+
+    const mappedCountry = LOCALE_TO_COUNTRY[baseLocale ?? ''];
+    if (mappedCountry) {
+      return mappedCountry;
+    }
+  }
+
+  return null;
 };
 
 const getInitialFuelContext = async (): Promise<InitialFuelContext> => {
   try {
     const requestHeaders = await headers();
-    const forwardedFor = requestHeaders.get('x-forwarded-for');
-    const realIp = requestHeaders.get('x-real-ip');
-    const ip = toPublicIp(forwardedFor) ?? toPublicIp(realIp);
-
-    const endpoint = ip ? `https://ipapi.co/${ip}/json/` : 'https://ipapi.co/json/';
-
-    const response = await fetch(endpoint, {
-      next: { revalidate: FUEL_REVALIDATE_SECONDS },
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      return FALLBACK_FUEL_CONTEXT;
-    }
-
-    const data: { country_code?: string } = await response.json();
-    const code = (data.country_code ?? 'DEFAULT').toUpperCase();
+    const edgeCountryCode = requestHeaders.get('x-vercel-ip-country')?.toUpperCase() ?? null;
+    const code =
+      (edgeCountryCode && isSupportedCountryCode(edgeCountryCode)
+        ? edgeCountryCode
+        : inferCountryFromAcceptLanguage(requestHeaders.get('accept-language'))) ??
+      'DEFAULT';
     const fuelData = FUEL_PRICES[code] ?? DEFAULT_FUEL_DATA;
 
     return {
@@ -131,6 +158,7 @@ const getInitialFuelContext = async (): Promise<InitialFuelContext> => {
   }
 };
 
+// [DECISION: SSG because this product information page is static marketing content.]
 export default async function HhoCarKitPageRoute() {
   const initialFuelContext = await getInitialFuelContext();
 

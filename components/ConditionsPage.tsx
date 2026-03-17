@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { NavigateFunction } from '../types';
 import { conditionGoalBySlug, conditionGoals } from '../content/conditions';
 import { evidenceById } from '../content/evidence';
@@ -13,13 +14,25 @@ interface ConditionsPageProps {
   onNavigate?: NavigateFunction;
 }
 
+const modalityProductHref = {
+  mHBOT: '/product/hbot',
+  H2: '/product/hydrogen',
+  RLT: '/product/rlt',
+  PEMF: '/product/pemf',
+} as const;
+
 const RelevanceDots: React.FC<{ score: number }> = ({ score }) => {
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-slate-600" aria-label={`Relevance ${score} out of 5`}>
+    <span
+      className="inline-flex items-center gap-1 text-xs text-slate-600"
+      aria-label={`Relevance ${score} out of 5`}
+    >
       {Array.from({ length: 5 }).map((_, index) => (
         <span
           key={`dot-${index}`}
-          className={`h-2.5 w-2.5 rounded-full ${index < score ? 'bg-cyan-500' : 'bg-slate-200'}`}
+          className={`h-2.5 w-2.5 rounded-full ${
+            index < score ? 'bg-cyan-500' : 'bg-slate-200'
+          }`}
           aria-hidden
         />
       ))}
@@ -27,29 +40,28 @@ const RelevanceDots: React.FC<{ score: number }> = ({ score }) => {
   );
 };
 
-export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate }) => {
+export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate: _onNavigate }) => {
   if (!slug) {
     return (
       <div className="min-h-screen bg-slate-50 pt-24 pb-16">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <header className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
-            <h1 className="text-3xl font-bold text-slate-900">Goal-based wellness guides</h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <h1 id="conditions-hero-headline" className="text-3xl font-bold text-slate-900">Goal-based wellness guides</h1>
+            <p id="conditions-hero-description" className="mt-2 text-sm text-slate-600">
               Explore evidence-informed pages for recovery, sleep, stress, comfort, and vitality.
             </p>
           </header>
 
           <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {conditionGoals.map((goal) => (
-              <button
-                key={goal.slug}
-                type="button"
-                onClick={() => onNavigate?.(`conditions/${goal.slug}`)}
-                className="min-h-11 rounded-2xl border border-slate-200 bg-white p-5 text-left hover:border-cyan-300 hover:shadow-md transition-all"
-              >
+            <Link
+              key={goal.slug}
+              href={`/conditions/${goal.slug}`}
+              className="block min-h-11 rounded-2xl border border-slate-200 bg-white p-5 text-left transition-all hover:border-cyan-300 hover:shadow-md"
+            >
                 <h2 className="text-lg font-semibold text-slate-900">{goal.title}</h2>
                 <p className="mt-2 text-sm text-slate-600">{goal.subtitle}</p>
-              </button>
+              </Link>
             ))}
           </section>
 
@@ -68,14 +80,15 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
         <div className="mx-auto max-w-3xl px-4 md:px-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center">
             <h1 className="text-2xl font-bold text-slate-900">Goal page not found</h1>
-            <p className="mt-2 text-sm text-slate-600">Try selecting one of the available goal guides.</p>
-            <button
-              type="button"
-              onClick={() => onNavigate?.('conditions')}
-              className="mt-4 min-h-11 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
+            <p className="mt-2 text-sm text-slate-600">
+              Try selecting one of the available goal guides.
+            </p>
+            <Link
+              href="/conditions"
+              className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
             >
               Back to all goals
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -89,16 +102,19 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-16">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <header className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
-          <button
-            type="button"
-            onClick={() => onNavigate?.('conditions')}
-            className="mb-4 text-sm font-semibold text-cyan-700 hover:text-cyan-800"
+        <header id="condition-intro" className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
+          <Link
+            href="/conditions"
+            className="mb-4 inline-flex text-sm font-semibold text-cyan-700 hover:text-cyan-800"
           >
-            ← Back to all goals
-          </button>
+            &larr; Back to all goals
+          </Link>
           <h1 className="text-3xl font-bold text-slate-900">{goal.title}</h1>
           <p className="mt-2 text-sm text-slate-600">{goal.subtitle}</p>
+          <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-600">
+            This guide compares the most relevant technologies, protocol options, and supporting
+            research notes for {goal.title.toLowerCase()}.
+          </p>
         </header>
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
@@ -113,26 +129,30 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
           <h2 className="text-xl font-bold text-slate-900">Recommended technologies</h2>
           <div className="mt-4 space-y-3">
             {goal.modalities.map((modality) => (
-              <article key={`${goal.slug}-${modality.slug}`} className="rounded-xl border border-slate-200 p-4">
+              <article
+                key={`${goal.slug}-${modality.slug}`}
+                className="rounded-xl border border-slate-200 p-4"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold text-slate-900">{modality.name}</h3>
                   <RelevanceDots score={modality.relevance} />
                 </div>
                 <p className="mt-2 text-sm text-slate-600">{modality.explanation}</p>
-                <button
-                  type="button"
-                  onClick={() => onNavigate?.(`store?modality=${modality.slug}`)}
-                  className="mt-3 min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                <Link
+                  href={modalityProductHref[modality.slug]}
+                  className="mt-3 inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                 >
-                  View devices →
-                </button>
+                  View devices &rarr;
+                </Link>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8 overflow-x-auto">
-          <h2 className="text-xl font-bold text-slate-900">Technology comparison for this goal</h2>
+        <section className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
+          <h2 className="text-xl font-bold text-slate-900">
+            Technology comparison for this goal
+          </h2>
           <table className="mt-4 min-w-[760px] w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left text-slate-700">
@@ -188,7 +208,7 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
               <ProtocolCard
                 key={`${goal.slug}-${protocolCard.slug}`}
                 protocol={protocolCard}
-                onOpen={(protocolSlug) => onNavigate?.(`protocols/${protocolSlug}`)}
+                href={`/protocols/${protocolCard.slug}`}
                 compact
               />
             ))}
@@ -201,30 +221,30 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
             {goal.stacks.map((stack) => (
               <article
                 key={`${goal.slug}-${stack.title}`}
-                className={`rounded-xl border p-4 ${stack.highlighted ? 'border-cyan-300 bg-cyan-50' : 'border-slate-200'}`}
+                className={`rounded-xl border p-4 ${
+                  stack.highlighted ? 'border-cyan-300 bg-cyan-50' : 'border-slate-200'
+                }`}
               >
                 <h3 className="font-semibold text-slate-900">{stack.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">Devices: {stack.devices.join(', ')}</p>
                 <p className="mt-2 text-sm text-slate-700">Rental: {stack.rentalPrice}</p>
                 <p className="text-sm text-slate-700">Purchase: {stack.purchasePrice}</p>
-                <button
-                  type="button"
-                  onClick={() => onNavigate?.(stack.link.replace(/^\//, ''))}
-                  className="mt-3 min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-white"
+                <Link
+                  href={stack.link}
+                  className="mt-3 inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-white"
                 >
                   Open stack
-                </button>
+                </Link>
               </article>
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => onNavigate?.(`builder?goal=${goal.slug}`)}
-            className="mt-5 min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          <Link
+            href={`/wellness-planner?goal=${goal.slug}`}
+            className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
-            Or configure it yourself in the builder →
-          </button>
+            Or configure it yourself in the builder &rarr;
+          </Link>
         </section>
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
@@ -235,10 +255,13 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
               if (!evidence) return null;
 
               return (
-                <article key={`${goal.slug}-${evidence.id}`} className="rounded-xl border border-slate-200 p-4">
+                <article
+                  key={`${goal.slug}-${evidence.id}`}
+                  className="rounded-xl border border-slate-200 p-4"
+                >
                   <h3 className="text-sm font-semibold text-slate-900">{evidence.title}</h3>
                   <p className="mt-2 text-xs text-slate-500">
-                    {evidence.publication} • {evidence.year}
+                    {evidence.publication} - {evidence.year}
                   </p>
                   <p className="mt-2 text-sm text-slate-600">{evidence.resultSummary}</p>
                 </article>
@@ -246,13 +269,12 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
             })}
           </div>
 
-          <button
-            type="button"
-            onClick={() => onNavigate?.('research')}
-            className="mt-5 min-h-11 rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          <Link
+            href="/research"
+            className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
-            More research →
-          </button>
+            More research &rarr;
+          </Link>
         </section>
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
@@ -260,7 +282,9 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
           <div className="mt-4 space-y-3">
             {goal.faq.map((faq) => (
               <details key={`${goal.slug}-${faq.q}`} className="rounded-xl border border-slate-200 p-4">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-800">{faq.q}</summary>
+                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-800">
+                  {faq.q}
+                </summary>
                 <p className="mt-2 text-sm text-slate-600">{faq.a}</p>
               </details>
             ))}
@@ -269,27 +293,24 @@ export const ConditionsPage: React.FC<ConditionsPageProps> = ({ slug, onNavigate
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => onNavigate?.(`builder?goal=${goal.slug}`)}
-              className="min-h-11 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
+            <Link
+              href={`/wellness-planner?goal=${goal.slug}`}
+              className="inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
             >
               Configure a stack
-            </button>
-            <button
-              type="button"
-              onClick={() => onNavigate?.('advisors')}
-              className="min-h-11 rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Book a consultation
-            </button>
-            <button
-              type="button"
-              onClick={() => onNavigate?.('rental')}
-              className="min-h-11 rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            </Link>
+            <Link
+              href="/rental"
+              className="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Explore rentals
-            </button>
+            </Link>
           </div>
         </section>
 

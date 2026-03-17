@@ -1,0 +1,70 @@
+# HYLONO PRE-LAUNCH FINAL SEO FIX
+
+Repository:
+F:\ag projects\Hylono_MAIN - SEO BOOST
+
+Target public host:
+https://hylono.com
+
+Current development environment:
+local production runtime (`next start`) before domain connection.
+
+Your job is to perform the **final SEO fixes required before launch**.
+
+This is an implementation task.
+
+Do NOT redesign the site.
+Do NOT change layout.
+Do NOT change UI composition.
+Do NOT remove premium design elements.
+
+You may modify:
+
+- routing logic
+- metadata helpers
+- schema helpers
+- robots rules
+- sitemap generation
+- RSS generation
+- heading hierarchy
+- compliance-sensitive copy
+- SEO support layers
+
+---
+
+# PRIMARY OBJECTIVE
+
+Prepare the repository so that **once the domain is connected the site is immediately SEO-correct**.
+
+The implementation must eliminate the blockers found in the confirmation audit.
+
+---
+
+# CRITICAL FIXES REQUIRED
+
+## 1. BLOG ROUTE MUST RETURN REAL 404
+
+Problem:
+
+Invalid blog slugs currently return:
+
+200 + not-found page
+
+instead of a real 404.
+
+Location:
+
+app/blog/[slug]/page.tsx
+
+Required behavior:
+
+invalid article slug -> HTTP 404
+
+Implementation example:
+
+```ts
+import { notFound } from "next/navigation"
+
+if (!article) {
+  notFound()
+}

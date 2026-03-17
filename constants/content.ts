@@ -32,7 +32,7 @@ export const BLOG_POSTS: BlogPost[] = [
     {
         id: 1,
         title: "The Science Behind Hyperbaric Oxygen Therapy",
-        excerpt: traceableClaim("Discover how pressurized oxygen can accelerate healing and boost cognitive function at the cellular level.", TRACE.HBOT_OXYGEN_SATURATION),
+        excerpt: traceableClaim("Discover how pressurized oxygen may support recovery and cognitive function at the cellular level.", TRACE.HBOT_OXYGEN_SATURATION),
         category: "HBOT",
         date: "Jan 15, 2026",
         readTime: "8 min",
@@ -52,7 +52,7 @@ export const BLOG_POSTS: BlogPost[] = [
     {
         id: 3,
         title: "Red Light Therapy for Skin Regeneration",
-        excerpt: traceableClaim("How 660nm and 850nm wavelengths stimulate collagen production and accelerate wound healing.", TRACE.RLT_SKIN_VITALITY),
+        excerpt: traceableClaim("How 660nm and 850nm wavelengths stimulate collagen production and support skin renewal.", TRACE.RLT_SKIN_VITALITY),
         category: "RLT",
         date: "Jan 10, 2026",
         readTime: "5 min",

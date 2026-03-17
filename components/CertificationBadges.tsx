@@ -21,7 +21,7 @@ const certifications: CertificationBadge[] = [
     {
         name: 'MDR 2017/745 Alignment',
         icon: <Shield />,
-        description: 'Program governance aligns workflows to EU medical device requirements.',
+        description: 'Program governance aligns workflows to EU wellness-device documentation requirements.',
         color: 'bg-emerald-500'
     },
     {

@@ -2,11 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { WishlistPage } from '@/components/Wishlist';
-
-const toPath = (page: string) => {
-  if (page.startsWith('/')) return page;
-  return page === 'home' ? '/' : `/${page}`;
-};
+import { navigateToPage } from '@/src/lib/navigation';
 
 export function WishlistClient() {
   const router = useRouter();
@@ -14,8 +10,7 @@ export function WishlistClient() {
   return (
     <WishlistPage
       onNavigate={(page) => {
-        router.push(toPath(page));
-        window.scrollTo(0, 0);
+        navigateToPage(router, page);
       }}
     />
   );

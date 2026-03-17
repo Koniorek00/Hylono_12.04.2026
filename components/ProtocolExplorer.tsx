@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { AlertTriangle, Clock } from 'lucide-react';
-import { TechType } from '../types';
 import { protocols, protocolBySlug } from '../content/protocols';
 import { productById } from '../content/products';
 import { evidenceById } from '../content/evidence';
@@ -88,12 +88,21 @@ const toCardData = (slug: string): ProtocolCardData => {
   };
 };
 
-const getProductTechRoute = (modality: string): TechType | null => {
-  if (modality === 'mHBOT' || modality === 'O2') return TechType.HBOT;
-  if (modality === 'H2_inhalation' || modality === 'H2_water') return TechType.HYDROGEN;
-  if (modality === 'RLT_NIR') return TechType.RLT;
-  if (modality === 'PEMF' || modality === 'VNS') return TechType.PEMF;
+const getProductTechRoute = (modality: string): string | null => {
+  if (modality === 'mHBOT' || modality === 'O2') return 'hbot';
+  if (modality === 'H2_inhalation' || modality === 'H2_water') return 'hydrogen';
+  if (modality === 'RLT_NIR') return 'rlt';
+  if (modality === 'PEMF' || modality === 'VNS') return 'pemf';
   return null;
+};
+
+const goalToConditionRoute = (goalTag: string): string => {
+  const value = goalTag.toLowerCase();
+  if (value.includes('recovery')) return '/conditions/recovery';
+  if (value.includes('sleep')) return '/conditions/sleep';
+  if (value.includes('stress')) return '/conditions/stress';
+  if (value.includes('comfort')) return '/conditions/comfort';
+  return '/conditions/vitality';
 };
 
 const FilterSelect: React.FC<{
@@ -103,7 +112,9 @@ const FilterSelect: React.FC<{
   onChange: (value: string) => void;
 }> = ({ label, value, options, onChange }) => (
   <label className="flex flex-col gap-1 text-sm">
-    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</span>
+    <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      {label}
+    </span>
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
@@ -118,60 +129,78 @@ const FilterSelect: React.FC<{
   </label>
 );
 
-const ProtocolDetailView: React.FC<{
-  slug: string;
-  onBack: () => void;
-  onNavigate?: (page: string) => void;
-}> = ({ slug, onBack, onNavigate }) => {
+const ProtocolDetailView: React.FC<{ slug: string }> = ({ slug }) => {
   const protocol = protocolBySlug[slug];
 
   if (!protocol) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-6 text-center">
         <h2 className="text-xl font-bold text-slate-900">Protocol not found</h2>
-        <p className="mt-2 text-sm text-slate-600">This protocol may have been moved or is not available yet.</p>
-        <button
-          type="button"
-          onClick={onBack}
-          className="mt-4 min-h-11 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
+        <p className="mt-2 text-sm text-slate-600">
+          This protocol may have been moved or is not available yet.
+        </p>
+        <Link
+          href="/protocols"
+          className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
         >
           Back to protocols
-        </button>
+        </Link>
       </section>
     );
   }
 
   const relatedCards = protocol.relatedProtocolSlugs
     .map((relatedSlug) => protocolBySlug[relatedSlug])
-    .filter((relatedProtocol): relatedProtocol is NonNullable<typeof relatedProtocol> => Boolean(relatedProtocol))
+    .filter(
+      (relatedProtocol): relatedProtocol is NonNullable<typeof relatedProtocol> =>
+        Boolean(relatedProtocol)
+    )
     .map((relatedProtocol) => toCardData(relatedProtocol.slug));
 
   return (
     <article className="space-y-8">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-4 text-sm font-semibold text-cyan-700 hover:text-cyan-800"
+      <header id="protocol-intro" className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
+        <Link
+          href="/protocols"
+          className="mb-4 inline-flex text-sm font-semibold text-cyan-700 hover:text-cyan-800"
         >
-          ← Back to all protocols
-        </button>
+          &larr; Back to all protocols
+        </Link>
 
         <h1 className="text-3xl font-bold text-slate-900">{protocol.title}</h1>
 
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-          <span className="rounded-full bg-cyan-50 px-2 py-1 font-semibold text-cyan-700 uppercase tracking-wide">
+          <span className="rounded-full bg-cyan-50 px-2 py-1 font-semibold uppercase tracking-wide text-cyan-700">
             {normalizeGoal(protocol.goalTag)}
           </span>
-          <span>⏱ {protocol.timePerDay}/day</span>
-          <span>📊 {protocol.difficulty}</span>
-          <span>📅 {protocol.durationWeeks} weeks</span>
+          <span>{protocol.timePerDay}/day</span>
+          <span>{protocol.difficulty}</span>
+          <span>{protocol.durationWeeks} weeks</span>
           <span>v{protocol.version}</span>
+        </div>
+
+        <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-600">
+          {protocol.shortDescription}
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href={goalToConditionRoute(protocol.goalTag)}
+            className="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            View related condition
+          </Link>
+          <Link
+            href="/research"
+            className="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Review evidence
+          </Link>
         </div>
 
         {protocol.reviewer && (
           <p className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-            Developed by: {protocol.reviewer.name} — {protocol.reviewer.credentials}
+            Developed by: {protocol.reviewer.name} - {protocol.reviewer.credentials}
           </p>
         )}
       </header>
@@ -189,47 +218,46 @@ const ProtocolDetailView: React.FC<{
             const product = productById[requiredDevice.productId];
             if (!product) return null;
 
-            const minRental = Math.min(...(product.rentalPlans ?? []).map((plan) => plan.monthlyPrice));
+            const minRentalPlan = (product.rentalPlans ?? []).map((plan) => plan.monthlyPrice);
+            const minRental = minRentalPlan.length > 0 ? Math.min(...minRentalPlan) : null;
+            const techRoute = getProductTechRoute(product.modality);
 
             return (
               <div key={requiredDevice.productId} className="rounded-xl border border-slate-200 p-4">
                 <h3 className="font-semibold text-slate-900">{product.title}</h3>
-                <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">Role: {requiredDevice.role}</p>
-                <p className="mt-3 text-sm text-slate-600">
-                  Buy: €{product.purchasePrice.toLocaleString('de-DE')} | Rent: from €{minRental}/mo
+                <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+                  Role: {requiredDevice.role}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const techRoute = getProductTechRoute(product.modality);
-                    if (techRoute) {
-                      onNavigate?.(`product/${techRoute}`);
-                    }
-                  }}
-                  className="mt-3 min-h-11 rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                >
-                  View product →
-                </button>
+                <p className="mt-3 text-sm text-slate-600">
+                  Buy: EUR {product.purchasePrice.toLocaleString('de-DE')}
+                  {minRental ? ` | Rent: from EUR ${minRental}/mo` : ''}
+                </p>
+                {techRoute && (
+                  <Link
+                    href={`/product/${techRoute}`}
+                    className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    View product &rarr;
+                  </Link>
+                )}
               </div>
             );
           })}
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => onNavigate?.(`checkout?bundle=${protocol.slug}`)}
-            className="min-h-11 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
+          <Link
+            href={`/contact?bundle=${protocol.slug}&intent=purchase`}
+            className="inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
           >
-            Buy the bundle for this protocol
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate?.(`rental/checkout?bundle=${protocol.slug}`)}
-            className="min-h-11 rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            Explore purchase options
+          </Link>
+          <Link
+            href={`/rental?bundle=${protocol.slug}`}
+            className="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
-            Rent the bundle
-          </button>
+            Explore rentals
+          </Link>
         </div>
       </section>
 
@@ -238,7 +266,11 @@ const ProtocolDetailView: React.FC<{
 
         <div className="mt-4 space-y-4">
           {protocol.weeks.map((week) => (
-            <details key={week.number} className="rounded-xl border border-slate-200 p-4" open={week.number === 1}>
+            <details
+              key={week.number}
+              className="rounded-xl border border-slate-200 p-4"
+              open={week.number === 1}
+            >
               <summary className="cursor-pointer list-none font-semibold text-slate-900">
                 Week {week.number}: {week.title}
               </summary>
@@ -261,7 +293,9 @@ const ProtocolDetailView: React.FC<{
                             <span>{session.duration}</span>
                             <span>{session.parameters}</span>
                           </div>
-                          {session.note && <p className="mt-2 text-xs text-slate-500">{session.note}</p>}
+                          {session.note && (
+                            <p className="mt-2 text-xs text-slate-500">{session.note}</p>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -281,7 +315,9 @@ const ProtocolDetailView: React.FC<{
 
         {protocol.contraindications.length > 0 && (
           <details className="mt-4 rounded-xl border border-slate-200 p-4">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-slate-800">Contraindications</summary>
+            <summary className="cursor-pointer list-none text-sm font-semibold text-slate-800">
+              Contraindications
+            </summary>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-600">
               {protocol.contraindications.map((contraindication) => (
                 <li key={`${protocol.slug}-${contraindication}`}>{contraindication}</li>
@@ -303,7 +339,7 @@ const ProtocolDetailView: React.FC<{
                 <article key={evidence.id} className="rounded-xl border border-slate-200 p-4">
                   <h3 className="text-sm font-semibold text-slate-900">{evidence.title}</h3>
                   <p className="mt-2 text-xs text-slate-500">
-                    {evidence.publication} • {evidence.year}
+                    {evidence.publication} - {evidence.year}
                   </p>
                   <p className="mt-2 text-sm text-slate-600">{evidence.resultSummary}</p>
                 </article>
@@ -321,7 +357,7 @@ const ProtocolDetailView: React.FC<{
               <ProtocolCard
                 key={relatedProtocol.slug}
                 protocol={relatedProtocol}
-                onOpen={(nextSlug) => onNavigate?.(`protocols/${nextSlug}`)}
+                href={`/protocols/${relatedProtocol.slug}`}
                 compact
               />
             ))}
@@ -341,7 +377,7 @@ interface ProtocolExplorerProps {
   onNavigate?: (page: string) => void;
 }
 
-export const ProtocolExplorer: React.FC<ProtocolExplorerProps> = ({ slug, onNavigate }) => {
+export const ProtocolExplorer: React.FC<ProtocolExplorerProps> = ({ slug, onNavigate: _onNavigate }) => {
   const [goal, setGoal] = useState<GoalFilter>('All');
   const [technology, setTechnology] = useState<TechFilter>('All');
   const [level, setLevel] = useState<LevelFilter>('All');
@@ -366,19 +402,24 @@ export const ProtocolExplorer: React.FC<ProtocolExplorerProps> = ({ slug, onNavi
     <div className="min-h-screen bg-slate-50 pt-24 pb-16">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         {selectedSlug ? (
-          <ProtocolDetailView slug={selectedSlug} onBack={() => onNavigate?.('protocols')} onNavigate={onNavigate} />
+          <ProtocolDetailView slug={selectedSlug} />
         ) : (
           <>
             <header className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
-              <h1 className="text-3xl font-bold text-slate-900">Usage Protocols</h1>
-              <p className="mt-2 text-sm text-slate-600">
-                Proven usage schedules for regeneration technologies. Step by step.
+              <h1 id="protocols-hero-headline" className="text-3xl font-bold text-slate-900">Usage Protocols</h1>
+              <p id="protocols-hero-description" className="mt-2 text-sm text-slate-600">
+                Structured usage schedules for regeneration technologies. Step by step.
               </p>
             </header>
 
             <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 md:p-6">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <FilterSelect label="Goal" value={goal} options={GOAL_OPTIONS} onChange={(value) => setGoal(value as GoalFilter)} />
+                <FilterSelect
+                  label="Goal"
+                  value={goal}
+                  options={GOAL_OPTIONS}
+                  onChange={(value) => setGoal(value as GoalFilter)}
+                />
                 <FilterSelect
                   label="Technology"
                   value={technology}
@@ -405,7 +446,7 @@ export const ProtocolExplorer: React.FC<ProtocolExplorerProps> = ({ slug, onNavi
                 <ProtocolCard
                   key={protocolCard.slug}
                   protocol={protocolCard}
-                  onOpen={(protocolSlug) => onNavigate?.(`protocols/${protocolSlug}`)}
+                  href={`/protocols/${protocolCard.slug}`}
                   compact
                 />
               ))}

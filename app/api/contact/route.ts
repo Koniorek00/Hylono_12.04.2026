@@ -6,6 +6,8 @@
 
 import { z } from 'zod';
 import { env } from '@/lib/env';
+import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { contactInquiriesTable } from '@/lib/db/schema';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface ContactRequest {
@@ -22,6 +24,14 @@ interface ContactResponse {
     success: boolean;
     message: string;
     ticketId?: string;
+}
+
+interface ResendSendPayload {
+    from: string;
+    to: string[];
+    reply_to: string;
+    subject: string;
+    text: string;
 }
 
 const contactSchema = z.object({
@@ -49,10 +59,21 @@ export async function POST(request: Request): Promise<Response> {
         // --- Sanitize ---
         const sanitized = {
             name: sanitizeText(name, 100),
-            email: email.trim().toLowerCase(),
+            email: sanitizeText(email, {
+                maxLength: 254,
+                context: 'email',
+            }),
             subject: subject ? sanitizeText(subject, 200) : `Contact: ${inquiryType}`,
-            message: sanitizeText(message, 5000),
-            phone: phone ? sanitizeText(phone, 30) : undefined,
+            message: sanitizeText(message, {
+                maxLength: 5000,
+                context: 'multiline',
+            }),
+            phone: phone
+                ? sanitizeText(phone, {
+                    maxLength: 30,
+                    context: 'phone',
+                })
+                : undefined,
             company: company ? sanitizeText(company, 100) : undefined,
             inquiryType,
         };
@@ -60,45 +81,95 @@ export async function POST(request: Request): Promise<Response> {
         // Generate a simple ticket ID for tracking
         const ticketId = `HYL-${Date.now().toString(36).toUpperCase()}`;
 
-        if (!env.RESEND_API_KEY) {
+        if (!isDatabaseConfigured()) {
+            console.error('[contact] DATABASE_URL missing; cannot persist contact inquiry', {
+                ticketId,
+            });
+
             return Response.json(
                 {
                     success: false,
-                    message: 'Contact endpoint is not implemented on this environment.',
+                    message: 'Contact channel is temporarily unavailable. Please try again shortly.',
                 } satisfies ContactResponse,
-                { status: 501 }
+                { status: 503 }
             );
         }
 
-        // --- Send notification email ---
-        // TODO: Replace with your transactional email provider (Resend, Postmark, SendGrid).
-        //
-        // Example with Resend:
-        // const resendApiKey = env.RESEND_API_KEY;
-        // await fetch('https://api.resend.com/emails', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Authorization': `Bearer ${resendApiKey}`,
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //         from: 'noreply@hylono.com',
-        //         to: 'hello@hylono.com',
-        //         reply_to: sanitized.email,
-        //         subject: `[${ticketId}] ${sanitized.subject}`,
-        //         text: `
-        //             From: ${sanitized.name} <${sanitized.email}>
-        //             Company: ${sanitized.company ?? 'N/A'}
-        //             Phone: ${sanitized.phone ?? 'N/A'}
-        //             Inquiry Type: ${sanitized.inquiryType}
-        //             Ticket: ${ticketId}
-        //
-        //             ${sanitized.message}
-        //         `,
-        //     }),
-        // });
+        const db = getDb();
+        await db.insert(contactInquiriesTable).values({
+            id: crypto.randomUUID(),
+            ticketId,
+            name: sanitized.name,
+            email: sanitized.email,
+            subject: sanitized.subject,
+            message: sanitized.message,
+            phone: sanitized.phone,
+            company: sanitized.company,
+            inquiryType: sanitized.inquiryType,
+        });
 
-        console.info(`[contact] Contact inquiry accepted ${ticketId} from ${sanitized.email} (${sanitized.inquiryType})`);
+        const resendApiKey = env.RESEND_API_KEY;
+        if (!resendApiKey) {
+            console.warn('[contact] RESEND_API_KEY missing; contact persisted without outbound notification', {
+                ticketId,
+            });
+
+            return Response.json(
+                {
+                    success: true,
+                    message: `Thank you, ${sanitized.name}! Your request has been received. We'll respond within 1 business day. Reference: ${ticketId}`,
+                    ticketId,
+                } satisfies ContactResponse,
+                { status: 202 }
+            );
+        }
+
+        const outboundMessage = [
+            `From: ${sanitized.name} <${sanitized.email}>`,
+            `Company: ${sanitized.company ?? 'N/A'}`,
+            `Phone: ${sanitized.phone ?? 'N/A'}`,
+            `Inquiry Type: ${sanitized.inquiryType}`,
+            `Ticket: ${ticketId}`,
+            '',
+            sanitized.message,
+        ].join('\n');
+
+        const emailPayload: ResendSendPayload = {
+            from: 'Hylono Contact <contact@hylono.eu>',
+            to: ['contact@hylono.eu'],
+            reply_to: sanitized.email,
+            subject: `[${ticketId}] ${sanitized.subject}`,
+            text: outboundMessage,
+        };
+
+        const resendResponse = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${resendApiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emailPayload),
+        });
+
+        if (!resendResponse.ok) {
+            const resendErrorText = await resendResponse.text();
+            console.error('[contact] Resend send failed', {
+                ticketId,
+                status: resendResponse.status,
+                body: resendErrorText,
+            });
+
+            return Response.json(
+                {
+                    success: true,
+                    message: `Thank you, ${sanitized.name}. Your request has been recorded under ${ticketId}; our team will follow up soon.`,
+                    ticketId,
+                } satisfies ContactResponse,
+                { status: 202 }
+            );
+        }
+
+        console.info(`[contact] Contact inquiry accepted: ticket=${ticketId}, type=${sanitized.inquiryType}`);
 
         return Response.json(
             {

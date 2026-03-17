@@ -690,7 +690,7 @@ export const HHOCarKitPage: React.FC<HHOCarKitPageProps> = ({
                 <div className="p-2 bg-cyan-100 rounded-xl text-cyan-600"><Zap size={20} /></div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">8 Years of Hydrogen Engineering</span>
               </div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-6">Built on Proven Automotive Expertise</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-6">Built on Established Automotive Expertise</h2>
               <p className="text-lg text-slate-600 leading-relaxed mb-6">
                 The technology behind every Hylono HHO Kit was developed by a dedicated hydrogen energy R&D team with over 8 years of applied research in automotive hydrogen combustion.
               </p>
@@ -743,7 +743,7 @@ export const HHOCarKitPage: React.FC<HHOCarKitPageProps> = ({
                   <p><strong className="text-slate-900">Insurance:</strong> Covered by Pacific Insurance. 12-month Hylono distributor warranty against hardware defects.</p>
                   <p><strong className="text-slate-900">Compatibility:</strong> Car Kit for petrol/diesel 1.0–6.0L. Truck Kit for diesel commercial vehicles ≤6.0L. Results vary by vehicle condition, driving style, and load.</p>
                   <p className="text-[11px] text-slate-400 italic border-t border-slate-100 pt-4">
-                    Performance figures are based on manufacturer road testing. Results are not guaranteed and may vary. Hylono is an authorised European distributor of SENZA Hydrogen Energy products.
+                    Performance figures are based on manufacturer road testing. Results vary by vehicle condition, driving style, and load. Hylono is an authorised European distributor of SENZA Hydrogen Energy products.
                   </p>
                 </div>
               </motion.div>

@@ -15,35 +15,35 @@ export const disclaimers = {
    * Use on: Home page, landing pages, general content
    */
   general:
-    'Hylono products are wellness devices designed to support general wellbeing. Information on this website is for educational purposes only and does not constitute medical advice. These products are not intended to diagnose, treat, cure, or prevent any disease. Always consult a qualified healthcare professional before starting any new wellness routine, especially if you have a pre-existing medical condition or are taking medication.',
+    'Hylono products are wellness devices designed to support general wellbeing. Information on this website is educational and does not replace professional care. These products are intended for wellness planning rather than disease management. Always consult a qualified healthcare professional before starting a new routine, especially if you have a pre-existing condition or take medication.',
 
   /**
    * Research and evidence pages disclaimer
    * Use on: Research hub, evidence summaries, study references
    */
   research:
-    'Research summaries and study references are provided for educational purposes only. Individual results may vary and the findings described may not apply to every individual. These summaries are based on published peer-reviewed studies and are not a substitute for professional medical advice. The products described have not been evaluated by the European Medicines Agency. Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use.',
+    'Research summaries and study references are provided for educational review only. Individual results vary, and the findings described may not apply to every person. These summaries are based on published studies and do not replace personalized professional guidance. The products described are discussed in a wellness context rather than as disease-specific interventions. Consult a qualified healthcare professional before use.',
 
   /**
    * Product Detail Page (PDP) disclaimer
    * Use on: Product pages, checkout, cart
    */
   pdp:
-    'Product information is intended to support informed wellness decisions. Individual outcomes vary based on protocol adherence, baseline health status, and lifestyle factors. The stated benefits reflect general research findings and user experiences, not guaranteed results. This product is a wellness device and is not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use, particularly if you are pregnant, have a pacemaker, or have any medical implants.',
+    'Product information is intended to support informed wellness decisions. Individual outcomes vary based on protocol adherence, baseline health status, and lifestyle factors. The stated benefits reflect general research findings and user experiences, not promised results. This product is a wellness device intended for general wellbeing rather than disease management. Consult a qualified healthcare professional before use, particularly if you are pregnant, have a pacemaker, or have any implants.',
 
   /**
    * Protocol and usage guide disclaimer
    * Use on: Protocol pages, usage guides, session schedules
    */
   protocol:
-    'These protocols are educational wellness schedules designed to support recovery, vitality, and performance routines. They are not medical prescriptions and should not replace professional medical treatment. The suggested protocols are based on general wellness principles and individual research findings. Not intended to diagnose, treat, cure, or prevent any disease. Always consult your healthcare provider before beginning any new wellness protocol.',
+    'These protocols are educational wellness schedules designed to support recovery, vitality, and performance routines. They are not personalized care plans and should not replace professional guidance. The suggested protocols are based on general wellness principles and published research notes. Always consult a qualified healthcare professional before beginning a new wellness routine.',
 
   /**
    * Testimonial and review disclaimer
    * Use on: Testimonial pages, review sections, case studies
    */
   testimonial:
-    'Testimonials and reviews reflect individual experiences and are not representative of all users. Individual results vary based on personal health status, consistency of use, and other factors. These accounts are not intended to make medical claims or guarantee similar results. Not intended to diagnose, treat, cure, or prevent any disease.',
+    'Testimonials and reviews reflect individual experiences and are not representative of every user. Individual results vary based on personal health status, consistency of use, and other factors. These accounts are not intended to suggest clinical outcomes or promised results.',
 
   /**
    * Financing and pricing disclaimer
@@ -71,14 +71,14 @@ export const disclaimers = {
    * Use on: Cards, mobile views, tight spaces
    */
   short:
-    'Wellness device. Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider.',
+    'Wellness device for general wellbeing use. Consult a qualified healthcare professional before use.',
 
   /**
    * Footer disclaimer for legal section
    * Use on: Footer, legal pages
    */
   footer:
-    'Hylono Systems wellness products are designed to support general wellbeing and are not medical devices as defined by EU MDR 2017/745. The information provided on this website is for educational purposes only. Always read the user manual and consult a healthcare professional before use. Product specifications, pricing, and availability subject to change. © 2026 Hylono Systems. All rights reserved.',
+    'Hylono Systems wellness products are designed to support general wellbeing and are not positioned for disease management. The information provided on this website is educational. Always read the user manual and consult a qualified healthcare professional before use. Product specifications, pricing, and availability subject to change. © 2026 Hylono Systems. All rights reserved.',
 } as const;
 
 /**

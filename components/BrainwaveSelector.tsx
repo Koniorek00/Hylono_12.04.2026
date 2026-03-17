@@ -40,7 +40,7 @@ const BRAINWAVE_STATES: { id: BrainwaveState; name: string; hz: string; descript
         id: 'DELTA',
         name: 'Delta',
         hz: '0.5-4 Hz',
-        description: 'Deep healing sleep, cellular regeneration, restoration',
+        description: 'Deep rest support, recovery-oriented sleep, restoration',
         icon: <Moon size={20} />,
         color: 'from-indigo-400 to-slate-600'
     },
@@ -68,20 +68,23 @@ export const BrainwaveSelector: React.FC<BrainwaveSelectorProps> = ({ onSelect, 
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
                     <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="brainwave-selector-title"
                         initial={{ scale: 0.9, y: 20 }}
                         animate={{ scale: 1, y: 0 }}
                         exit={{ scale: 0.9, y: 20 }}
                         className="relative w-full max-w-lg rounded-3xl p-8 shadow-2xl border bg-white border-slate-200"
                     >
-                        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                            <X size={20} />
+                        <button onClick={onClose} aria-label="Close brainwave selector" className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                            <X size={20} aria-hidden="true" />
                         </button>
 
                         <div className="text-center mb-8">
                             <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-slate-100">
-                                <Brain className="text-slate-700" size={24} />
+                                <Brain className="text-slate-700" size={24} aria-hidden="true" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-2 text-slate-900">
+                            <h3 id="brainwave-selector-title" className="text-2xl font-bold mb-2 text-slate-900">
                                 Select Target State
                             </h3>
                             <p className="text-sm text-slate-500">

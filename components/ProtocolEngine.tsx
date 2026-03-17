@@ -139,7 +139,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ steps, techName,
                                 className="px-6 py-3 bg-white text-slate-900 rounded-xl font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-cyan-400 transition-all"
                                 onClick={() => {
                                     // Logic to jump to next tech would go here
-                                    router.push(`/product/${nextSynergy.id}?launch=true`);
+                                    router.push(`/product/${nextSynergy.id.toLowerCase()}?launch=true`);
                                     window.scrollTo(0, 0);
                                 }}
                             >

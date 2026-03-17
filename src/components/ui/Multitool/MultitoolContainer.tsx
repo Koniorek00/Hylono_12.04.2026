@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * MultitoolContainer — Floating HUD with FAB trigger
  * 
@@ -305,7 +307,7 @@ const MultitoolBottomSheet: React.FC<{
               onClick={() => setActiveTool(tool.id)}
               role="tab"
               aria-selected={activeTool === tool.id}
-              title={tool.label}
+              aria-label={tool.label}
               className={`
                 flex-1 min-h-[44px]
                 flex items-center justify-center

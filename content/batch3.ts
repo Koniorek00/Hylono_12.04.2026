@@ -13,17 +13,17 @@ export const batch3NavigationContent: {
 } = {
     goalsLabel: 'Goals',
     goals: [
-        { label: 'Sports recovery', path: 'conditions/sports-recovery' },
-        { label: 'Sleep & rest', path: 'conditions/sleep-rest' },
-        { label: 'Stress & tension', path: 'conditions/stress-tension' },
-        { label: 'Comfort & renewal', path: 'conditions/comfort-renewal' },
+        { label: 'Recovery', path: 'conditions/recovery' },
+        { label: 'Sleep', path: 'conditions/sleep' },
+        { label: 'Stress', path: 'conditions/stress' },
+        { label: 'Comfort', path: 'conditions/comfort' },
         { label: 'Vitality', path: 'conditions/vitality' },
     ],
-    cta: { label: 'Plan your stack →', path: 'wellness-planner' },
+    cta: { label: 'Plan your stack ->', path: 'wellness-planner' },
     trustMarkers: (lowestRental: number) => [
-        '✓ Free consultation',
-        `✓ Rent from €${lowestRental}/mo`,
-        '✓ Service & support included',
+        'Guided consultation available',
+        `Rent from EUR ${lowestRental}/mo`,
+        'Service and support included',
     ],
 };
 
@@ -32,33 +32,33 @@ export const batch3HomeContent = {
         title: 'Not sure where to start?',
         cards: [
             {
-                icon: '🔧',
+                icon: 'Stack',
                 title: 'Plan a stack',
                 description: "Answer a few questions and we'll match you with the right technologies.",
                 path: 'wellness-planner',
             },
             {
-                icon: '🎯',
+                icon: 'Target',
                 title: 'Choose a goal',
-                description: 'Sleep, recovery, stress — find your path.',
+                description: 'Sleep, recovery, stress - find your path.',
                 path: 'conditions',
             },
             {
-                icon: '💬',
+                icon: 'Guide',
                 title: 'Talk to an advisor',
-                description: "Free consultation. We'll help you find the right solution.",
-                path: 'advisors',
+                description: "Use the contact route for planning support and next-step guidance.",
+                path: 'contact',
             },
         ],
     },
     popularGoals: {
         title: 'Popular goals',
         tiles: [
-            { icon: '💪', title: 'Recovery', path: 'conditions/sports-recovery' },
-            { icon: '🌙', title: 'Sleep', path: 'conditions/sleep-rest' },
-            { icon: '🧘', title: 'Stress', path: 'conditions/stress-tension' },
-            { icon: '✨', title: 'Renewal', path: 'conditions/comfort-renewal' },
-            { icon: '⚡', title: 'Vitality', path: 'conditions/vitality' },
+            { icon: 'Recovery', title: 'Recovery', path: 'conditions/recovery' },
+            { icon: 'Sleep', title: 'Sleep', path: 'conditions/sleep' },
+            { icon: 'Stress', title: 'Stress', path: 'conditions/stress' },
+            { icon: 'Comfort', title: 'Renewal', path: 'conditions/comfort' },
+            { icon: 'Vitality', title: 'Vitality', path: 'conditions/vitality' },
         ],
     },
     rentalPromo: {
@@ -66,11 +66,11 @@ export const batch3HomeContent = {
         description:
             'Rental program: access to regeneration technologies without the upfront investment.',
         bullets: [
-            'No long-term commitment',
+            'Flexible monthly access',
             'Service and support included',
-            '70% of payments credited toward purchase',
+            'Apply eligible rental payments toward purchase where offered',
         ],
-        cta: 'Explore the rental program →',
+        cta: 'Explore the rental program ->',
         ctaPath: 'rental',
     },
 } as const;
@@ -82,72 +82,88 @@ export type ContentCommerceMapping = {
 };
 
 export const blogCategoryCommerceMap: Record<string, ContentCommerceMapping> = {
-    HBOT: { relatedProducts: [TechType.HBOT], relatedProtocols: ['DEEP-RECOVERY'], goal: 'recovery' },
-    PEMF: { relatedProducts: [TechType.PEMF], relatedProtocols: ['MITO-RESET'], goal: 'sleep' },
-    RLT: { relatedProducts: [TechType.RLT], relatedProtocols: ['MITO-RESET'], goal: 'skin' },
-    Hydrogen: { relatedProducts: [TechType.HYDROGEN], relatedProtocols: ['QUANTUM-CLARITY'], goal: 'cognitive' },
+    HBOT: {
+        relatedProducts: [TechType.HBOT],
+        relatedProtocols: ['recovery-oxygen-foundation'],
+        goal: 'recovery',
+    },
+    PEMF: {
+        relatedProducts: [TechType.PEMF],
+        relatedProtocols: ['stress-balance-h2-foundation'],
+        goal: 'sleep',
+    },
+    RLT: {
+        relatedProducts: [TechType.RLT],
+        relatedProtocols: ['stress-balance-h2-foundation'],
+        goal: 'comfort',
+    },
+    Hydrogen: {
+        relatedProducts: [TechType.HYDROGEN],
+        relatedProtocols: ['stress-balance-h2-foundation'],
+        goal: 'vitality',
+    },
     Protocols: {
         relatedProducts: [TechType.HBOT, TechType.PEMF, TechType.RLT],
-        relatedProtocols: ['MITO-RESET', 'DEEP-RECOVERY'],
-        goal: 'performance',
+        relatedProtocols: ['recovery-oxygen-foundation', 'vitality-dual-stack'],
+        goal: 'recovery',
     },
 };
 
 export const learningCommerceMap: ContentCommerceMapping = {
     relatedProducts: [TechType.PEMF, TechType.RLT],
-    relatedProtocols: ['MITO-RESET', 'QUANTUM-CLARITY'],
+    relatedProtocols: ['stress-balance-h2-foundation', 'vitality-dual-stack'],
     goal: 'sleep',
 };
 
 export const researchCommerceMap: ContentCommerceMapping = {
     relatedProducts: [TechType.HBOT, TechType.HYDROGEN],
-    relatedProtocols: ['DEEP-RECOVERY', 'QUANTUM-CLARITY'],
+    relatedProtocols: ['recovery-oxygen-foundation', 'stress-balance-h2-foundation'],
     goal: 'recovery',
 };
 
 export type Batch3ProductDocument = {
     title: string;
-    type: 'PDF';
+    type: 'Page';
     size: string;
     href: string;
 };
 
 export const batch3DocumentsByTech: Partial<Record<TechType, Batch3ProductDocument[]>> = {
     [TechType.HBOT]: [
-        { title: 'User manual', type: 'PDF', size: '2.4 MB', href: '/docs/manual-hbot.pdf' },
-        { title: 'CE Declaration of Conformity', type: 'PDF', size: '0.8 MB', href: '/docs/ce-hbot.pdf' },
-        { title: 'Technical specification sheet', type: 'PDF', size: '1.2 MB', href: '/docs/spec-hbot.pdf' },
+        { title: 'Shipping and delivery policy', type: 'Page', size: 'Policy page', href: '/shipping' },
+        { title: 'Returns and eligibility policy', type: 'Page', size: 'Policy page', href: '/returns' },
+        { title: 'Warranty support overview', type: 'Page', size: 'Policy page', href: '/warranty' },
     ],
     [TechType.PEMF]: [
-        { title: 'User manual', type: 'PDF', size: '1.9 MB', href: '/docs/manual-pemf.pdf' },
-        { title: 'CE Declaration of Conformity', type: 'PDF', size: '0.6 MB', href: '/docs/ce-pemf.pdf' },
-        { title: 'Technical specification sheet', type: 'PDF', size: '1.1 MB', href: '/docs/spec-pemf.pdf' },
+        { title: 'Shipping and delivery policy', type: 'Page', size: 'Policy page', href: '/shipping' },
+        { title: 'Returns and eligibility policy', type: 'Page', size: 'Policy page', href: '/returns' },
+        { title: 'Warranty support overview', type: 'Page', size: 'Policy page', href: '/warranty' },
     ],
     [TechType.RLT]: [
-        { title: 'User manual', type: 'PDF', size: '1.7 MB', href: '/docs/manual-rlt.pdf' },
-        { title: 'CE Declaration of Conformity', type: 'PDF', size: '0.5 MB', href: '/docs/ce-rlt.pdf' },
-        { title: 'Technical specification sheet', type: 'PDF', size: '0.9 MB', href: '/docs/spec-rlt.pdf' },
+        { title: 'Shipping and delivery policy', type: 'Page', size: 'Policy page', href: '/shipping' },
+        { title: 'Returns and eligibility policy', type: 'Page', size: 'Policy page', href: '/returns' },
+        { title: 'Warranty support overview', type: 'Page', size: 'Policy page', href: '/warranty' },
     ],
     [TechType.HYDROGEN]: [
-        { title: 'User manual', type: 'PDF', size: '1.8 MB', href: '/docs/manual-hydrogen.pdf' },
-        { title: 'CE Declaration of Conformity', type: 'PDF', size: '0.7 MB', href: '/docs/ce-hydrogen.pdf' },
-        { title: 'Technical specification sheet', type: 'PDF', size: '1.0 MB', href: '/docs/spec-hydrogen.pdf' },
+        { title: 'Shipping and delivery policy', type: 'Page', size: 'Policy page', href: '/shipping' },
+        { title: 'Returns and eligibility policy', type: 'Page', size: 'Policy page', href: '/returns' },
+        { title: 'Warranty support overview', type: 'Page', size: 'Policy page', href: '/warranty' },
     ],
 };
 
 const specAnnotations: Partial<Record<TechType, Record<string, string>>> = {
     [TechType.HBOT]: {
-        'Pressure Range': 'Equivalent to a mild underwater depth profile suitable for regular home-guided sessions.',
-        'Oxygen Purity': 'High-purity oxygen delivery helps maintain consistent session quality.',
+        'Pressure Range': 'Pressure figures should always be interpreted alongside the published operating guidance for the route.',
+        'Oxygen Purity': 'Oxygen-delivery claims should be reviewed together with setup, maintenance, and safety guidance.',
     },
     [TechType.RLT]: {
         Wavelengths:
-            'Visible red + near-infrared is the most commonly studied photobiomodulation pairing in wellness research.',
-        Irradiance: 'Higher irradiance supports practical session duration while maintaining comfort.',
+            'Visible red and near-infrared pairings are commonly discussed in photobiomodulation research, but outcomes remain protocol-specific.',
+        Irradiance: 'Session comfort, distance, and device setup all affect practical exposure.',
     },
     [TechType.HYDROGEN]: {
-        Concentration: 'Higher dissolved concentration supports meaningful intake per session.',
-        Purity: 'High purity minimizes unwanted gas byproducts during use.',
+        Concentration: 'Hydrogen concentration figures should be read together with the published usage guidance and maintenance notes.',
+        Purity: 'Purity statements should be evaluated alongside the manufacturer and servicing documentation.',
     },
 };
 
@@ -158,22 +174,22 @@ export const getBatch3SpecAnnotation = (tech: TechType, label: string): string |
 export const batch3PdpContent = {
     trustHierarchy: {
         whySelected:
-            'We shortlist products with robust technical documentation, practical protocol fit, and consistent supportability in real-world usage.',
+            'We shortlist products with practical protocol fit, clear support paths, and policy-backed commercial guidance.',
         protocolSignal: 'Usage protocol included',
     },
     socialProof: {
         minReviewCount: 10,
         belowThresholdMessage:
-            'This product currently has limited verified review volume. We prioritise technical documentation and protocol guidance first.',
+            'This route prioritizes policy clarity, setup guidance, and supporting evidence over synthetic review volume.',
     },
     advisorCta: {
         title: 'Need help choosing?',
-        linkLabel: 'Book a free consultation →',
-        path: 'advisors',
+        linkLabel: 'Book a consultation ->',
+        path: 'contact',
     },
     tradeInCta: {
-        text: 'Have an older device?',
-        linkLabel: 'Check your trade-in value →',
-        path: 'trade-in',
+        text: 'Need help comparing ownership paths?',
+        linkLabel: 'Review returns and support options ->',
+        path: 'returns',
     },
 } as const;

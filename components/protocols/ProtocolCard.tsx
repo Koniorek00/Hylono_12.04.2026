@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export interface ProtocolCardData {
   slug: string;
@@ -12,17 +13,23 @@ export interface ProtocolCardData {
 
 interface ProtocolCardProps {
   protocol: ProtocolCardData;
-  onOpen: (slug: string) => void;
+  onOpen?: (slug: string) => void;
+  href?: string;
   compact?: boolean;
 }
 
-export const ProtocolCard: React.FC<ProtocolCardProps> = ({ protocol, onOpen, compact = false }) => {
+export const ProtocolCard: React.FC<ProtocolCardProps> = ({
+  protocol,
+  onOpen,
+  href,
+  compact = false,
+}) => {
   return (
-    <button
-      type="button"
-      onClick={() => onOpen(protocol.slug)}
+    <Link
+      href={href ?? `/protocols/${protocol.slug}`}
+      onClick={() => onOpen?.(protocol.slug)}
       aria-label={`Open protocol ${protocol.title}`}
-      className="w-full text-left rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-cyan-300 transition-all min-h-11"
+      className="block w-full min-h-11 rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-all hover:border-cyan-300 hover:shadow-md md:p-6"
     >
       <h3 className="text-lg font-bold text-slate-900 leading-tight">{protocol.title}</h3>
 
@@ -44,6 +51,6 @@ export const ProtocolCard: React.FC<ProtocolCardProps> = ({ protocol, onOpen, co
           </span>
         ))}
       </div>
-    </button>
+    </Link>
   );
 };

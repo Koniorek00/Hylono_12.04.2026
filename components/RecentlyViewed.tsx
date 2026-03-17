@@ -12,13 +12,24 @@ interface RecentProduct {
 
 // Hook for managing recently viewed
 export const useRecentlyViewed = () => {
-    const [items, setItems] = useState<RecentProduct[]>(() => {
-        const saved = localStorage.getItem('hylono_recent');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [items, setItems] = useState<RecentProduct[]>([]);
+
+    // Load from localStorage after mount to avoid SSR/hydration mismatch
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('hylono_recent');
+            if (saved) setItems(JSON.parse(saved));
+        } catch {
+            // Ignore storage errors (private browsing, corrupted data)
+        }
+    }, []);
 
     useEffect(() => {
-        localStorage.setItem('hylono_recent', JSON.stringify(items));
+        try {
+            localStorage.setItem('hylono_recent', JSON.stringify(items));
+        } catch {
+            // Ignore storage errors (private browsing, quota exceeded)
+        }
     }, [items]);
 
     const addToRecent = (product: Omit<RecentProduct, 'viewedAt'>) => {

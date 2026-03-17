@@ -171,7 +171,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
 
                                     {step === 'info' && (
                                         <form action={bookingFormAction}>
-                                            <button onClick={() => setStep('time')} className="flex items-center gap-1 text-sm text-slate-500 mb-4">
+                                            <button type="button" onClick={() => setStep('time')} className="flex items-center gap-1 text-sm text-slate-500 mb-4">
                                                 <ChevronLeft size={16} /> Back
                                             </button>
                                             <h3 className="font-medium text-slate-900 mb-4 flex items-center gap-2">
@@ -182,6 +182,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                             <input type="hidden" name="bookingType" value="consultation" />
                                             <div className="space-y-3">
                                                 <input
+                                                    aria-label="Full Name"
                                                     name="name"
                                                     placeholder="Full Name"
                                                     value={info.name}
@@ -189,6 +190,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <input
+                                                    aria-label="Email"
                                                     name="email"
                                                     placeholder="Email"
                                                     type="email"
@@ -197,6 +199,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <input
+                                                    aria-label="Phone"
                                                     name="phone"
                                                     placeholder="Phone"
                                                     value={info.phone}
@@ -204,6 +207,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <textarea
+                                                    aria-label="Notes (optional)"
                                                     name="notes"
                                                     placeholder="Notes (optional)"
                                                     value={info.notes}
@@ -212,7 +216,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                 />
                                             </div>
                                             {bookingError && (
-                                                <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+                                                <p role="alert" className="mt-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
                                                     {bookingError}
                                                 </p>
                                             )}

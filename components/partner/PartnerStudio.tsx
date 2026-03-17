@@ -11,6 +11,7 @@ import { usePartnerStore, COPY_LIBRARY } from '../../hooks/usePartnerStore';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { A4PosterTemplate, SocialSquareTemplate, SocialStoryTemplate } from './PDFTemplates';
 import { validateCompliance } from '../../utils/compliance';
+import { disclaimers } from '../../content/disclaimers';
 
 // --- Static Data (moved outside components to prevent recreation) ---
 
@@ -45,8 +46,8 @@ const STOCK_IMAGES = [
 
 const FALLBACK_COPY = {
     title: 'Your Wellness Journey',
-    body: 'Unlock your potential with our advanced bio-optimization therapies. Book your consultation today to learn more.',
-    caption: 'Ready to optimize your health? 🌟 innovative therapies designed to help you look, feel, and perform your best.\n\nBook a consultation today! 👇',
+    body: 'Explore technology-supported wellness routines built for consistency, comfort, and measurable progress. Book a consultation to find the right setup.',
+    caption: 'Ready to optimize your routine? 🌟 Explore evidence-informed wellness technology designed to support recovery, focus, and daily performance.\n\nBook a consultation today 👇',
     hashtags: '#Wellness #HealthOptimization #Biohacking #SelfCare'
 };
 
@@ -88,11 +89,11 @@ const LivePreviewHTML: React.FC<{ scale?: number }> = memo(({ scale = 1 }) => {
     };
 
     const getDisclaimer = () => {
-        if (modality === 'HBOT') return 'Disclaimer: The HBOT technology provided by Hylono is for wellness and relaxation purposes only. It is not intended to diagnose, treat, cure, or prevent any disease.';
-        if (modality === 'PEMF') return 'Disclaimer: PEMF therapy is used to help improve wellness. It does not replace medical advice or treatments from healthcare professionals.';
-        if (modality === 'RLT') return 'Disclaimer: Red Light Therapy is a non-invasive wellness application. Results may vary and it is not a cure for medical conditions.';
-        if (modality === 'Hydrogen') return 'Disclaimer: Hydrogen inhalation and water are complementary wellness strategies. Please consult with a physician.';
-        return 'Disclaimer: Wellness technology is intended to support overall health and does not constitute medical advice.';
+        if (modality === 'HBOT') return 'Disclaimer: HBOT sessions are designed to support guided wellness routines and recovery-focused programs. Individual response varies; consult your licensed clinician before use.';
+        if (modality === 'PEMF') return 'Disclaimer: PEMF sessions are used within structured wellness programs and do not replace licensed clinical guidance. Consult your clinician before use.';
+        if (modality === 'RLT') return 'Disclaimer: Red light sessions are designed to support everyday wellbeing routines. Individual response varies; review suitability with a licensed clinician.';
+        if (modality === 'Hydrogen') return 'Disclaimer: Hydrogen routines are complementary wellness strategies intended to support daily wellbeing. Consult your licensed clinician before starting a new protocol.';
+        return `Disclaimer: ${disclaimers.short}`;
     };
 
     // Layout Logic

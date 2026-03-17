@@ -111,17 +111,20 @@ export const ComparisonModal: React.FC<{
                         onClick={onClose}
                     />
                     <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="compare-modal-title"
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 50 }}
                         className="fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-4xl mx-auto bg-white rounded-2xl z-50 overflow-hidden shadow-2xl max-h-[80vh] overflow-y-auto"
                     >
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white">
-                            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                <Scale size={24} /> Product Comparison
+                            <h2 id="compare-modal-title" className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <Scale size={24} aria-hidden="true" /> Product Comparison
                             </h2>
-                            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-                                <X size={24} />
+                            <button onClick={onClose} aria-label="Close comparison" className="text-slate-400 hover:text-slate-600">
+                                <X size={24} aria-hidden="true" />
                             </button>
                         </div>
 

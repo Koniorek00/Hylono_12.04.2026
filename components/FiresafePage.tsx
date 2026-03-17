@@ -79,7 +79,7 @@ const PRODUCTS = [
         benefits: [
             'Broad device compatibility',
             'Auto fire arrest',
-            'Same proven mechanism',
+            'Same validated mechanism',
             'Flowmeter compatible',
         ],
         color: 'from-purple-500/10 to-indigo-500/5',
@@ -154,7 +154,7 @@ const FAQS = [
 const TESTIMONIALS = [
     {
         quote:
-            'Oxygen is one of the most commonly used medicines at University Hospitals Leicester and, as a highly flammable substance, presents inherent risks. We implemented the deployment of over 3,000 Firesafe nozzles, one for every patient bed across all hospital sites and emergency departments. These devices have proven effective and provide reassurance and peace of mind to our medical engineering team.',
+            'Oxygen is one of the most commonly used therapies at University Hospitals Leicester and, as a highly flammable substance, presents inherent risks. We implemented the deployment of over 3,000 Firesafe nozzles, one for every patient bed across all hospital sites and emergency departments. These devices have performed reliably and provide reassurance and peace of mind to our medical engineering team.',
         name: 'Arif Tai',
         title: 'Medical Devices Safety Officer / Section Leader',
         org: 'University Hospitals Leicester',

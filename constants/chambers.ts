@@ -43,7 +43,7 @@ The OxyLife I/80 is where precision engineering meets therapeutic innovation. Bu
 While conventional chambers maintain a single static pressure, the OxyLife Smart Chamber recognises that dynamic pressure cycles activate the body's deepest regenerative responses. Its self-adjusting pressure circuits move through programmed highs and lows — and as the pressure changes, stem cell proliferation accelerates, tissues re-oxygenate, and the body's life force revs up.
 
 **The chamber body**
-Constructed from a single sheet of aircraft-grade aluminium alloy (4 mm thickness) — no welding joints in the middle — the chamber body is simultaneously lightweight (90 kg) and extraordinarily strong, tested in-house to 2.5 ATA. The chamber is finished in white and carries a fully corrosion-resistant surface treatment.
+Constructed from a single sheet of aircraft-grade aluminium alloy (4 mm thickness) — no welding joints in the middle — the chamber body is simultaneously lightweight (90 kg) and extraordinarily strong, tested in-house to 2.5 ATA. The chamber is finished in white and carries a fully corrosion-resistant surface finish.
 
 **The polycarbonate window**
 The large door is manufactured from precision-custom polycarbonate developed for OxyHelp in Japan — the same material used in the aircraft industry, with 250× the impact resistance of standard glass. Available in 10 mm and 15 mm thickness, the transparent design dramatically reduces claustrophobia, and a smart sliding lock with sensor-confirmed closure ensures it can only be opened once pressure is fully equalised.
@@ -141,7 +141,7 @@ The door/window only opens after all pressure is released — no additional lock
   },
 
   images: [
-    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-i-80-hero.jpg', alt: 'OxyLife I/80 monoplace hyperbaric chamber — white aluminium body with polycarbonate window' },
+    { role: 'hero', url: '/images/chambers/oxyhelp-chambers-hero.jpg', alt: 'OxyLife I/80 monoplace hyperbaric chamber — white aluminium body with polycarbonate window' },
   ],
 
   accessories: [
@@ -157,7 +157,7 @@ The door/window only opens after all pressure is released — no additional lock
 
   idealFor: 'Individuals seeking personal daily HBOT sessions with full clinical-grade protocol control, in a compact footprint suitable for home, studio, or spa environments.',
 
-  disclaimer: 'Not intended to diagnose, treat, cure, or prevent any disease. Designed to support general wellness and recovery. Consult your healthcare provider before use.',
+  disclaimer: 'Designed for general wellbeing routines and educational planning. Consult a qualified healthcare professional before use.',
 };
 
 export const OXYLIFE_I_90: ChamberProduct = {
@@ -221,7 +221,7 @@ The slightly larger chamber volume means the compressors work marginally harder 
   ],
 
   images: [
-    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-i-80-hero.jpg', alt: 'OxyLife I/90 monoplace hyperbaric chamber — wider 90cm model' },
+    { role: 'hero', url: '/images/chambers/oxyhelp-chambers-hero.jpg', alt: 'OxyLife I/90 monoplace hyperbaric chamber — wider 90cm model' },
   ],
 };
 
@@ -322,7 +322,7 @@ Every OxyLife C model carries the same 5-independent-system safety architecture 
   },
 
   images: [
-    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-c2-hero.jpg', alt: 'OxyLife C2 multiplace hyperbaric chamber — 2-module modular design' },
+    { role: 'hero', url: '/images/chambers/oxyhelp-chambers-hero.jpg', alt: 'OxyLife C2 multiplace hyperbaric chamber — 2-module modular design' },
   ],
 
   accessories: [
@@ -341,7 +341,7 @@ Every OxyLife C model carries the same 5-independent-system safety architecture 
 
   idealFor: 'Clinics, wellness studios, and high-end private clients wanting group HBOT sessions with full installation flexibility and no structural building modifications.',
 
-  disclaimer: 'Not intended to diagnose, treat, cure, or prevent any disease. Designed to support general wellness and recovery. Consult your healthcare provider before use.',
+  disclaimer: 'Designed for general wellbeing routines and educational planning. Consult a qualified healthcare professional before use.',
 };
 
 export const OXYLIFE_C3: ChamberProduct = {
@@ -399,7 +399,7 @@ One staff member can simultaneously monitor multiple OxyLife C3 sessions via the
   ],
 
   images: [
-    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-c3-hero.jpg', alt: 'OxyLife C3 multiplace hyperbaric chamber — 3-module version with seating' },
+    { role: 'hero', url: '/images/chambers/oxyhelp-chambers-hero.jpg', alt: 'OxyLife C3 multiplace hyperbaric chamber — 3-module version with seating' },
   ],
 };
 
@@ -456,7 +456,7 @@ Even at four modules, each section is 76 × 192 cm — narrower than a standard 
   ],
 
   images: [
-    { role: 'hero', url: 'https://oxyhelp.com/wp-content/uploads/oxylife-c4-hero.jpg', alt: 'OxyLife C4 multiplace hyperbaric chamber — flagship 4-module version' },
+    { role: 'hero', url: '/images/chambers/oxyhelp-chambers-hero.jpg', alt: 'OxyLife C4 multiplace hyperbaric chamber — flagship 4-module version' },
   ],
 };
 
@@ -488,8 +488,8 @@ export const ASIAN_MONO_STANDARD: ChamberProduct = {
   images: [],
   accessories: [],
   useCases: ['Home use', 'Entry-level clinic', 'Sports recovery'],
-  idealFor: 'Buyers seeking proven hard-shell monoplace HBOT at an accessible price point.',
-  disclaimer: 'Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use.',
+  idealFor: 'Buyers seeking an established hard-shell monoplace HBOT option at an accessible price point.',
+  disclaimer: 'Designed for general wellbeing routines and educational planning. Consult a qualified healthcare professional before use.',
 };
 
 // ─── SOFT CHAMBERS — STANDARD SERIES ─────────────────────────────────────────
@@ -561,7 +561,7 @@ We offer soft chambers on flexible rental terms from €X/month, with no install
   accessories: ['Oxygen concentrator', 'Breathing mask and tubing', 'Carry bag', 'Air pump'],
   useCases: ['Home wellness', 'Recovery', 'Anti-aging', 'Sleep improvement', 'Introductory HBOT'],
   idealFor: 'First-time HBOT users, home wellness practitioners, and anyone wanting to trial hyperbaric therapy before committing to a hard chamber.',
-  disclaimer: 'Not intended to diagnose, treat, cure, or prevent any disease. Designed to support general wellness. Consult your healthcare provider before use. Soft chambers operate at lower pressure than hard chambers and are not equivalent clinical devices.',
+  disclaimer: 'Designed for general wellbeing routines and educational planning. Consult a qualified healthcare professional before use. Soft chambers operate at lower pressure than hard chambers and are not equivalent to regulated clinical equipment.',
 };
 
 export const SOFT_CHAMBER_SITTING: ChamberProduct = {

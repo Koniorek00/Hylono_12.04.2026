@@ -8,6 +8,7 @@ import {
 import { TechType } from '../../types';
 import { KNOWLEDGE_REGISTRY } from '../../constants/knowledge';
 import { RESEARCH_STUDIES, BLOG_POSTS } from '../../constants/content';
+import { toBlogSlug } from '@/lib/blog';
 
 // === MENTIONABLE ENTITY TYPES ===
 export type MentionType = 'machine' | 'research' | 'documentation' | 'protocol' | 'knowledge' | 'article';
@@ -32,7 +33,7 @@ const MACHINE_ENTITIES: MentionEntity[] = [
         description: 'Hyperbaric Oxygen Therapy — Pressurized oxygen for cellular regeneration',
         icon: <Wind size={16} />,
         color: 'from-cyan-500 to-blue-600',
-        link: '/tech/HBOT',
+        link: '/product/hbot',
         metadata: { category: 'Core Modality', pressure: '1.3-2.0 ATA' }
     },
     {
@@ -42,7 +43,7 @@ const MACHINE_ENTITIES: MentionEntity[] = [
         description: 'Pulsed Electromagnetic Field — Cellular energy optimization',
         icon: <Activity size={16} />,
         color: 'from-purple-500 to-pink-600',
-        link: '/tech/PEMF',
+        link: '/product/pemf',
         metadata: { category: 'Core Modality', frequency: '1-30 Hz' }
     },
     {
@@ -52,7 +53,7 @@ const MACHINE_ENTITIES: MentionEntity[] = [
         description: 'Red Light Therapy — Photobiomodulation for mitochondrial health',
         icon: <Sun size={16} />,
         color: 'from-red-500 to-orange-600',
-        link: '/tech/RLT',
+        link: '/product/rlt',
         metadata: { category: 'Core Modality', wavelength: '660nm / 850nm' }
     },
     {
@@ -62,7 +63,7 @@ const MACHINE_ENTITIES: MentionEntity[] = [
         description: 'Molecular Hydrogen — Selective antioxidant for oxidative stress',
         icon: <Droplets size={16} />,
         color: 'from-sky-500 to-teal-600',
-        link: '/tech/HYDROGEN',
+        link: '/product/hydrogen',
         metadata: { category: 'Core Modality', concentration: '2-4%' }
     }
 ];
@@ -75,7 +76,7 @@ const DOCUMENTATION_ENTITIES: MentionEntity[] = [
         description: 'Quick start guide for new Hylono device owners',
         icon: <BookOpen size={16} />,
         color: 'from-emerald-500 to-green-600',
-        link: '/support#getting-started'
+        link: '/help?tab=support'
     },
     {
         id: 'safety-protocols',
@@ -84,7 +85,7 @@ const DOCUMENTATION_ENTITIES: MentionEntity[] = [
         description: 'Official safety guidelines and contraindications',
         icon: <Shield size={16} />,
         color: 'from-amber-500 to-yellow-600',
-        link: '/support#safety'
+        link: '/help?tab=support'
     },
     {
         id: 'maintenance-guide',
@@ -93,7 +94,7 @@ const DOCUMENTATION_ENTITIES: MentionEntity[] = [
         description: 'Device care, cleaning, and maintenance procedures',
         icon: <FileText size={16} />,
         color: 'from-slate-500 to-gray-600',
-        link: '/support#maintenance'
+        link: '/help?tab=support'
     },
     {
         id: 'protocol-stacking',
@@ -191,7 +192,7 @@ const getArticleEntities = (): MentionEntity[] => {
                 post.category === 'RLT' ? 'from-red-500 to-orange-600' :
                     post.category === 'Hydrogen' ? 'from-sky-500 to-teal-600' :
                         'from-slate-500 to-gray-600',
-        link: `/blog/${post.id}`,
+        link: `/blog/${toBlogSlug(post.title)}`,
         metadata: {
             category: post.category,
             readTime: post.readTime,

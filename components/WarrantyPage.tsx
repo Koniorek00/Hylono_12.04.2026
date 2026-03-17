@@ -15,8 +15,8 @@ export const WarrantyPage: React.FC = () => {
             <div className="max-w-4xl mx-auto px-6">
                 <div className="text-center mb-12">
                     <Shield className="mx-auto text-cyan-500 mb-4" size={48} />
-                    <h1 className="text-4xl font-bold text-slate-900 mb-4">Warranty & Service</h1>
-                    <p className="text-lg text-slate-600">Your investment is protected</p>
+                    <h1 id="warranty-hero-headline" className="text-4xl font-bold text-slate-900 mb-4">Warranty & Service</h1>
+                    <p id="warranty-hero-description" className="text-lg text-slate-600">Your investment is protected</p>
                 </div>
 
                 {/* Warranty Features */}
@@ -84,11 +84,11 @@ export const WarrantyPage: React.FC = () => {
                     </h2>
                     <form className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
-                            <input placeholder="Full Name" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                            <input placeholder="Email" type="email" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <input aria-label="Full Name" placeholder="Full Name" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                            <input aria-label="Email" placeholder="Email" type="email" className="px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
                         </div>
-                        <input placeholder="Product Serial Number" className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
-                        <select className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none text-slate-600">
+                        <input aria-label="Product Serial Number" placeholder="Product Serial Number" className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none" />
+                        <select aria-label="Issue Type" className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none text-slate-600">
                             <option>Select Issue Type</option>
                             <option>Equipment not working</option>
                             <option>Unusual noise/vibration</option>
@@ -96,7 +96,7 @@ export const WarrantyPage: React.FC = () => {
                             <option>Seal/pressure problem</option>
                             <option>Other</option>
                         </select>
-                        <textarea placeholder="Describe the issue..." className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none h-32 resize-none" />
+                        <textarea aria-label="Describe the issue" placeholder="Describe the issue..." className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none h-32 resize-none" />
                         <button type="submit" className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800">
                             Submit Service Request
                         </button>

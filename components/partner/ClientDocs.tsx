@@ -14,6 +14,7 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { disclaimers } from '../../content/disclaimers';
 
 // Document Templates
 interface DocTemplate {
@@ -35,7 +36,7 @@ const TEMPLATES: DocTemplate[] = [
     {
         id: 'liability-waiver',
         name: 'Liability Waiver',
-        description: 'Client assumes full responsibility for therapy participation',
+        description: 'Client acknowledges informed participation in guided wellness sessions',
         category: 'liability',
         required: true
     },
@@ -141,7 +142,7 @@ const DocumentPreview: React.FC<{
                         <p><strong>Facility:</strong> <span className="field">{clinicName || '________________________'}</span></p>
 
                         <h2>Purpose & Nature of Services</h2>
-                        <p>I understand that the bio-optimization services offered at this facility are designed to support general wellness and are not intended to diagnose, treat, cure, or prevent any disease or medical condition.</p>
+                        <p>I understand that the bio-optimization services offered at this facility are designed to support general wellness routines and informed lifestyle decisions.</p>
 
                         <h2>Services May Include:</h2>
                         <div className="checkbox"><div className="checkbox-box"></div><span>Hyperbaric Oxygen Therapy (HBOT) - mild pressure oxygen exposure</span></div>
@@ -153,7 +154,7 @@ const DocumentPreview: React.FC<{
                         <p>I acknowledge that I have been given the opportunity to ask questions about the services I will receive. I understand the potential benefits and risks associated with these wellness modalities.</p>
 
                         <div className="warning">
-                            <strong>⚠️ IMPORTANT:</strong> These services are not a substitute for professional medical advice, diagnosis, or treatment. Always consult your physician before beginning any wellness program.
+                            <strong>⚠️ IMPORTANT:</strong> {disclaimers.short}
                         </div>
 
                         <div className="signature-line">
@@ -186,15 +187,15 @@ const DocumentPreview: React.FC<{
                         <p>I, the undersigned, acknowledge that my participation in bio-optimization services at this facility is entirely voluntary. I am participating of my own free will and understand that I may discontinue services at any time.</p>
 
                         <h2>Assumption of Risk</h2>
-                        <p>I understand that bio-optimization modalities, while generally considered safe when used properly, may carry certain risks. I acknowledge that I have been informed of potential risks and contraindications specific to the services I will receive.</p>
+                        <p>I understand that bio-optimization modalities may carry session-specific considerations. I acknowledge that potential risks, safety notes, and contraindications have been reviewed with me before participation.</p>
 
                         <h2>Release of Liability</h2>
                         <p>I hereby release, waive, discharge, and covenant not to sue the facility, its owners, operators, employees, and affiliates from any and all liability, claims, demands, or causes of action that may arise from my participation in bio-optimization services.</p>
 
-                        <h2>Medical Clearance</h2>
+                        <h2>Participation Clearance</h2>
                         <div className="checkbox"><div className="checkbox-box"></div><span>I confirm that I have consulted with my physician regarding my participation in these services</span></div>
                         <div className="checkbox"><div className="checkbox-box"></div><span>I have disclosed all relevant medical conditions and medications to the facility staff</span></div>
-                        <div className="checkbox"><div className="checkbox-box"></div><span>I am not aware of any medical reason that would prevent my safe participation</span></div>
+                        <div className="checkbox"><div className="checkbox-box"></div><span>I am not aware of any medical reason that would make participation unsafe for me</span></div>
 
                         <div className="warning">
                             <strong>I HAVE READ THIS WAIVER, FULLY UNDERSTAND ITS TERMS, AND SIGN IT FREELY AND VOLUNTARILY.</strong>
@@ -296,6 +297,9 @@ const DocumentPreview: React.FC<{
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="client-docs-modal-title"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
@@ -303,7 +307,7 @@ const DocumentPreview: React.FC<{
                 {/* Header */}
                 <div className="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900">{template.name}</h2>
+                        <h2 id="client-docs-modal-title" className="text-xl font-bold text-slate-900">{template.name}</h2>
                         <p className="text-sm text-slate-500">{template.description}</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -369,7 +373,7 @@ export const ClientDocs: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold mb-1">Client Forms & Waivers</h2>
-                            <p className="text-slate-400 text-sm">Print-ready legal documents for client consent and liability protection</p>
+                            <p className="text-slate-400 text-sm">Print-ready consent and governance templates for informed client onboarding</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="text-right">

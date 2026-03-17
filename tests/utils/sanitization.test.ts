@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isSafeUrl, sanitizeUrl, XSS_TEST_PAYLOADS } from '../../utils/sanitization';
+import { isSafeUrl, sanitizeHtml, sanitizeUrl, XSS_TEST_PAYLOADS } from '../../utils/sanitization';
 
 // Note: sanitizeHtml / stripHtml use DOMPurify which requires a full browser DOM.
 // jsdom provides this in the test environment. These tests cover the pure-logic
@@ -103,5 +103,62 @@ describe('XSS_TEST_PAYLOADS', () => {
             const hasDangerous = dangerous.some(d => lower.includes(d));
             expect(hasDangerous).toBe(true);
         });
+    });
+});
+
+describe('sanitizeHtml', () => {
+    it('removes script/style/iframe payload families while preserving safe text content', () => {
+        const payload = `
+            <div>
+                Safe copy
+                <script>alert('xss')</script>
+                <style>body{display:none}</style>
+                <iframe src="https://evil.example.com"></iframe>
+            </div>
+        `;
+
+        const sanitized = sanitizeHtml(payload);
+        const lowered = sanitized.toLowerCase();
+
+        expect(lowered.includes('<script')).toBe(false);
+        expect(lowered.includes('<style')).toBe(false);
+        expect(lowered.includes('<iframe')).toBe(false);
+        expect(sanitized).toContain('Safe copy');
+    });
+
+    it('strips inline event handlers and javascript: URLs from HTML attributes', () => {
+        const payload = `
+            <a href="javascript:alert(1)" onclick="alert(2)">Click</a>
+            <img src="x" onerror="alert(3)" alt="img" />
+            <div onmouseover="alert(4)">Hover</div>
+        `;
+
+        const sanitized = sanitizeHtml(payload);
+        const lowered = sanitized.toLowerCase();
+
+        expect(lowered.includes('onclick=')).toBe(false);
+        expect(lowered.includes('onerror=')).toBe(false);
+        expect(lowered.includes('onmouseover=')).toBe(false);
+        expect(lowered.includes('javascript:')).toBe(false);
+    });
+
+    it('removes form submission primitives that could bypass trusted flows', () => {
+        const payload = `
+            <form action="https://evil.example.com" method="post">
+                <input name="token" value="123" />
+                <button formaction="https://evil.example.com/submit">Submit</button>
+            </form>
+            <p>Visible text</p>
+        `;
+
+        const sanitized = sanitizeHtml(payload);
+        const lowered = sanitized.toLowerCase();
+
+        expect(lowered.includes('<form')).toBe(false);
+        expect(lowered.includes('<input')).toBe(false);
+        expect(lowered.includes('formaction=')).toBe(false);
+        expect(lowered.includes('action=')).toBe(false);
+        expect(lowered.includes('method=')).toBe(false);
+        expect(sanitized).toContain('Visible text');
     });
 });

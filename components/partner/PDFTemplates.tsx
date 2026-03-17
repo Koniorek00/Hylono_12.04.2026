@@ -129,7 +129,7 @@ interface TemplateProps {
 }
 
 const getDisclaimer = (modality: string) => {
-    return `*Disclaimer: The ${modality} technology provided by Hylono is for wellness purposes only. It is not intended to diagnose, treat, cure, or prevent any disease. Consult a physician before use.`;
+    return `*Disclaimer: The ${modality} technology provided by Hylono is for wellness purposes only. It is not intended to assess, treat, support, or replace care for any health condition. Consult a qualified healthcare professional before use.`;
 };
 
 export const A4PosterTemplate: React.FC<TemplateProps> = ({ clinicName, brandColor, title, body, modality, logoUrl, qrCodeUrl, backgroundImage, theme }) => (

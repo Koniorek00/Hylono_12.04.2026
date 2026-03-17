@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, ReactNode } from 'react';
+import { useEffect, useRef, useCallback, type ReactNode, type FC } from 'react';
 import { createFocusTrap, FocusTrap as FocusTrapInstance, Options } from 'focus-trap';
 
 interface UseFocusTrapOptions {
@@ -150,7 +150,7 @@ export interface FocusTrapProps {
     ariaLabelledBy?: string;
 }
 
-export const FocusTrap: React.FC<FocusTrapProps> = ({
+export const FocusTrap: FC<FocusTrapProps> = ({
     children,
     active = true,
     initialFocus,

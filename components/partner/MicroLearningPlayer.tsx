@@ -162,6 +162,9 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
             onClick={onClose}
         >
             <motion.div
+                role="dialog"
+                aria-modal="true"
+                aria-label={video.title}
                 initial={{ y: 100, scale: 0.9 }}
                 animate={{ y: 0, scale: 1 }}
                 exit={{ y: 100, scale: 0.9 }}
@@ -191,9 +194,10 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
                     {/* Right: Close */}
                     <button
                         onClick={onClose}
+                        aria-label="Close video player"
                         className="w-10 h-10 bg-black/20 hover:bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white transition-colors"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-5 h-5" aria-hidden="true" />
                     </button>
                 </div>
 

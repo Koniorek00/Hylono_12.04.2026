@@ -2,16 +2,16 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, Calendar, Clock, Tag, Share2, Bookmark, ChevronRight } from 'lucide-react';
 import { SmartText } from './SmartText';
-import { ArticleStructuredData, BreadcrumbStructuredData } from './StructuredData';
 import { ProductMention } from './content/ProductMention';
 import { ProtocolMention } from './content/ProtocolMention';
 import { BuilderCTA } from './content/BuilderCTA';
 import { AdvisorCTA } from './content/AdvisorCTA';
-import { BLOG_POSTS, BlogPost } from '../constants/content';
+import { BLOG_POSTS } from '../constants/content';
 import { blogCategoryCommerceMap } from '../content/batch3';
 import { sanitizeArticleContent } from '../utils/sanitization';
 import { isFeatureEnabled } from '../utils/featureFlags';
 import { TechType } from '../types';
+import { getBlogPostBySlug, toBlogSlug } from '@/lib/blog';
 
 interface BlogArticleProps {
     slug: string;
@@ -19,20 +19,10 @@ interface BlogArticleProps {
     onNavigate: (page: string, tech?: TechType, mode?: string) => void;
 }
 
-// Generate slug from title
-const generateSlug = (title: string): string => {
-    return title.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-};
-
-// Find article by slug
-const getArticleBySlug = (slug: string): BlogPost | undefined => {
-    return BLOG_POSTS.find(post => generateSlug(post.title) === slug);
-};
+const generateSlug = (title: string): string => toBlogSlug(title);
 
 export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNavigate }) => {
-    const article = getArticleBySlug(slug);
+    const article = getBlogPostBySlug(slug);
     const contentCommerceEnabled = isFeatureEnabled('feature_content_commerce');
 
     if (!article) {
@@ -74,15 +64,6 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
         <p>Bio-optimization technology represents a paradigm shift in personal health management. With proper guidance and quality equipment, anyone can begin reaping the benefits of these cutting-edge modalities.</p>
     `;
 
-    const articleData = {
-        id: String(article.id),
-        title: article.title,
-        excerpt: typeof article.excerpt === 'string' ? article.excerpt : '',
-        date: article.date,
-        category: article.category,
-        readTime: article.readTime
-    };
-
     const commerceMapping =
         blogCategoryCommerceMap[article.category] ??
         blogCategoryCommerceMap.Protocols ?? {
@@ -92,14 +73,6 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
 
     return (
         <div className="min-h-screen bg-slate-50">
-            {/* JSON-LD Structured Data */}
-            <ArticleStructuredData article={articleData} />
-            <BreadcrumbStructuredData items={[
-                { name: 'Home', url: 'https://hylono.com/' },
-                { name: 'Blog', url: 'https://hylono.com/blog' },
-                { name: article.title, url: `https://hylono.com/blog/${slug}` }
-            ]} />
-
             {/* Hero */}
             <div className={`relative h-64 md:h-80 bg-gradient-to-br ${article.image}`}>
                 <div className="absolute inset-0 bg-black/30" />
@@ -143,8 +116,12 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
                             {article.title}
                         </h1>
 
+                        <p className="max-w-3xl text-base leading-relaxed text-slate-600">
+                            {article.excerpt}
+                        </p>
+
                         {article.trace_id && (
-                            <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                            <div className="mt-6 flex items-center gap-2 p-3 bg-emerald-50 rounded-lg border border-emerald-100">
                                 <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
                                     <div className="w-2 h-2 bg-white rounded-full" />
                                 </div>
@@ -253,4 +230,4 @@ export const BlogArticle: React.FC<BlogArticleProps> = ({ slug, onBack, onNaviga
 };
 
 // Export slug generator for use in router
-export { generateSlug, getArticleBySlug };
+export { generateSlug };

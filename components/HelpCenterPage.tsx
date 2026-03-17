@@ -19,7 +19,9 @@ import {
     Shield, ArrowRight, Users, Wrench, BookOpen, Package, Target
 } from 'lucide-react';
 import { SmartText } from './SmartText';
-import { FAQStructuredData } from './StructuredData';
+import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
+import { HELP_FAQ_DATA } from '@/content/help-faq';
+import { siteEntity } from '@/content/site-entity';
 import { DeviceScanner } from './support/DeviceScanner';
 import { getCSRFToken, validateCSRFToken } from '../utils/csrf';
 import { SmartMessageInput } from './SmartMessageInput';
@@ -30,60 +32,7 @@ import { submitContactFormAction, type FormActionResult } from '../src/actions/f
 // FAQ DATA
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FAQ_DATA = [
-    {
-        category: "About Hylono",
-        items: [
-            { q: "What is Hylono?", a: "Hylono is a bio-optimization technology platform that democratizes access to elite regeneration devices. We provide hyperbaric oxygen chambers, PEMF therapy systems, red light therapy panels, and molecular hydrogen generators all designed for safe, effective home use. Our mission is to make cutting-edge wellness technology accessible to everyone." },
-            { q: "Where Mind Connects with Matter what does that mean?", a: "Our philosophy bridges the gap between intention (Mind) and physical transformation (Matter). We believe that true regeneration requires both the right technology and the right protocol. Our systems are designed to help you architect your own regeneration journey with precision and purpose." },
-            { q: "Are these medical devices?", a: "Our products are wellness devices designed to support health optimization and regeneration routines. They are not intended to diagnose, treat, cure, or prevent any disease. Depending on product model and market, specific compliance documents may apply and can be shared on request. Always consult a qualified healthcare professional for medical concerns." },
-            { q: "Do you ship internationally?", a: "Yes, we ship to all EU countries and select international destinations. Shipping costs and delivery times vary by location. Large items like hyperbaric chambers require freight shipping. Contact our team for specific international shipping quotes." },
-        ]
-    },
-    {
-        category: "Science & Protocols",
-        items: [
-            { q: "What is the Superhuman Protocol?", a: "The Superhuman Protocol is a specific sequence of Magnetism (PEMF), Oxygen (HBOT), and Light (RLT) designed to optimize cellular voltage, oxygen saturation, and energy production. The sequence matters: PEMF primes cell membranes, HBOT saturates with oxygen, and RLT stimulates ATP production. We provide detailed implementation guides with every purchase." },
-            { q: "What are contraindications and safety considerations?", a: "Each modality has specific safety guidelines. PEMF should not be used with pacemakers. HBOT requires ear equalization and has specific contraindications for certain conditions. Red light therapy requires eye protection. Detailed safety manifests are provided in our Support Hub, and our team reviews your health profile before purchase." },
-            { q: "How often should I use the systems?", a: "Usage frequency depends on your goals and Bio-Assessment results. For baseline optimization, 3-5 sessions per week are recommended. For targeted recovery or performance enhancement, daily sessions may be appropriate. Our protocol guides provide specific recommendations for each technology." },
-            { q: "Can I combine multiple technologies?", a: "Absolutely! In fact, we encourage it. Our Synergy Engine maps how different technologies work together for enhanced results. For example, HBOT and Hydrogen create the ultimate oxidative balance, while PEMF and Red Light accelerate tissue repair. Our Zone Builder tool helps you design optimal protocol stacks." },
-        ]
-    },
-    {
-        category: "Products & Purchasing",
-        items: [
-            { q: "How do I choose the right product?", a: "Use our Zone Builder tool for personalized recommendations based on your wellness goals, health profile, and lifestyle constraints. Our AI assistant can guide initial selection. For complex needs or multiple conditions, schedule a free consultation with our bio-optimization specialists. We don't upsell. We match technology to your specific requirements." },
-            { q: "Can I try before buying?", a: "We offer flexible rental programs for most devices, allowing you to validate therapeutic outcomes before committing to ownership. Rental periods start at 2-3 months minimum depending on the device. Rental equity can be applied toward purchase. This approach eliminates buyer's remorse and ensures the technology works for your specific physiology." },
-            { q: "What warranty coverage do you provide?", a: "All products include comprehensive warranties: HBOT chambers have 5-year chassis and 2-year electronics coverage; PEMF devices carry 3-year warranties; Red Light panels have 2-year warranties; Hydrogen generators include 2-year coverage. Extended protection plans are available. Our support team handles claims directly, no third-party runarounds." },
-            { q: "Is financing available?", a: "Yes. We offer flexible financing and rental plans starting from €149/month for Red Light panels up to €599/month for HBOT chambers. Our rental model means no large upfront investment—just a monthly subscription that includes full support and maintenance. Early termination and upgrade options are available with transparent terms and no hidden fees." },
-        ]
-    },
-    {
-        category: "Shipping & Support",
-        items: [
-            { q: "How long does delivery take?", a: "Poland: 2-5 business days. EU: 5-10 business days. Large items like hyperbaric chambers require freight shipping and typically arrive within 7-14 days. You receive tracking information and delivery coordination calls for all orders. International shipping outside EU available on request." },
-            { q: "Do you provide installation and setup?", a: "White-glove delivery and professional installation are included with all HBOT chamber purchases and rental bundles. For other devices, we provide detailed setup guides, video tutorials, and remote configuration support. Our technical team is available for virtual setup assistance if needed." },
-            { q: "How do I track my order?", a: "You receive a tracking number via email once your order ships. Check your account dashboard for real-time updates. For large items, our logistics team contacts you directly to schedule delivery windows that work with your schedule." },
-            { q: "What is your return policy?", a: "We offer a 30-day satisfaction guarantee on most products. Items must be returned in original condition with all packaging. Restocking fees may apply for certain large items (detailed in product specifications). Rental agreements have their own terms. We don't trap customers in purchases that don't serve them." },
-        ]
-    },
-    {
-        category: "Technical & Maintenance",
-        items: [
-            { q: "Do I need special electrical work?", a: "Most Hylono devices use standard 230V plugs suitable for home outlets. High-pressure HBOT chambers may require a dedicated 16A circuit. Our technical team provides complimentary pre-installation audits to ensure your space is ready before delivery, avoiding surprises on installation day." },
-            { q: "What maintenance is required?", a: "Maintenance requirements vary by device: HBOT seals should be inspected monthly; Hydrogen generators require distilled water and periodic membrane checks; Red Light panels need occasional cleaning; PEMF devices are virtually maintenance-free. We offer annual maintenance packages for professional facilities and provide detailed maintenance documentation for all products." },
-            { q: "What happens if something breaks?", a: "All devices are covered by warranty for manufacturing defects. Our 24/7 support team can troubleshoot most issues remotely. For hardware problems, we coordinate repair or replacement through our network of certified technicians. Loaner units may be available during extended repairs for critical applications." },
-        ]
-    },
-    {
-        category: "For Clinics & Professionals",
-        items: [
-            { q: "Do you work with clinics and wellness centers?", a: "Yes. We partner with clinics, wellness centers, and healthcare practitioners across Europe. We offer volume pricing, professional installation, staff training protocols, and ongoing technical support. Our clinical partnerships include outcome tracking systems to demonstrate patient results." },
-            { q: "What ROI can clinics expect?", a: "ROI varies by utilization and pricing model. Our HBOT chambers typically generate 150-200 EUR per session, with potential monthly revenue of 9,000-18,000 EUR at moderate utilization (60 sessions/month). We provide ROI calculators, business planning support, and marketing materials for professional clients." },
-            { q: "Do you offer white-label solutions?", a: "We offer partnership programs for qualified wellness facilities, including co-branded materials, referral programs, and in some cases, white-label device options. Contact our Partnerships team to discuss your specific requirements. We're selective about partnerships to maintain quality standards." },
-        ]
-    }
-];
+const FAQ_DATA = HELP_FAQ_DATA;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TAB CONFIGURATION
@@ -111,9 +60,6 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({ initialTab = 'fa
 
     return (
         <div className="min-h-screen bg-slate-50 pt-10 pb-24">
-            {/* FAQ Structured Data for SEO */}
-            <FAQStructuredData faqData={FAQ_DATA} />
-
             <div className="max-w-6xl mx-auto px-6">
                 {/* Hero Header */}
                 <motion.div
@@ -126,22 +72,26 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({ initialTab = 'fa
                         animate={{ opacity: 1 }}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
                     >
-                        <Shield size={12} /> Premium Support Included
+                        <Shield size={12} /> {siteEntity.supportCoverageLabel}
                     </motion.div>
                     <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 futuristic-font">
                         Help Center
                     </h1>
                     <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-                        Find answers, get support, and connect with our team of bio-optimization specialists.
+                        Find answers, request support, and connect with the Hylono team for product, logistics, and protocol planning questions.
                     </p>
                 </motion.div>
 
                 {/* Tab Navigation */}
                 <div className="flex justify-center mb-12">
-                    <div className="inline-flex bg-white rounded-2xl p-1.5 border border-slate-200 shadow-sm">
+                    <div role="tablist" aria-label="Help center sections" className="inline-flex bg-white rounded-2xl p-1.5 border border-slate-200 shadow-sm">
                         {TABS.map((tab) => (
                             <button
                                 key={tab.id}
+                                role="tab"
+                                aria-selected={activeTab === tab.id}
+                                aria-controls={`tabpanel-${tab.id}`}
+                                id={`tab-${tab.id}`}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all ${activeTab === tab.id
                                         ? 'bg-slate-900 text-white shadow-md'
@@ -158,13 +108,19 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({ initialTab = 'fa
                 {/* Tab Content */}
                 <AnimatePresence mode="wait">
                     {activeTab === 'faq' && (
-                        <FAQTab key="faq" />
+                        <div role="tabpanel" id="tabpanel-faq" aria-labelledby="tab-faq">
+                            <FAQTab key="faq" onOpenContact={() => setActiveTab('contact')} />
+                        </div>
                     )}
                     {activeTab === 'contact' && (
-                        <ContactTab key="contact" />
+                        <div role="tabpanel" id="tabpanel-contact" aria-labelledby="tab-contact">
+                            <ContactTab key="contact" />
+                        </div>
                     )}
                     {activeTab === 'support' && (
-                        <SupportTab key="support" />
+                        <div role="tabpanel" id="tabpanel-support" aria-labelledby="tab-support">
+                            <SupportTab key="support" />
+                        </div>
                     )}
                 </AnimatePresence>
             </div>
@@ -176,7 +132,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({ initialTab = 'fa
 // FAQ TAB
 // ─────────────────────────────────────────────────────────────────────────────
 
-const FAQTab: React.FC = () => {
+const FAQTab: React.FC<{ onOpenContact: () => void }> = ({ onOpenContact }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [openItem, setOpenItem] = useState<string | null>(null);
     const shouldReduceMotion = useReducedMotion();
@@ -202,6 +158,7 @@ const FAQTab: React.FC = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                     type="text"
+                    aria-label="Search frequently asked questions"
                     placeholder="Search questions..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -213,6 +170,9 @@ const FAQTab: React.FC = () => {
             {filteredFAQ.map((category, ci) => (
                 <div key={ci} className="mb-8">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">{category.category}</h2>
+                    {category.evidenceSource && (
+                        <p className="text-xs text-slate-500 mb-3">Evidence source: {category.evidenceSource}</p>
+                    )}
                     <div className="space-y-3">
                         {category.items.map((item, i) => {
                             const itemId = `${ci}-${i}`;
@@ -222,6 +182,7 @@ const FAQTab: React.FC = () => {
                                     <button
                                         onClick={() => setOpenItem(isOpen ? null : itemId)}
                                         className="w-full px-6 py-4 flex items-center justify-between text-left"
+                                        aria-expanded={isOpen}
                                     >
                                         <span className="font-medium text-slate-900">{item.q}</span>
                                         <ChevronDown className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} size={20} />
@@ -255,12 +216,16 @@ const FAQTab: React.FC = () => {
                 className="mt-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl p-8 text-white text-center"
             >
                 <MessageCircle className="mx-auto mb-4 opacity-80" size={32} />
-                <h3 className="text-xl font-bold mb-2">Still Have Questions?</h3>
-                <p className="text-cyan-100 mb-6 text-sm">Our bio-optimization specialists are available 24/7 to help.</p>
-                <button className="px-6 py-3 bg-white text-cyan-600 rounded-xl font-bold text-sm hover:bg-cyan-50 transition-all">
-                    Start Live Chat
+                <h3 className="text-xl font-bold mb-2">Need a tailored answer?</h3>
+                <p className="text-cyan-100 mb-6 text-sm">Use the contact tab for product matching, delivery questions, or support triage.</p>
+                <button onClick={onOpenContact} className="px-6 py-3 bg-white text-cyan-600 rounded-xl font-bold text-sm hover:bg-cyan-50 transition-all">
+                    Open contact options
                 </button>
             </motion.div>
+
+            <div className="mt-6">
+                <MedicalDisclaimer type="general" compact className="text-center" />
+            </div>
         </motion.div>
     );
 };
@@ -353,13 +318,16 @@ const ContactTab: React.FC = () => {
                         onClick={() => setShowEmergencyModal(false)}
                     >
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="help-emergency-modal-title"
                             initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
                             className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border-l-4 border-red-500"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex items-center gap-4 text-red-600 mb-4">
-                                <AlertTriangle size={32} />
-                                <h3 className="text-xl font-bold">Medical Emergency Warning</h3>
+                                <AlertTriangle size={32} aria-hidden="true" />
+                                <h3 id="help-emergency-modal-title" className="text-xl font-bold">Medical Emergency Warning</h3>
                             </div>
                             <p className="text-slate-600 mb-6">
                                 It looks like you might be describing a medical emergency.
@@ -387,13 +355,16 @@ const ContactTab: React.FC = () => {
                         onClick={() => setShowCallbackModal(false)}
                     >
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="help-callback-modal-title"
                             initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
                             className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h3 className="text-2xl font-bold text-slate-900">Schedule a Callback</h3>
+                                    <h3 id="help-callback-modal-title" className="text-2xl font-bold text-slate-900">Schedule a Callback</h3>
                                     <p className="text-slate-500">Pick a 15-minute slot.</p>
                                 </div>
                                 <div className="p-3 bg-cyan-50 rounded-full text-cyan-600"><Calendar size={24} /></div>
@@ -428,7 +399,7 @@ const ContactTab: React.FC = () => {
                                     </h4>
                                     <div className="grid grid-cols-2 gap-3 mb-6">
                                         {['09:00 AM', '09:30 AM', '10:00 AM', '11:15 AM', '01:00 PM', '02:30 PM', '03:45 PM', '04:15 PM'].map(slot => (
-                                            <button key={slot} onClick={() => { setShowCallbackModal(false); setSelectedDate(null); window.alert(`Callback scheduled for ${slot}`); }}
+                                            <button key={slot} onClick={() => { setShowCallbackModal(false); setSelectedDate(null); }}
                                                 className="py-3 px-4 rounded-xl border border-slate-200 text-sm font-medium hover:border-cyan-500 hover:bg-cyan-50 hover:text-cyan-700 transition-all text-slate-600">
                                                 {slot}
                                             </button>
@@ -464,7 +435,7 @@ const ContactTab: React.FC = () => {
                             <input type="hidden" name="clinicName" value={formData.clinicName} />
                             <input type="hidden" name="interest" value={formData.interest} />
                             {csrfTokenError && (
-                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <p className="text-red-600 text-sm">Security validation failed. Please refresh and try again.</p>
                                 </div>
                             )}
@@ -516,8 +487,8 @@ const ContactTab: React.FC = () => {
                                             <h3 className="text-xl font-bold text-slate-900 mb-4">A few details about your needs:</h3>
                                             {userType === 'owner' && (
                                                 <div>
-                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Device Serial Number (Optional)</label>
-                                                    <input type="text" value={formData.serialNumber} onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+                                                    <label htmlFor="hc-serial" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Device Serial Number (Optional)</label>
+                                                    <input id="hc-serial" type="text" value={formData.serialNumber} onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
                                                         name="serialNumber"
                                                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" placeholder="e.g. HY-2024-XXXX" />
                                                 </div>
@@ -525,14 +496,14 @@ const ContactTab: React.FC = () => {
                                             {userType === 'clinic' && (
                                                 <>
                                                     <div>
-                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Clinic Name</label>
-                                                        <input type="text" value={formData.clinicName} onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
+                                                        <label htmlFor="hc-clinic-name" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Clinic Name</label>
+                                                        <input id="hc-clinic-name" type="text" value={formData.clinicName} onChange={(e) => setFormData({ ...formData, clinicName: e.target.value })}
                                                             name="clinicName"
                                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" placeholder="Your Clinic Name" />
                                                     </div>
                                                     <div>
-                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Approx. Monthly Patients</label>
-                                                        <select value={formData.patientCount} onChange={(e) => setFormData({ ...formData, patientCount: e.target.value })}
+                                                        <label htmlFor="hc-patient-count" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Approx. Monthly Patients</label>
+                                                        <select id="hc-patient-count" value={formData.patientCount} onChange={(e) => setFormData({ ...formData, patientCount: e.target.value })}
                                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all">
                                                             <option value="">Select range</option>
                                                             <option value="0-50">0 - 50</option>
@@ -544,8 +515,8 @@ const ContactTab: React.FC = () => {
                                             )}
                                             {userType === 'curious' && (
                                                 <div>
-                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">I'm most interested in...</label>
-                                                    <select value={formData.interest} onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
+                                                    <label htmlFor="hc-interest" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">I'm most interested in...</label>
+                                                    <select id="hc-interest" value={formData.interest} onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
                                                         name="interest"
                                                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all">
                                                         <option value="">Select topic</option>
@@ -563,14 +534,14 @@ const ContactTab: React.FC = () => {
                                             <h3 className="text-xl font-bold text-slate-900 mb-4">How can we reach you?</h3>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Name</label>
-                                                    <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                    <label htmlFor="hc-name" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Name</label>
+                                                    <input id="hc-name" type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                                         name="name"
                                                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" placeholder="Your Name" />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Email</label>
-                                                    <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                    <label htmlFor="hc-email" className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Email</label>
+                                                    <input id="hc-email" type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                                         name="email"
                                                         className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all" placeholder="Email Address" />
                                                 </div>
@@ -614,7 +585,7 @@ const ContactTab: React.FC = () => {
                                     )
                                 ) : (
                                     <>
-                                        {submitError && <p className="ml-auto text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">{submitError}</p>}
+                                        {submitError && <p role="alert" className="ml-auto text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">{submitError}</p>}
                                         <button type="submit" disabled={contactPending}
                                             className="ml-auto w-full md:w-auto px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-bold uppercase tracking-widest text-xs hover:shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
                                             {contactPending ? (
@@ -631,9 +602,9 @@ const ContactTab: React.FC = () => {
                 {/* Contact Info */}
                 <div className="space-y-6">
                     {[
-                        { icon: Mail, label: "Email", value: "contact@hylono.com", href: "mailto:contact@hylono.com" },
-                        { icon: MapPin, label: "Location", value: "Warsaw, Poland", href: "https://maps.google.com/?q=Warsaw+Poland" },
-                        { icon: Clock, label: "Hours", value: "Mon-Fri: 9:00 - 18:00 CET", href: "mailto:contact@hylono.com" },
+                        { icon: Mail, label: "Email", value: siteEntity.contactEmail, href: `mailto:${siteEntity.contactEmail}` },
+                        { icon: MapPin, label: "Coverage", value: siteEntity.supportCoverageLabel, href: "/help" },
+                        { icon: Clock, label: "Hours", value: siteEntity.supportHours, href: `mailto:${siteEntity.contactEmail}` },
                     ].map((item) => (
                         <a key={item.label} href={item.href}
                             className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-slate-100 hover:border-cyan-200 hover:shadow-lg transition-all">
@@ -654,7 +625,7 @@ const ContactTab: React.FC = () => {
                             <Phone size={20} />
                         </div>
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-widest text-amber-600/60">No Waiting On Hold</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-amber-600/60">Planned response window</p>
                             <div className="flex items-center gap-2">
                                 <p className="text-lg text-slate-900 font-bold">Schedule a Callback</p>
                                 <ChevronRight size={16} className="text-amber-500" />
@@ -664,9 +635,9 @@ const ContactTab: React.FC = () => {
 
                     <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl p-8 text-white">
                         <MessageCircle className="mb-4" size={32} />
-                        <h3 className="text-xl font-bold mb-2">Need Immediate Help?</h3>
-                        <p className="text-sm opacity-80 mb-4">Our support team is available Mon-Fri, 9am-6pm CET.</p>
-                        <p className="text-xs opacity-60">Email support@hylono.com or call +48 123 456 789</p>
+                        <h3 className="text-xl font-bold mb-2">Need help with the next step?</h3>
+                        <p className="text-sm opacity-80 mb-4">For the fastest routing, send your question with product, order, or protocol context.</p>
+                        <p className="text-xs opacity-60">Email {siteEntity.supportEmail} and our team will route it to the right workflow.</p>
                     </div>
                 </div>
             </div>
@@ -682,9 +653,9 @@ const SupportTab: React.FC = () => {
     const shouldReduceMotion = useReducedMotion();
 
     const contactCards = [
-        { icon: <MessageCircle size={24} />, title: 'Live Chat', desc: 'Average response under 5 mins', action: 'Start Chat', color: 'bg-cyan-500' },
-        { icon: <Phone size={24} />, title: 'Priority Phone', desc: 'Mon-Fri, 9am - 6pm CET', action: 'Call Now', color: 'bg-emerald-500' },
-        { icon: <Mail size={24} />, title: 'Email Support', desc: 'Detailed technical queries', action: 'Send Email', color: 'bg-slate-900' },
+        { icon: <MessageCircle size={24} />, title: 'Support triage', desc: 'Best first step for product, order, and protocol questions.', action: 'Open contact form', color: 'bg-cyan-500' },
+        { icon: <Phone size={24} />, title: 'Callback planning', desc: 'Request a scheduled response window for a guided conversation.', action: 'Request callback', color: 'bg-emerald-500' },
+        { icon: <Mail size={24} />, title: 'Email support', desc: 'Useful when you need to send detailed context or follow-up notes.', action: 'Send email', color: 'bg-slate-900' },
     ];
 
     const helpCategories = [
@@ -695,9 +666,9 @@ const SupportTab: React.FC = () => {
     ];
 
     const responseMetrics = [
-        { label: 'Average Response Time', value: '<4 hours', icon: Clock },
-        { label: 'Support Satisfaction', value: '98.7%', icon: Users },
-        { label: 'Issues Resolved First Contact', value: '89%', icon: Shield },
+        { label: 'Primary support path', value: 'Email-led', icon: Clock },
+        { label: 'Coverage', value: siteEntity.supportCoverageLabel, icon: Users },
+        { label: 'Issue routing', value: 'By question type', icon: Shield },
     ];
 
     return (
@@ -728,7 +699,7 @@ const SupportTab: React.FC = () => {
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white ${card.color} shadow-lg`}>
                                 {card.icon}
                             </div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Available</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Guided</span>
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 mb-2">{card.title}</h3>
                         <p className="text-slate-500 text-sm mb-6">{card.desc}</p>
@@ -756,27 +727,26 @@ const SupportTab: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Enterprise Support */}
+                {/* Clinic & Partner Support */}
                 <div className="bg-slate-900 rounded-[2rem] p-10 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
-                    <h2 className="text-2xl font-bold mb-6">Enterprise & Clinic Support</h2>
+                    <h2 className="text-2xl font-bold mb-6">Clinic & Partner Support</h2>
                     <p className="text-slate-400 text-sm mb-8">
-                        Operating a clinical facility or wellness center? Our enterprise support tier includes
-                        dedicated account managers, priority response SLAs, and scheduled maintenance programs.
+                        Operating a clinic, studio, or partner workflow? Use the same support channel for rollout planning, logistics coordination, and documentation requests.
                     </p>
                     <div className="space-y-4">
                         <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
                             <Phone className="text-cyan-400" />
                             <div>
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Enterprise Line</p>
-                                <p className="font-mono text-lg">+48 22 000 00 00</p>
+                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Response Path</p>
+                                <p className="font-sans text-lg">Scheduled callback or email triage</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
                             <Mail className="text-emerald-400" />
                             <div>
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Enterprise Email</p>
-                                <p className="font-sans text-sm underline cursor-pointer">enterprise@hylono.com</p>
+                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Support Email</p>
+                                <p className="font-sans text-sm underline cursor-pointer">{siteEntity.supportEmail}</p>
                             </div>
                         </div>
                     </div>

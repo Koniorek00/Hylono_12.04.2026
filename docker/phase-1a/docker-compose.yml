@@ -1,115 +1,234 @@
-version: "3.9"
-# Phase 1A — Commerce, Fleet, CRM, IAM, Automation
-# Run AFTER docker/infrastructure/docker-compose.yml is up.
-# Network: infrastructure_hylono (created by infrastructure compose)
-
 networks:
   hylono:
     external: true
     name: infrastructure_hylono
 
 services:
-
-  # ─── Commerce ─────────────────────────────────────────────────────────────
-
   medusa:
-    image: medusajs/medusa:latest
+    build:
+      context: ./vendor/medusa-starter-default
+      dockerfile: Dockerfile.hylono
     container_name: hylono-medusa
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8100:9000"]
+    ports:
+      - "8100:9000"
     environment:
-      DATABASE_URL: postgres://medusa:${MEDUSA_DB_PASSWORD}@postgres:5432/medusa_db
+      NODE_ENV: production
+      PORT: "9000"
+      DATABASE_URL: postgres://medusa:${MEDUSA_DB_PASSWORD}@postgres:5432/medusa_db?sslmode=disable
+      PGSSLMODE: disable
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       JWT_SECRET: ${MEDUSA_JWT_SECRET}
       COOKIE_SECRET: ${MEDUSA_COOKIE_SECRET}
-      # TODO: MEDUSA_ADMIN_CORS, MEDUSA_STORE_CORS, MEDUSA_AUTH_CORS
+      STORE_CORS: http://localhost:8000,http://localhost:8100
+      ADMIN_CORS: http://localhost:8100,http://localhost:3000
+      AUTH_CORS: http://localhost:8100,http://localhost:3000
 
-  lago:
-    image: getlago/api:latest
-    container_name: hylono-lago
+  lago-pdf:
+    image: getlago/lago-gotenberg:7.8.2
+    container_name: hylono-lago-pdf
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8102:3000"]
-    environment:
-      DATABASE_URL: postgres://lago:${LAGO_DB_PASSWORD}@postgres:5432/lago_db
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      # TODO: LAGO_API_KEY, LAGO_WEBHOOK_URL, SECRET_KEY_BASE
 
-  # ─── Fleet ────────────────────────────────────────────────────────────────
+  lago-migrate:
+    image: getlago/api:v1.43.0
+    container_name: hylono-lago-migrate
+    networks: [hylono]
+    command: ["./scripts/migrate.sh"]
+    environment: &lago-backend-env
+      DATABASE_URL: postgresql://lago:${LAGO_DB_PASSWORD}@postgres:5432/lago_db?search_path=public
+      REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SECRET_KEY_BASE: ${LAGO_SECRET_KEY_BASE}
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "true"
+      LAGO_RSA_PRIVATE_KEY: ${LAGO_RSA_PRIVATE_KEY_BASE64}
+      LAGO_ENCRYPTION_PRIMARY_KEY: ${LAGO_ENCRYPTION_PRIMARY_KEY}
+      LAGO_ENCRYPTION_DETERMINISTIC_KEY: ${LAGO_ENCRYPTION_DETERMINISTIC_KEY}
+      LAGO_ENCRYPTION_KEY_DERIVATION_SALT: ${LAGO_ENCRYPTION_KEY_DERIVATION_SALT}
+      LAGO_USE_AWS_S3: "false"
+      LAGO_PDF_URL: http://lago-pdf:3000
+      LAGO_DATA_API_URL: http://data-api
+      LAGO_DISABLE_SEGMENT: "true"
+      LAGO_DISABLE_SIGNUP: "false"
+      LAGO_DISABLE_PDF_GENERATION: "false"
+      LAGO_API_URL: http://localhost:18102
+      LAGO_FRONT_URL: http://localhost:8102
+
+  lago-api:
+    image: getlago/api:v1.43.0
+    container_name: hylono-lago-api
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      lago-migrate:
+        condition: service_completed_successfully
+      lago-pdf:
+        condition: service_started
+    command: ["./scripts/start.api.sh"]
+    environment:
+      <<: *lago-backend-env
+    volumes:
+      - lago_storage_data:/app/storage
+    ports:
+      - "18102:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 12
+      start_period: 40s
+
+  lago-front:
+    image: getlago/front:v1.43.0
+    container_name: hylono-lago-front
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      lago-api:
+        condition: service_healthy
+    environment:
+      API_URL: http://localhost:18102
+      APP_ENV: production
+      LAGO_OAUTH_PROXY_URL: https://proxy.getlago.com
+      LAGO_DISABLE_PDF_GENERATION: "false"
+      LAGO_API_URL: http://localhost:18102
+      LAGO_FRONT_URL: http://localhost:8102
+    ports:
+      - "8102:80"
+
+  lago-worker:
+    image: getlago/api:v1.43.0
+    container_name: hylono-lago-worker
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      lago-migrate:
+        condition: service_completed_successfully
+      lago-pdf:
+        condition: service_started
+    command: ["./scripts/start.worker.sh"]
+    environment:
+      <<: *lago-backend-env
+    volumes:
+      - lago_storage_data:/app/storage
+
+  lago-clock:
+    image: getlago/api:v1.43.0
+    container_name: hylono-lago-clock
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      lago-migrate:
+        condition: service_completed_successfully
+    command: ["./scripts/start.clock.sh"]
+    environment:
+      <<: *lago-backend-env
+
+  snipe-it-db:
+    image: mariadb:11
+    container_name: hylono-snipe-it-db
+    restart: unless-stopped
+    networks: [hylono]
+    environment:
+      MARIADB_ROOT_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
+      MARIADB_DATABASE: snipeit_db
+      MARIADB_USER: snipeit
+      MARIADB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$$MARIADB_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - snipe_it_db_data:/var/lib/mysql
 
   snipe-it:
     image: snipe/snipe-it:latest
     container_name: hylono-snipe-it
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8104:80"]
+    depends_on:
+      snipe-it-db:
+        condition: service_healthy
+    ports:
+      - "8104:80"
     environment:
-      DB_HOST: postgres
-      DB_PORT: "5432"
+      DB_CONNECTION: mysql
+      DB_HOST: snipe-it-db
+      DB_PORT: "3306"
       DB_DATABASE: snipeit_db
       DB_USERNAME: snipeit
       DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
-      # TODO: APP_KEY, APP_URL, MAIL_* settings
-
-  # leihs — build from source, no official image
-  # TODO: Clone https://github.com/leihs/leihs and build Docker image
-  # leihs:
-  #   build: ./leihs-src
-  #   container_name: hylono-leihs
-  #   restart: unless-stopped
-  #   networks: [hylono]
-  #   ports: ["8105:3000"]
-  #   environment:
-  #     DATABASE_URL: postgres://leihs:${LEIHS_DB_PASSWORD}@postgres:5432/leihs_db
+      APP_KEY: ${SNIPEIT_APP_KEY}
+      APP_URL: http://localhost:8104
 
   calcom:
-    image: calcom/cal.com:latest
+    image: calcom.docker.scarf.sh/calcom/cal.com:latest
     container_name: hylono-calcom
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8106:3000"]
+    ports:
+      - "8106:3000"
     environment:
-      DATABASE_URL: postgres://calcom:${CALCOM_DB_PASSWORD}@postgres:5432/calcom_db
+      DATABASE_HOST: postgres
+      POSTGRES_USER: calcom
+      POSTGRES_PASSWORD: ${CALCOM_DB_PASSWORD}
+      POSTGRES_DB: calcom_db
+      DATABASE_URL: postgresql://calcom:${CALCOM_DB_PASSWORD}@postgres:5432/calcom_db?connection_limit=5
+      DATABASE_DIRECT_URL: postgresql://calcom:${CALCOM_DB_PASSWORD}@postgres:5432/calcom_db
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:8106
+      NEXT_PUBLIC_WEBSITE_URL: http://localhost:8106
+      NEXT_PUBLIC_EMBED_LIB_URL: http://localhost:8106/embed/embed.js
+      NEXT_PUBLIC_API_V2_URL: http://localhost:8106/api/v2
+      NEXTAUTH_URL: http://localhost:3000/api/auth
       NEXTAUTH_SECRET: ${CALCOM_NEXTAUTH_SECRET}
       CALENDSO_ENCRYPTION_KEY: ${CALCOM_ENCRYPTION_KEY}
-      # TODO: NEXTAUTH_URL, EMAIL_FROM, SENDGRID_API_KEY
-
-  # ─── CRM ──────────────────────────────────────────────────────────────────
+      CALCOM_TELEMETRY_DISABLED: "1"
+      CRON_API_KEY: ${CALCOM_CRON_API_KEY}
+      ALLOWED_HOSTNAMES: '"localhost:3000","localhost:8106"'
+      API_KEY_PREFIX: cal_
 
   twenty:
     image: twentycrm/twenty:latest
     container_name: hylono-twenty
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8107:3000"]
+    ports:
+      - "8107:3000"
     environment:
       PG_DATABASE_URL: postgres://twenty:${TWENTY_DB_PASSWORD}@postgres:5432/twenty_db
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      APP_SECRET: ${TWENTY_APP_SECRET}
+      SERVER_URL: http://localhost:8107
       ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET}
       LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET}
-      # TODO: SERVER_URL, FRONT_AUTH_CALLBACK_URL, STORAGE_* (MinIO)
 
   documenso:
     image: documenso/documenso:latest
     container_name: hylono-documenso
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8108:3000"]
+    ports:
+      - "8108:3000"
     environment:
-      DATABASE_URL: postgres://documenso:${DOCUMENSO_DB_PASSWORD}@postgres:5432/documenso_db
+      NEXTAUTH_URL: http://localhost:8108
+      NEXT_PUBLIC_WEBAPP_URL: http://localhost:8108
+      NEXT_PRIVATE_INTERNAL_WEBAPP_URL: http://localhost:3000
+      NEXT_PRIVATE_DATABASE_URL: postgres://documenso:${DOCUMENSO_DB_PASSWORD}@postgres:5432/documenso_db
+      NEXT_PRIVATE_DIRECT_DATABASE_URL: postgres://documenso:${DOCUMENSO_DB_PASSWORD}@postgres:5432/documenso_db
       NEXTAUTH_SECRET: ${DOCUMENSO_NEXTAUTH_SECRET}
       NEXT_PRIVATE_ENCRYPTION_KEY: ${DOCUMENSO_ENCRYPTION_KEY}
-      # TODO: NEXTAUTH_URL, NEXT_PUBLIC_WEBAPP_URL, SMTP_* settings
-
-  # ─── IAM / Security ───────────────────────────────────────────────────────
 
   zitadel:
     image: ghcr.io/zitadel/zitadel:latest
     container_name: hylono-zitadel
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8109:8080"]
+    ports:
+      - "8109:8080"
     command: start-from-init --masterkey "${ZITADEL_MASTERKEY}" --tlsMode disabled
     environment:
       ZITADEL_DATABASE_POSTGRES_HOST: postgres
@@ -119,32 +238,122 @@ services:
       ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${ZITADEL_DB_PASSWORD}
       ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
       ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: postgres
+      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_ROOT_PASSWORD}
       ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
-      # TODO: ZITADEL_EXTERNALDOMAIN, ZITADEL_EXTERNALPORT
 
-  # ─── Notifications ────────────────────────────────────────────────────────
-
-  novu:
-    image: ghcr.io/novuhq/novu/api:latest
-    container_name: hylono-novu
+  novu-api:
+    image: ghcr.io/novuhq/novu/api:3.14.0
+    container_name: hylono-novu-api
     restart: unless-stopped
     networks: [hylono]
-    ports: ["8110:3000"]
-    environment:
-      MONGO_URL: mongodb://hylono:${MONGO_ROOT_PASSWORD}@mongo:27017/novu
+    ports:
+      - "18110:3000"
+    environment: &novu-env
+      NODE_ENV: production
+      HOST_NAME: http://localhost
+      IS_SELF_HOSTED: "true"
+      NOVU_ENTERPRISE: "false"
+      API_ROOT_URL: http://localhost:18110
+      FRONT_BASE_URL: http://localhost:8110
+      PORT: "3000"
+      MONGO_URL: mongodb://hylono:${MONGO_ROOT_PASSWORD}@mongo:27017/novu-db?authSource=admin
+      MONGO_MIN_POOL_SIZE: "5"
+      MONGO_MAX_POOL_SIZE: "10"
+      MONGO_AUTO_CREATE_INDEXES: "true"
       REDIS_HOST: redis
+      REDIS_PORT: "6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB_INDEX: "2"
+      REDIS_CACHE_SERVICE_HOST: redis
+      REDIS_CACHE_SERVICE_PORT: "6379"
+      S3_LOCAL_STACK: http://minio:9000
+      S3_BUCKET_NAME: novu-local
+      S3_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
       JWT_SECRET: ${NOVU_JWT_SECRET}
-      # TODO: STORE_ENCRYPTION_KEY, S3_* (MinIO), FRONT_BASE_URL
+      STORE_ENCRYPTION_KEY: ${NOVU_STORE_ENCRYPTION_KEY}
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      SUBSCRIBER_WIDGET_JWT_EXPIRATION_TIME: 15d
+      IS_API_IDEMPOTENCY_ENABLED: "false"
+      IS_API_RATE_LIMITING_ENABLED: "false"
+      IS_NEW_MESSAGES_API_RESPONSE_ENABLED: "true"
+      IS_V2_ENABLED: "true"
+      IS_EMAIL_INLINE_CSS_DISABLED: "false"
+      IS_USE_MERGED_DIGEST_ID_ENABLED: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/v1/health-check || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
 
-  # ─── Automation ───────────────────────────────────────────────────────────
+  novu-worker:
+    image: ghcr.io/novuhq/novu/worker:3.14.0
+    container_name: hylono-novu-worker
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      novu-api:
+        condition: service_started
+    environment:
+      <<: *novu-env
+      PORT: "3004"
+      API_ROOT_URL: http://novu-api:3000
+      BROADCAST_QUEUE_CHUNK_SIZE: "100"
+      MULTICAST_QUEUE_CHUNK_SIZE: "100"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3004/v1/health-check || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 30s
+
+  novu-ws:
+    image: ghcr.io/novuhq/novu/ws:3.14.0
+    container_name: hylono-novu-ws
+    restart: unless-stopped
+    networks: [hylono]
+    ports:
+      - "18111:3002"
+    environment:
+      <<: *novu-env
+      PORT: "3002"
+      API_ROOT_URL: http://novu-api:3000
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3002/v1/health-check || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 40s
+
+  novu-dashboard:
+    image: ghcr.io/novuhq/novu/dashboard:3.14.0
+    container_name: hylono-novu-dashboard
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      novu-api:
+        condition: service_healthy
+      novu-worker:
+        condition: service_healthy
+      novu-ws:
+        condition: service_healthy
+    environment:
+      VITE_API_HOSTNAME: http://localhost:18110
+      VITE_SELF_HOSTED: "true"
+      VITE_WEBSOCKET_HOSTNAME: http://localhost:18111
+      VITE_LEGACY_DASHBOARD_URL: http://localhost:8110
+    ports:
+      - "8110:4000"
 
   n8n:
     image: n8nio/n8n:latest
     container_name: hylono-n8n
     restart: unless-stopped
     networks: [hylono]
-    ports: ["5678:5678"]
+    ports:
+      - "5678:5678"
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
@@ -155,4 +364,7 @@ services:
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       QUEUE_BULL_REDIS_HOST: redis
       QUEUE_BULL_REDIS_PASSWORD: ${REDIS_PASSWORD}
-      # TODO: N8N_HOST, N8N_PORT, WEBHOOK_URL, N8N_BASIC_AUTH_*
+
+volumes:
+  snipe_it_db_data:
+  lago_storage_data:

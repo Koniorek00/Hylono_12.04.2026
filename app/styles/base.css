@@ -1,0 +1,176 @@
+/* ===== DYSLEXIA-FRIENDLY FONT - Accessibility ===== */
+/* External Google Fonts import removed to comply with strict CSP (style-src 'self'). */
+/* Keep the font-family token so local/system fallbacks still work gracefully. */
+@theme {
+  --duration-ui-fast: 150ms;
+  --duration-ui-standard: 200ms;
+  --duration-ui-slow: 300ms;
+  --ease-ui-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-ui-emphasized: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer utilities {
+  .ui-transition {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-ui-standard);
+    transition-timing-function: var(--ease-ui-standard);
+  }
+
+  .ui-transition-fast {
+    transition-property: opacity, transform;
+    transition-duration: var(--duration-ui-fast);
+    transition-timing-function: var(--ease-ui-standard);
+  }
+
+  .ui-transition-colors {
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: var(--duration-ui-standard);
+    transition-timing-function: var(--ease-ui-standard);
+  }
+
+  .ui-will-change {
+    will-change: transform, opacity;
+  }
+
+  .ui-accordion-grid {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition-property: grid-template-rows, opacity;
+    transition-duration: var(--duration-ui-standard);
+    transition-timing-function: var(--ease-ui-standard);
+    opacity: 0;
+  }
+
+  .ui-accordion-grid[data-open='true'] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .ui-accordion-grid > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .ui-will-change {
+    will-change: auto;
+  }
+}
+
+/* Constrain Tailwind's transition-all to non-layout properties globally to prevent jank */
+.transition-all {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: var(--ease-ui-standard);
+  transition-duration: var(--duration-ui-standard);
+}
+
+:root {
+  /* Typography System */
+  --font-heading: var(--font-syncopate), 'Syncopate', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-description: 'Outfit', sans-serif;
+  --font-dyslexic: 'Lexie Readable', sans-serif;
+  
+  /* Description sizing for accessibility (elderly users) */
+  --text-description: 1.0625rem; /* 17px - slightly larger for readability */
+  --text-description-lg: 1.125rem; /* 18px */
+  --leading-description: 1.7; /* More generous line-height */
+  
+  /* Legacy variables */
+  --pearl-base: #f8fafc;
+  --iridescent-cyan: rgba(6, 182, 212, 0.15);
+  --iridescent-purple: rgba(147, 51, 234, 0.1);
+  --aurora-silver: #e2e8f0;
+  --high-vibe-glow: 0 0 25px rgba(255, 255, 255, 0.8);
+  
+  /* 2025 Aurora gradient - animatable via @property */
+  --aurora-stop-1: 220deg;
+  --aurora-stop-2: 160deg;
+}
+
+/* CSS @property for smooth gradient angle animation */
+@property --gradient-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --aurora-opacity {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0.5;
+}
+
+@layer components {
+  .glass-pearl {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+  
+  /* Grain texture overlay - applied via pseudo-element */
+  .grain-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px;
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  
+  /* Aurora border glow - the 2025 gradient border effect */
+  .aurora-border {
+    position: relative;
+    background: linear-gradient(#fff, #fff) padding-box,
+      conic-gradient(from var(--gradient-angle), #06b6d4, #8b5cf6, #f59e0b, #06b6d4) border-box;
+    border: 1.5px solid transparent;
+    animation: rotate-gradient 4s linear infinite;
+  }
+  
+  /* Glow text effect for key metrics */
+  .glow-cyan {
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.2);
+  }
+  
+  /* Magnetic hover effect base */
+  .magnetic {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  /* Masked gradient text â€” stronger than standard bg-clip */
+  .text-gradient-hylono {
+    background: linear-gradient(135deg, #0f172a 0%, #475569 50%, #0f172a 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer-gradient 6s ease infinite;
+  }
+  
+  /* Bento tile hover state */
+  .bento-tile {
+    @apply relative overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-500;
+  }
+  .bento-tile:hover {
+    @apply shadow-2xl -translate-y-1 border-slate-200;
+  }
+  
+  /* Stats counter glow on enter */
+  .stat-glow {
+    transition: text-shadow 0.5s ease;
+  }
+  .stat-glow.in-view {
+    text-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+  }
+
+  .home-science-spotlight {
+    background: radial-gradient(
+      480px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+      var(--iridescent-cyan),
+      transparent 42%
+    );
+  }
+}

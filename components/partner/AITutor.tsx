@@ -14,8 +14,8 @@ interface AITutorProps {
 }
 
 const MOCK_RESPONSES: Record<string, string> = {
-    'pressure': 'The recommended pressure for standard HBOT sessions is between 1.5-2.0 ATA. Always start low and gradually increase based on client comfort and the treatment protocol.',
-    'ear': 'If a client experiences ear discomfort: 1) Pause pressurization immediately, 2) Encourage swallowing or jaw movement, 3) If pain persists, slowly depressurize. Never continue if pain is severe.',
+    'pressure': 'The recommended pressure for standard HBOT sessions is between 1.5-2.0 ATA. Start low and gradually increase based on client comfort and the session protocol.',
+    'ear': 'If a client experiences ear discomfort: 1) Pause pressurization immediately, 2) Encourage swallowing or jaw movement, 3) If pain persists, slowly depressurize. Do not continue if pain is severe.',
     'emergency': 'In an emergency: 1) Stay calm, 2) Initiate controlled depressurization, 3) Open communication with the client, 4) Follow your clinic\'s emergency protocol, 5) Document the incident.',
     'default': 'I\'m your AI learning assistant! I can help explain concepts from your training. Try asking about pressure settings, client comfort, or emergency procedures.'
 };
@@ -73,6 +73,9 @@ export const AITutor: React.FC<AITutorProps> = ({ videoTitle, onClose }) => {
 
     return (
         <motion.div
+            role="dialog"
+            aria-modal="false"
+            aria-label="AI Tutor"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -81,13 +84,13 @@ export const AITutor: React.FC<AITutorProps> = ({ videoTitle, onClose }) => {
             {/* Header */}
             <div className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white">
-                    <Bot className="w-5 h-5" />
+                    <Bot className="w-5 h-5" aria-hidden="true" />
                     <span className="font-bold">AI Tutor</span>
                     <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">Beta</span>
                 </div>
                 {onClose && (
-                    <button onClick={onClose} className="text-white/80 hover:text-white">
-                        <X className="w-4 h-4" />
+                    <button onClick={onClose} aria-label="Close AI Tutor" className="text-white/80 hover:text-white">
+                        <X className="w-4 h-4" aria-hidden="true" />
                     </button>
                 )}
             </div>

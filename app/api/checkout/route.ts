@@ -3,20 +3,24 @@
  * Creates an order and initiates payment processing.
  *
  * When STRIPE_SECRET_KEY is set, creates a real Stripe PaymentIntent.
- * Until then, returns a mock success response so the UI flow can be tested.
+ * Without Stripe credentials, it gracefully falls back to manual confirmation
+ * so checkout requests are still captured instead of failing with 501.
  *
  * @env STRIPE_SECRET_KEY   - Server-side Stripe secret key (never exposed to client)
  * @env NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY - Publishable key for Stripe Elements (client-safe)
  */
 
 import { z } from 'zod';
+import { createHash } from 'node:crypto';
+import { TECH_DETAILS } from '@/constants';
+import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { checkoutOrdersTable } from '@/lib/db/schema';
 import { env } from '@/lib/env';
+import { TechType } from '@/types';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface OrderItem {
     id: string;
-    name: string;
-    price: number;
     quantity: number;
 }
 
@@ -44,12 +48,75 @@ interface CheckoutResponse {
     clientSecret?: string; // Stripe PaymentIntent client secret (for card payments)
 }
 
+type CheckoutOrderStatus =
+    | 'pending_card_configuration'
+    | 'pending_payment_intent'
+    | 'payment_intent_failed'
+    | 'payment_intent_created'
+    | 'awaiting_offline_payment';
+
+const TECH_ID_TO_TYPE: Record<string, TechType> = {
+    'tech-hbot': TechType.HBOT,
+    'tech-pemf': TechType.PEMF,
+    'tech-rlt': TechType.RLT,
+    'tech-hydrogen': TechType.HYDROGEN,
+    'tech-ewot': TechType.EWOT,
+    'tech-sauna_blanket': TechType.SAUNA_BLANKET,
+    'tech-ems': TechType.EMS,
+    'tech-vns': TechType.VNS,
+    'tech-hypoxic': TechType.HYPOXIC,
+    'tech-cryo': TechType.CRYO,
+};
+
+const toMinorUnit = (amountText: string): number => {
+    const parsed = Number(amountText.replace(/[^0-9.]/g, ''));
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+        return 0;
+    }
+
+    return Math.round(parsed * 100);
+};
+
+const getTrustedUnitPriceCents = (itemId: string): number | null => {
+    const techType = TECH_ID_TO_TYPE[itemId.trim().toLowerCase()];
+
+    if (!techType) {
+        return null;
+    }
+
+    const tech = TECH_DETAILS[techType];
+    const unitPriceCents = toMinorUnit(tech.price);
+
+    return unitPriceCents > 0 ? unitPriceCents : null;
+};
+
+const buildCheckoutIdempotencyKey = (
+    items: Array<{ id: string; quantity: number; unitPriceCents: number }>,
+    customerEmail: string,
+    paymentMethod: CheckoutRequest['paymentMethod']
+): string => {
+    const normalizedPayload = JSON.stringify({
+        customerEmail,
+        paymentMethod,
+        items: items
+            .slice()
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map((item) => ({
+                id: item.id,
+                quantity: item.quantity,
+                unitPriceCents: item.unitPriceCents,
+            })),
+    });
+
+    return createHash('sha256').update(normalizedPayload).digest('hex');
+};
+
 const checkoutSchema = z.object({
     items: z.array(
         z.object({
             id: z.string().trim().min(1, 'Invalid item in cart.'),
-            name: z.string().trim().min(1, 'Invalid item in cart.'),
-            price: z.number().positive('Invalid item in cart.'),
+            name: z.string().trim().optional(),
+            price: z.number().optional(),
             quantity: z.number().int().min(1, 'Invalid item quantity.').max(100, 'Invalid item quantity.'),
         })
     ).min(1, 'Cart is empty.'),
@@ -81,83 +148,167 @@ export async function POST(request: Request): Promise<Response> {
         const sanitizedShipping = {
             firstName: sanitizeText(shipping.firstName, 50),
             lastName: sanitizeText(shipping.lastName, 50),
-            email: shipping.email.trim().toLowerCase(),
-            phone: shipping.phone ? sanitizeText(shipping.phone, 30) : undefined,
+            email: sanitizeText(shipping.email, {
+                maxLength: 254,
+                context: 'email',
+            }),
+            phone: shipping.phone
+                ? sanitizeText(shipping.phone, {
+                    maxLength: 30,
+                    context: 'phone',
+                })
+                : undefined,
             address: sanitizeText(shipping.address, 200),
             city: sanitizeText(shipping.city, 100),
             postalCode: sanitizeText(shipping.postalCode, 20),
             country: sanitizeText(shipping.country ?? 'Poland', 50),
         };
 
-        // --- Calculate total (server-side — never trust client totals) ---
-        const totalCents = items.reduce((sum, item) => sum + Math.round(item.price * 100 * item.quantity), 0);
+        const trustedItems = items.map((item) => {
+            const unitPriceCents = getTrustedUnitPriceCents(item.id);
+
+            if (!unitPriceCents) {
+                return null;
+            }
+
+            return {
+                id: item.id,
+                quantity: item.quantity,
+                unitPriceCents,
+            };
+        });
+
+        if (trustedItems.some((item) => item === null)) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'One or more cart items are invalid. Please refresh your cart and try again.',
+                } satisfies CheckoutResponse,
+                { status: 400 }
+            );
+        }
+
+        const resolvedItems = trustedItems.filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+        // --- Calculate total from trusted server-side catalog prices ---
+        const totalCents = resolvedItems.reduce(
+            (sum, item) => sum + (item.unitPriceCents * item.quantity),
+            0
+        );
+
+        if (!isDatabaseConfigured()) {
+            console.error('[checkout] DATABASE_URL missing; cannot persist order');
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Checkout is temporarily unavailable. Please try again shortly.',
+                } satisfies CheckoutResponse,
+                { status: 503 }
+            );
+        }
+
+        const db = getDb();
 
         // Generate order ID
         const orderId = `HYL-${Date.now().toString(36).toUpperCase()}`;
+        const orderItemsRecord = resolvedItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+            unitPriceCents: item.unitPriceCents,
+        }));
+
+        const persistOrder = async (
+            status: CheckoutOrderStatus,
+            stripePaymentIntentId?: string
+        ): Promise<void> => {
+            await db.insert(checkoutOrdersTable).values({
+                id: crypto.randomUUID(),
+                orderId,
+                paymentMethod,
+                email: sanitizedShipping.email,
+                shipping: sanitizedShipping,
+                items: orderItemsRecord,
+                totalCents,
+                status,
+                stripePaymentIntentId,
+            });
+        };
 
         // --- Stripe Payment Intent (card payments) ---
         if (paymentMethod === 'card') {
             const stripeSecretKey = env.STRIPE_SECRET_KEY;
+            const idempotencyKey = buildCheckoutIdempotencyKey(
+                resolvedItems,
+                sanitizedShipping.email,
+                paymentMethod
+            );
 
-            if (stripeSecretKey) {
-                // Real Stripe integration
-                const stripeResponse = await fetch('https://api.stripe.com/v1/payment_intents', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${stripeSecretKey}`,
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        amount: String(totalCents),
-                        currency: 'pln',
-                        'metadata[orderId]': orderId,
-                        'metadata[customerEmail]': sanitizedShipping.email,
-                        'receipt_email': sanitizedShipping.email,
-                        'description': `Hylono Order ${orderId}`,
-                    }),
-                });
-
-                if (!stripeResponse.ok) {
-                    const stripeError = await stripeResponse.json();
-                    console.error('[checkout] Stripe PaymentIntent error:', stripeError);
-                    return Response.json(
-                        { success: false, message: 'Payment processing failed. Please try again.' } satisfies CheckoutResponse,
-                        { status: 502 }
-                    );
-                }
-
-                const paymentIntent = await stripeResponse.json();
+            if (!stripeSecretKey) {
+                await persistOrder('pending_card_configuration');
 
                 return Response.json(
                     {
-                        success: true,
-                        message: 'Payment intent created. Complete payment with Stripe Elements.',
+                        success: false,
+                        message: 'Card payments are temporarily unavailable. Please choose bank transfer or financing.',
                         orderId,
-                        clientSecret: paymentIntent.client_secret,
                     } satisfies CheckoutResponse,
-                    { status: 200 }
+                    { status: 503 }
                 );
             }
 
+            const stripeResponse = await fetch('https://api.stripe.com/v1/payment_intents', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${stripeSecretKey}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Idempotency-Key': idempotencyKey,
+                },
+                body: new URLSearchParams({
+                    amount: String(totalCents),
+                    currency: 'pln',
+                    'metadata[orderId]': orderId,
+                    'metadata[customerEmail]': sanitizedShipping.email,
+                    'receipt_email': sanitizedShipping.email,
+                    'description': `Hylono Order ${orderId}`,
+                }),
+            });
+
+            if (!stripeResponse.ok) {
+                const stripeError = await stripeResponse.json();
+                console.error('[checkout] Stripe PaymentIntent error:', stripeError);
+
+                await persistOrder('payment_intent_failed');
+
+                return Response.json(
+                    {
+                        success: false,
+                        message: 'Card authorization failed. Please try again or use another payment method.',
+                        orderId,
+                    } satisfies CheckoutResponse,
+                    { status: 502 }
+                );
+            }
+
+            const paymentIntent = await stripeResponse.json() as {
+                id: string;
+                client_secret?: string;
+            };
+
+            await persistOrder('payment_intent_created', paymentIntent.id);
+
             return Response.json(
                 {
-                    success: false,
-                    message: 'Checkout card processing is not implemented on this environment.',
+                    success: true,
+                    message: 'Payment intent created. Complete payment with Stripe Elements.',
+                    orderId,
+                    clientSecret: paymentIntent.client_secret,
                 } satisfies CheckoutResponse,
-                { status: 501 }
+                { status: 200 }
             );
         }
 
         // --- Non-card payments (bank transfer, financing) ---
-        if (!env.DATABASE_URL) {
-            return Response.json(
-                {
-                    success: false,
-                    message: 'Checkout processing is not implemented on this environment.',
-                } satisfies CheckoutResponse,
-                { status: 501 }
-            );
-        }
+        await persistOrder('awaiting_offline_payment');
 
         return Response.json(
             {

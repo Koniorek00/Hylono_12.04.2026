@@ -68,7 +68,7 @@ const StatCard: React.FC<{ label: string; value: string; icon: React.ReactNode; 
 
 export const ReferralConnect: React.FC = () => {
     const [copied, setCopied] = useState(false);
-    const referralLink = 'https://hylono.com/ref/CF-4402';
+    const referralLink = 'https://hylono.eu/ref/CF-4402';
 
     const copyLink = () => {
         navigator.clipboard.writeText(referralLink);

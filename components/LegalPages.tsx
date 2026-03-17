@@ -3,6 +3,8 @@
 import React, { useState } from 'react';  
 import { motion, AnimatePresence } from 'motion/react';  
 import { Shield, FileText, ToggleLeft, ToggleRight, Info, CheckCircle } from 'lucide-react';
+import { disclaimers } from '../content/disclaimers';
+import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
   
 interface LegalSection {  
     title: string;  
@@ -62,88 +64,28 @@ export const PrivacyPage: React.FC = () => {
     const sections: LegalSection[] = [  
         {  
             title: "1. Information We Collect",  
-            summary: "We collect your name, email, shipping address, payment info, device usage data, and basic browser info to operate our rental service.",  
-            content: (  
-                <>  
-                    <p>HYLONO SYSTEMS collects the following categories of personal data:</p>  
-                    <ul>  
-                        <li><strong>Identity data:</strong> First name, last name, username or similar identifier.</li>  
-                        <li><strong>Contact data:</strong> Billing address, delivery address, email address, and telephone number.</li>  
-                        <li><strong>Financial data:</strong> Payment card details and bank account information, processed securely via Stripe. We do not store full card numbers.</li>  
-                        <li><strong>Rental contract data:</strong> Rental agreement details, device serial numbers, delivery address, rental period, and payment schedule.</li>  
-                        <li><strong>Device usage data:</strong> Aggregated session data from rented devices (e.g. session count, duration) for service quality and maintenance purposes.</li>  
-                        <li><strong>Technical data:</strong> IP address, browser type and version, time zone setting, browser plug-in types, operating system and platform.</li>  
-                        <li><strong>Usage data:</strong> Information about how you use our website and services.</li>  
-                        <li><strong>Marketing data:</strong> Your preferences in receiving marketing communications from us.</li>  
-                    </ul>  
-                    <p>We collect this data when you register on our website, place an order, enter into a rental contract, contact customer support, or subscribe to our newsletter.</p>  
-                </>  
-            )  
+            summary: "We collect your name, email, shipping, and payment details only to fulfill your order.",
+            content: <p>We collect information you provide directly, including name, email, shipping address, and payment information when making purchases.</p>,
         },  
         {  
             title: "2. How We Use Your Information",  
-            summary: "We use your data to process orders, manage your rental contract, communicate service updates, and comply with EU law. We always have a legal basis.",  
-            content: (  
-                <>  
-                    <p>We use your personal data for the following purposes and on the following legal bases under GDPR:</p>  
-                    <ul>  
-                        <li><strong>Contract performance:</strong> Processing your order, managing your rental agreement, arranging delivery and collection, and providing customer support.</li>  
-                        <li><strong>Legitimate interests:</strong> Improving our website and services, fraud prevention, device monitoring for maintenance purposes, and direct marketing of similar products where permitted.</li>  
-                        <li><strong>Legal obligation:</strong> Compliance with applicable EU and member state laws, including tax, accounting, and consumer protection requirements.</li>  
-                        <li><strong>Consent:</strong> Sending you marketing communications about new products and services where you have opted in. You may withdraw consent at any time.</li>  
-                    </ul>  
-                    <p>We will only use your personal data for the purposes for which we collected it, unless we reasonably consider that we need to use it for another reason compatible with the original purpose.</p>  
-                </>  
-            )  
+            summary: "We use your data strictly to process orders and improve your experience.",
+            content: <p>Your information is used to process orders, send communications, improve our services, and comply with legal obligations.</p>,
         },  
         {  
-            title: "3. Data Sharing & Third Parties",  
-            summary: "We never sell your data. We share it only with Stripe (payments) and our shipping partners. Data stays within the EU.",  
-            content: (  
-                <>  
-                    <p>We do not sell, rent, or trade your personal data to third parties. We may share your data with the following categories of third parties:</p>  
-                    <ul>  
-                        <li><strong>Payment processors:</strong> Stripe, Inc. processes all payment transactions. Stripe is certified to PCI Service Provider Level 1. Their privacy policy is available at stripe.com/privacy.</li>  
-                        <li><strong>Shipping and logistics carriers:</strong> We share your delivery address and contact details with our logistics partners to fulfil delivery and collection of rental devices.</li>  
-                        <li><strong>Professional advisers:</strong> Lawyers, accountants, and auditors who are subject to professional confidentiality obligations.</li>  
-                        <li><strong>Regulators and authorities:</strong> Tax authorities, law enforcement, and other regulatory bodies where required by law.</li>  
-                    </ul>  
-                    <p>All personal data is processed and stored within the European Union. We do not transfer personal data to countries outside the EU/EEA. A full list of sub-processors is available upon request by contacting <a href="mailto:privacy@hylono.com">privacy@hylono.com</a>.</p>  
-                </>  
-            )  
+            title: "3. Data Sharing",
+            summary: "We never sell your data; we only share it with necessary payment and shipping partners.",
+            content: <p>We do not sell your personal data. We may share data with payment processors and shipping carriers.</p>,
         },  
         {  
-            title: "4. Your Rights Under GDPR",  
-            summary: "You have full rights to access, correct, delete, or export your data. Contact privacy@hylono.com or complain to your national DPA.",  
-            content: (  
-                <>  
-                    <p>As a data subject under the General Data Protection Regulation (GDPR), you have the following rights:</p>  
-                    <ul>  
-                        <li><strong>Right of access:</strong> You may request a copy of the personal data we hold about you.</li>  
-                        <li><strong>Right to rectification:</strong> You may request correction of inaccurate or incomplete personal data.</li>  
-                        <li><strong>Right to erasure (right to be forgotten):</strong> You may request deletion of your personal data where there is no compelling reason for its continued processing.</li>  
-                        <li><strong>Right to restriction:</strong> You may request that we restrict the processing of your data in certain circumstances.</li>  
-                        <li><strong>Right to data portability:</strong> You may request transfer of your personal data to you or a third party in a structured, commonly used, machine-readable format.</li>  
-                        <li><strong>Right to object:</strong> You may object to processing based on our legitimate interests or for direct marketing purposes.</li>  
-                        <li><strong>Rights related to automated decision-making:</strong> You have the right not to be subject to solely automated decision-making that produces legal or similarly significant effects.</li>  
-                    </ul>  
-                    <p>To exercise any of these rights, please contact us at <a href="mailto:privacy@hylono.com">privacy@hylono.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with your national data protection authority (DPA). In the Netherlands, this is the Autoriteit Persoonsgegevens (autoriteitpersoonsgegevens.nl).</p>  
-                </>  
-            )  
+            title: "4. Your Rights (GDPR)",
+            summary: "You have full control to access, update, or delete your personal data at any time.",
+            content: <p>EU residents have the right to access, rectify, delete, and port their personal data.</p>,
         },  
         {  
             title: "5. Contact & Data Controller",  
-            summary: "HYLONO SYSTEMS is the data controller. Contact privacy@hylono.com for any privacy questions. We respond within 30 days.",  
-            content: (  
-                <>  
-                    <p>The data controller responsible for your personal data is:</p>  
-                    <p><strong>HYLONO SYSTEMS</strong><br />  
-                    Email: <a href="mailto:privacy@hylono.com">privacy@hylono.com</a><br />  
-                    Website: hylono.com</p>  
-                    <p>If you have any questions, concerns, or requests regarding this Privacy Policy or the processing of your personal data, please contact our privacy team at <a href="mailto:privacy@hylono.com">privacy@hylono.com</a>. We aim to respond to all legitimate requests within 30 calendar days.</p>  
-                    <p>This Privacy Policy was last reviewed and updated in January 2026. We may update this policy from time to time; the latest version will always be available on our website.</p>  
-                </>  
-            )  
+            summary: "Reach out to privacy@hylono.com for any privacy concerns.",
+            content: <p>For privacy inquiries: <a href="mailto:privacy@hylono.com">privacy@hylono.com</a></p>,
         }  
     ];  
   
@@ -158,7 +100,7 @@ export const PrivacyPage: React.FC = () => {
                         </div>  
                         <HumanSummaryToggle enabled={showSummary} onToggle={() => setShowSummary(!showSummary)} />  
                     </div>  
-                    <p className="text-sm text-slate-400 mb-12">Last updated: February 2026</p>  
+                    <p className="text-sm text-slate-400 mb-12">Last updated: January 2026</p>
   
                     <div>  
                         {sections.map((section, idx) => (  
@@ -177,66 +119,28 @@ export const TermsPage: React.FC = () => {
     const sections: LegalSection[] = [  
         {  
             title: "1. Acceptance of Terms",  
-            summary: "By using Hylono's website or services, you accept these terms. You must be 18 or over. EU consumer rights always apply.",  
-            content: (  
-                <>  
-                    <p>By accessing or using the website at hylono.com, placing an order, or entering into a rental agreement with HYLONO SYSTEMS, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.</p>  
-                    <p>You must be at least 18 years of age to use our services and enter into a binding rental agreement. By using our services, you represent and warrant that you are 18 or older.</p>  
-                    <p>These terms are governed by applicable EU consumer law, including Directive 2011/83/EU on consumer rights. Nothing in these terms affects your statutory rights as a consumer under applicable EU or national law.</p>  
-                </>  
-            )  
+            summary: "By using our site, you agree to our standard ground rules.",
+            content: <p>By using Hylono services, you agree to these Terms of Service.</p>,
         },  
         {  
-            title: "2. Rental Terms & Conditions",  
-            summary: "Minimum 3-month rental. 30-day cancellation notice needed. Return device in original condition. Damage beyond fair wear may be charged.",  
-            content: (  
-                <>  
-                    <p>The following conditions apply to all device rental agreements with HYLONO SYSTEMS:</p>  
-                    <ul>  
-                        <li><strong>Minimum rental period:</strong> All rental agreements have a minimum term of 3 (three) calendar months from the date of delivery.</li>  
-                        <li><strong>Payment schedule:</strong> Monthly rental payments are due on the same calendar date each month as the initial subscription date. Payments are processed automatically via Stripe.</li>  
-                        <li><strong>Cancellation notice:</strong> After the minimum term, you may cancel your rental by providing 30 days written notice to support@hylono.com. Cancellation takes effect at the end of the notice period.</li>  
-                        <li><strong>Device condition on return:</strong> The device must be returned in its original condition, including all accessories, cables, user manuals, and original packaging where available. Normal wear and tear is expected and accepted.</li>  
-                        <li><strong>Damage charges:</strong> Damage beyond normal fair wear and tear, including cracks, liquid damage, or missing components, will be assessed and charged at repair or replacement cost following return inspection.</li>  
-                        <li><strong>Ownership:</strong> The device remains the property of HYLONO SYSTEMS at all times. You may not sublease, pledge, sell, or otherwise transfer the device to any third party.</li>  
-                    </ul>  
-                </>  
-            )  
+            title: "2. Products & Services",
+            summary: "We provide wellness technology, not certified medical devices.",
+            content: <p>Hylono provides bio-optimization technology. All products are for wellness purposes and are not medical devices.</p>,
         },  
         {  
-            title: "3. Product & Service Descriptions",  
-            summary: "Our devices are wellness products, not medical devices. They are not intended to diagnose or treat disease. Consult your doctor first.",  
-            content: (  
-                <>  
-                    <p>HYLONO SYSTEMS provides wellness technology devices including hyperbaric oxygen chambers (HBOT), pulsed electromagnetic field (PEMF) devices, red light therapy (RLT) panels, and hydrogen inhalation therapy devices for rental.</p>  
-                    <p><strong>Important notice:</strong> These devices are wellness and lifestyle products. They are NOT classified as medical devices under EU Regulation 2017/745 (MDR) and are NOT intended to diagnose, treat, cure, monitor, or prevent any medical condition or disease.</p>  
-                    <p>Individual results from the use of wellness devices vary significantly between users. We make no warranty or guarantee regarding specific outcomes. Before commencing use of any wellness device, particularly if you have an existing health condition, are pregnant, or are taking medication, you should consult a qualified healthcare professional.</p>  
-                    <p>We reserve the right to update product specifications, features, and descriptions at any time. Images on our website are for illustrative purposes only.</p>  
-                </>  
-            )  
+            title: "3. Medical Disclaimer",
+            summary: "Our products support wellness but do not replace professional medical advice or care from a qualified clinician.",
+            content: <p>Our products are intended for general wellness support only and are not a substitute for evaluation or care from a qualified healthcare professional.</p>,
         },  
         {  
-            title: "4. Payment & Pricing",  
-            summary: "Prices are in euros including VAT. Payments via Stripe. Failed payments may suspend service. First month has a 30-day money-back guarantee.",  
-            content: (  
-                <>  
-                    <p>All prices displayed on the Hylono website are denominated in Euros (EUR) and include Value Added Tax (VAT) where applicable under EU law. Your applicable VAT rate will be displayed at checkout based on your country of residence.</p>  
-                    <p>All payment transactions are processed securely by Stripe, Inc. By providing your payment details, you authorise us to charge the applicable rental fee on the scheduled date each month. You agree to Stripe's terms of service in addition to these terms.</p>  
-                    <p><strong>Failed payments:</strong> If a scheduled payment fails, we will notify you by email and retry the charge. If payment remains outstanding for more than 14 days, we reserve the right to suspend the rental service and arrange collection of the device. Continued non-payment may result in debt recovery proceedings.</p>  
-                    <p><strong>30-Day money-back guarantee:</strong> If you are not satisfied with your rental device during the first 30 calendar days of your rental agreement, you may return the device and receive a full refund of your first month rental payment. This guarantee applies to first-time rentals only and is subject to the device being returned in original condition.</p>  
-                </>  
-            )  
+            title: "4. Limitation of Liability",
+            summary: "We are responsible for our products up to their purchase price, but not for indirect issues.",
+            content: <p>Hylono is not liable for indirect damages. Maximum liability is limited to the purchase price.</p>,
         },  
         {  
             title: "5. Governing Law",  
-            summary: "These terms are governed by Dutch law. Disputes go to Amsterdam courts. Your EU consumer rights are always protected.",  
-            content: (  
-                <>  
-                    <p>These Terms of Service and any disputes or claims arising in connection with them or their subject matter or formation (including non-contractual disputes or claims) shall be governed by and construed in accordance with the laws of the Netherlands.</p>  
-                    <p>Any dispute arising out of or in connection with these terms, including any question regarding their existence, validity, or termination, shall be subject to the exclusive jurisdiction of the courts of Amsterdam, Netherlands.</p>  
-                    <p>Nothing in this clause shall limit or exclude any consumer protection rights you have under the mandatory laws of your country of residence within the European Union. EU consumers may also use the European Commission's Online Dispute Resolution platform at ec.europa.eu/odr.</p>  
-                </>  
-            )  
+            summary: "Any legal disputes will be handled under Polish law.",
+            content: <p>These terms are governed by Polish law.</p>,
         }  
     ];  
   
@@ -251,7 +155,7 @@ export const TermsPage: React.FC = () => {
                         </div>  
                         <HumanSummaryToggle enabled={showSummary} onToggle={() => setShowSummary(!showSummary)} />  
                     </div>  
-                    <p className="text-sm text-slate-400 mb-12">Last updated: February 2026</p>  
+                    <p className="text-sm text-slate-400 mb-12">Last updated: January 2026</p>
   
                     <div>  
                         {sections.map((section, idx) => (  
@@ -269,13 +173,13 @@ export const ReturnsPage: React.FC = () => {
 
     const sections: LegalSection[] = [
         {
-            title: "1. 30-Day Satisfaction Guarantee",
-            summary: "If you're not satisfied within 30 days of delivery, we'll refund you in full. No small print, no hassle.",
+            title: "1. 30-Day Satisfaction Policy",
+            summary: "If you're not satisfied within 30 days of delivery, we'll refund you in full. Clear terms, straightforward process.",
             content: (
                 <>
                     <p>HYLONO SYSTEMS stands behind every device we sell or rent. All direct purchases made through hylono.com are eligible for a full refund if returned within 30 calendar days of the delivery date, provided the conditions in Section 2 are met.</p>
-                    <p>In addition to our 30-day satisfaction guarantee, EU consumers have a statutory 14-day right of withdrawal from the date of delivery under Directive 2011/83/EU on consumer rights. This right is separate from and does not replace our extended 30-day policy.</p>
-                    <p>Rental device returns follow a separate process governed by your rental agreement and the Shipping &amp; Returns policy. The 30-day satisfaction guarantee applies to outright purchases only.</p>
+                    <p>In addition to our 30-day satisfaction policy, EU consumers have a statutory 14-day right of withdrawal from the date of delivery under Directive 2011/83/EU on consumer rights. This right is separate from and does not replace our extended 30-day policy.</p>
+                    <p>Rental device returns follow a separate process governed by your rental agreement and the Shipping &amp; Returns policy. The 30-day satisfaction policy applies to outright purchases only.</p>
                 </>
             )
         },
@@ -358,7 +262,7 @@ export const ReturnsPage: React.FC = () => {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div className="flex items-center gap-3">
                             <ToggleLeft className="text-cyan-500" size={32} />
-                            <h1 className="text-4xl font-bold text-slate-900">Returns &amp; Refunds</h1>
+                            <h1 id="returns-hero-headline" className="text-4xl font-bold text-slate-900">Returns &amp; Refunds</h1>
                         </div>
                         <HumanSummaryToggle enabled={showSummary} onToggle={() => setShowSummary(!showSummary)} />
                     </div>
@@ -513,87 +417,38 @@ export const DisclaimerPage: React.FC = () => {
 
     const sections: LegalSection[] = [
         {
-            title: "1. Wellness Devices — Not Medical Devices",
-            summary: "Hylono devices are wellness products. They are not medical devices and are not intended to diagnose, treat, cure, or prevent any disease.",
+            title: "1. General Wellness Use",
+            summary: "Hylono products are wellness devices designed to support general wellbeing.",
             content: (
                 <>
-                    <p>The devices available through HYLONO SYSTEMS — including hyperbaric oxygen chambers (HBOT), pulsed electromagnetic field (PEMF) devices, red light therapy (RLT) panels, hydrogen inhalation systems, and all other products in our range — are <strong>wellness and lifestyle technology products</strong>.</p>
-                    <p>These devices are <strong>not classified as medical devices</strong> under EU Regulation 2017/745 (EU MDR) and are <strong>not intended to</strong>:</p>
-                    <ul>
-                        <li>Diagnose, prevent, monitor, treat, or alleviate any disease or injury</li>
-                        <li>Investigate, replace, or modify the anatomy or a physiological or pathological process or state</li>
-                        <li>Control or support conception</li>
-                    </ul>
-                    <p>Use of Hylono devices does not constitute medical treatment and should not replace professional medical care.</p>
+                    <p>{disclaimers.general}</p>
                 </>
             )
         },
         {
-            title: "2. Consult Your Healthcare Provider",
-            summary: "Always consult a qualified doctor before using any wellness device, especially if you have existing health conditions, are pregnant, or take medication.",
+            title: "2. Research & Educational Content",
+            summary: "Research summaries and study references are provided for educational review only.",
             content: (
                 <>
-                    <p>Before commencing use of any wellness device, you should consult a qualified and licensed healthcare professional, particularly if:</p>
-                    <ul>
-                        <li>You have or have been diagnosed with any chronic or acute medical condition</li>
-                        <li>You are pregnant, planning to become pregnant, or breastfeeding</li>
-                        <li>You are taking any prescription or over-the-counter medication</li>
-                        <li>You have recently undergone surgery or a medical procedure</li>
-                        <li>You have implanted medical devices (e.g., pacemakers, metal implants)</li>
-                        <li>You have a history of seizures, epilepsy, or neurological conditions</li>
-                        <li>You are under 18 years of age</li>
-                    </ul>
-                    <p>This is not an exhaustive list. When in doubt, always seek professional medical advice before starting any new wellness protocol.</p>
+                    <p>{disclaimers.research}</p>
                 </>
             )
         },
         {
-            title: "3. No Medical Claims or Guarantees",
-            summary: "We make no medical claims. Any results mentioned are individual experiences. Wellness outcomes vary significantly between people.",
+            title: "3. Testimonials & Outcomes",
+            summary: "Testimonials and reviews reflect individual experiences and are not promised results.",
             content: (
                 <>
-                    <p>HYLONO SYSTEMS does not make any claims that our devices diagnose, treat, cure, prevent, or mitigate any medical condition or disease. Any testimonials, case studies, research summaries, or user experiences shared on our website or in our marketing materials:</p>
-                    <ul>
-                        <li>Reflect individual experiences and results only</li>
-                        <li>Are not typical or guaranteed outcomes</li>
-                        <li>Do not constitute medical advice or endorsement of specific health outcomes</li>
-                        <li>Should not be interpreted as a substitute for professional medical advice</li>
-                    </ul>
-                    <p>The effectiveness of wellness technologies varies significantly between individuals based on genetics, health status, lifestyle, age, and compliance with protocol guidelines. Hylono does not guarantee any specific result from the use of its devices.</p>
+                    <p>{disclaimers.testimonial}</p>
                 </>
             )
         },
         {
-            title: "4. Research References",
-            summary: "Research cited on our site is provided for educational purposes. It does not constitute medical evidence specific to our devices or a guarantee of results.",
+            title: "4. Safety Notes",
+            summary: "Safety notes and contraindications are not exhaustive.",
             content: (
                 <>
-                    <p>Our website, Research Hub, and marketing materials may reference peer-reviewed research, clinical studies, and scientific literature related to the technologies used in our devices. This content is provided for <strong>educational and informational purposes only</strong>.</p>
-                    <p>Referenced studies may involve:</p>
-                    <ul>
-                        <li>Devices of different specifications or configurations than our products</li>
-                        <li>Clinical populations (patients under medical supervision) rather than healthy wellness users</li>
-                        <li>Research not specifically involving HYLONO SYSTEMS products</li>
-                        <li>Preliminary or inconclusive findings not yet replicated</li>
-                    </ul>
-                    <p>Citing a study does not constitute a medical claim about our specific products. HYLONO SYSTEMS recommends that users review all referenced research in full and consult their healthcare provider to evaluate applicability to their individual circumstances.</p>
-                </>
-            )
-        },
-        {
-            title: "5. Limitation of Liability",
-            summary: "Hylono is not liable for health outcomes from device use. Always follow the protocol guide and consult a doctor. Use at your own risk.",
-            content: (
-                <>
-                    <p>To the fullest extent permitted by applicable law, HYLONO SYSTEMS and its directors, officers, employees, and agents shall not be liable for any injury, illness, adverse reaction, or health outcome arising from or related to:</p>
-                    <ul>
-                        <li>The use or misuse of any Hylono wellness device</li>
-                        <li>Failure to follow the included protocol guide or safety instructions</li>
-                        <li>Use of a device by individuals with known contraindications</li>
-                        <li>Reliance on any content, testimonials, or research summaries on our website as a substitute for professional medical advice</li>
-                    </ul>
-                    <p>Nothing in this disclaimer limits or excludes our liability for death or personal injury caused by our negligence, fraud, or any liability that cannot lawfully be limited or excluded under applicable EU consumer law.</p>
-                    <p>For a full list of device-specific contraindications and safety guidelines, refer to your device's user manual or contact us at <a href="mailto:support@hylono.com">support@hylono.com</a>.</p>
+                    <p>{disclaimers.safety}</p>
                 </>
             )
         }
@@ -610,10 +465,7 @@ export const DisclaimerPage: React.FC = () => {
                         </div>
                         <HumanSummaryToggle enabled={showSummary} onToggle={() => setShowSummary(!showSummary)} />
                     </div>
-                    <p className="text-sm text-slate-400 mb-4">Last updated: February 2026</p>
-                    <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg mb-12">
-                        <p className="text-amber-800 font-medium text-sm">Important: Hylono devices are wellness products, not medical devices. They are not intended to diagnose, treat, cure, or prevent any disease. Always consult a qualified healthcare professional before use.</p>
-                    </div>
+                    <MedicalDisclaimer type="general" variant="warning" className="mb-12" />
                     <div>
                         {sections.map((section, idx) => (
                             <SectionView key={idx} section={section} showSummary={showSummary} />
@@ -780,7 +632,7 @@ export const ShippingPage: React.FC = () => {
             <div className="max-w-3xl mx-auto px-6">  
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>  
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">  
-                        <h1 className="text-4xl font-bold text-slate-900">Shipping & Returns</h1>
+                        <h1 id="shipping-hero-headline" className="text-4xl font-bold text-slate-900">Shipping & Returns</h1>
                         <HumanSummaryToggle enabled={showSummary} onToggle={() => setShowSummary(!showSummary)} />  
                     </div>  
                     <p className="text-sm text-slate-400 mb-12">Last updated: February 2026</p>  
@@ -795,4 +647,3 @@ export const ShippingPage: React.FC = () => {
         </div>  
     );  
 };  
-

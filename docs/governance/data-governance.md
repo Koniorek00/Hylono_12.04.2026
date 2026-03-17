@@ -24,8 +24,8 @@ This document defines data governance policies for the Hylono Stack, including d
 
 ## 3. Data Stores
 
-### 3.1 PostgreSQL (21 databases)
-Each service uses its own isolated database with a dedicated user. Cross-database queries are forbidden. See `docker/infrastructure/init-databases.sh` for the full list.
+### 3.1 PostgreSQL (20 databases)
+Most services use their own isolated PostgreSQL database with a dedicated user. Cross-database queries are forbidden. See `docker/infrastructure/init-databases.sh` for the current PostgreSQL list.
 
 | Database | Service | Class |
 |----------|---------|-------|
@@ -35,7 +35,6 @@ Each service uses its own isolated database with a dedicated user. Cross-databas
 | `n8n_db` | n8n Automation | C |
 | `zitadel_db` | Zitadel IdP | A |
 | `leihs_db` | Leihs Lending | A, B |
-| `snipeit_db` | Snipe-IT Assets | B |
 | `calcom_db` | Cal.com Scheduling | A |
 | `documenso_db` | Documenso Docs | A, B |
 | `thingsboard_db` | ThingsBoard IoT | B, C |
@@ -64,6 +63,10 @@ Each service uses its own isolated database with a dedicated user. Cross-databas
 ### 3.4 MongoDB
 - Used exclusively by Novu (notification service)
 - Contains notification preferences and delivery logs (Class C)
+
+### 3.5 MariaDB
+- Used by Snipe-IT in the Phase 1A compose stack
+- Contains asset inventory records (Class B)
 
 ---
 

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Cookie, X, Settings, Check } from 'lucide-react';
@@ -6,6 +8,8 @@ import Link from 'next/link';
 // Consent schema version — bump this when categories change to re-prompt users
 const CONSENT_VERSION = '1.1';
 const CONSENT_KEY = 'cookieConsent';
+const CONSENT_COOKIE_KEY = 'cookieConsent';
+const CONSENT_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 
 export interface CookiePreferences {
     essential: true;
@@ -14,6 +18,61 @@ export interface CookiePreferences {
     timestamp: string;
     version: string;
 }
+
+const writeConsentCookie = (record: CookiePreferences): void => {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    const encoded = encodeURIComponent(JSON.stringify(record));
+    const secureAttribute =
+        typeof window !== 'undefined' && window.location.protocol === 'https:'
+            ? '; Secure'
+            : '';
+
+    document.cookie = `${CONSENT_COOKIE_KEY}=${encoded}; Path=/; Max-Age=${CONSENT_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax${secureAttribute}`;
+};
+
+const clearConsentCookie = (): void => {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    const secureAttribute =
+        typeof window !== 'undefined' && window.location.protocol === 'https:'
+            ? '; Secure'
+            : '';
+
+    document.cookie = `${CONSENT_COOKIE_KEY}=; Path=/; Max-Age=0; SameSite=Lax${secureAttribute}`;
+};
+
+const parseStoredConsent = (raw: string): CookiePreferences | null => {
+    try {
+        const stored: Partial<CookiePreferences> = JSON.parse(raw);
+
+        if (stored.version !== CONSENT_VERSION) {
+            return null;
+        }
+
+        if (typeof stored.timestamp !== 'string') {
+            return null;
+        }
+
+        if (typeof stored.analytics !== 'boolean' || typeof stored.marketing !== 'boolean') {
+            return null;
+        }
+
+        return {
+            essential: true,
+            analytics: stored.analytics,
+            marketing: stored.marketing,
+            timestamp: stored.timestamp,
+            version: CONSENT_VERSION,
+        };
+    } catch {
+        return null;
+    }
+};
 
 /** Dispatch this event anywhere in the app to re-open the cookie banner */
 export const openCookieSettings = () => {
@@ -24,7 +83,7 @@ export const CookieConsent: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [preferences, setPreferences] = useState({
-        essential: true as const, // Always true, cannot be changed
+        essential: true as const, // Required for core site behavior and cannot be changed
         analytics: false,
         marketing: false,
     });
@@ -35,25 +94,41 @@ export const CookieConsent: React.FC = () => {
             if (isMounted) setIsVisible(true);
         };
 
-        // Check if user has already consented with the current version
-        const raw = localStorage.getItem(CONSENT_KEY);
+        let raw: string | null = null;
+        try {
+            raw = localStorage.getItem(CONSENT_KEY);
+        } catch {
+            // Storage inaccessible (private browsing) — show banner
+            showBanner();
+            return () => { isMounted = false; };
+        }
+
         if (!raw) {
             // No consent stored → show banner immediately (consent-first)
+            clearConsentCookie();
             showBanner();
-            return;
+            return () => { isMounted = false; };
         }
-        try {
-            const stored: Partial<CookiePreferences> = JSON.parse(raw);
-            // Re-prompt if consent was given under an older schema version
-            if (!stored.version || stored.version !== CONSENT_VERSION) {
-                localStorage.removeItem(CONSENT_KEY);
-                showBanner();
-            }
-        } catch {
+
+        const stored = parseStoredConsent(raw);
+        if (!stored) {
             // Corrupted data → re-prompt
-            localStorage.removeItem(CONSENT_KEY);
+            try { localStorage.removeItem(CONSENT_KEY); } catch { /* ignore */ }
+            clearConsentCookie();
             showBanner();
+            return () => { isMounted = false; };
         }
+
+        // Returning visitors: keep server-readable consent parity in sync
+        try {
+            localStorage.setItem(CONSENT_KEY, JSON.stringify(stored));
+        } catch { /* ignore */ }
+        writeConsentCookie(stored);
+        setPreferences({
+            essential: true,
+            analytics: stored.analytics,
+            marketing: stored.marketing,
+        });
 
         return () => {
             isMounted = false;
@@ -76,7 +151,10 @@ export const CookieConsent: React.FC = () => {
             timestamp: new Date().toISOString(),
             version: CONSENT_VERSION,
         };
-        localStorage.setItem(CONSENT_KEY, JSON.stringify(record));
+        try {
+            localStorage.setItem(CONSENT_KEY, JSON.stringify(record));
+        } catch { /* ignore */ }
+        writeConsentCookie(record);
         // Notify analytics module (and any other listeners) of the consent change
         window.dispatchEvent(new CustomEvent('hylono:consent-updated', { detail: record }));
     };
@@ -177,7 +255,7 @@ export const CookieConsent: React.FC = () => {
                                             checked
                                             disabled
                                             className="w-5 h-5 accent-cyan-500"
-                                            aria-label="Essential cookies (always enabled)"
+                                            aria-label="Essential cookies (required)"
                                         />
                                     </div>
 
@@ -232,4 +310,3 @@ export const CookieConsent: React.FC = () => {
         </AnimatePresence>
     );
 };
-

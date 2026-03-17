@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [main, master, develop]
 
 jobs:
   quality:
@@ -29,11 +29,59 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Setup Python (for local Semgrep parity)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Semgrep CLI
+        run: python -m pip install --upgrade pip semgrep
+
+      - name: Audit tooling gate (MCP channel guard)
+        run: pnpm audit:tooling
+
       - name: TypeScript type check
         run: pnpm typecheck
 
       - name: Biome check
         run: pnpm exec biome check .
+
+      - name: Guardrail check (no internal anchor href)
+        run: |
+          if git grep -nE '<a\s+href="/' -- '*.tsx'; then
+            echo "❌ Internal <a href=\"/...\"> usage detected. Use next/link instead."
+            exit 1
+          fi
+          echo "✅ Internal link guardrail check passed"
+
+      - name: Guardrail check (no framer-motion imports)
+        run: |
+          if git grep -nE "from ['\"]framer-motion['\"]" -- '*.ts' '*.tsx'; then
+            echo "❌ framer-motion import detected. Use motion/react instead."
+            exit 1
+          fi
+          echo "✅ Motion import guardrail check passed"
+
+      - name: Guardrail check (no raw process.env outside lib/env.ts)
+        run: |
+          MATCHES=$(git grep -nE 'process\.env\.[A-Z0-9_]+' -- '*.ts' '*.tsx' ':!lib/env.ts' || true)
+          if [ -n "$MATCHES" ]; then
+            echo "$MATCHES"
+            echo "❌ Raw process.env access detected outside lib/env.ts"
+            exit 1
+          fi
+          echo "✅ Env guardrail check passed"
+
+      - name: Guardrail check (metadata not in use-client files)
+        run: |
+          files=$(git ls-files '*.tsx')
+          for file in $files; do
+            if grep -qE "^['\"]use client['\"];?$" "$file" && grep -qE 'export const metadata' "$file"; then
+              echo "❌ metadata export in use-client file: $file"
+              exit 1
+            fi
+          done
+          echo "✅ Metadata/use-client boundary check passed"
 
       - name: Build
         run: pnpm build
@@ -41,8 +89,26 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      - name: Medical compliance language scan
+        run: pnpm compliance:strict
+
+      - name: Semgrep local baseline (parity with local guardrails)
+        run: pnpm security:semgrep:local
+
+      - name: Semgrep security scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/owasp-top-ten
+            p/typescript
+            p/javascript
+            p/secrets
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
+
+      - name: WCAG critical audit
+        run: pnpm exec playwright test e2e/step8-wcag-audit.spec.ts
 
       - name: Check bundle size
         run: |

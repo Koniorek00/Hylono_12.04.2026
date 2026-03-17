@@ -112,10 +112,10 @@ export const PressHubPage: React.FC<PressHubPageProps> = ({ onNavigate, initialT
                     <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-4 py-2 text-cyan-400 text-xs tracking-widest uppercase mb-6">
                         <Newspaper size={12} /> Press & Media
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold futuristic-font text-white mb-4">
+                    <h1 id="press-hero-headline" className="text-4xl md:text-5xl font-bold futuristic-font text-white mb-4">
                         Media Resources
                     </h1>
-                    <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                    <p id="press-hero-description" className="text-slate-400 text-lg max-w-2xl mx-auto">
                         Everything you need to cover Hylono — company facts, press releases, and downloadable assets.
                     </p>
                 </motion.div>

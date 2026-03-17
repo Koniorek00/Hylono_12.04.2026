@@ -12,9 +12,12 @@
       "domain": "infrastructure",
       "phase": "infrastructure",
       "verdict": "ESSENTIAL",
-      "dockerImage": "postgres:16-alpine",
+      "dockerImage": "infrastructure-postgres",
       "defaultPort": 5432,
-      "docsUrl": "https://postgresql.org/docs/"
+      "accessMode": "native",
+      "accessNotes": "Native PostgreSQL port. Use psql or application connection strings, not a browser.",
+      "docsUrl": "https://postgresql.org/docs/",
+      "notes": "Custom PostgreSQL 16 build with pg_partman installed for Lago."
     },
     {
       "id": "redis",
@@ -25,6 +28,8 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "redis:7-alpine",
       "defaultPort": 6379,
+      "accessMode": "native",
+      "accessNotes": "Native Redis port. Use redis-cli or app clients, not a browser.",
       "docsUrl": "https://redis.io/docs/"
     },
     {
@@ -36,6 +41,10 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "minio/minio:latest",
       "defaultPort": 9000,
+      "accessMode": "hybrid",
+      "uiUrl": "http://localhost:9001",
+      "healthEndpoint": "http://localhost:9000/minio/health/live",
+      "accessNotes": "S3-compatible API listens on :9000. Browser console is on :9001.",
       "docsUrl": "https://min.io/docs/"
     },
     {
@@ -47,6 +56,8 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "mongo:7",
       "defaultPort": 27017,
+      "accessMode": "native",
+      "accessNotes": "Native MongoDB port. Browser requests to :27017 are expected to show a protocol mismatch.",
       "docsUrl": "https://mongodb.com/docs/",
       "notes": "Required by Novu only."
     },
@@ -58,7 +69,11 @@
       "phase": "infrastructure",
       "verdict": "ESSENTIAL",
       "dockerImage": "louislam/uptime-kuma:1",
-      "defaultPort": 3001,
+      "defaultPort": 3002,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:3002",
+      "healthEndpoint": "http://localhost:3002",
+      "accessNotes": "Browser UI for uptime checks and monitor status.",
       "docsUrl": "https://github.com/louislam/uptime-kuma"
     }
   ],
@@ -70,10 +85,18 @@
       "domain": "commerce",
       "phase": "1a",
       "verdict": "ESSENTIAL",
-      "dockerImage": "medusajs/medusa:latest",
+      "dockerImage": "phase-1a-medusa",
+      "buildFromSource": true,
       "defaultPort": 8100,
+      "accessMode": "hybrid",
+      "uiUrl": "http://localhost:8100/app",
+      "healthEndpoint": "http://localhost:8100/health",
+      "accessNotes": "Admin UI is served on /app. Health endpoint is /health.",
       "docsUrl": "https://docs.medusajs.com/",
-      "role": "Core commerce"
+      "role": "Core commerce",
+      "riskLevel": "MEDIUM",
+      "riskNotes": "Built locally from the vendored medusa-starter-default workspace.",
+      "notes": "Runtime is pinned through docker/phase-1a/vendor/medusa-starter-default with a compatibility shim for the admin bundle output."
     },
     {
       "id": "lago",
@@ -82,10 +105,17 @@
       "domain": "commerce",
       "phase": "1a",
       "verdict": "ESSENTIAL",
-      "dockerImage": "getlago/api:latest",
+      "dockerImage": "getlago/api:v1.43.0",
       "defaultPort": 8102,
+      "accessMode": "hybrid",
+      "uiUrl": "http://localhost:8102",
+      "healthEndpoint": "http://localhost:18102/health",
+      "accessNotes": "Main browser UI is on :8102. API health is exposed separately on :18102/health.",
       "docsUrl": "https://docs.getlago.com/",
-      "role": "Billing"
+      "role": "Billing",
+      "riskLevel": "MEDIUM",
+      "riskNotes": "Requires pg_partman in the shared PostgreSQL runtime and a multi-container bootstrap (api/front/worker/clock/pdf).",
+      "notes": "Pinned locally to getlago/api:v1.43.0 and getlago/front:v1.43.0 with the official migrate/start scripts."
     },
     {
       "id": "snipe-it",
@@ -96,8 +126,13 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "snipe/snipe-it:latest",
       "defaultPort": 8104,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:8104",
+      "healthEndpoint": "http://localhost:8104",
+      "accessNotes": "Browser UI. First boot may open the setup wizard instead of the normal dashboard.",
       "docsUrl": "https://snipe-it.readme.io/",
-      "role": "Asset Registry"
+      "role": "Asset Registry",
+      "notes": "Uses a dedicated MariaDB container in docker/phase-1a/docker-compose.yml."
     },
     {
       "id": "leihs",
@@ -108,6 +143,8 @@
       "verdict": "ESSENTIAL",
       "buildFromSource": true,
       "defaultPort": 8105,
+      "accessMode": "unknown",
+      "accessNotes": "Build-from-source only. No verified local browser entry is configured in this checkout.",
       "docsUrl": "https://github.com/leihs/leihs",
       "role": "Lending",
       "riskLevel": "HIGH",
@@ -120,10 +157,17 @@
       "domain": "fleet",
       "phase": "1a",
       "verdict": "ESSENTIAL",
-      "dockerImage": "calcom/cal.com:latest",
+      "dockerImage": "calcom.docker.scarf.sh/calcom/cal.com:latest",
       "defaultPort": 8106,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:8106",
+      "healthEndpoint": "http://localhost:8106",
+      "accessNotes": "Browser UI is served from the root URL.",
       "docsUrl": "https://cal.com/docs",
-      "role": "Scheduling"
+      "role": "Scheduling",
+      "riskLevel": "MEDIUM",
+      "riskNotes": "First boot runs Prisma migrations and app-store seeding, so cold starts are slower than the rest of Phase 1A.",
+      "notes": "Uses the official self-host image and boots cleanly on the shared PostgreSQL and Redis services."
     },
     {
       "id": "twenty",
@@ -134,6 +178,10 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "twentycrm/twenty:latest",
       "defaultPort": 8107,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:8107",
+      "healthEndpoint": "http://localhost:8107",
+      "accessNotes": "Browser UI for the CRM workspace.",
       "docsUrl": "https://twenty.com/developers",
       "role": "CRM"
     },
@@ -146,6 +194,10 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "documenso/documenso:latest",
       "defaultPort": 8108,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:8108",
+      "healthEndpoint": "http://localhost:8108",
+      "accessNotes": "Browser UI for document signing flows.",
       "docsUrl": "https://documenso.com/docs",
       "role": "E-signatures"
     },
@@ -158,6 +210,10 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "ghcr.io/zitadel/zitadel:latest",
       "defaultPort": 8109,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:8109/ui/console",
+      "healthEndpoint": "http://localhost:8109/ui/console",
+      "accessNotes": "Open the console UI in the browser. The root URL may redirect during boot.",
       "docsUrl": "https://zitadel.com/docs",
       "role": "IAM"
     },
@@ -168,10 +224,17 @@
       "domain": "crm",
       "phase": "1a",
       "verdict": "ESSENTIAL",
-      "dockerImage": "ghcr.io/novuhq/novu/api:latest",
+      "dockerImage": "ghcr.io/novuhq/novu/*:3.14.0",
       "defaultPort": 8110,
+      "accessMode": "hybrid",
+      "uiUrl": "http://localhost:8110",
+      "healthEndpoint": "http://localhost:18110/v1/health-check",
+      "accessNotes": "Dashboard UI is on :8110. API health is on :18110/v1/health-check.",
       "docsUrl": "https://docs.novu.co/",
-      "role": "Notifications"
+      "role": "Notifications",
+      "riskLevel": "MEDIUM",
+      "riskNotes": "Requires the full API, worker, websocket, and dashboard set plus MongoDB, Redis, MinIO, and a seeded bucket.",
+      "notes": "Pinned locally to the community runtime on ghcr.io/novuhq/novu 3.14.0 with a dedicated MinIO bucket named novu-local."
     },
     {
       "id": "n8n",
@@ -182,6 +245,10 @@
       "verdict": "ESSENTIAL",
       "dockerImage": "n8nio/n8n:latest",
       "defaultPort": 5678,
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:5678",
+      "healthEndpoint": "http://localhost:5678",
+      "accessNotes": "Browser UI for automation workflows.",
       "docsUrl": "https://docs.n8n.io/",
       "role": "Automation"
     },

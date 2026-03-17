@@ -36,18 +36,24 @@ export const validateCSRFToken = (token: string, storedToken: string): boolean =
 
 // Get or create CSRF token from session storage
 export const getCSRFToken = (): string => {
+    if (typeof window === 'undefined') {
+        return '';
+    }
     const storageKey = 'hylono_csrf_token';
     let token = sessionStorage.getItem(storageKey);
-    
+
     if (!token) {
         token = generateCSRFToken();
         sessionStorage.setItem(storageKey, token);
     }
-    
+
     return token;
 };
 
 // Clear CSRF token (for logout)
 export const clearCSRFToken = (): void => {
+    if (typeof window === 'undefined') {
+        return;
+    }
     sessionStorage.removeItem('hylono_csrf_token');
 };

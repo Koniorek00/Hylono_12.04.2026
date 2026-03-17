@@ -4,7 +4,8 @@ export interface Evidence {
   authors: string;
   publication: string;
   year: number;
-  doi: string;
+  doi?: string;
+  sourceUrl: string;
   studyType: 'RCT' | 'Meta-analysis' | 'Review' | 'Cohort' | 'Case study' | 'In vitro';
   sampleSize?: number;
   primaryEndpoint: string;
@@ -16,106 +17,93 @@ export interface Evidence {
 export const evidence: Evidence[] = [
   {
     id: 'ev-hbot-001',
-    title: 'Hyperbaric oxygen exposure and recovery perception in trained adults',
-    authors: 'S. H. Park et al.',
-    publication: 'Journal of Sports Recovery',
-    year: 2021,
-    doi: '10.1000/jsr.2021.1124',
+    title:
+      'Effects of Hyperbaric Oxygen Therapy on Mitochondrial Respiration and Physical Performance in Middle-Aged Athletes: A Blinded, Randomized Controlled Trial',
+    authors: 'Harpaz D et al.',
+    publication: 'Aging',
+    year: 2022,
+    sourceUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8825926/',
     studyType: 'RCT',
-    sampleSize: 64,
-    primaryEndpoint: 'Perceived recovery and delayed soreness after repeated training blocks',
+    sampleSize: 37,
+    primaryEndpoint: 'Physical performance and mitochondrial respiration in middle-aged athletes',
     resultSummary:
-      'Participants using mild hyperbaric sessions reported faster recovery and lower post-session discomfort across the intervention period.',
+      'In this blinded randomized trial, HBOT improved VO2 max, ventilatory threshold, and selected mitochondrial markers versus sham. The population was performance-oriented, so general wellness applicability should be judged cautiously.',
     modalities: ['mHBOT', 'O2'],
     primaryModality: 'mHBOT',
   },
   {
     id: 'ev-hbot-002',
-    title: 'Mild hyperbaric oxygen and sleep quality in high-stress professionals',
-    authors: 'A. Rossi et al.',
-    publication: 'Sleep and Human Performance',
-    year: 2020,
-    doi: '10.1000/shp.2020.887',
-    studyType: 'Cohort',
-    sampleSize: 48,
-    primaryEndpoint: 'Sleep latency and sleep quality index',
+    title:
+      'Effects of Hyperbaric Oxygen Therapy on Exercise-Induced Muscle Injury and Soreness: A Systematic Review and Meta-analysis',
+    authors: 'Ma T et al.',
+    publication: 'Sports Medicine - Open',
+    year: 2025,
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/40784513/',
+    studyType: 'Meta-analysis',
+    primaryEndpoint: 'Exercise-induced muscle injury and soreness outcomes across randomized trials',
     resultSummary:
-      'A structured 6-week mild hyperbaric routine was associated with improved sleep onset and higher subjective sleep quality.',
-    modalities: ['mHBOT'],
+      'The meta-analysis suggests hyperbaric oxygen may improve some post-exercise soreness and muscle-injury markers, but trial quality and intervention design vary substantially.',
+    modalities: ['mHBOT', 'O2'],
     primaryModality: 'mHBOT',
   },
   {
     id: 'ev-hbot-003',
-    title: 'Oxygen pressure interventions and cognitive workload resilience',
-    authors: 'K. Müller et al.',
-    publication: 'Frontiers in Cognitive Wellness',
-    year: 2022,
-    doi: '10.1000/fcw.2022.451',
-    studyType: 'Review',
-    primaryEndpoint: 'Executive function under sustained workload',
+    title:
+      'Sleep assessment in a randomized trial of hyperbaric oxygen therapy for chronic symptoms after mild traumatic brain injury',
+    authors: 'Roden-Foreman K et al.',
+    publication: 'Undersea & Hyperbaric Medicine',
+    year: 2018,
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/29661043/',
+    studyType: 'RCT',
+    primaryEndpoint: 'Self-reported sleep quality after HBOT in chronic post-mTBI symptoms',
     resultSummary:
-      'Review findings suggest pressure-supported oxygen routines may assist focus resilience and reduce cognitive fatigue in demanding schedules.',
+      'This randomized trial reported improvement in some self-reported sleep-quality measures after HBOT, but it studied a chronic post-mTBI population and not general wellness users.',
     modalities: ['mHBOT', 'O2'],
-    primaryModality: 'O2',
+    primaryModality: 'mHBOT',
   },
   {
     id: 'ev-h2-001',
-    title: 'Molecular hydrogen inhalation and markers of oxidative load',
-    authors: 'Y. Chen et al.',
-    publication: 'Oxidative Biology Reports',
-    year: 2019,
-    doi: '10.1000/obr.2019.318',
-    studyType: 'RCT',
-    sampleSize: 72,
-    primaryEndpoint: 'Oxidative stress marker profile after 4 weeks',
-    resultSummary:
-      'Hydrogen inhalation groups demonstrated lower oxidative stress marker intensity compared with controls after sustained use.',
-    modalities: ['H2_inhalation'],
-    primaryModality: 'H2_inhalation',
-  },
-  {
-    id: 'ev-h2-002',
-    title: 'Hydrogen-rich water and fatigue perception in active adults',
-    authors: 'M. Ito et al.',
-    publication: 'Nutrition and Activity Science',
-    year: 2018,
-    doi: '10.1000/nas.2018.204',
-    studyType: 'Cohort',
-    sampleSize: 53,
-    primaryEndpoint: 'Daily fatigue score and post-exercise recovery comfort',
-    resultSummary:
-      'Daily intake of hydrogen-rich water was associated with reduced fatigue perception and improved post-activity comfort ratings.',
-    modalities: ['H2_water'],
-    primaryModality: 'H2_water',
-  },
-  {
-    id: 'ev-h2-003',
-    title: 'Hydrogen applications in wellness and recovery workflows',
-    authors: 'L. Hernandez et al.',
-    publication: 'Integrative Wellness Review',
+    title:
+      'Effects of molecular hydrogen supplementation on fatigue and aerobic capacity in healthy adults: A systematic review and meta-analysis',
+    authors: 'Nogueira J et al.',
+    publication: 'Clinical Nutrition ESPEN',
     year: 2023,
-    doi: '10.1000/iwr.2023.991',
+    sourceUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9934906/',
     studyType: 'Meta-analysis',
-    primaryEndpoint: 'Composite wellness outcomes across hydrogen modalities',
+    primaryEndpoint: 'Fatigue and aerobic-capacity outcomes in healthy adults',
     resultSummary:
-      'Meta-analysis indicates hydrogen interventions may contribute to recovery support, stress balance, and perceived vitality in non-clinical settings.',
+      'The review reported supportive effects on fatigue and aerobic-capacity outcomes in healthy adults, while also noting protocol heterogeneity and a limited evidence base.',
     modalities: ['H2_inhalation', 'H2_water'],
     primaryModality: 'H2_inhalation',
   },
   {
-    id: 'ev-combo-001',
-    title: 'Combined oxygen and hydrogen routines for training-week recovery',
-    authors: 'P. Novak et al.',
-    publication: 'Applied Regeneration Methods',
-    year: 2022,
-    doi: '10.1000/arm.2022.775',
-    studyType: 'Case study',
-    sampleSize: 14,
-    primaryEndpoint: 'Recovery consistency across repeated high-load weeks',
+    id: 'ev-h2-002',
+    title:
+      'Modified hydrogen-oxygen breathing and respiratory function, exercise capacity, sleep disorders, and mood disorders in patients with chronic complications of cancer treatment',
+    authors: 'Li X et al.',
+    publication: 'Medical Gas Research',
+    year: 2025,
+    sourceUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12391262/',
+    studyType: 'RCT',
+    primaryEndpoint: 'Sleep and mood outcomes in patients with chronic post-treatment complications',
     resultSummary:
-      'Combined oxygen and hydrogen workflows showed stable recovery trends and high adherence in intensive weekly schedules.',
-    modalities: ['mHBOT', 'H2_inhalation'],
-    primaryModality: 'mHBOT',
+      'This trial reported improvements in several patient-reported outcomes after modified hydrogen-oxygen breathing, but the population was highly specific and not directly representative of general wellness use.',
+    modalities: ['H2_inhalation'],
+    primaryModality: 'H2_inhalation',
+  },
+  {
+    id: 'ev-h2-003',
+    title: 'Molecular Hydrogen as a Potential Treatment for Acute and Chronic Fatigue',
+    authors: 'LeBaron T et al.',
+    publication: 'Frontiers in Medicine',
+    year: 2021,
+    sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/34202646/',
+    studyType: 'Review',
+    primaryEndpoint: 'Mechanistic and early clinical evidence related to fatigue',
+    resultSummary:
+      'The review summarizes early fatigue-related hydrogen literature and argues that more rigorous clinical research is needed before broad claims can be made.',
+    modalities: ['H2_inhalation', 'H2_water'],
+    primaryModality: 'H2_inhalation',
   },
 ];
 

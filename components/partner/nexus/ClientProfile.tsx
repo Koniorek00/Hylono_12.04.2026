@@ -102,7 +102,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ client, onBack }) 
                         <HealthBook onChange={setClientHealth} />
                     </div>
 
-                    {/* RIGHT: PRESCRIPTION AI (50% on desktop, full on mobile) */}
+                            {/* RIGHT: PROTOCOL AI (50% on desktop, full on mobile) */}
                     <div className="col-span-1 h-full overflow-hidden rounded-xl shadow-sm min-h-[400px] lg:min-h-0">
                         <ProtocolEngine clientData={clientHealth} />
                     </div>

@@ -26,11 +26,43 @@ interface ProtocolEngineProps {
     };
 }
 
+interface ProtocolDose {
+    schedule?: string;
+    [parameter: string]: string | undefined;
+}
+
+interface ProtocolBlueprint {
+    id: string;
+    title: string;
+    dosing: Record<string, ProtocolDose>;
+    mechanism: string;
+    citation: string;
+}
+
+interface ProtocolMatrixEntry extends ProtocolBlueprint {
+    triggers: string[];
+}
+
+interface SafetyLockout {
+    type: 'danger';
+    code: string;
+    title: string;
+    message: string;
+    action: string;
+}
+
+interface ProtocolRecommendation {
+    type: 'success';
+    data: ProtocolBlueprint;
+}
+
+type EngineResult = SafetyLockout | ProtocolRecommendation;
+
 // MEDICAL GRADE KNOWLEDGE BASE
-const PRESCRIPTION_MATRIX = [
+const PROTOCOL_MATRIX: ProtocolMatrixEntry[] = [
     {
         triggers: ['Insomnia', 'Anxiety', 'TBI History'],
-        id: 'RX-NEURO-REPAIR',
+        id: 'PL-NEURO-RESTORE',
         title: 'Neural Restoration Protocol',
         dosing: {
             hbot: {
@@ -50,7 +82,7 @@ const PRESCRIPTION_MATRIX = [
     },
     {
         triggers: ['Chronic Pain', 'Arthritis', 'Inflammation', 'Lyme'],
-        id: 'RX-SYSTEMIC-ANTI-INF',
+        id: 'PL-SYSTEMIC-BALANCE',
         title: 'Systemic Anti-Inflammatory',
         dosing: {
             hbot: {
@@ -74,7 +106,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
     const [signingStatus, setSigningStatus] = useState<'idle' | 'signing' | 'signed'>('idle');
 
     // LOGIC ENGINE
-    const prescription = useMemo(() => {
+    const recommendation = useMemo<EngineResult | null>(() => {
         if (!clientData.conditions.length) return null;
 
         // 1. CRITICAL SAFETY LOCKOUT
@@ -98,17 +130,20 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
         }
 
         // 2. FIND BEST MATCH
-        const match = PRESCRIPTION_MATRIX.find(rx =>
-            rx.triggers.some(t => clientData.conditions.includes(t))
+        const match = PROTOCOL_MATRIX.find((protocol) =>
+            protocol.triggers.some((trigger) => clientData.conditions.includes(trigger))
         );
 
-        if (match) return { type: 'success', data: match };
+        if (match) {
+            const { triggers: _triggers, ...protocolData } = match;
+            return { type: 'success', data: protocolData };
+        }
 
         // DEFAULT BASELINE
         return {
             type: 'success',
             data: {
-                id: 'RX-GEN-WELLNESS',
+                id: 'PL-GEN-WELLNESS',
                 title: 'Baseline Oxidative Support',
                 dosing: {
                     hbot: { pressure: '1.3 ATA', duration: '60 min', schedule: '3x/Week', gas: 'Ambient Air + O2' }
@@ -118,7 +153,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
             }
         };
 
-    }, [clientData]);
+    }, [clientData.conditions, clientData.contraindications]);
 
     const handleSign = () => {
         setSigningStatus('signing');
@@ -127,15 +162,15 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
         }, 2000);
     };
 
-    if (!prescription && clientData.conditions.length === 0) {
+    if (!recommendation && clientData.conditions.length === 0) {
         return (
             <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 rounded-xl border border-dashed border-slate-300">
                 <div className="p-4 bg-white rounded-full shadow-sm mb-4 border border-slate-100">
                     <Microscope className="w-8 h-8 text-slate-300" />
                 </div>
-                <h3 className="font-bold text-slate-600 mb-1 font-mono uppercase">Awaiting Clinical Data</h3>
+                <h3 className="font-bold text-slate-600 mb-1 font-mono uppercase">Awaiting Intake Data</h3>
                 <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-                    Input patient biometrics and conditions to generate a targeted therapeutic prescription.
+                    Input client goals and conditions to generate a targeted protocol recommendation.
                 </p>
             </div>
         );
@@ -149,23 +184,23 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                     {signingStatus === 'signed' ? <ShieldCheck className="w-5 h-5 text-white" /> : <FileSignature className="w-5 h-5 text-cyan-400" />}
                     <div>
                         <div className={`font-bold tracking-widest text-xs uppercase ${signingStatus === 'signed' ? 'text-white' : 'text-cyan-400'}`}>
-                            {signingStatus === 'signed' ? 'Order Active' : 'Therapeutic Prescription'}
+                            {signingStatus === 'signed' ? 'Protocol Active' : 'Guided Protocol Recommendation'}
                         </div>
                         <div className="text-[10px] text-slate-400 text-white/70">
-                            {signingStatus === 'signed' ? 'SIGNED BY DR. DOE • 09:42 AM' : 'AI-GENERATED • REVIEW REQUIRED'}
+                            {signingStatus === 'signed' ? 'SIGNED BY CARE TEAM • 09:42 AM' : 'AI-ASSISTED • REVIEW REQUIRED'}
                         </div>
                     </div>
                 </div>
-                {prescription && prescription.type === 'success' && (
+                {recommendation && recommendation.type === 'success' && (
                     <div className={`text-xs font-bold px-2 py-1 rounded border ${signingStatus === 'signed' ? 'bg-emerald-700 border-emerald-500' : 'bg-cyan-900/50 text-cyan-400 border-cyan-500/30'}`}>
-                        {prescription.data!.id}
+                        {recommendation.data.id}
                     </div>
                 )}
             </div>
 
             <div className="p-6 flex-1 overflow-y-auto bg-slate-50 relative">
                 <AnimatePresence mode="wait">
-                    {prescription?.type === 'danger' ? (
+                    {recommendation?.type === 'danger' ? (
                         <motion.div
                             key="danger"
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -175,18 +210,18 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                             <div className="flex items-start gap-4">
                                 <AlertOctagon className="w-10 h-10 text-red-600 shrink-0" />
                                 <div>
-                                    <div className="font-bold text-red-700 text-lg mb-1">{prescription.title}</div>
-                                    <div className="font-mono text-xs text-red-500 mb-3">{prescription.code}</div>
+                                    <div className="font-bold text-red-700 text-lg mb-1">{recommendation.title}</div>
+                                    <div className="font-mono text-xs text-red-500 mb-3">{recommendation.code}</div>
                                     <p className="text-red-800 font-medium leading-relaxed mb-4">
-                                        {prescription.message}
+                                        {recommendation.message}
                                     </p>
                                     <div className="p-3 bg-white rounded border border-red-200 text-red-700 font-bold text-xs uppercase tracking-wide">
-                                        Action Required: {prescription.action}
+                                        Action Required: {recommendation.action}
                                     </div>
                                 </div>
                             </div>
                         </motion.div>
-                    ) : prescription?.type === 'success' ? (
+                    ) : recommendation?.type === 'success' ? (
                         <motion.div
                             key="success"
                             initial={{ opacity: 0, y: 10 }}
@@ -203,49 +238,51 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                                     >
                                         <CheckCircle className="w-12 h-12" />
                                     </motion.div>
-                                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Protocol Prescribed</h2>
+                                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Protocol Activated</h2>
                                     <p className="text-slate-500 mb-8 max-w-sm">
-                                        Digital order <strong>#RX-8821</strong> has been successfully transmitted to the Chamber OS.
+                                        Digital plan <strong>#PL-8821</strong> has been successfully transmitted to the Chamber OS.
                                     </p>
                                     <div className="flex gap-4">
                                         <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg shadow-sm hover:border-slate-300">
-                                            <Printer className="w-4 h-4" /> Print Order
+                                            <Printer className="w-4 h-4" /> Print Plan
                                         </button>
                                         <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg shadow-sm hover:border-slate-300">
-                                            <Share2 className="w-4 h-4" /> Email Patient
+                                            <Share2 className="w-4 h-4" /> Email Client
                                         </button>
                                     </div>
                                     <button
                                         onClick={() => setSigningStatus('idle')}
                                         className="mt-8 text-xs text-slate-400 hover:text-cyan-600 underline"
                                     >
-                                        Modify or Issue New Rx
+                                        Modify or Issue New Plan
                                     </button>
                                 </div>
                             ) : (
                                 <>
-                                    {/* Rx Header */}
+                                    {/* Recommendation Header */}
                                     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Primary Diagnosis Match</div>
-                                        <h2 className="text-2xl font-bold text-slate-900 mb-1">{prescription.data!.title}</h2>
+                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Primary Goal Match</div>
+                                        <h2 className="text-2xl font-bold text-slate-900 mb-1">{recommendation.data.title}</h2>
                                     </div>
 
                                     {/* Dosing Grid */}
                                     <div className="space-y-3">
                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">
-                                            <Zap className="w-3 h-3" /> Rx Dosing Parameters
+                                            <Zap className="w-3 h-3" /> Protocol Session Parameters
                                         </div>
-                                        {Object.entries(prescription.data!.dosing).map(([key, details]: [string, any]) => (
+                                        {Object.entries(recommendation.data.dosing).map(([key, details]) => (
                                             <div key={key} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
                                                 <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500" />
                                                 <div className="flex justify-between items-start mb-3">
                                                     <div className="font-bold text-lg uppercase text-slate-800">{key}</div>
-                                                    <div className="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-600">
-                                                        {details.schedule}
-                                                    </div>
+                                                    {details.schedule ? (
+                                                        <div className="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-600">
+                                                            {details.schedule}
+                                                        </div>
+                                                    ) : null}
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-4 text-xs">
-                                                    {Object.entries(details).map(([k, v]: [string, any]) => {
+                                                    {Object.entries(details).map(([k, v]) => {
                                                         if (k === 'schedule') return null;
                                                         return (
                                                             <div key={k}>
@@ -325,12 +362,12 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                                             <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider">Mechanism of Action</span>
                                         </div>
                                         <p className="text-sm text-indigo-900/80 leading-relaxed mb-4">
-                                            {prescription.data!.mechanism}
+                                            {recommendation.data.mechanism}
                                         </p>
                                         <div className="flex items-start gap-2 pt-3 border-t border-indigo-200/50">
                                             <BookOpen className="w-3 h-3 text-indigo-400 mt-0.5" />
                                             <p className="text-[10px] text-indigo-400 italic font-medium">
-                                                Source: {prescription.data!.citation}
+                                                Source: {recommendation.data.citation}
                                             </p>
                                         </div>
                                     </div>
@@ -346,7 +383,7 @@ export const ProtocolEngine: React.FC<ProtocolEngineProps> = ({ clientData }) =>
                                             </>
                                         ) : (
                                             <>
-                                                <FileSignature className="w-4 h-4" /> Sign & Prescribe Protocol
+                                                <FileSignature className="w-4 h-4" /> Sign & Activate Protocol
                                             </>
                                         )}
                                     </button>

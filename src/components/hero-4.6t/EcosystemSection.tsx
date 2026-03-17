@@ -3,6 +3,14 @@ import { motion } from 'motion/react';
 import { Zap, Sun, Wind, Activity } from 'lucide-react';
 import Link from 'next/link';
 
+interface EcosystemCardProps {
+    title: string;
+    desc: string;
+    gradient: string;
+    icon: React.ReactNode;
+    animation: React.ReactNode;
+}
+
 export const EcosystemSection: React.FC = () => {
     return (
         <section className="py-[120px] bg-[#FAFAF7]">
@@ -61,7 +69,13 @@ export const EcosystemSection: React.FC = () => {
     );
 };
 
-const Card = ({ title, desc, gradient, icon, animation }: any) => (
+const Card: React.FC<EcosystemCardProps> = ({
+    title,
+    desc,
+    gradient,
+    icon,
+    animation,
+}) => (
     <motion.div
         className="bg-white rounded-[20px] overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.05)] h-[400px] flex flex-col"
         whileHover={{ y: -5, boxShadow: "0 20px 60px rgba(0,0,0,0.08)" }}

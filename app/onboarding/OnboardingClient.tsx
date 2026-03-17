@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { OnboardingFlow } from '@/components/OnboardingFlow';
+import { navigateWithScroll } from '@/src/lib/navigation';
 
 export function OnboardingClient() {
   const router = useRouter();
@@ -9,8 +10,7 @@ export function OnboardingClient() {
   return (
     <OnboardingFlow
       onComplete={() => {
-        router.push('/');
-        window.scrollTo(0, 0);
+        navigateWithScroll(router, '/');
       }}
     />
   );

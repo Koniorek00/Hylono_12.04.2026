@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight, ExternalLink, Filter } from 'lucide-react';
 import { FeatureGate } from './FeatureGate';
-import { researchContent, ResearchModality, ResearchStudyCard } from '../content/research';
+import { researchContent, ResearchModality } from '../content/research';
 import { disclaimers } from '../content/disclaimers';
 
 const LegacyResearchFallback: React.FC = () => (
@@ -15,11 +16,36 @@ const LegacyResearchFallback: React.FC = () => (
 );
 
 const modalityToStorePath: Record<ResearchModality, string> = {
-  mHBOT: '/store?tech=HBOT',
-  H2: '/store?tech=HYDROGEN',
-  RLT: '/store?tech=RLT',
-  PEMF: '/store?tech=PEMF',
+  mHBOT: '/product/hbot',
+  H2: '/product/hydrogen',
 };
+
+const researchPathways = [
+  {
+    label: 'Recovery route',
+    href: '/conditions/recovery',
+  },
+  {
+    label: 'mHBOT hub',
+    href: '/product/hbot',
+  },
+  {
+    label: 'Recovery Oxygen Foundation',
+    href: '/protocols/recovery-oxygen-foundation',
+  },
+  {
+    label: 'Stress route',
+    href: '/conditions/stress',
+  },
+  {
+    label: 'Hydrogen hub',
+    href: '/product/hydrogen',
+  },
+  {
+    label: 'Stress Balance H2 Foundation',
+    href: '/protocols/stress-balance-h2-foundation',
+  },
+] as const;
 
 const EnhancedResearchHub: React.FC = () => {
   const reduced = useReducedMotion();
@@ -40,8 +66,32 @@ const EnhancedResearchHub: React.FC = () => {
         <div className="max-w-5xl mx-auto text-center">
           <motion.div initial={reduced ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
             <h1 className="text-4xl md:text-5xl font-black mb-3 futuristic-font">{researchContent.title}</h1>
-            <p className="text-slate-300 max-w-3xl mx-auto">{researchContent.subtitle}</p>
+            <p id="research-answer-summary" className="text-slate-300 max-w-3xl mx-auto">
+              {researchContent.subtitle}
+            </p>
           </motion.div>
+        </div>
+      </section>
+
+      <section className="px-6 pb-2">
+        <div className="max-w-6xl mx-auto rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+            Evidence pathways
+          </p>
+          <p className="mt-2 max-w-3xl text-sm text-slate-600">
+            Move from research summaries into the related condition pages, product hubs, and protocol planning routes.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {researchPathways.map((pathway) => (
+              <Link
+                key={pathway.href}
+                href={pathway.href}
+                className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                {pathway.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -123,19 +173,19 @@ const EnhancedResearchHub: React.FC = () => {
                     Open study <ExternalLink size={12} />
                   </a>
 
-                  <a
+                  <Link
                     href={modalityToStorePath[study.modality]}
                     className="min-h-11 px-3 py-2 rounded-lg bg-slate-900 text-white text-sm inline-flex items-center gap-1"
                   >
                     {researchContent.productCtaLabel} <ArrowRight size={12} />
-                  </a>
+                  </Link>
 
-                  <a
+                  <Link
                     href="/protocols"
                     className="min-h-11 px-3 py-2 rounded-lg border border-slate-300 text-sm text-slate-700 inline-flex items-center gap-1"
                   >
                     {researchContent.protocolCtaLabel} <ArrowRight size={12} />
-                  </a>
+                  </Link>
                 </div>
 
                 {study.doi && <p className="mt-3 text-xs text-slate-500">DOI: {study.doi}</p>}
@@ -144,7 +194,10 @@ const EnhancedResearchHub: React.FC = () => {
           )}
         </div>
 
-        <div className="max-w-6xl mx-auto mt-6 rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-500 leading-relaxed">
+        <div
+          id="research-library-disclaimer"
+          className="max-w-6xl mx-auto mt-6 rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-500 leading-relaxed"
+        >
           {disclaimers.research}
         </div>
       </section>
@@ -159,4 +212,3 @@ export const ResearchHub: React.FC = () => {
     </FeatureGate>
   );
 };
-

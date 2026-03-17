@@ -65,5 +65,9 @@ export default defineConfig({
         url: 'http://localhost:3100',
         reuseExistingServer: false,
         timeout: 300_000,
+        env: {
+            ...process.env,
+            NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'playwright-local-secret',
+        },
     },
 });

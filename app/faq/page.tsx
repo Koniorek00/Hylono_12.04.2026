@@ -1,72 +1,67 @@
 import type { Metadata } from 'next';
-import { env } from '@/lib/env';
+import { Suspense } from 'react';
 import { createPageMetadata } from '@/lib/seo-metadata';
+import { env } from '@/lib/env';
+import {
+  ORGANIZATION_ID,
+  createBreadcrumbSchema,
+  createFaqSchema,
+  createWebPageSchema,
+  SCHEMA_DATE_MODIFIED,
+} from '@/lib/seo-schema';
+
+const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
+import { HELP_FAQ_DATA } from '@/content/help-faq';
 import StructuredData from '@/src/components/StructuredData';
 import { FaqClient } from './FaqClient';
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'FAQ',
-  description: 'Find answers to common questions about Hylono devices, safety, rental options, and support.',
+  title: 'Hylono FAQ | Device, Rental, Safety, and Support Answers',
+  description:
+    'Find answers to common Hylono questions about devices, safety, rental options, delivery planning, and customer support.',
   path: '/faq',
 });
 
+// [DECISION: SSG because FAQ content is curated static educational material.]
 export default function FaqPageRoute() {
-  const siteUrl = env.NEXT_PUBLIC_SITE_URL;
-
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'What is Hylono?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Hylono is an EU medtech wellness platform offering technology-supported routines designed to support wellbeing, recovery, and lifestyle optimization.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Are Hylono products medical treatments?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'No. Hylono products are designed to support wellbeing and recovery routines, and are not intended to diagnose, treat, cure, or prevent disease.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Do you offer rental options?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Yes. Hylono offers rental and financing options for selected devices, allowing clients to begin with flexible monthly plans.',
-        },
-      },
-    ],
-  };
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: siteUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'FAQ',
-        item: `${siteUrl}/faq`,
-      },
-    ],
-  };
+  const faqItems = HELP_FAQ_DATA.flatMap((category) =>
+    category.items.map((item) => ({
+      question: item.q,
+      answer: item.a,
+    }))
+  );
 
   return (
     <>
-      <StructuredData id="jsonld-faq" data={faqSchema} />
-      <StructuredData id="jsonld-faq-breadcrumb" data={breadcrumbSchema} />
+      <Suspense fallback={null}>
+        <StructuredData
+          id="jsonld-faq-page"
+          data={{
+            ...createWebPageSchema({
+              name: 'Hylono FAQ',
+              description:
+                'Find answers to common Hylono questions about devices, safety, rental options, delivery planning, and customer support.',
+              path: '/faq',
+              dateModified: SCHEMA_DATE_MODIFIED,
+            }),
+            about: { '@id': ORGANIZATION_ID() },
+            mainEntity: { '@id': `${SITE_URL}/faq#faq` },
+            relatedLink: [`${SITE_URL}/help`, `${SITE_URL}/contact`, `${SITE_URL}/rental`],
+            speakable: {
+              '@type': 'SpeakableSpecification',
+              cssSelector: ['#tabpanel-faq'],
+            },
+          }}
+        />
+        <StructuredData id="jsonld-faq" data={createFaqSchema(faqItems, '/faq', 'Hylono FAQ')} />
+        <StructuredData
+          id="jsonld-faq-breadcrumb"
+          data={createBreadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'FAQ', path: '/faq' },
+          ])}
+        />
+      </Suspense>
       <FaqClient />
     </>
   );

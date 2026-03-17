@@ -143,6 +143,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onNavigate }) =>
 
                     {/* Window */}
                     <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Command palette"
                         initial={{ scale: 0.95, opacity: 0, y: -20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: -20 }}
@@ -151,11 +154,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onNavigate }) =>
                     >
                         {/* Search Bar */}
                         <div className="flex items-center px-4 py-4 border-b border-slate-100/50">
-                            <Search className="w-5 h-5 text-slate-400 mr-3" />
+                            <Search className="w-5 h-5 text-slate-400 mr-3" aria-hidden="true" />
                             <input
                                 ref={inputRef}
                                 type="text"
                                 placeholder="Search products, pages, or commands..."
+                                aria-label="Search products, pages, or commands"
                                 className="flex-1 bg-transparent border-none outline-none text-lg text-slate-800 placeholder-slate-400"
                                 value={query}
                                 onChange={e => {

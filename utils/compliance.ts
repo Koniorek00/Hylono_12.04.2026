@@ -52,16 +52,48 @@ const FORBIDDEN_TERMS: ForbiddenTerm[] = [
     { term: 'healing', improvement: 'recovery support', severity: 'critical', category: 'medical_claim' },
     { term: 'heals', improvement: 'supports recovery', severity: 'critical', category: 'medical_claim' },
     { term: 'treats', improvement: 'addresses', severity: 'critical', category: 'medical_claim' },
-    { term: 'treatment', improvement: 'therapy session', severity: 'high', category: 'medical_claim' },
+    {
+        term: 'treatment',
+        improvement: 'therapy session',
+        severity: 'high',
+        category: 'medical_claim',
+        allowInContext: /treatment group|cancer treatment|post-treatment|acute and chronic fatigue|standard treatment/i,
+    },
     { term: 'therapeutic', improvement: 'wellness', severity: 'medium', category: 'medical_claim' },
-    { term: 'medicine', improvement: 'wellness modality', severity: 'high', category: 'medical_claim' },
+    {
+        term: 'medicine',
+        improvement: 'wellness modality',
+        severity: 'high',
+        category: 'medical_claim',
+        allowInContext: /sports medicine|frontiers in medicine|undersea & hyperbaric medicine/i,
+    },
     { term: 'medicinal', improvement: 'wellness', severity: 'high', category: 'medical_claim' },
-    { term: 'clinical', improvement: 'structured', severity: 'medium', category: 'medical_claim', allowInContext: /clinical.*study|clinical.*research|clinical.*evidence/i },
+    {
+        term: 'clinical',
+        improvement: 'structured',
+        severity: 'medium',
+        category: 'medical_claim',
+        allowInContext:
+            /clinical.*(study|research|evidence|trial|workflow|guidance|staff|environments?|experience|significance|clearance|populations?|equipment)|integrative medicine|sports medicine/i,
+    },
     { term: 'prescription', improvement: 'protocol', severity: 'high', category: 'medical_claim' },
     { term: 'diagnose', improvement: 'assess', severity: 'critical', category: 'medical_claim' },
     { term: 'diagnosis', improvement: 'assessment', severity: 'critical', category: 'medical_claim' },
-    { term: 'prevent', improvement: 'support against', severity: 'high', category: 'medical_claim' },
-    { term: 'prevents', improvement: 'may help reduce risk of', severity: 'high', category: 'medical_claim' },
+    {
+        term: 'prevent',
+        improvement: 'support against',
+        severity: 'high',
+        category: 'medical_claim',
+        allowInContext:
+            /fraud prevention|timing attacks|xss attacks|overselling|recreation|scrolling|accessing content|safe participation|parent clicks/i,
+    },
+    {
+        term: 'prevents',
+        improvement: 'may help reduce risk of',
+        severity: 'high',
+        category: 'medical_claim',
+        allowInContext: /timing attacks|xss attacks/i,
+    },
     { term: 'disease', improvement: 'condition', severity: 'medium', category: 'medical_claim', allowInContext: /heart disease|alzheimer's disease|parkinson's disease/i },
     
     // High - Guarantees and absolutes
@@ -69,7 +101,14 @@ const FORBIDDEN_TERMS: ForbiddenTerm[] = [
     { term: 'guaranteed', improvement: 'expected', severity: 'high', category: 'guarantee' },
     { term: 'guarantees', improvement: 'commits to', severity: 'high', category: 'guarantee' },
     { term: '100%', improvement: 'significantly', severity: 'high', category: 'guarantee', allowInContext: /100%.*pure|100%.*natural|100%.*hydrogen/i },
-    { term: 'always', improvement: 'typically', severity: 'medium', category: 'guarantee' },
+    {
+        term: 'always',
+        improvement: 'typically',
+        severity: 'medium',
+        category: 'guarantee',
+        allowInContext:
+            /not always|always be available|always protected|always apply|always consult|always seek|always have a legal basis|always enabled/i,
+    },
     { term: 'never', improvement: 'rarely', severity: 'medium', category: 'guarantee' },
     { term: 'everyone', improvement: 'many people', severity: 'medium', category: 'guarantee' },
     { term: 'all users', improvement: 'most users', severity: 'medium', category: 'guarantee' },
@@ -107,7 +146,7 @@ export const REQUIRED_DISCLAIMER_PATTERNS = {
 } as const;
 
 // Context patterns where compliance checking should be more lenient
-const QUOTE_CONTEXT = /["«»''].+["«»'']/gs;
+const QUOTE_CONTEXT = /["«»''].+["«»'']/s;
 const DISCLAIMER_CONTEXT = /disclaimer|important notice|medical disclaimer/i;
 const CITATION_CONTEXT = /doi:|pubmed|study|research|clinical trial/i;
 

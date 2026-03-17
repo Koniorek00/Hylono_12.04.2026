@@ -105,11 +105,11 @@ export const RltVisual: React.FC = () => {
         <div
             className="absolute inset-0 overflow-hidden pointer-events-none bg-black/5"
             role="img"
-            aria-label="Red Light Therapy visualization showing healing light spectrum with mitochondria activation particles"
+            aria-label="Red Light Therapy visualization showing supportive light spectrum with mitochondria activation particles"
         >
             <div className="absolute inset-0 bg-gradient-to-tr from-red-100/20 to-orange-50/20" aria-hidden="true" />
 
-            {/* Healing Light Grid */}
+            {/* Supportive Light Grid */}
             <div
                 className="absolute inset-0 opacity-20"
                 aria-hidden="true"

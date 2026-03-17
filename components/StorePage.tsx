@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { RentalConfigurator } from './RentalConfigurator';
 import {
@@ -203,11 +204,11 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                 >
                     <Sparkles size={12} /> Research-Grade Bio-Optimization
                 </motion.div>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-4 futuristic-font leading-tight">
+                <h1 id="store-hero-headline" className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-4 futuristic-font leading-tight">
                     Technology <span className="text-cyan-500">+</span> Protocol
                 </h1>
-                <p className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
-                    Every system includes expert-designed protocols and clinical support. Rent to experience, own to commit—either way, you get the complete Hylono ecosystem.
+                <p id="store-hero-description" className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+                    Compare device categories, rental pricing, purchase paths, and protocol fit before you move into specifications, research, and delivery planning.
                 </p>
             </div>
 
@@ -221,12 +222,43 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                 <div className="flex items-center gap-3 px-6 py-3 bg-slate-50 border border-slate-200 rounded-2xl">
                     <Zap size={16} className="text-cyan-500" />
                     <span className="text-sm text-slate-500">Not sure which technology is right for you?</span>
-                    <button
-                        onClick={() => onNavigate('onboarding')}
+                    <Link
+                        href="/wellness-planner"
                         className="text-sm font-bold text-cyan-600 hover:text-cyan-700 flex items-center gap-1 transition-colors"
                     >
-                        Take the 60-second quiz <ChevronRight size={14} />
-                    </button>
+                        Use the guided planner <ChevronRight size={14} />
+                    </Link>
+                </div>
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="mb-12"
+            >
+                <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+                        Planning links
+                    </span>
+                    <Link
+                        href="/rental"
+                        className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                        Rental hub
+                    </Link>
+                    <Link
+                        href="/research"
+                        className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                        Research hub
+                    </Link>
+                    <Link
+                        href="/contact"
+                        className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                        Talk to Hylono
+                    </Link>
                 </div>
             </motion.div>
 
@@ -263,9 +295,9 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
                             {[
-                                { icon: <Truck className="text-cyan-500" size={24} />, title: 'White Glove Delivery', desc: 'Professional installation and protocol onboarding included with every rental.' },
-                                { icon: <ShieldCheck className="text-emerald-500" size={24} />, title: 'Full Coverage Warranty', desc: '100% parts, labor, and performance guarantee throughout your rental.' },
-                                { icon: <ArrowRight className="text-purple-500" size={24} />, title: 'Equity Conversion', desc: 'Apply 50% of rental payments toward ownership. Your investment compounds.' },
+                                { icon: <Truck className="text-cyan-500" size={24} />, title: 'Delivery Planning', desc: 'Large-system logistics and onboarding steps are coordinated with the customer before dispatch.' },
+                                { icon: <ShieldCheck className="text-emerald-500" size={24} />, title: 'Warranty Guidance', desc: 'Coverage terms and support responsibilities are documented per product line and plan type.' },
+                                { icon: <ArrowRight className="text-purple-500" size={24} />, title: 'Upgrade Support', desc: 'Ask the team about purchase-transition options when you want to move beyond a rental phase.' },
                             ].map((item) => (
                                 <motion.div
                                     key={item.title}
@@ -379,9 +411,13 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
 
                                                 <div className="flex items-center gap-3 w-full sm:w-auto">
                                                     {/* Explore CTA */}
-                                                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] group-hover:bg-cyan-500 transition-colors">
+                                                    <Link
+                                                        href={`/product/${tech.id.toLowerCase()}`}
+                                                        onClick={(event) => event.stopPropagation()}
+                                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] group-hover:bg-cyan-500 transition-colors"
+                                                    >
                                                         Explore <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                                    </button>
+                                                    </Link>
                                                     {/* HBOT-only: Browse Chambers CTA */}
                                                     {tech.id === TechType.HBOT && onNavigateChambers && (
                                                         <button
@@ -431,10 +467,10 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
             <div className="mt-24 pt-12 border-t border-slate-100">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 opacity-60">
                     {[
-                        { icon: <ShieldCheck size={20} />, text: "256-bit SSL Encryption" },
+                        { icon: <ShieldCheck size={20} />, text: "Checkout Security" },
                         { icon: <Sparkles size={20} />, text: "Premium Build Quality" },
-                        { icon: <Truck size={20} />, text: "Global Freight Logistics" },
-                        { icon: <CheckCircle size={20} className="text-emerald-500" />, text: "Verified Compliance" }
+                        { icon: <Truck size={20} />, text: "Global Freight Planning" },
+                        { icon: <CheckCircle size={20} className="text-emerald-500" />, text: "Policy-Backed Support" }
                     ].map((badge) => (
                         <div key={badge.text} className="flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {badge.icon}
@@ -446,4 +482,3 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
         </div>
     );
 };
-

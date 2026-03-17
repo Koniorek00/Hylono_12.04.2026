@@ -239,7 +239,7 @@ export const ChamberCompare: React.FC<ChamberCompareProps> = ({
 
             {/* Disclaimer */}
             <p className="text-xs text-slate-400 mt-6 pt-4 border-t border-slate-100">
-                Not intended to diagnose, treat, cure, or prevent any disease. Consult your healthcare provider before use. Specifications subject to change — contact us to confirm current specs before purchase.
+                Designed for general wellbeing use and purchase planning. Confirm suitability with a qualified healthcare professional before use, and contact us to verify the current specification set before purchase.
             </p>
         </div>
     );

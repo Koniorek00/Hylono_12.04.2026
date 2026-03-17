@@ -236,6 +236,9 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                         />
                         <motion.aside
                             key="drawer"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Navigation menu"
                             initial={{ x: -260 }}
                             animate={{ x: 0 }}
                             exit={{ x: -260 }}
@@ -331,9 +334,9 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                 </header>
 
                 {/* Page content */}
-                <main className="flex-1 p-4 md:p-6 lg:p-8">
+                <section className="flex-1 p-4 md:p-6 lg:p-8">
                     {children}
-                </main>
+                </section>
             </div>
         </div>
     );

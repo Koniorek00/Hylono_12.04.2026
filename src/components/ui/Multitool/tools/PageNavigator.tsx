@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * PageNavigator — Dynamic table of contents with scroll-spy and peek tooltips
  * 
@@ -71,7 +73,7 @@ const ReadingProgressBar: React.FC<{
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center justify-between text-[10px] text-slate-400">
+      <div className="flex items-center justify-between text-xs text-slate-400">
         <span className="flex items-center gap-1">
           <Clock size={10} aria-hidden="true" />
           {readingTime} min read
@@ -181,7 +183,7 @@ const NavItem: React.FC<{
         
         {/* Metric preview inline (for key sections) */}
         {section.metric && isActive && (
-          <span className="text-[10px] text-cyan-500 font-medium shrink-0">
+          <span className="text-xs text-cyan-500 font-medium shrink-0">
             {section.metric.value}
           </span>
         )}
@@ -247,7 +249,7 @@ const ScrollToTop: React.FC<{ visible: boolean }> = ({ visible }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
           onClick={scrollToTop}
-          className="w-[calc(100%-24px)] min-h-[36px] rounded-lg mt-2 mx-3
+          className="w-[calc(100%-24px)] min-h-[44px] rounded-lg mt-2 mx-3
             flex items-center justify-center gap-2
             text-xs text-slate-500 bg-slate-50
             hover:bg-slate-100 hover:text-slate-600
@@ -338,7 +340,7 @@ export const PageNavigator: React.FC<PageNavigatorProps> = ({
           On This Page
         </span>
         {hasSections && (
-          <span className="ml-auto text-[10px] text-slate-400">
+          <span className="ml-auto text-xs text-slate-400">
             {sections.length}
           </span>
         )}
@@ -362,7 +364,7 @@ export const PageNavigator: React.FC<PageNavigatorProps> = ({
               key={section.id}
               onClick={() => scrollToSection(section.id)}
               className={`
-                px-2 py-1 rounded text-[10px] font-medium
+                px-2 py-1 rounded text-xs font-medium
                 transition-all duration-200
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
                 ${activeSectionId === section.id 

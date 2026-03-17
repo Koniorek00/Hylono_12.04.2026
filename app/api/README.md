@@ -1,91 +1,39 @@
-# ⚠️ REFERENCE ONLY — ARCHITECTURE DECISION RATIFIED
+# API Routes (App Router)
 
-## Status: Option A Selected — Implementation Pending
+This directory contains **active Next.js App Router route handlers** (`app/api/**/route.ts`) used by the main Hylono application runtime.
 
-**DECISION RATIFIED 2026-02-19**: This directory contains Next.js App Router convention handlers that are **reference-only** in the current Vite SPA runtime.
+## Runtime status
 
-The architecture decision has been made: **Option A — Vite SPA + Separate Node API Backend** (see `reports/TASK-018_RUNTIME_ARCHITECTURE_DECISION_PACKAGE.md`).
+- ✅ Route handlers in this directory are part of the current Next.js runtime.
+- ✅ Contracts here are authoritative for frontend integrations that call `/api/*`.
+- ✅ Conversion-critical routes are now persistence-backed via Drizzle + Neon with explicit degraded-mode responses.
 
-These files serve as **specification/reference** for the new backend implementation. They are NOT executed in the current Vite runtime.
+## Endpoint maturity map
 
----
+| Route | Purpose | Maturity |
+|---|---|---|
+| `/api/contact` | Contact inquiry intake and validation | **Production-ready ingest** (Drizzle persistence + ticketing + Resend fallback) |
+| `/api/newsletter` | Newsletter subscription intake | **Production-ready ingest** (Drizzle persistence + provider sync tracking) |
+| `/api/booking` | Consultation/demo booking intake | **Production-ready ingest** (Drizzle persistence + Resend fallback) |
+| `/api/checkout` | Checkout order + payment intent orchestration | **Production-ready core** (trusted pricing + idempotent Stripe intent + order status persistence) |
+| `/api/rental` | Rental creation and fetch contract | **Production-ready persistence** (Drizzle-backed create/list flows, no in-memory placeholder) |
 
----
+## Contract governance
 
-## What's in here (and what's broken)
+1. Do not introduce new `/api/*` contracts without adding/maintaining corresponding `route.ts` handlers.
+2. Keep request validation server-side (Zod) and sanitize input before logging/persisting.
+3. Avoid PII in operational logs.
+4. For monetary operations, derive economic values from trusted server-side sources.
 
-| Route file | Intended purpose | Status |
-|------------|-----------------|--------|
-| `contact/route.ts` | Contact form submission | ❌ DEAD |
-| `newsletter/route.ts` | Newsletter signup | ❌ DEAD |
-| `checkout/route.ts` | Stripe checkout session creation | ❌ DEAD |
-| `rental-checkout/route.ts` | Rental subscription initiation | ❌ DEAD |
-| `book-demo/route.ts` | Demo booking form | ❌ DEAD |
-| `auth/[...nextauth]/route.ts` | NextAuth.js authentication | ❌ DEAD |
+## Implementation notes
 
-## Frontend ↔ Endpoint Contract Matrix (TASK-023)
+- Database layer standard: **Drizzle + Neon**.
+- Email layer standard: **Resend + React Email**.
+- Security: keep route handlers aligned with platform guardrails (Arcjet/Nosecone integration strategy at boundary level).
 
-The table below documents the currently expected frontend route contracts so UI paths stay internally consistent while architecture decision TASK-018 is pending.
+## Operational behavior highlights
 
-> ⚠️ Important: these endpoints remain non-functional at runtime in the current Vite setup until TASK-018 is resolved.
-
-| Frontend component | Frontend call/link | Expected route key | Handler file in repo | Contract status |
-|---|---|---|---|---|
-| `components/ContactPage.tsx` | `POST /api/contact` | `/api/contact` | `app/api/contact/route.ts` | ✅ Consistent |
-| `components/Newsletter.tsx` | `POST /api/newsletter` | `/api/newsletter` | `app/api/newsletter/route.ts` | ✅ Consistent |
-| `components/CheckoutPage.tsx` | `POST /api/checkout` | `/api/checkout` | `app/api/checkout/route.ts` | ✅ Consistent |
-| `components/BookingModal.tsx` | `POST /api/booking` | `/api/booking` | `app/api/booking/route.ts` | ✅ Consistent |
-| `components/BookDemoModal.tsx` | `POST /api/booking` | `/api/booking` | `app/api/booking/route.ts` | ✅ Fixed in TASK-023 (was `/api/book`) |
-| `components/CookieConsent.tsx` | `href="/privacy"` | `/privacy` route | `components/AppRouter.tsx` (`currentPage === 'privacy'`) | ✅ Fixed in TASK-023 (was `/legal/privacy`) |
-
-### Contract Rules (until TASK-018 closure)
-- Do not introduce new `/api/*` paths in frontend unless matching handler contract is documented.
-- Keep legal links aligned to router keys (`/privacy`, `/terms`, `/shipping`, etc.), not alternate prefixes.
-- Any contract change must be reflected both in component usage and this matrix.
-
-Authentication is currently handled via `lib/mockAuth.ts` (mock only — no real users).
-
----
-
-## Architecture Decision Required (Owner/CTO)
-
-Two viable paths forward:
-
-### Option A — Vite SPA + Separate API Server
-- Keep the Vite frontend as-is
-- Build a separate Express/Fastify/Hono backend (Node.js) or use serverless functions (Vercel, Cloudflare Workers, AWS Lambda)
-- Rewrite these route handlers as standard Express routes or Vercel API functions
-- Connect via environment variable `VITE_API_BASE_URL`
-- **Best for**: teams that want to keep frontend/backend separate, use a dedicated backend language, or already have infrastructure
-
-### Option B — Migrate to Next.js (App Router)
-- Migrate the Vite SPA to Next.js 15+
-- These `app/api/route.ts` files would then work natively
-- Full-stack in one repo, built-in SSR/SSG, Vercel deployment optimized
-- **Best for**: solo/small teams, Vercel hosting, wanting a unified codebase
-- **Effort**: Medium — most components are already compatible; main work is routing migration
-
-### Option C — Vercel Functions (Minimal Change)
-- Keep Vite frontend
-- Add `api/` directory at repo root (Vercel convention, NOT `app/api/`)
-- Vercel will auto-deploy these as serverless functions
-- Rename `route.ts` → `index.ts`, convert to standard Node.js handler format
-- **Best for**: teams already planning Vercel deployment with minimal refactor
-
----
-
-## Blocked Until Decision Made
-- Real Stripe payment integration
-- Real authentication (replace `mockAuth.ts`)
-- Contact/newsletter form functionality
-- Demo booking
-- Rental checkout flow
-
----
-
-## DO NOT delete these files yet
-They contain the intended business logic and can be reused in whichever architecture is chosen. They serve as a spec for what each endpoint must do.
-
-**Date discovered**: 2026-02-18  
-**Discovered by**: Automated audit (Session 4)  
-**Priority**: P0 — Core business functionality blocked
+- Conversion-critical route handlers require database availability (`DATABASE_URL`) and return explicit `503` responses when persistence cannot be guaranteed.
+- Contact and booking flows persist first, then attempt outbound Resend delivery; if delivery fails, API responds with accepted/degraded status instead of dropping the submission.
+- Newsletter flow persists subscriber state, then records provider synchronization outcome (`providerSynced`) after Resend audience upsert attempt.
+- Checkout flow persists order lifecycle states to support observability and reconciliation across card/offline payment branches.

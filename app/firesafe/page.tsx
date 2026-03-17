@@ -6,8 +6,10 @@ export const metadata: Metadata = createPageMetadata({
   title: 'Firesafe',
   description: 'Discover Firesafe oxygen therapy firebreak solutions for clinical and home care environments.',
   path: '/firesafe',
+  forceNoIndex: true,
 });
 
+// [DECISION: SSG because this compliance/informational page is static content.]
 export default function FiresafePageRoute() {
   return <FiresafeClient />;
 }
