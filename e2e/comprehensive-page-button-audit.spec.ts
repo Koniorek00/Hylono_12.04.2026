@@ -28,7 +28,7 @@ const ROUTES_TO_AUDIT = [
   '/partners',
   '/press',
   '/privacy',
-  '/product/mhbot-st1700',
+  '/product/hbot-st1700',
   '/protocols',
   '/protocols/recovery-oxygen-foundation',
   '/rental',

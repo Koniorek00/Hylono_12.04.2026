@@ -363,8 +363,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
 
 // --- Account Dashboard Component ---
 export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType, mode?: string) => void; ownedTech?: TechType[] }> = ({ onNavigate, ownedTech = [] }) => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const user = session?.user;
+    const isPreviewMode = status !== 'loading' && !user;
+    const displayName = user?.name ?? user?.email ?? 'Guest Preview';
     const signOut = () => {
         void authSignOut({ callbackUrl: '/' });
     };
@@ -374,7 +376,7 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
     const activeRentals = [
         {
             id: 'rental-001',
-            productTitle: 'Hylono mHBOT Starter System',
+            productTitle: 'Hylono HBOT Starter System',
             image: '/images/tech/hbot.jpg',
             status: 'active' as const,
             statusLabel: 'Active',
@@ -396,7 +398,7 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
         { id: 'settings', label: 'General', icon: Settings },
     ];
 
-    if (!user) {
+    if (status === 'loading') {
         return (
             <div className="min-h-screen flex items-center justify-center pt-32 pb-24">
                 <Loader2 className="animate-spin text-slate-400" size={32} />
@@ -410,15 +412,28 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-900">My Account</h1>
-                        <p className="text-slate-500">Welcome back, {user.name ?? user.email ?? 'Member'}</p>
+                        <p className="text-slate-500">Welcome back, {displayName}</p>
                     </div>
-                    <button
-                        onClick={signOut}
-                        className="flex items-center gap-2 text-sm text-slate-500 hover:text-red-500 px-4 py-2 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                        <LogOut size={16} /> Sign Out
-                    </button>
+                    {isPreviewMode ? (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-4 py-2 text-xs font-bold uppercase tracking-widest text-amber-800">
+                            Preview Mode
+                        </span>
+                    ) : (
+                        <button
+                            onClick={signOut}
+                            className="flex items-center gap-2 text-sm text-slate-500 hover:text-red-500 px-4 py-2 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                            <LogOut size={16} /> Sign Out
+                        </button>
+                    )}
                 </div>
+
+                {isPreviewMode && (
+                    <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+                        Authentication is not active in this environment, so you are seeing the account dashboard in preview mode.
+                        Interactive member actions remain non-transactional until login is configured.
+                    </div>
+                )}
 
                 <div className="grid md:grid-cols-4 gap-8">
                     {/* Sidebar */}
@@ -517,11 +532,11 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
                                 <div className="space-y-6 max-w-md">
                                     <div>
                                         <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Name</label>
-                                        <input type="text" readOnly value={user.name || ''} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
+                                        <input type="text" readOnly value={user?.name || ''} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Email</label>
-                                        <input type="email" readOnly value={user.email ?? ''} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
+                                        <input type="email" readOnly value={user?.email ?? ''} className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed" />
                                     </div>
                                     <div className="pt-2">
                                         <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors">
@@ -643,4 +658,3 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
         </div>
     );
 };
-

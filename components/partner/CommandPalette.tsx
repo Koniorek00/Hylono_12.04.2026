@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRouter } from 'next/navigation';
@@ -44,26 +46,26 @@ export const CommandPalette: React.FC = () => {
     // Mock Data for Search
     const ITEMS: CommandItem[] = [
         // Tools
-        { id: 't1', label: 'Dashboard', category: 'Tools', icon: LayoutDashboard, href: '/partner/dashboard' },
-        { id: 't2', label: 'Fleet Health', category: 'Tools', icon: Wrench, href: '/partner/fleet' },
-        { id: 't3', label: 'Supply & Shop', category: 'Tools', icon: ShoppingBag, href: '/partner/shop' },
-        { id: 't4', label: 'Nexus (CRM)', category: 'Tools', icon: Activity, href: '/partner/nexus' },
-        { id: 't5', label: 'Documents', category: 'Tools', icon: FileText, href: '/partner/docs' },
-        { id: 't6', label: 'Marketing Studio', category: 'Tools', icon: Palette, href: '/partner/studio' },
-        { id: 't7', label: 'Academy', category: 'Tools', icon: GraduationCap, href: '/partner/academy' },
+        { id: 't1', label: 'Dashboard', category: 'Tools', icon: LayoutDashboard, href: '/nexus' },
+        { id: 't2', label: 'Fleet Health', category: 'Tools', icon: Wrench, href: '/nexus/fleet' },
+        { id: 't3', label: 'Supply & Shop', category: 'Tools', icon: ShoppingBag, href: '/nexus/supplies' },
+        { id: 't4', label: 'Clients', category: 'Tools', icon: Activity, href: '/nexus/clients' },
+        { id: 't5', label: 'Documents', category: 'Tools', icon: FileText, href: '/nexus/docs' },
+        { id: 't6', label: 'Marketing Studio', category: 'Tools', icon: Palette, href: '/nexus/studio' },
+        { id: 't7', label: 'Academy', category: 'Tools', icon: GraduationCap, href: '/nexus/academy' },
 
         // Actions
-        { id: 'a1', label: 'Add New Patient', description: 'Register a new client in Nexus', category: 'Actions', icon: Plus, href: '/partner/nexus?action=new' },
-        { id: 'a2', label: 'Log Device Maintenance', description: 'Report an issue or routine check', category: 'Actions', icon: Wrench, href: '/partner/fleet?action=log' },
-        { id: 'a3', label: 'Create New Campaign', description: 'Design a new marketing asset', category: 'Actions', icon: Palette, href: '/partner/studio?action=new' },
+        { id: 'a1', label: 'Add New Patient', description: 'Register a new client in Clients', category: 'Actions', icon: Plus, href: '/nexus/clients?action=new' },
+        { id: 'a2', label: 'Log Device Maintenance', description: 'Report an issue or routine check', category: 'Actions', icon: Wrench, href: '/nexus/fleet?action=log' },
+        { id: 'a3', label: 'Create New Campaign', description: 'Design a new marketing asset', category: 'Actions', icon: Palette, href: '/nexus/studio?action=new' },
 
         // Mock Patients (Dynamic in real app)
-        { id: 'p1', label: 'James Wilson', description: 'Active • Last visit: Jan 14', category: 'Patients', icon: Users, href: '/partner/nexus?patient=1' },
-        { id: 'p2', label: 'Sarah Connor', description: 'Active • Last visit: Jan 10', category: 'Patients', icon: Users, href: '/partner/nexus?patient=2' },
+        { id: 'p1', label: 'James Wilson', description: 'Active • Last visit: Jan 14', category: 'Patients', icon: Users, href: '/nexus/clients?patient=1' },
+        { id: 'p2', label: 'Sarah Connor', description: 'Active • Last visit: Jan 10', category: 'Patients', icon: Users, href: '/nexus/clients?patient=2' },
 
         // System
         { id: 's1', label: 'Back to Website', category: 'System', icon: Home, href: '/' },
-        { id: 's2', label: 'Settings', category: 'System', icon: Settings, href: '/partner/settings' },
+        { id: 's2', label: 'Settings', category: 'System', icon: Settings, href: '/account' },
         { id: 's3', label: 'Log Out', category: 'System', icon: LogOut, action: () => signOut({ callbackUrl: '/login' }) },
     ];
 
@@ -246,7 +248,7 @@ export const CommandPalette: React.FC = () => {
                                 <span><strong className="text-slate-600">↵</strong> Select</span>
                             </div>
                             <div>
-                                Hylono OS
+                                Hylono Nexus
                             </div>
                         </div>
                     </motion.div>
@@ -255,4 +257,3 @@ export const CommandPalette: React.FC = () => {
         </AnimatePresence>
     );
 };
-

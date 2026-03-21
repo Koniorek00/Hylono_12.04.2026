@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { scryptSync, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { env } from '@/lib/env';
+import { resolveAuthSecret } from '@/lib/auth-secret';
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -43,7 +44,11 @@ const verifyScryptPassword = (
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
-  secret: env.NEXTAUTH_SECRET,
+  secret: resolveAuthSecret({
+    explicitSecret: env.NEXTAUTH_SECRET,
+    nodeEnv: env.NODE_ENV,
+    allowProductionFallback: process.env.VERCEL !== '1',
+  }),
   providers: [
     Credentials({
       name: 'Credentials',

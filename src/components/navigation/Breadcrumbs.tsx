@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { List, ChevronDown } from 'lucide-react';
+import { ArrowUp, List, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { PageNavigatorDropdown } from '../ui/BreadcrumbBar/PageNavigatorDropdown';
@@ -12,13 +12,14 @@ import {
 
 interface BreadcrumbsProps {
   pathParts: string[];
+  showPageNavigator?: boolean;
 }
 
 const capitalizeWords = (str: string): string =>
   str.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 
 const PAGE_LABELS: Record<string, string> = {
-  home: 'Concept',
+  home: 'Home',
   product: 'Store',
   'wellness-planner': 'Wellness Planner',
   dashboard: 'Portal',
@@ -61,7 +62,10 @@ const dropdownVariants: Variants = {
   },
 };
 
-export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ pathParts }) => {
+export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
+  pathParts,
+  showPageNavigator = true,
+}) => {
   const parts = pathParts.filter((part) => part !== '');
   const reduced = useReducedMotion();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -69,7 +73,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ pathParts }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Concept', href: '/' },
+    { label: 'Home', href: '/' },
     ...parts.map((part, index) => {
       const label = PAGE_LABELS[part] || capitalizeWords(part);
       const isLast = index === parts.length - 1;
@@ -122,68 +126,101 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ pathParts }) => {
     };
   }, [isDropdownOpen]);
 
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: reduced ? 'auto' : 'smooth',
+    });
+  };
+
   if (parts.length === 0 || (parts.length === 1 && parts[0] === 'home')) {
     return null;
   }
 
   return (
-    <nav aria-label="Page breadcrumb and navigation" className="futuristic-font mx-auto flex max-w-7xl items-center justify-between px-6 text-[13px] font-medium tracking-[0.2em] text-slate-400 uppercase">
-      <div className="flex items-center space-x-2">
-        <BreadcrumbNav items={breadcrumbItems} />
+    <nav
+      aria-label="Page breadcrumb and navigation"
+      className="futuristic-font mx-auto flex max-w-7xl flex-col gap-2 px-4 text-[11px] font-medium tracking-[0.08em] text-slate-500 normal-case sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-6 sm:text-[13px] sm:tracking-[0.16em] sm:uppercase"
+    >
+      <div className="min-w-0 flex-1">
+        <BreadcrumbNav items={breadcrumbItems} showHomeIcon={false} />
       </div>
 
-      <div className="relative">
-        <button
-          ref={buttonRef}
-          onClick={() => setIsDropdownOpen((prev) => !prev)}
-          className={`
-            flex items-center gap-1.5 rounded-lg px-3 py-1.5
-            text-[11px] font-medium tracking-[0.15em] uppercase
-            transition-all duration-200
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
-            ${
-              isDropdownOpen
-                ? 'bg-slate-900 text-white'
-                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
-            }
-          `}
-          aria-expanded={isDropdownOpen}
-          aria-haspopup="menu"
-          aria-label="Page sections navigation"
-        >
-          <List size={12} aria-hidden="true" />
-          <span className="hidden sm:inline">On This Page</span>
-          <span className="sm:hidden">Navigate</span>
-          <motion.span
-            animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-            transition={reduced ? { duration: 0 } : { duration: 0.2 }}
+      {showPageNavigator ? (
+        <div className="flex w-full shrink-0 items-center justify-end gap-2 self-start rounded-xl border border-slate-200/80 bg-white/80 px-1 py-1 shadow-sm shadow-slate-200/60 backdrop-blur-sm sm:ml-4 sm:w-auto sm:self-auto">
+          <button
+            type="button"
+            onClick={handleScrollToTop}
+            className="
+              flex h-8 w-8 items-center justify-center rounded-lg border border-transparent
+              text-slate-500 transition-all duration-200
+              hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
+              sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-1.5
+              sm:text-[11px] sm:font-medium sm:tracking-[0.15em] sm:uppercase
+            "
+            aria-label="Back to top"
+            title="Back to top"
           >
-            <ChevronDown size={12} aria-hidden="true" />
-          </motion.span>
-        </button>
+            <ArrowUp size={12} aria-hidden="true" />
+            <span className="hidden sm:inline">Back to top</span>
+          </button>
 
-        <AnimatePresence>
-          {isDropdownOpen && (
-            <motion.div
-              ref={dropdownRef}
-              variants={reduced ? undefined : dropdownVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              className="
-                absolute right-0 mt-2
-                w-[280px] max-w-[calc(100vw-48px)]
-                overflow-hidden rounded-xl border border-slate-200
-                bg-white/95 shadow-xl shadow-slate-900/15 backdrop-blur-md
-              "
-              role="menu"
-              aria-label="Page sections"
+          <div className="relative">
+            <button
+              ref={buttonRef}
+              type="button"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className={`
+                flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5
+                text-[11px] font-medium tracking-[0.15em] uppercase
+                transition-all duration-200
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
+                ${
+                  isDropdownOpen
+                    ? 'border-slate-900 bg-slate-900 text-white'
+                    : 'text-slate-500 hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700'
+                }
+              `}
+              aria-expanded={isDropdownOpen}
+              aria-haspopup="menu"
+              aria-label="Page sections navigation"
             >
-              <PageNavigatorDropdown onSectionClick={() => setIsDropdownOpen(false)} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+              <List size={12} aria-hidden="true" />
+              <span className="hidden sm:inline">On This Page</span>
+              <span className="sm:hidden">Navigate</span>
+              <motion.span
+                animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                transition={reduced ? { duration: 0 } : { duration: 0.2 }}
+              >
+                <ChevronDown size={12} aria-hidden="true" />
+              </motion.span>
+            </button>
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  ref={dropdownRef}
+                  variants={reduced ? undefined : dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  className="
+                    absolute right-0 mt-2
+                    w-72 max-w-[90vw]
+                    overflow-hidden rounded-xl border border-slate-200
+                    bg-white/95 shadow-xl shadow-slate-900/15 backdrop-blur-md
+                  "
+                  role="menu"
+                  aria-label="Page sections"
+                >
+                  <PageNavigatorDropdown onSectionClick={() => setIsDropdownOpen(false)} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      ) : null}
     </nav>
   );
 };

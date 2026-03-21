@@ -31,7 +31,7 @@ export default function RentalPageRoute() {
     answer: item.a,
   }));
   const RENTAL_MODALITY_TO_PRODUCT_SLUG: Record<string, string> = {
-    mHBOT: 'hbot',
+    HBOT: 'hbot',
     H2: 'hydrogen',
     RLT: 'rlt',
     PEMF: 'pemf',
@@ -81,7 +81,7 @@ export default function RentalPageRoute() {
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
             about: [
-              { '@type': 'Product', '@id': `${SITE_URL}/product/hbot#product`, name: 'Hylono mHBOT', url: `${SITE_URL}/product/hbot` },
+              { '@type': 'Product', '@id': `${SITE_URL}/product/hbot#product`, name: 'Hylono HBOT', url: `${SITE_URL}/product/hbot` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/hydrogen#product`, name: 'Hylono Hydrogen', url: `${SITE_URL}/product/hydrogen` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/rlt#product`, name: 'Hylono PBM / Red Light', url: `${SITE_URL}/product/rlt` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/pemf#product`, name: 'Hylono PEMF + VNS', url: `${SITE_URL}/product/pemf` },

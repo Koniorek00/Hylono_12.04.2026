@@ -57,7 +57,7 @@
 ## Alt Text Standards
 ```
 Product shots: "[Product name] [key angle/feature] - Hylono"
-Example: "Hylono mHBOT Chamber side view showing zipper entry - Hylono"
+Example: "Hylono HBOT Chamber side view showing zipper entry - Hylono"
 
 Lifestyle: "[Activity] with [device] in [setting]"
 Example: "Person relaxing in hyperbaric oxygen chamber at home"

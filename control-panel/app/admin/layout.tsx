@@ -1,6 +1,7 @@
 import { getManifest } from "@/lib/manifest";
 import { SidebarNav } from "@/components/SidebarNav";
 import { CommandPalette } from "@/components/CommandPalette";
+import { QuickActions } from "@/components/QuickActions";
 import type { ReactNode } from "react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -12,6 +13,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <SidebarNav />
       <main className="flex-1 overflow-x-hidden min-w-0">{children}</main>
       <CommandPalette services={allServices} />
+      <QuickActions services={allServices} />
     </div>
   );
 }

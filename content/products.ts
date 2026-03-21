@@ -3,7 +3,7 @@ export interface HylonoProduct {
   slug: string;
   title: string;
   shortDescription: string;
-  modality: 'mHBOT' | 'H2_inhalation' | 'H2_water' | 'RLT_NIR' | 'PEMF' | 'VNS' | 'O2';
+  modality: 'HBOT' | 'H2_inhalation' | 'H2_water' | 'RLT_NIR' | 'PEMF' | 'VNS' | 'O2';
   intendedUse: 'home_wellness' | 'professional_wellness' | 'sport_recovery';
 
   purchasePrice: number;
@@ -54,12 +54,12 @@ export interface HylonoProduct {
 
 export const products: HylonoProduct[] = [
   {
-    id: 'mhbot-st1700',
-    slug: 'mhbot-st1700',
-    title: 'mHBOT ST1700',
+    id: 'hbot-st1700',
+    slug: 'hbot-st1700',
+    title: 'HBOT ST1700',
     shortDescription:
       'A premium mild hyperbaric chamber designed to support recovery, cognitive clarity, and structured daily wellness routines at home.',
-    modality: 'mHBOT',
+    modality: 'HBOT',
     intendedUse: 'home_wellness',
     purchasePrice: 24900,
     financingEligible: true,
@@ -77,7 +77,7 @@ export const products: HylonoProduct[] = [
       { period: '6 months', monthlyPrice: 1099, minPeriod: '6 months', deposit: 2500 },
     ],
     tradeInEligible: true,
-    images: ['/images/mhbot-st1700-hero.webp', '/images/mhbot-st1700-interior.webp'],
+    images: ['/images/hbot-st1700-hero.webp', '/images/hbot-st1700-interior.webp'],
     specifications: [
       {
         label: 'Pressure range',
@@ -177,7 +177,7 @@ export const products: HylonoProduct[] = [
     protocolIds: ['stress-balance-h2-foundation', 'vitality-dual-stack'],
     evidenceIds: ['ev-h2-001', 'ev-h2-002', 'ev-h2-003'],
     goalTags: ['stress', 'comfort', 'vitality'],
-    synergiesWith: ['mhbot-st1700'],
+    synergiesWith: ['hbot-st1700'],
     reviewCount: 0,
     selectionRationale:
       'We selected this system for purity consistency, practical home footprint, and protocol flexibility across inhalation and hydration use cases.',

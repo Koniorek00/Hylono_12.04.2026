@@ -1,0 +1,381 @@
+{
+  "packVersion": "2026-03-20.medtech-operator.v1",
+  "description": "Local medtech-oriented operator notifications for the generic Hylono Novu workflow.",
+  "workflow": {
+    "defaultWorkflowId": "powiadomienia",
+    "requiredChannels": [
+      "in_app"
+    ],
+    "deliveryMode": "generic-workflow-trigger"
+  },
+  "subscribers": [
+    {
+      "role": "ops",
+      "email": "ops@hylono.com",
+      "firstName": "Operations",
+      "lastName": "Queue",
+      "team": "Operations"
+    },
+    {
+      "role": "support",
+      "email": "support@hylono.com",
+      "firstName": "Support",
+      "lastName": "Desk",
+      "team": "Support"
+    },
+    {
+      "role": "contact",
+      "email": "contact@hylono.com",
+      "firstName": "Contact",
+      "lastName": "Desk",
+      "team": "Front Desk"
+    }
+  ],
+  "events": [
+    {
+      "eventName": "operator.intake.received",
+      "templateKey": "intake-received",
+      "source": "operator:intake-received",
+      "severity": "medium",
+      "audienceRoles": [
+        "contact",
+        "support"
+      ],
+      "titleTemplate": "Intake received: {{payload.recordType}} {{payload.recordId}}",
+      "messageTemplate": "{{payload.customerName}} submitted a {{payload.intakeChannel}} intake for {{payload.recordType}}. Review {{payload.queueName}} before {{payload.responseSlaLabel}}.",
+      "payloadSchema": {
+        "required": [
+          "recordId",
+          "recordType",
+          "intakeChannel",
+          "customerName",
+          "queueName",
+          "responseSlaLabel",
+          "queueUrl",
+          "submittedAt"
+        ],
+        "properties": {
+          "recordId": {
+            "type": "string",
+            "description": "Stable intake or ticket reference from the upstream intake system."
+          },
+          "recordType": {
+            "type": "string",
+            "description": "Operator-facing intake category such as contact-rental or consultation."
+          },
+          "intakeChannel": {
+            "type": "string",
+            "description": "Originating intake source such as contact-form, booking-form, or rental-api."
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Display name for the person or organization that submitted the intake."
+          },
+          "customerEmail": {
+            "type": "string",
+            "description": "Contact mailbox to help operators reconcile the intake."
+          },
+          "queueName": {
+            "type": "string",
+            "description": "Readable queue label for the operator inbox or CRM workspace."
+          },
+          "responseSlaLabel": {
+            "type": "string",
+            "description": "Operator response target such as 15 minutes or same day."
+          },
+          "queueUrl": {
+            "type": "string",
+            "description": "Direct link to the operator queue."
+          },
+          "submittedAt": {
+            "type": "string",
+            "description": "ISO-8601 submission timestamp."
+          }
+        }
+      },
+      "samplePayload": {
+        "recordId": "INTAKE-LOCAL-001",
+        "recordType": "contact-rental",
+        "intakeChannel": "contact-form",
+        "customerName": "Anna Kowalska",
+        "customerEmail": "anna.kowalska@example.com",
+        "queueName": "Medtech Intake Queue",
+        "responseSlaLabel": "15 minutes",
+        "queueUrl": "http://localhost:8107",
+        "submittedAt": "2026-03-20T08:30:00Z"
+      }
+    },
+    {
+      "eventName": "operator.booking.confirmed",
+      "templateKey": "booking-confirmed",
+      "source": "operator:booking-confirmed",
+      "severity": "medium",
+      "audienceRoles": [
+        "ops",
+        "support"
+      ],
+      "titleTemplate": "Booking confirmed: {{payload.bookingRef}}",
+      "messageTemplate": "{{payload.customerName}} is confirmed for a {{payload.bookingType}} on {{payload.scheduledForLocal}}. Open {{payload.calendarLabel}} for operator preparation.",
+      "payloadSchema": {
+        "required": [
+          "bookingRef",
+          "bookingType",
+          "customerName",
+          "scheduledForLocal",
+          "timezone",
+          "calendarLabel",
+          "calendarUrl",
+          "operatorName"
+        ],
+        "properties": {
+          "bookingRef": {
+            "type": "string",
+            "description": "Stable booking reference used across Cal.com, CRM, and support workflows."
+          },
+          "bookingType": {
+            "type": "string",
+            "description": "Operator-facing booking type such as consultation, demo, or follow-up."
+          },
+          "customerName": {
+            "type": "string",
+            "description": "Display name for the booked person."
+          },
+          "scheduledForLocal": {
+            "type": "string",
+            "description": "Readable local appointment time."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone identifier attached to the booking."
+          },
+          "calendarLabel": {
+            "type": "string",
+            "description": "Readable calendar or event type label."
+          },
+          "calendarUrl": {
+            "type": "string",
+            "description": "Direct link to the operator calendar entry or booking page."
+          },
+          "operatorName": {
+            "type": "string",
+            "description": "Assigned operator or queue owner."
+          },
+          "techFocus": {
+            "type": "string",
+            "description": "Optional therapy or technology context for operator prep."
+          }
+        }
+      },
+      "samplePayload": {
+        "bookingRef": "BK-LOCAL-001",
+        "bookingType": "consultation",
+        "customerName": "Piotr Nowak",
+        "scheduledForLocal": "2026-03-21 10:30 Europe/Warsaw",
+        "timezone": "Europe/Warsaw",
+        "calendarLabel": "Cal.com Operator Schedule",
+        "calendarUrl": "http://localhost:8106",
+        "operatorName": "Hylono Operator",
+        "techFocus": "HBOT"
+      }
+    },
+    {
+      "eventName": "operator.followup.reminder",
+      "templateKey": "followup-reminder",
+      "source": "operator:followup-reminder",
+      "severity": "medium",
+      "audienceRoles": [
+        "support"
+      ],
+      "titleTemplate": "Follow-up due: {{payload.followUpId}}",
+      "messageTemplate": "{{payload.personName}} needs {{payload.nextAction}} by {{payload.dueAtLocal}}. This follow-up has been open for {{payload.daysOpen}} day(s).",
+      "payloadSchema": {
+        "required": [
+          "followUpId",
+          "personName",
+          "nextAction",
+          "dueAtLocal",
+          "crmUrl",
+          "owner",
+          "daysOpen"
+        ],
+        "properties": {
+          "followUpId": {
+            "type": "string",
+            "description": "Stable CRM follow-up or task reference."
+          },
+          "personName": {
+            "type": "string",
+            "description": "Person tied to the follow-up."
+          },
+          "nextAction": {
+            "type": "string",
+            "description": "Plain-language next step the operator should take."
+          },
+          "dueAtLocal": {
+            "type": "string",
+            "description": "Readable due date and time for the follow-up."
+          },
+          "crmUrl": {
+            "type": "string",
+            "description": "Direct link to the CRM queue or task."
+          },
+          "owner": {
+            "type": "string",
+            "description": "Assigned owner or queue name."
+          },
+          "daysOpen": {
+            "type": "number",
+            "description": "Age of the follow-up in days."
+          },
+          "ticketRef": {
+            "type": "string",
+            "description": "Related contact or booking reference."
+          }
+        }
+      },
+      "samplePayload": {
+        "followUpId": "FU-LOCAL-001",
+        "personName": "Maria Zielinska",
+        "nextAction": "call and confirm intake details",
+        "dueAtLocal": "2026-03-20 14:00 Europe/Warsaw",
+        "crmUrl": "http://localhost:8107",
+        "owner": "Support Queue",
+        "daysOpen": 2,
+        "ticketRef": "HYL-LOCAL-001"
+      }
+    },
+    {
+      "eventName": "operator.digest.daily",
+      "templateKey": "digest-daily",
+      "source": "operator:digest-daily",
+      "severity": "low",
+      "audienceRoles": [
+        "ops"
+      ],
+      "titleTemplate": "Daily operator digest: {{payload.digestDate}}",
+      "messageTemplate": "{{payload.newIntakes}} new intakes, {{payload.pendingBookings}} pending bookings, {{payload.overdueFollowUps}} overdue follow-ups, {{payload.openEscalations}} open escalations. Review {{payload.digestUrl}}.",
+      "payloadSchema": {
+        "required": [
+          "digestDate",
+          "newIntakes",
+          "pendingBookings",
+          "overdueFollowUps",
+          "openEscalations",
+          "digestUrl"
+        ],
+        "properties": {
+          "digestDate": {
+            "type": "string",
+            "description": "Operator digest date label."
+          },
+          "newIntakes": {
+            "type": "number",
+            "description": "New intakes since the last digest."
+          },
+          "pendingBookings": {
+            "type": "number",
+            "description": "Bookings still waiting for operator action."
+          },
+          "overdueFollowUps": {
+            "type": "number",
+            "description": "Follow-ups past their due date."
+          },
+          "openEscalations": {
+            "type": "number",
+            "description": "Escalations currently open."
+          },
+          "digestUrl": {
+            "type": "string",
+            "description": "Operator dashboard or digest link."
+          },
+          "primaryFocus": {
+            "type": "string",
+            "description": "Optional one-line focus note for the shift."
+          }
+        }
+      },
+      "samplePayload": {
+        "digestDate": "2026-03-20",
+        "newIntakes": 6,
+        "pendingBookings": 3,
+        "overdueFollowUps": 2,
+        "openEscalations": 1,
+        "digestUrl": "http://localhost:8107",
+        "primaryFocus": "Clear same-day intake queue before noon."
+      }
+    },
+    {
+      "eventName": "operator.escalation.raised",
+      "templateKey": "escalation-raised",
+      "source": "operator:escalation-raised",
+      "severity": "high",
+      "audienceRoles": [
+        "ops",
+        "support"
+      ],
+      "titleTemplate": "Escalation raised: {{payload.escalationId}}",
+      "messageTemplate": "{{payload.reason}} for {{payload.recordType}} {{payload.recordId}} requires action within {{payload.slaMinutes}} minutes.",
+      "payloadSchema": {
+        "required": [
+          "escalationId",
+          "reason",
+          "recordType",
+          "recordId",
+          "severity",
+          "slaMinutes",
+          "actionUrl",
+          "openedAt"
+        ],
+        "properties": {
+          "escalationId": {
+            "type": "string",
+            "description": "Stable escalation reference."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Operator-readable reason the escalation was created."
+          },
+          "recordType": {
+            "type": "string",
+            "description": "Type of source record, such as intake, booking, or follow-up."
+          },
+          "recordId": {
+            "type": "string",
+            "description": "Identifier of the impacted source record."
+          },
+          "severity": {
+            "type": "string",
+            "description": "Escalation severity label."
+          },
+          "slaMinutes": {
+            "type": "number",
+            "description": "Maximum response time in minutes."
+          },
+          "actionUrl": {
+            "type": "string",
+            "description": "Direct link to the escalation queue or case."
+          },
+          "openedAt": {
+            "type": "string",
+            "description": "ISO-8601 timestamp for when the escalation opened."
+          },
+          "owner": {
+            "type": "string",
+            "description": "Assigned responder or queue."
+          }
+        }
+      },
+      "samplePayload": {
+        "escalationId": "ESC-LOCAL-001",
+        "reason": "High-priority intake has no assigned follow-up owner",
+        "recordType": "intake",
+        "recordId": "INTAKE-LOCAL-001",
+        "severity": "high",
+        "slaMinutes": 30,
+        "actionUrl": "http://localhost:8107",
+        "openedAt": "2026-03-20T08:45:00Z",
+        "owner": "Operations Queue"
+      }
+    }
+  ]
+}

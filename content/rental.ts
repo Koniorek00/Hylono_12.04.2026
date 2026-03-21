@@ -1,7 +1,7 @@
 import { products } from './products';
 
 export type RentalBudgetFilter = 'all' | 'upto-500' | '500-1000' | '1000-2000' | '2000-plus';
-export type RentalTechnologyFilter = 'all' | 'mHBOT' | 'H2' | 'RLT' | 'PEMF';
+export type RentalTechnologyFilter = 'all' | 'HBOT' | 'H2' | 'RLT' | 'PEMF';
 
 export const rentalLandingContent = {
   hero: {
@@ -78,13 +78,13 @@ export const rentalLandingContent = {
 } as const;
 
 const modalityDisplayMap: Record<string, RentalTechnologyFilter> = {
-  mHBOT: 'mHBOT',
+  HBOT: 'HBOT',
   H2_inhalation: 'H2',
   H2_water: 'H2',
   RLT_NIR: 'RLT',
   PEMF: 'PEMF',
   VNS: 'PEMF',
-  O2: 'mHBOT',
+  O2: 'HBOT',
 };
 
 export const rentalProducts = products

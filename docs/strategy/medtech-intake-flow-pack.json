@@ -1,0 +1,172 @@
+{
+  "version": "2026-03-20",
+  "sourcePolicy": "official-primary-sources-only",
+  "primaryTools": {
+    "n8n": {
+      "role": "webhook intake and orchestration",
+      "recommendedPatterns": [
+        "Webhook node with production URL and explicit response mode",
+        "Respond to Webhook for controlled acknowledgements",
+        "Use stable external IDs for idempotency",
+        "Use fast responses and move heavy work to downstream steps"
+      ],
+      "officialSources": [
+        "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/",
+        "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.respondtowebhook/",
+        "https://docs.n8n.io/workflows/templates/"
+      ]
+    },
+    "twenty": {
+      "role": "crm follow-up and workflow-native record management",
+      "recommendedPatterns": [
+        "People, Companies, Opportunities, Notes, and Tasks as the core follow-up model",
+        "Record is Created or Updated for manual-record safety",
+        "Upsert Record when match keys are stable",
+        "Search Records before Update Record when the target is not already identified",
+        "Use workflow forms only for manual trigger workflows"
+      ],
+      "officialSources": [
+        "https://docs.twenty.com/user-guide/data-model/objects",
+        "https://docs.twenty.com/user-guide/data-model",
+        "https://docs.twenty.com/user-guide/workflows/capabilities/workflow-triggers",
+        "https://docs.twenty.com/user-guide/workflows/capabilities/workflow-actions",
+        "https://docs.twenty.com/user-guide/views-pipelines/set-up-a-sales-pipeline"
+      ]
+    },
+    "novu": {
+      "role": "workflow-based notifications",
+      "recommendedPatterns": [
+        "Use environment-specific and versioned workflows",
+        "Use subscribers with metadata and preferences",
+        "Use topics for group fan-out",
+        "Duplicate or create from template instead of rebuilding workflows from scratch"
+      ],
+      "officialSources": [
+        "https://docs.novu.co/platform/how-novu-works",
+        "https://docs.novu.co/platform/concepts/topics",
+        "https://docs.novu.co/platform/concepts/subscribers",
+        "https://docs.novu.co/platform/workflow/create-a-workflow"
+      ]
+    },
+    "calcom": {
+      "role": "qualification and scheduling",
+      "recommendedPatterns": [
+        "Create reusable event types first",
+        "Use routing forms to screen and route bookers",
+        "Use booking webhooks for downstream automation",
+        "Use event-type or organization-level webhook scope deliberately"
+      ],
+      "officialSources": [
+        "https://cal.com/help/event-types/event-types",
+        "https://cal.com/help/event-types/create-first-event",
+        "https://cal.com/routing-forms",
+        "https://cal.com/help/webhooks"
+      ]
+    },
+    "documenso": {
+      "role": "templates, direct links, and signed-document lifecycle",
+      "recommendedPatterns": [
+        "Use templates as the reusable consent primitive",
+        "Use direct links when the recipient is not known in advance",
+        "Use API-created signing when the recipient is already known",
+        "Provision a signing certificate for self-hosted instances"
+      ],
+      "officialSources": [
+        "https://docs.documenso.com/docs/users",
+        "https://docs.documenso.com/docs/users/documents/direct-links",
+        "https://docs.documenso.com/developers",
+        "https://docs.documenso.com/developers/self-hosting/signing-certificate"
+      ]
+    }
+  },
+  "recommendedLanes": [
+    {
+      "id": "intake-to-crm",
+      "name": "Intake to CRM to notification",
+      "purpose": "Contact, referral, partner, and triage intake.",
+      "sourceTools": ["n8n", "Twenty", "Novu"],
+      "trigger": {
+        "tool": "n8n",
+        "pattern": "Webhook node"
+      },
+      "recordModel": {
+        "twentyObjects": ["People", "Companies", "Opportunities", "Tasks", "Notes"],
+        "idempotencyField": "externalId"
+      },
+      "actions": [
+        "Normalize payload",
+        "Upsert People and Companies",
+        "Upsert or update Opportunity",
+        "Create Task for owner follow-up",
+        "Notify a topic or subscriber set in Novu"
+      ]
+    },
+    {
+      "id": "consent-first-onboarding",
+      "name": "Consent-first onboarding",
+      "purpose": "Send reusable agreements or consent forms before the next step.",
+      "sourceTools": ["Twenty", "Documenso", "Novu"],
+      "trigger": {
+        "tool": "Twenty",
+        "pattern": "Record is Created or Updated"
+      },
+      "recordModel": {
+        "twentyObjects": ["People", "Companies", "Opportunities", "Tasks"],
+        "documensoMode": "template or direct link"
+      },
+      "actions": [
+        "Select the appropriate consent template",
+        "Issue a Documenso direct link or signing token",
+        "Persist signature completion state",
+        "Send confirmation and next-step notification"
+      ]
+    },
+    {
+      "id": "scheduling-qualification",
+      "name": "Scheduling qualification",
+      "purpose": "Ask screening questions before booking the right slot.",
+      "sourceTools": ["Cal.com", "n8n", "Twenty", "Novu"],
+      "trigger": {
+        "tool": "Cal.com",
+        "pattern": "Routing form or booking webhook"
+      },
+      "recordModel": {
+        "twentyObjects": ["People", "Companies", "Opportunities", "Tasks"],
+        "calcomObjects": ["Event Types", "Routing Forms", "Webhooks"]
+      },
+      "actions": [
+        "Screen attendee with routing questions",
+        "Route to the correct event type or team member",
+        "Send booking webhook to n8n",
+        "Update CRM stage and owner task",
+        "Send confirmation and reminder notifications"
+      ]
+    },
+    {
+      "id": "reminder-ladder",
+      "name": "Reminder ladder",
+      "purpose": "Reduce no-shows and complete consent or onboarding.",
+      "sourceTools": ["Twenty", "n8n", "Novu"],
+      "trigger": {
+        "tool": "Twenty",
+        "pattern": "Scheduled workflow or overdue task"
+      },
+      "recordModel": {
+        "twentyObjects": ["Tasks", "Opportunities", "Notes"]
+      },
+      "actions": [
+        "Check for overdue tasks or missing completion events",
+        "Send first reminder in Novu",
+        "Escalate through n8n after delay if still incomplete",
+        "Update record stage or owner if needed"
+      ]
+    }
+  ],
+  "defaultGuidance": [
+    "Prefer reusable templates over one-off documents or notifications.",
+    "Prefer upsert and stable keys over create-only writes.",
+    "Prefer routing before booking when qualification matters.",
+    "Prefer topics for group notifications and subscriber IDs for individual notifications.",
+    "Keep webhook responses explicit and fast."
+  ]
+}

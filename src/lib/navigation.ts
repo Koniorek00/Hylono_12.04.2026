@@ -1,7 +1,7 @@
 import type { TechType } from '../../types';
 
 export interface RouterPushLike {
-  push: (href: string) => void;
+  push: (href: string, options?: { scroll?: boolean }) => void;
 }
 
 type NavigationContext = 'default' | 'footer';
@@ -78,10 +78,7 @@ export const getCurrentPageFromPathname = (pathname: string): string => {
 };
 
 export const navigateWithScroll = (router: RouterPushLike, href: string): void => {
-  router.push(href);
-  if (typeof window !== 'undefined') {
-    window.scrollTo(0, 0);
-  }
+  router.push(href, { scroll: true });
 };
 
 export const navigateToPage = (router: RouterPushLike, page: string): void => {

@@ -148,7 +148,7 @@ const HBOT_TYPE_BADGE_CLASSES: Record<ChamberType, string> = {
 type PurchaseTrack = 'purchase' | 'rental';
 
 const TECH_TO_CONTENT_PRODUCT_ID: Partial<Record<TechType, string>> = {
-    [TechType.HBOT]: 'mhbot-st1700',
+    [TechType.HBOT]: 'hbot-st1700',
     [TechType.HYDROGEN]: 'h2-hop450',
 };
 
@@ -330,7 +330,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
     const relatedStudy = RESEARCH_STUDIES.find(s => s.trace_id === studyTraceIdMap[data.id]);
 
     const relatedProtocolModalitiesByTech: Partial<Record<TechType, string[]>> = {
-        [TechType.HBOT]: ['mHBOT'],
+        [TechType.HBOT]: ['HBOT'],
         [TechType.HYDROGEN]: ['H2'],
         [TechType.RLT]: ['RLT'],
         [TechType.PEMF]: ['PEMF'],

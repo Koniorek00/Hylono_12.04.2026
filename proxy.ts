@@ -11,7 +11,7 @@ import {
 } from './lib/product-routes';
 import { readRuntimeEnv } from './lib/env';
 
-const AUTH_PROTECTED_PREFIXES = ['/dashboard', '/account', '/partner'] as const;
+const AUTH_PROTECTED_PREFIXES = ['/dashboard', '/account', '/partner', '/nexus'] as const;
 const BOT_ALLOW_LIST: ArcjetBotCategory[] = ['CATEGORY:SEARCH_ENGINE'];
 const CSP_CONNECT_SOURCES = [
     'https://eu.i.posthog.com',
@@ -177,7 +177,27 @@ const parseConsentCookie = (rawValue: string | undefined): ConsentRecord => {
 
 const createNonce = (): string => btoa(crypto.randomUUID());
 
-const applyNonceToCsp = (cspHeader: string, nonce: string): string => {
+const applyNonceToCsp = (
+    cspHeader: string,
+    nonce: string,
+    options: { allowUnsafeInline?: boolean } = {}
+): string => {
+    if (options.allowUnsafeInline) {
+        return cspHeader.replace(/script-src([^;]*);/i, (fullMatch, directiveValue) => {
+            const cleanedDirectiveValue = directiveValue
+                .replace(/'nonce-[^']+'/g, '')
+                .replace(/'sha256-[^']+'/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const unsafeInlineDirective = cleanedDirectiveValue.includes("'unsafe-inline'")
+                ? cleanedDirectiveValue
+                : `${cleanedDirectiveValue} 'unsafe-inline'`.trim();
+
+            return `script-src ${unsafeInlineDirective};`;
+        });
+    }
+
     const nonceAdjusted = cspHeader.replace(/'nonce-[^']+'/g, `'nonce-${nonce}'`);
 
     return nonceAdjusted.replace(/script-src([^;]*);/i, (fullMatch, directiveValue) => {
@@ -202,7 +222,15 @@ type SecurityHeaders = {
     contentSecurityPolicyReportOnly: string | null;
 };
 
-const resolveSecurityHeaders = async (nonce: string): Promise<SecurityHeaders> => {
+const isLocalHostname = (hostname: string): boolean => {
+    const normalized = hostname.toLowerCase();
+    return normalized === 'localhost' || normalized === '127.0.0.1' || normalized === '::1';
+};
+
+const resolveSecurityHeaders = async (
+    nonce: string,
+    options: { allowUnsafeInline?: boolean } = {}
+): Promise<SecurityHeaders> => {
     const noseconeResponse = await noseconeMiddleware();
     const responseHeaders: Array<[string, string]> = [];
     let contentSecurityPolicy: string | null = null;
@@ -215,7 +243,7 @@ const resolveSecurityHeaders = async (nonce: string): Promise<SecurityHeaders> =
             header === 'content-security-policy' ||
             header === 'content-security-policy-report-only'
         ) {
-            const nonceAdjustedValue = applyNonceToCsp(value, nonce);
+            const nonceAdjustedValue = applyNonceToCsp(value, nonce, options);
 
             if (header === 'content-security-policy') {
                 contentSecurityPolicy = nonceAdjustedValue;
@@ -243,6 +271,9 @@ const hasSessionCookie = (request: NextRequest): boolean =>
     Boolean(request.cookies.get('hylono_session')?.value) ||
     Boolean(request.cookies.get('session')?.value);
 
+const shouldBypassProtectedRouteAuth = (request: NextRequest): boolean =>
+    isLocalHostname(request.nextUrl.hostname) && process.env.VERCEL !== '1';
+
 const withNoseconeHeaders = (
     response: NextResponse,
     securityHeaders: SecurityHeaders,
@@ -260,7 +291,9 @@ const withNoseconeHeaders = (
 export async function proxy(request: NextRequest): Promise<NextResponse> {
     const { pathname, searchParams } = request.nextUrl;
     const nonce = createNonce();
-    const securityHeaders = await resolveSecurityHeaders(nonce);
+    const securityHeaders = await resolveSecurityHeaders(nonce, {
+        allowUnsafeInline: isLocalHostname(request.nextUrl.hostname),
+    });
 
     // 1) Arcjet protection on all routes (except local dev when key is missing)
     if (arcjetClient) {
@@ -288,7 +321,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     }
 
     // 2) Auth route protection (cookie-based proxy check)
-    if (isProtectedPath(pathname) && !hasSessionCookie(request)) {
+    if (
+        isProtectedPath(pathname) &&
+        !shouldBypassProtectedRouteAuth(request) &&
+        !hasSessionCookie(request)
+    ) {
         const loginUrl = new URL('/login', request.url);
         const nextPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
         loginUrl.searchParams.set('auth', 'required');

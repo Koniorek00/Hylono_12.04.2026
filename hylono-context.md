@@ -5,7 +5,7 @@
 
 ## Project Snapshot
 
-Hylono is an EU-focused medtech ecommerce and education platform built on a server-first Next.js App Router architecture. The application supports rental-first and purchase journeys for non-invasive wellness technologies (oxygen/mHBOT, hydrogen, light, and signal modalities), with supporting content, checkout, account, and partner-facing workflows.
+Hylono is an EU-focused medtech ecommerce and education platform built on a server-first Next.js App Router architecture. The application supports rental-first and purchase journeys for non-invasive wellness technologies (oxygen/HBOT, hydrogen, light, and signal modalities), with supporting content, checkout, account, and partner-facing workflows.
 
 ## Verified Stack
 

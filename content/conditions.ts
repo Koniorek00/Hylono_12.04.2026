@@ -1,5 +1,5 @@
 export interface ConditionModality {
-  slug: 'mHBOT' | 'H2' | 'RLT' | 'PEMF';
+  slug: 'HBOT' | 'H2' | 'RLT' | 'PEMF';
   shortName: string;
   name: string;
   relevance: 1 | 2 | 3 | 4 | 5;
@@ -41,8 +41,8 @@ export const conditionGoals: ConditionGoalPage[] = [
     ],
     modalities: [
       {
-        slug: 'mHBOT',
-        shortName: 'mHBOT',
+        slug: 'HBOT',
+        shortName: 'HBOT',
         name: 'Mild Hyperbaric Oxygen Therapy',
         relevance: 5,
         explanation: 'Structured oxygen sessions may support recovery comfort and post-load resilience.',
@@ -85,14 +85,14 @@ export const conditionGoals: ConditionGoalPage[] = [
     stacks: [
       {
         title: 'Starter',
-        devices: ['mHBOT'],
+        devices: ['HBOT'],
         rentalPrice: 'from €1,099/mo',
         purchasePrice: 'from €24,900',
         link: '/wellness-planner?goal=recovery&tier=starter',
       },
       {
         title: 'Optimal',
-        devices: ['mHBOT', 'H2'],
+        devices: ['HBOT', 'H2'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
         link: '/wellness-planner?goal=recovery&tier=optimal',
@@ -100,7 +100,7 @@ export const conditionGoals: ConditionGoalPage[] = [
       },
       {
         title: 'Pro',
-        devices: ['mHBOT', 'H2', 'RLT'],
+        devices: ['HBOT', 'H2', 'RLT'],
         rentalPrice: 'from €1,457/mo',
         purchasePrice: 'from €30,200',
         link: '/wellness-planner?goal=recovery&tier=pro',
@@ -158,8 +158,8 @@ export const conditionGoals: ConditionGoalPage[] = [
         purchaseFrom: '€2,400',
       },
       {
-        slug: 'mHBOT',
-        shortName: 'mHBOT',
+        slug: 'HBOT',
+        shortName: 'HBOT',
         name: 'Mild Hyperbaric Oxygen Therapy',
         relevance: 2,
         explanation: 'Can be integrated earlier in the day to support overall sleep quality patterns.',
@@ -235,8 +235,8 @@ export const conditionGoals: ConditionGoalPage[] = [
         purchaseFrom: '€2,400',
       },
       {
-        slug: 'mHBOT',
-        shortName: 'mHBOT',
+        slug: 'HBOT',
+        shortName: 'HBOT',
         name: 'Mild Hyperbaric Oxygen Therapy',
         relevance: 3,
         explanation: 'Can be used as a periodic deeper reset session in weekly stress-management plans.',
@@ -274,7 +274,7 @@ export const conditionGoals: ConditionGoalPage[] = [
       },
       {
         title: 'Pro',
-        devices: ['H2', 'PEMF', 'mHBOT'],
+        devices: ['H2', 'PEMF', 'HBOT'],
         rentalPrice: 'from €1,407/mo',
         purchasePrice: 'from €29,690',
         link: '/wellness-planner?goal=stress&tier=pro',
@@ -322,8 +322,8 @@ export const conditionGoals: ConditionGoalPage[] = [
         purchaseFrom: '€2,400',
       },
       {
-        slug: 'mHBOT',
-        shortName: 'mHBOT',
+        slug: 'HBOT',
+        shortName: 'HBOT',
         name: 'Mild Hyperbaric Oxygen Therapy',
         relevance: 4,
         explanation: 'Periodic oxygen sessions may support whole-body comfort and recovery rhythm.',
@@ -361,7 +361,7 @@ export const conditionGoals: ConditionGoalPage[] = [
       },
       {
         title: 'Pro',
-        devices: ['RLT', 'H2', 'mHBOT'],
+        devices: ['RLT', 'H2', 'HBOT'],
         rentalPrice: 'from €1,457/mo',
         purchasePrice: 'from €30,200',
         link: '/wellness-planner?goal=comfort&tier=pro',
@@ -389,8 +389,8 @@ export const conditionGoals: ConditionGoalPage[] = [
     ],
     modalities: [
       {
-        slug: 'mHBOT',
-        shortName: 'mHBOT',
+        slug: 'HBOT',
+        shortName: 'HBOT',
         name: 'Mild Hyperbaric Oxygen Therapy',
         relevance: 4,
         explanation: 'Often used as a primary anchor modality for full-system vitality programs.',
@@ -440,7 +440,7 @@ export const conditionGoals: ConditionGoalPage[] = [
       },
       {
         title: 'Optimal',
-        devices: ['mHBOT', 'H2'],
+        devices: ['HBOT', 'H2'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
         link: '/wellness-planner?goal=vitality&tier=optimal',
@@ -448,7 +448,7 @@ export const conditionGoals: ConditionGoalPage[] = [
       },
       {
         title: 'Pro',
-        devices: ['mHBOT', 'H2', 'RLT'],
+        devices: ['HBOT', 'H2', 'RLT'],
         rentalPrice: 'from €1,457/mo',
         purchasePrice: 'from €30,200',
         link: '/wellness-planner?goal=vitality&tier=pro',

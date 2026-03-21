@@ -3,64 +3,60 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV = [
-  { href: "/admin",          label: "Dashboard",  icon: "⌂",  exact: true },
-  { href: "/admin/stack",    label: "Stack",      icon: "◫" },
+  { href: "/admin", label: "Dashboard", icon: "H", exact: true },
+  { href: "/admin/progress", label: "Progress", icon: "P" },
+  { href: "/admin/blueprints", label: "Blueprints", icon: "B" },
+  { href: "/admin/staging", label: "Staging", icon: "T" },
+  { href: "/admin/stack", label: "Stack", icon: "S" },
   { href: "/admin/credentials", label: "Credentials", icon: "K" },
-  { href: "/admin/deploy",   label: "Deploy",     icon: "▲" },
-  { href: "/admin/commands", label: "Commands",   icon: ">" },
-  { href: "/admin/help",     label: "Help",       icon: "?" },
+  { href: "/admin/quickstart", label: "Quick Start", icon: "1" },
+  { href: "/admin/deploy", label: "Deploy", icon: "D" },
+  { href: "/admin/commands", label: "Commands", icon: ">" },
+  { href: "/admin/help", label: "Help", icon: "?" },
 ];
 
 export function SidebarNav() {
   const path = usePathname();
 
   return (
-    <aside className="w-14 min-h-screen bg-gray-900 border-r border-gray-800 flex flex-col items-center flex-shrink-0">
-      {/* Logo */}
-      <div className="w-14 h-14 flex items-center justify-center border-b border-gray-800 flex-shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm select-none">
+    <aside className="min-h-screen w-14 flex-shrink-0 border-r border-gray-800 bg-gray-900 flex flex-col items-center">
+      <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center border-b border-gray-800">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white select-none">
           H
         </div>
       </div>
 
-      {/* Nav icons */}
-      <nav className="flex-1 py-3 flex flex-col items-center gap-1">
-        {NAV.map((n) => {
-          const active = n.exact ? path === n.href : path.startsWith(n.href) && !(n.exact === false && path === "/admin");
-          // Special case: /admin/stack shouldn't match /admin
-          const isActive = n.href === "/admin"
-            ? path === "/admin"
-            : path.startsWith(n.href);
+      <nav className="flex flex-1 flex-col items-center gap-1 py-3">
+        {NAV.map((item) => {
+          const isActive = item.href === "/admin" ? path === "/admin" : path.startsWith(item.href);
 
           return (
             <Link
-              key={n.href}
-              href={n.href}
-              title={n.label}
-              className={`group relative w-10 h-10 flex items-center justify-center rounded-lg transition-colors text-lg select-none ${
+              key={item.href}
+              href={item.href}
+              title={item.label}
+              className={`group relative flex h-10 w-10 items-center justify-center rounded-lg text-lg transition-colors select-none ${
                 isActive
                   ? "bg-blue-900/60 text-blue-300"
-                  : "text-gray-600 hover:text-gray-200 hover:bg-gray-800"
+                  : "text-gray-600 hover:bg-gray-800 hover:text-gray-200"
               }`}
             >
-              {n.icon}
-              {/* Tooltip */}
-              <span className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 bg-gray-800 border border-gray-700 text-gray-100 text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-xl">
-                {n.label}
+              {item.icon}
+              <span className="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs text-gray-100 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 z-50">
+                {item.label}
               </span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Cmd+K hint at bottom */}
-      <div className="pb-3 flex flex-col items-center">
+      <div className="flex flex-col items-center pb-3">
         <div
           title="Command Palette  Ctrl+K"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-gray-700 hover:text-gray-400 hover:bg-gray-800 transition-colors cursor-default group relative"
+          className="group relative flex h-10 w-10 cursor-default items-center justify-center rounded-lg text-gray-700 transition-colors hover:bg-gray-800 hover:text-gray-400"
         >
-          <span className="font-mono text-xs border border-gray-700 rounded px-1 py-0.5">K</span>
-          <span className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 bg-gray-800 border border-gray-700 text-gray-100 text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-xl">
+          <span className="rounded border border-gray-700 px-1 py-0.5 font-mono text-xs">K</span>
+          <span className="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs text-gray-100 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 z-50">
             Command Palette  Ctrl+K
           </span>
         </div>

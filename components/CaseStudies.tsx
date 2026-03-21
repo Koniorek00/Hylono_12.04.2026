@@ -25,7 +25,7 @@ const CASES: CaseStudy[] = [
     initials: "MT",
     name: "Marcus T.",
     role: "Senior Software Architect",
-    protocol: "mHBOT Protocol",
+    protocol: "HBOT Protocol",
     protocolBadge: "Hyperbaric Oxygen",
     weeks: 6,
     primaryMetric: "34%",

@@ -3,13 +3,13 @@ import { withSentryConfig } from '@sentry/nextjs';
 import { seoRedirects } from './config/seo-redirects';
 import { env } from './lib/env';
 
+const distDir = process.env.NEXT_DIST_DIR || '.next';
+
 const nextConfig: NextConfig = {
+  distDir,
   cacheComponents: true,
   reactCompiler: true,
   turbopack: {},
-  experimental: {
-    turbopackFileSystemCacheForDev: true,
-  },
   cacheLife: {
     feed: { stale: 30, revalidate: 60, expire: 300 },
     session: { stale: 0, revalidate: 0, expire: 3600 },

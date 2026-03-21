@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
@@ -32,18 +34,18 @@ interface PartnerLayoutProps {
 }
 
 const NAV_ITEMS: NavItem[] = [
-    { icon: LayoutDashboard, label: 'Overview',   href: '/partner/dashboard' },
-    { icon: Users,           label: 'Clients',    href: '/partner/nexus' },
-    { icon: Wrench,          label: 'Fleet',      href: '/partner/fleet' },
-    { icon: FileText,        label: 'Documents',  href: '/partner/docs' },
-    { icon: Palette,         label: 'Studio',     href: '/partner/studio' },
-    { icon: Boxes,           label: 'Team',       href: '/partner/team' },
+    { icon: LayoutDashboard, label: 'Overview',   href: '/nexus' },
+    { icon: Users,           label: 'Clients',    href: '/nexus/clients' },
+    { icon: Wrench,          label: 'Fleet',      href: '/nexus/fleet' },
+    { icon: FileText,        label: 'Documents',  href: '/nexus/docs' },
+    { icon: Palette,         label: 'Studio',     href: '/nexus/studio' },
+    { icon: Boxes,           label: 'Team',       href: '/nexus/team' },
 ];
 
 export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title }) => {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const pathname = usePathname() ?? '/partner/dashboard';
+    const pathname = usePathname() ?? '/nexus';
 
     useEffect(() => {
         const onResize = () => {
@@ -90,7 +92,7 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                                 transition={{ duration: 0.15 }}
                                 className="font-bold text-white text-sm tracking-wider"
                             >
-                                HYLONO <span className="text-cyan-400 font-medium tracking-normal">Partner</span>
+                                HYLONO <span className="text-cyan-400 font-medium tracking-normal">Nexus</span>
                             </motion.span>
                         )}
                     </AnimatePresence>
@@ -250,7 +252,7 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                                     <div className="w-7 h-7 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-md flex items-center justify-center">
                                         <span className="text-white font-black text-[10px]">HY</span>
                                     </div>
-                                    <span className="font-bold text-white text-sm">HYLONO Partner</span>
+                            <span className="font-bold text-white text-sm">HYLONO Nexus</span>
                                 </div>
                                 <button onClick={() => setMobileOpen(false)} className="p-1 text-slate-500" aria-label="Close menu">
                                     <X className="w-5 h-5" />
@@ -295,7 +297,7 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                             <Menu className="w-5 h-5" />
                         </button>
                         <nav className="flex items-center gap-1 text-sm min-w-0" aria-label="Breadcrumb">
-                            <span className="font-semibold text-slate-900 hidden sm:inline">Partner Hub</span>
+                            <span className="font-semibold text-slate-900 hidden sm:inline">Nexus</span>
                             {breadcrumbs.map((crumb, i) => (
                                 <React.Fragment key={crumb}>
                                     <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0 hidden sm:inline-block" />
@@ -341,4 +343,3 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
         </div>
     );
 };
-

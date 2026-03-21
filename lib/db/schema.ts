@@ -23,6 +23,17 @@ export interface RentalItemRecord {
   monthlyPrice: number;
 }
 
+export interface RentalContactRecord {
+  fullName: string;
+  email: string;
+  phone?: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  company?: string;
+}
+
 export const contactInquiriesTable = pgTable('contact_inquiries', {
   id: text('id').primaryKey(),
   ticketId: text('ticket_id').notNull().unique(),
@@ -79,6 +90,7 @@ export const rentalApplicationsTable = pgTable('rental_applications', {
   id: text('id').primaryKey(),
   rentalId: text('rental_id').notNull().unique(),
   userId: text('user_id').notNull(),
+  contact: jsonb('contact').$type<RentalContactRecord | null>(),
   items: jsonb('items').$type<RentalItemRecord[]>().notNull(),
   termMonths: integer('term_months').notNull(),
   status: text('status').notNull(),

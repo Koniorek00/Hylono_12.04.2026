@@ -80,7 +80,7 @@ AppRouter (ownedTech: TechType[])
 | Dashboard Coherence Score | ✅ | Shows 100% with HBOT+PEMF stack |
 | Synergy Upgrades List | ✅ | Shows RLT (+32%) and Hydrogen (+20%) |
 | "Synergy Detected" Badge | ✅ | Visible on PEMF product page |
-| Protocol Stacking | ✅ | "Stack with mHBOT" appears after session |
+| Protocol Stacking | ✅ | "Stack with HBOT" appears after session |
 | Goal Filtering | ✅ | Filters protocols by selected goal |
 
 ---

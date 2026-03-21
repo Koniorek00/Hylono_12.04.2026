@@ -13,6 +13,7 @@ const mockDb = {
 vi.mock('@/lib/db/client', () => ({
   isDatabaseConfigured: () => true,
   getDb: () => mockDb,
+  ensureDatabaseReady: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/lib/env', () => ({

@@ -6,16 +6,23 @@ import type { ServiceManifest } from "@/types/stack";
 
 const PAGES = [
   { label: "Dashboard", href: "/admin", icon: "D", desc: "Command center" },
+  { label: "Progress", href: "/admin/progress", icon: "P", desc: "Bootstrap and state" },
+  { label: "Blueprints", href: "/admin/blueprints", icon: "B", desc: "Source-backed flow pack" },
+  { label: "Staging", href: "/admin/staging", icon: "T", desc: "Staging handoff" },
   { label: "Stack", href: "/admin/stack", icon: "S", desc: "All 59 services" },
+  { label: "Credentials", href: "/admin/credentials", icon: "K", desc: "First login and secrets" },
+  { label: "Quick Start", href: "/admin/quickstart", icon: "1", desc: "Launcher-first local flow" },
   { label: "Deploy Wizard", href: "/admin/deploy", icon: "W", desc: "Step-by-step launch" },
   { label: "Commands", href: "/admin/commands", icon: "C", desc: "Copy scripts" },
   { label: "Help", href: "/admin/help", icon: "?", desc: "Troubleshooting guide" },
 ] as const;
 
 const COMMANDS = [
-  { label: "Generate secrets", cmd: "bash scripts/generate-secrets.sh" },
-  { label: "Launch infrastructure", cmd: "bash scripts/setup.sh infrastructure" },
-  { label: "Launch Phase 1A", cmd: "bash scripts/setup.sh 1a" },
+  { label: "Start local launcher", cmd: ".\\start-dev.bat" },
+  { label: "Validate staging env", cmd: ".\\scripts\\validate-staging-env.ps1 -Path .\\.env.staging" },
+  { label: "Generate secrets", cmd: ".\\scripts\\generate-secrets.ps1" },
+  { label: "Launch infrastructure", cmd: ".\\scripts\\setup.ps1 infrastructure" },
+  { label: "Launch Phase 1A", cmd: ".\\scripts\\setup.ps1 1a" },
   {
     label: "Check infrastructure containers",
     cmd: "docker compose -f docker/infrastructure/docker-compose.yml ps",
@@ -28,6 +35,7 @@ const COMMANDS = [
     label: "View infrastructure logs",
     cmd: "docker compose -f docker/infrastructure/docker-compose.yml logs --tail=50",
   },
+  { label: "Deep smoke check", cmd: ".\\scripts\\smoke-local-stack.ps1 -Deep" },
   { label: "Run backup", cmd: "bash scripts/backup.sh" },
 ] as const;
 
@@ -117,7 +125,7 @@ export function CommandPalette({ services }: Props) {
       ...matchedServices.map((service) => ({
         type: "service" as const,
         label: service.name,
-        href: service.repository,
+        href: service.uiUrl ?? "/admin/stack",
         svc: service,
       })),
     ],
@@ -137,6 +145,10 @@ export function CommandPalette({ services }: Props) {
       }
 
       setOpen(false);
+      if (item.type === "service" && /^https?:\/\//.test(item.href)) {
+        window.open(item.href, "_blank", "noopener,noreferrer");
+        return;
+      }
       router.push(item.href);
     },
     [router]
@@ -286,7 +298,12 @@ export function CommandPalette({ services }: Props) {
                 return (
                   <Row
                     key={service.id}
-                    item={{ type: "service", label: service.name, href: service.repository, svc: service }}
+                    item={{
+                      type: "service",
+                      label: service.name,
+                      href: service.uiUrl ?? "/admin/stack",
+                      svc: service,
+                    }}
                     rowIndex={rowIndex}
                   >
                     <span className="w-5 flex-shrink-0 text-center font-mono text-xs text-gray-600">

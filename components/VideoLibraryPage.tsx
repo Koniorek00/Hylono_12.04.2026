@@ -14,7 +14,7 @@ interface VideoItem {
     title: string;
     description: string;
     category: 'Product demo' | 'Education' | 'Protocols' | 'Customer stories';
-    technology: 'mHBOT' | 'H2' | 'RLT' | 'PEMF';
+    technology: 'HBOT' | 'H2' | 'RLT' | 'PEMF';
     duration: string;
     embedUrl: string;
     relatedProduct?: TechType;
@@ -24,10 +24,10 @@ interface VideoItem {
 const VIDEO_ITEMS: VideoItem[] = [
     {
         id: 'video-hbot-demo',
-        title: 'mHBOT setup and first look',
+        title: 'HBOT setup and first look',
         description: 'Walkthrough of hardware setup and session preparation for first-time users.',
         category: 'Product demo',
-        technology: 'mHBOT',
+        technology: 'HBOT',
         duration: '08:40',
         embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         relatedProduct: TechType.HBOT,

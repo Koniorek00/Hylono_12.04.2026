@@ -1,0 +1,53 @@
+{
+  "packVersion": "2026-03-20",
+  "laneId": "intake-to-crm",
+  "laneName": "Intake to CRM to notification",
+  "purpose": "Contact, referral, partner, and triage intake.",
+  "sourcePolicy": "official-primary-sources-only",
+  "sourceTools": ["n8n", "Twenty", "Novu"],
+  "trigger": {
+    "tool": "n8n",
+    "pattern": "Webhook node",
+    "responseStyle": "fast-and-explicit"
+  },
+  "recordModel": {
+    "twentyObjects": ["People", "Companies", "Opportunities", "Tasks", "Notes"],
+    "idempotencyField": "externalId",
+    "crmMatchStrategy": "upsert-first"
+  },
+  "payloadContract": {
+    "required": ["externalId", "source", "email", "intakeType"],
+    "recommended": ["firstName", "lastName", "company", "phone", "notes", "timezone", "priority"],
+    "normalizationRules": [
+      "Lowercase email before dedupe.",
+      "Preserve the original source label.",
+      "Use one stable externalId per source event."
+    ]
+  },
+  "actions": [
+    "Normalize payload",
+    "Upsert People and Companies",
+    "Upsert or update Opportunity",
+    "Create Task for owner follow-up",
+    "Notify a topic or subscriber set in Novu"
+  ],
+  "recommendedSeeds": [
+    "scripts/data/twenty-operator-workspace.seed.json",
+    "n8n-workflows/phase-2-local/contact_created.json",
+    "n8n-workflows/phase-2-local/booking_requested.json",
+    "n8n-workflows/phase-2-local/newsletter_subscribed.json"
+  ],
+  "officialSources": [
+    "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/",
+    "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.respondtowebhook/",
+    "https://docs.twenty.com/user-guide/workflows/capabilities/workflow-triggers",
+    "https://docs.twenty.com/user-guide/workflows/capabilities/workflow-actions",
+    "https://docs.twenty.com/user-guide/data-model/objects",
+    "https://docs.novu.co/platform/concepts/topics"
+  ],
+  "guardrails": [
+    "Do not create duplicate CRM records when externalId already exists.",
+    "Do not block the webhook response on downstream fan-out.",
+    "Do not bypass Twenty when the person or company can be mapped."
+  ]
+}

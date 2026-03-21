@@ -1,4 +1,4 @@
-export type ResearchModality = 'mHBOT' | 'H2';
+export type ResearchModality = 'HBOT' | 'H2';
 export type ResearchStudyType = 'RCT' | 'Meta-analysis' | 'Review' | 'Cohort';
 
 export interface ResearchStudyCard {
@@ -17,7 +17,7 @@ export const researchContent = {
   title: 'Scientific research library',
   subtitle:
     'Explore selected peer-reviewed sources related to the technologies used in Hylono protocols. References are provided for educational review and limitations should be considered.',
-  technologyFilters: ['All', 'mHBOT', 'H2'] as const,
+  technologyFilters: ['All', 'HBOT', 'H2'] as const,
   studyTypeFilters: ['All', 'RCT', 'Meta-analysis', 'Review', 'Cohort'] as const,
   emptyState: 'No studies match your selected filters yet.',
   productCtaLabel: 'View related product hub',
@@ -29,7 +29,7 @@ export const researchContent = {
       id: 'study-hbot-athletes-2022',
       title:
         'Effects of Hyperbaric Oxygen Therapy on Mitochondrial Respiration and Physical Performance in Middle-Aged Athletes: A Blinded, Randomized Controlled Trial',
-      modality: 'mHBOT',
+      modality: 'HBOT',
       studyType: 'RCT',
       population: 'Healthy master athletes in a blinded randomized trial',
       summary:
@@ -53,7 +53,7 @@ export const researchContent = {
       id: 'study-hbot-soreness-2025',
       title:
         'Effects of Hyperbaric Oxygen Therapy on Exercise-Induced Muscle Injury and Soreness: A Systematic Review and Meta-analysis',
-      modality: 'mHBOT',
+      modality: 'HBOT',
       studyType: 'Meta-analysis',
       population: 'Randomized controlled trials on exercise-induced muscle injury and soreness',
       summary:

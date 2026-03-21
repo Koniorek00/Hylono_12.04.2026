@@ -310,7 +310,7 @@ export const MeridianPage = () => {
                     {/* Modality 1: Oxygen */}
                     <ModalityBand
                         id="01" name="Oxygen" sub="Mild Hyperbaric Therapy"
-                        desc="Mild hyperbaric oxygen therapy (mHBOT) creates a controlled pressurized environment that allows oxygen to dissolve into plasma, cerebrospinal fluid, and tissues at concentrations beyond normal respiratory capacity."
+                        desc="Mild hyperbaric oxygen therapy (HBOT) creates a controlled pressurized environment that allows oxygen to dissolve into plasma, cerebrospinal fluid, and tissues at concentrations beyond normal respiratory capacity."
                         specs={[
                             { label: "PRESSURE RANGE", val: "1.3 to 1.5 ATA" },
                             { label: "SESSION PROTOCOL", val: "60-90 min, 3-5x weekly" },
@@ -551,7 +551,7 @@ export const MeridianPage = () => {
                         {
                             title: 'ECOSYSTEM',
                             links: [
-                                { label: 'Oxygen — mHBOT', href: '/product/hbot' },
+                                { label: 'Oxygen — HBOT', href: '/product/hbot' },
                                 { label: 'Hydrogen — H₂', href: '/product/hydrogen' },
                                 { label: 'Light — RLT', href: '/product/rlt' },
                                 { label: 'Signal — PEMF/VNS', href: '/product/pemf' },

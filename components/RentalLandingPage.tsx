@@ -13,7 +13,7 @@ interface RentalLandingPageProps {
 }
 
 const technologyToTechType: Record<Exclude<RentalTechnologyFilter, 'all'>, TechType> = {
-  mHBOT: TechType.HBOT,
+  HBOT: TechType.HBOT,
   H2: TechType.HYDROGEN,
   RLT: TechType.RLT,
   PEMF: TechType.PEMF,
@@ -94,7 +94,7 @@ export const RentalLandingPage: React.FC<RentalLandingPageProps> = ({ onNavigate
                 className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3"
               >
                 <option value="all">All</option>
-                <option value="mHBOT">mHBOT</option>
+                <option value="HBOT">HBOT</option>
                 <option value="H2">H2</option>
                 <option value="RLT">RLT</option>
                 <option value="PEMF">PEMF</option>

@@ -200,7 +200,7 @@ Confirmed in runtime HTML:
 Examples:
 
 - `/store` H1s: `Hylono wellness platform`, `Technology + Protocol`
-- `/product/hbot` H1s: `Hylono wellness platform`, `mHBOT`
+- `/product/hbot` H1s: `Hylono wellness platform`, `HBOT`
 - `/research` H1s: `Hylono wellness platform`, `Hylono research hub`, `Scientific research library`
 - `/faq` H1s: `Hylono wellness platform`, `Frequently asked questions about Hylono devices and support`, `Help Center`
 

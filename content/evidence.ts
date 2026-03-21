@@ -28,8 +28,8 @@ export const evidence: Evidence[] = [
     primaryEndpoint: 'Physical performance and mitochondrial respiration in middle-aged athletes',
     resultSummary:
       'In this blinded randomized trial, HBOT improved VO2 max, ventilatory threshold, and selected mitochondrial markers versus sham. The population was performance-oriented, so general wellness applicability should be judged cautiously.',
-    modalities: ['mHBOT', 'O2'],
-    primaryModality: 'mHBOT',
+    modalities: ['HBOT', 'O2'],
+    primaryModality: 'HBOT',
   },
   {
     id: 'ev-hbot-002',
@@ -43,8 +43,8 @@ export const evidence: Evidence[] = [
     primaryEndpoint: 'Exercise-induced muscle injury and soreness outcomes across randomized trials',
     resultSummary:
       'The meta-analysis suggests hyperbaric oxygen may improve some post-exercise soreness and muscle-injury markers, but trial quality and intervention design vary substantially.',
-    modalities: ['mHBOT', 'O2'],
-    primaryModality: 'mHBOT',
+    modalities: ['HBOT', 'O2'],
+    primaryModality: 'HBOT',
   },
   {
     id: 'ev-hbot-003',
@@ -58,8 +58,8 @@ export const evidence: Evidence[] = [
     primaryEndpoint: 'Self-reported sleep quality after HBOT in chronic post-mTBI symptoms',
     resultSummary:
       'This randomized trial reported improvement in some self-reported sleep-quality measures after HBOT, but it studied a chronic post-mTBI population and not general wellness users.',
-    modalities: ['mHBOT', 'O2'],
-    primaryModality: 'mHBOT',
+    modalities: ['HBOT', 'O2'],
+    primaryModality: 'HBOT',
   },
   {
     id: 'ev-h2-001',

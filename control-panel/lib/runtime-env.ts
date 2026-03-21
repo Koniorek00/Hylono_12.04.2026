@@ -36,18 +36,23 @@ export function getRuntimeEnv(): Record<string, string> {
   }
 
   const rootDir = path.resolve(process.cwd(), "..");
-  const candidates = [
-    path.join(rootDir, ".env"),
-    path.join(rootDir, ".env.local"),
-    path.join(rootDir, ".env.example"),
-  ];
+  const candidates = [path.join(rootDir, ".env"), path.join(rootDir, ".env.local")];
+  const mergedEnv: Record<string, string> = {};
 
   for (const candidate of candidates) {
-    if (!fs.existsSync(candidate)) {
-      continue;
+    if (fs.existsSync(candidate)) {
+      Object.assign(mergedEnv, parseEnvFile(fs.readFileSync(candidate, "utf-8")));
     }
+  }
 
-    cachedRuntimeEnv = parseEnvFile(fs.readFileSync(candidate, "utf-8"));
+  if (Object.keys(mergedEnv).length > 0) {
+    cachedRuntimeEnv = mergedEnv;
+    return cachedRuntimeEnv;
+  }
+
+  const examplePath = path.join(rootDir, ".env.example");
+  if (fs.existsSync(examplePath)) {
+    cachedRuntimeEnv = parseEnvFile(fs.readFileSync(examplePath, "utf-8"));
     return cachedRuntimeEnv;
   }
 

@@ -2,7 +2,7 @@ export const synonymGroups: string[][] = [
   [
     'oxygen chamber',
     'hyperbaric chamber',
-    'mhbot',
+    'hbot',
     'hbot',
     'hyperbaric oxygen therapy',
     'mild hyperbaric',

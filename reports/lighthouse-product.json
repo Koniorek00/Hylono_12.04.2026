@@ -1,9 +1,9 @@
 {
   "lighthouseVersion": "13.0.3",
-  "requestedUrl": "http://localhost:3000/product/mhbot-st1700",
-  "mainDocumentUrl": "http://localhost:3000/product/mhbot-st1700",
-  "finalDisplayedUrl": "http://localhost:3000/product/mhbot-st1700",
-  "finalUrl": "http://localhost:3000/product/mhbot-st1700",
+  "requestedUrl": "http://localhost:3000/product/hbot-st1700",
+  "mainDocumentUrl": "http://localhost:3000/product/hbot-st1700",
+  "finalDisplayedUrl": "http://localhost:3000/product/hbot-st1700",
+  "finalUrl": "http://localhost:3000/product/hbot-st1700",
   "fetchTime": "2026-02-27T20:49:53.411Z",
   "gatherMode": "navigation",
   "runWarnings": [],
@@ -270,7 +270,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:3000/product/mhbot-st1700",
+            "url": "http://localhost:3000/product/hbot-st1700",
             "responseTime": 1846
           }
         ],
@@ -579,7 +579,7 @@
             "scriptParseCompile": 6.8549999999999995
           },
           {
-            "url": "http://localhost:3000/product/mhbot-st1700",
+            "url": "http://localhost:3000/product/hbot-st1700",
             "total": 126.73500000000003,
             "scripting": 2.0509999999999997,
             "scriptParseCompile": 1.7479999999999982
@@ -700,7 +700,7 @@
         ],
         "items": [
           {
-            "url": "http://localhost:3000/product/mhbot-st1700",
+            "url": "http://localhost:3000/product/hbot-st1700",
             "sessionTargetType": "page",
             "protocol": "http/1.1",
             "rendererStartTime": 0,
@@ -1286,151 +1286,151 @@
           "initiators": [
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 345
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 493
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 586
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 696
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 788
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 878
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 961
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1053
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1121
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1199
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1267
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1335
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1413
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1505
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1600
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1695
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1781
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1863
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 1983
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 2076
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 2169
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 2247
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 2315
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 2416
             },
             {
               "type": "parser",
-              "url": "http://localhost:3000/product/mhbot-st1700",
+              "url": "http://localhost:3000/product/hbot-st1700",
               "lineNumber": 0,
               "columnNumber": 2515
             },
@@ -2627,7 +2627,7 @@
             "unusedBytes": 246008
           },
           {
-            "name": "http://localhost:3000/product/mhbot-st1700",
+            "name": "http://localhost:3000/product/hbot-st1700",
             "resourceBytes": 32710,
             "encodedBytes": 7682,
             "children": [
@@ -5076,7 +5076,7 @@
               "type": "subitems",
               "items": [
                 {
-                  "frameUrl": "http://localhost:3000/product/mhbot-st1700"
+                  "frameUrl": "http://localhost:3000/product/hbot-st1700"
                 }
               ]
             },
@@ -5089,7 +5089,7 @@
               "type": "subitems",
               "items": [
                 {
-                  "frameUrl": "http://localhost:3000/product/mhbot-st1700"
+                  "frameUrl": "http://localhost:3000/product/hbot-st1700"
                 }
               ]
             },
@@ -5102,7 +5102,7 @@
               "type": "subitems",
               "items": [
                 {
-                  "frameUrl": "http://localhost:3000/product/mhbot-st1700"
+                  "frameUrl": "http://localhost:3000/product/hbot-st1700"
                 }
               ]
             },
@@ -5115,7 +5115,7 @@
               "type": "subitems",
               "items": [
                 {
-                  "frameUrl": "http://localhost:3000/product/mhbot-st1700"
+                  "frameUrl": "http://localhost:3000/product/hbot-st1700"
                 }
               ]
             },
@@ -5770,7 +5770,7 @@
               "type": "network-tree",
               "chains": {
                 "51FC6A59C63DB92B8DBC2F498E75AD50": {
-                  "url": "http://localhost:3000/product/mhbot-st1700",
+                  "url": "http://localhost:3000/product/hbot-st1700",
                   "navStartToEndTime": 1889,
                   "transferSize": 17323,
                   "isLongest": true,

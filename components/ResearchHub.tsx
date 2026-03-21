@@ -16,7 +16,7 @@ const LegacyResearchFallback: React.FC = () => (
 );
 
 const modalityToStorePath: Record<ResearchModality, string> = {
-  mHBOT: '/product/hbot',
+  HBOT: '/product/hbot',
   H2: '/product/hydrogen',
 };
 
@@ -26,7 +26,7 @@ const researchPathways = [
     href: '/conditions/recovery',
   },
   {
-    label: 'mHBOT hub',
+    label: 'HBOT hub',
     href: '/product/hbot',
   },
   {

@@ -39,9 +39,9 @@ export const goals: Goal[] = [
       'This goal path is designed to support muscle comfort, training continuity, and recovery consistency. It focuses on practical routines you can maintain over weeks, not one-off sessions.',
     modalities: [
       {
-        slug: 'mhbot-st1700',
-        name: 'mHBOT ST1700',
-        shortName: 'mHBOT',
+        slug: 'hbot-st1700',
+        name: 'HBOT ST1700',
+        shortName: 'HBOT',
         relevance: 5,
         explanation: 'Pressure-supported oxygen routines may assist recovery rhythm after heavy training days.',
         sessionTime: '45–60 min',
@@ -61,7 +61,7 @@ export const goals: Goal[] = [
     ],
     protocolSlugs: ['recovery-oxygen-foundation', 'vitality-dual-stack'],
     evidenceIds: ['ev-hbot-001', 'ev-h2-002', 'ev-combo-001'],
-    relatedProductIds: ['mhbot-st1700', 'h2-hop450'],
+    relatedProductIds: ['hbot-st1700', 'h2-hop450'],
     stacks: [
       {
         tier: 'starter',
@@ -73,14 +73,14 @@ export const goals: Goal[] = [
       {
         tier: 'optimal',
         title: 'Recovery Optimal',
-        devices: ['mhbot-st1700'],
+        devices: ['hbot-st1700'],
         rentalPrice: 'from €1,099/mo',
         purchasePrice: 'from €24,900',
       },
       {
         tier: 'pro',
         title: 'Recovery Pro Stack',
-        devices: ['mhbot-st1700', 'h2-hop450'],
+        devices: ['hbot-st1700', 'h2-hop450'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
       },
@@ -104,9 +104,9 @@ export const goals: Goal[] = [
       'This goal path focuses on evening-friendly routines that may support sleep onset and next-day readiness. Consistency and calm pre-sleep habits remain essential.',
     modalities: [
       {
-        slug: 'mhbot-st1700',
-        name: 'mHBOT ST1700',
-        shortName: 'mHBOT',
+        slug: 'hbot-st1700',
+        name: 'HBOT ST1700',
+        shortName: 'HBOT',
         relevance: 4,
         explanation: 'Evening oxygen routines may assist decompression after mentally dense days.',
         sessionTime: '50–60 min',
@@ -126,7 +126,7 @@ export const goals: Goal[] = [
     ],
     protocolSlugs: ['recovery-oxygen-foundation'],
     evidenceIds: ['ev-hbot-002'],
-    relatedProductIds: ['mhbot-st1700', 'h2-hop450'],
+    relatedProductIds: ['hbot-st1700', 'h2-hop450'],
     stacks: [
       {
         tier: 'starter',
@@ -138,14 +138,14 @@ export const goals: Goal[] = [
       {
         tier: 'optimal',
         title: 'Sleep Optimal',
-        devices: ['mhbot-st1700'],
+        devices: ['hbot-st1700'],
         rentalPrice: 'from €1,099/mo',
         purchasePrice: 'from €24,900',
       },
       {
         tier: 'pro',
         title: 'Sleep Pro Stack',
-        devices: ['mhbot-st1700', 'h2-hop450'],
+        devices: ['hbot-st1700', 'h2-hop450'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
       },
@@ -179,9 +179,9 @@ export const goals: Goal[] = [
         purchaseFrom: '€2,400',
       },
       {
-        slug: 'mhbot-st1700',
-        name: 'mHBOT ST1700',
-        shortName: 'mHBOT',
+        slug: 'hbot-st1700',
+        name: 'HBOT ST1700',
+        shortName: 'HBOT',
         relevance: 3,
         explanation: 'Scheduled oxygen sessions can support structured decompression after intensive days.',
         sessionTime: '45–60 min',
@@ -191,7 +191,7 @@ export const goals: Goal[] = [
     ],
     protocolSlugs: ['stress-balance-h2-foundation'],
     evidenceIds: ['ev-h2-001', 'ev-h2-003'],
-    relatedProductIds: ['h2-hop450', 'mhbot-st1700'],
+    relatedProductIds: ['h2-hop450', 'hbot-st1700'],
     stacks: [
       {
         tier: 'starter',
@@ -203,14 +203,14 @@ export const goals: Goal[] = [
       {
         tier: 'optimal',
         title: 'Stress Optimal',
-        devices: ['h2-hop450', 'mhbot-st1700'],
+        devices: ['h2-hop450', 'hbot-st1700'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
       },
       {
         tier: 'pro',
         title: 'Stress Pro',
-        devices: ['h2-hop450', 'mhbot-st1700'],
+        devices: ['h2-hop450', 'hbot-st1700'],
         rentalPrice: 'from €1,258/mo + guided support',
         purchasePrice: 'from €27,300 + guided support',
       },
@@ -244,9 +244,9 @@ export const goals: Goal[] = [
         purchaseFrom: '€2,400',
       },
       {
-        slug: 'mhbot-st1700',
-        name: 'mHBOT ST1700',
-        shortName: 'mHBOT',
+        slug: 'hbot-st1700',
+        name: 'HBOT ST1700',
+        shortName: 'HBOT',
         relevance: 3,
         explanation: 'Routine oxygen sessions are commonly used for full-body renewal workflows.',
         sessionTime: '45–55 min',
@@ -256,7 +256,7 @@ export const goals: Goal[] = [
     ],
     protocolSlugs: ['stress-balance-h2-foundation', 'vitality-dual-stack'],
     evidenceIds: ['ev-h2-002', 'ev-h2-003'],
-    relatedProductIds: ['h2-hop450', 'mhbot-st1700'],
+    relatedProductIds: ['h2-hop450', 'hbot-st1700'],
     stacks: [
       {
         tier: 'starter',
@@ -268,14 +268,14 @@ export const goals: Goal[] = [
       {
         tier: 'optimal',
         title: 'Comfort Optimal',
-        devices: ['h2-hop450', 'mhbot-st1700'],
+        devices: ['h2-hop450', 'hbot-st1700'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
       },
       {
         tier: 'pro',
         title: 'Comfort Pro',
-        devices: ['h2-hop450', 'mhbot-st1700'],
+        devices: ['h2-hop450', 'hbot-st1700'],
         rentalPrice: 'from €1,258/mo + advisor support',
         purchasePrice: 'from €27,300 + advisor support',
       },
@@ -299,9 +299,9 @@ export const goals: Goal[] = [
       'Vitality pathways combine modalities for users who want a structured protocol-first lifestyle rhythm. The focus is sustainability over intensity spikes.',
     modalities: [
       {
-        slug: 'mhbot-st1700',
-        name: 'mHBOT ST1700',
-        shortName: 'mHBOT',
+        slug: 'hbot-st1700',
+        name: 'HBOT ST1700',
+        shortName: 'HBOT',
         relevance: 5,
         explanation: 'Pressure-supported oxygen routines can support whole-system recovery rhythm.',
         sessionTime: '50–60 min',
@@ -321,7 +321,7 @@ export const goals: Goal[] = [
     ],
     protocolSlugs: ['vitality-dual-stack'],
     evidenceIds: ['ev-hbot-001', 'ev-h2-001', 'ev-combo-001'],
-    relatedProductIds: ['mhbot-st1700', 'h2-hop450'],
+    relatedProductIds: ['hbot-st1700', 'h2-hop450'],
     stacks: [
       {
         tier: 'starter',
@@ -333,14 +333,14 @@ export const goals: Goal[] = [
       {
         tier: 'optimal',
         title: 'Vitality Optimal',
-        devices: ['mhbot-st1700'],
+        devices: ['hbot-st1700'],
         rentalPrice: 'from €1,099/mo',
         purchasePrice: 'from €24,900',
       },
       {
         tier: 'pro',
         title: 'Vitality Dual Stack',
-        devices: ['mhbot-st1700', 'h2-hop450'],
+        devices: ['hbot-st1700', 'h2-hop450'],
         rentalPrice: 'from €1,258/mo',
         purchasePrice: 'from €27,300',
       },

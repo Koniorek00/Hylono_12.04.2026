@@ -1,0 +1,49 @@
+{
+  "packVersion": "2026-03-20",
+  "laneId": "consent-first-onboarding",
+  "laneName": "Consent-first onboarding",
+  "purpose": "Send reusable agreements or consent forms before the next step.",
+  "sourcePolicy": "official-primary-sources-only",
+  "sourceTools": ["Twenty", "Documenso", "Novu"],
+  "trigger": {
+    "tool": "Twenty",
+    "pattern": "Record is Created or Updated"
+  },
+  "recordModel": {
+    "twentyObjects": ["People", "Companies", "Opportunities", "Tasks"],
+    "documensoMode": "template or direct-link",
+    "completionStateField": "consentStatus"
+  },
+  "payloadContract": {
+    "required": ["externalId", "personRef", "consentTemplateKey", "recipientEmail"],
+    "recommended": ["company", "consentPurpose", "nextStepLabel", "deadlineAt", "ownerEmail"],
+    "normalizationRules": [
+      "Use a reusable template key instead of one-off document titles.",
+      "Prefer direct links when the signer is public or not pre-registered.",
+      "Persist completion state back into the CRM record."
+    ]
+  },
+  "actions": [
+    "Select the appropriate consent template",
+    "Issue a Documenso direct link or signing token",
+    "Persist signature completion state",
+    "Send confirmation and next-step notification"
+  ],
+  "recommendedSeeds": [
+    "scripts/generate-documenso-signing-certificate.ps1",
+    "output/documenso-signing/certificate.p12",
+    "scripts/data/twenty-operator-workspace.seed.json"
+  ],
+  "officialSources": [
+    "https://docs.documenso.com/docs/users",
+    "https://docs.documenso.com/docs/users/documents/direct-links",
+    "https://docs.documenso.com/developers",
+    "https://docs.documenso.com/developers/self-hosting/signing-certificate",
+    "https://docs.novu.co/platform/workflow/create-a-workflow"
+  ],
+  "guardrails": [
+    "Do not rebuild consent documents from scratch when a template exists.",
+    "Do not send the next-step notification before the signature state is persisted.",
+    "Do not treat local certificate bootstrap as optional for self-hosted signing."
+  ]
+}

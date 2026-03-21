@@ -1,0 +1,212 @@
+{
+  "seedVersion": "2026-03-20",
+  "seedName": "Hylono medtech Twenty operator workspace defaults",
+  "supportedSources": [
+    "contact:general",
+    "contact:rental",
+    "contact:b2b",
+    "contact:support",
+    "contact:press",
+    "booking:consultation",
+    "booking:demo",
+    "booking:rental-inquiry",
+    "booking:b2b",
+    "checkout:card",
+    "checkout:bank_transfer",
+    "checkout:financing",
+    "rental:pending"
+  ],
+  "queueNames": [
+    "Website contact follow-up queue",
+    "Rental request triage queue",
+    "Checkout recovery queue",
+    "Medtech intake triage queue",
+    "Consultation booking readiness queue",
+    "Post-consult follow-up queue",
+    "Consent completion reminder queue"
+  ],
+  "companies": [
+    {
+      "key": "hylono-operations",
+      "name": "Hylono Operations",
+      "domain": "hylono.com"
+    },
+    {
+      "key": "vistula-rehab",
+      "name": "Vistula Rehab Clinic",
+      "domain": "vistula-rehab.example"
+    },
+    {
+      "key": "northshore-wellness",
+      "name": "Northshore Wellness Center",
+      "domain": "northshore-wellness.example"
+    }
+  ],
+  "people": [
+    {
+      "key": "support-desk",
+      "email": "support@hylono.com",
+      "firstName": "Support",
+      "lastName": "Desk",
+      "phone": "123456789",
+      "city": "Warsaw",
+      "companyRef": "hylono-operations"
+    },
+    {
+      "key": "contact-desk",
+      "email": "contact@hylono.com",
+      "firstName": "Contact",
+      "lastName": "Desk",
+      "phone": "987654321",
+      "city": "Warsaw",
+      "companyRef": "hylono-operations"
+    },
+    {
+      "key": "ops-queue",
+      "email": "ops@hylono.com",
+      "firstName": "Operations",
+      "lastName": "Queue",
+      "phone": "555555555",
+      "city": "Warsaw",
+      "companyRef": "hylono-operations"
+    },
+    {
+      "key": "vistula-intake-lead",
+      "email": "pilot@vistula-rehab.example",
+      "firstName": "Alicja",
+      "lastName": "Nowak",
+      "phone": "501100200",
+      "city": "Warsaw",
+      "companyRef": "vistula-rehab"
+    },
+    {
+      "key": "northshore-booking-lead",
+      "email": "bookings@northshore-wellness.example",
+      "firstName": "Marek",
+      "lastName": "Kowalski",
+      "phone": "502300400",
+      "city": "Gdansk",
+      "companyRef": "northshore-wellness"
+    }
+  ],
+  "opportunities": [
+    {
+      "key": "website-contact-queue",
+      "name": "Website contact follow-up queue",
+      "amountMicros": 149000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "contact-desk"
+    },
+    {
+      "key": "rental-triage-queue",
+      "name": "Rental request triage queue",
+      "amountMicros": 399000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "support-desk"
+    },
+    {
+      "key": "checkout-recovery-queue",
+      "name": "Checkout recovery queue",
+      "amountMicros": 950000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "ops-queue"
+    },
+    {
+      "key": "medtech-intake-triage-queue",
+      "name": "Medtech intake triage queue",
+      "amountMicros": 225000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "ops-queue"
+    },
+    {
+      "key": "consultation-booking-readiness-queue",
+      "name": "Consultation booking readiness queue",
+      "amountMicros": 129000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "support-desk"
+    },
+    {
+      "key": "post-consult-follow-up-queue",
+      "name": "Post-consult follow-up queue",
+      "amountMicros": 179000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "contact-desk"
+    },
+    {
+      "key": "consent-completion-reminder-queue",
+      "name": "Consent completion reminder queue",
+      "amountMicros": 79000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "hylono-operations",
+      "pointOfContactRef": "ops-queue"
+    },
+    {
+      "key": "clinical-pilot-intake-vistula",
+      "name": "Clinical pilot intake - Vistula Rehab Clinic",
+      "amountMicros": 289000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "vistula-rehab",
+      "pointOfContactRef": "vistula-intake-lead"
+    },
+    {
+      "key": "consultation-booking-northshore",
+      "name": "Consultation booking - Northshore Wellness Center",
+      "amountMicros": 129000000,
+      "currencyCode": "EUR",
+      "stage": "NEW",
+      "companyRef": "northshore-wellness",
+      "pointOfContactRef": "northshore-booking-lead"
+    }
+  ],
+  "tasks": [
+    {
+      "title": "Review website intake backlog",
+      "bodyText": "Check the latest contact, booking, newsletter, checkout, and rental submissions coming from the local Hylono web app.",
+      "status": "TODO"
+    },
+    {
+      "title": "Validate CRM to notification handoff",
+      "bodyText": "Confirm that new local intake identities are visible in Twenty and that the matching Novu subscriber profiles exist.",
+      "status": "TODO"
+    },
+    {
+      "title": "Prepare next operator follow-up batch",
+      "bodyText": "Review open local opportunities and decide which contacts should move from discovery into rental, consultation, or checkout follow-up.",
+      "status": "TODO"
+    },
+    {
+      "title": "Review medtech intake triage queue",
+      "bodyText": "Focus queue: Medtech intake triage queue\nCover sources: contact:general, contact:b2b, contact:support, booking:b2b\nVerify company, phone, and next-step notes before routing an intake to bookings or follow-up.",
+      "status": "TODO"
+    },
+    {
+      "title": "Confirm next-day consultation bookings",
+      "bodyText": "Focus queue: Consultation booking readiness queue\nCover sources: booking:consultation, booking:demo, booking:rental-inquiry\nConfirm preferred date, preferred time, timezone, and technology interest before reminders go out.",
+      "status": "TODO"
+    },
+    {
+      "title": "Escalate overdue follow-up ladder",
+      "bodyText": "Focus queues: Post-consult follow-up queue, Consent completion reminder queue, Checkout recovery queue\nCover sources: checkout:card, checkout:bank_transfer, checkout:financing, rental:pending\nEscalate records with no recent operator touchpoint and record the last attempted contact in Twenty.",
+      "status": "TODO"
+    },
+    {
+      "title": "Audit rental and financing handoffs",
+      "bodyText": "Focus queues: Rental request triage queue, Checkout recovery queue\nReview pending rental and financing records for missing contract value, company context, and operator owner before downstream notifications run.",
+      "status": "TODO"
+    }
+  ]
+}

@@ -50,7 +50,7 @@
 ## Modality Names (official)
 | Modality | Category | Official Name |
 |----------|----------|---------------|
-| mHBOT | Oxygen | Mild Hyperbaric Oxygen Therapy |
+| HBOT | Oxygen | Mild Hyperbaric Oxygen Therapy |
 | H₂ | Hydrogen | Hydrogen Inhalation / Hydrogen Water |
 | RLT/NIR | Light | Red Light Therapy / Near-Infrared |
 | PEMF | Signal | Pulsed Electromagnetic Field |

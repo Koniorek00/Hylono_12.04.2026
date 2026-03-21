@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
   Activity,
@@ -118,8 +118,15 @@ const resolveFooterHref = (link: FooterLink): string | null => {
   return null;
 };
 
+const FALLBACK_YEAR = '2026';
+
 export function Footer() {
-  const year = new Date().getFullYear();
+  const [year, setYear] = useState(FALLBACK_YEAR);
+
+  useEffect(() => {
+    setYear(String(new Date().getFullYear()));
+  }, []);
+
   const socialLinkClasses =
     'flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 text-gray-400 transition-all hover:border-white/30 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]';
 

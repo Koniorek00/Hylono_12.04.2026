@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo, useRef, useState, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';

@@ -39,68 +39,74 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
   items,
   showHomeIcon = true,
 }) => {
-  // On mobile, show only last 2 items
   const displayItems = items;
 
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center">
-      <ol className="flex items-center gap-1 text-sm">
+    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center">
+      <ol className="m-0 flex min-w-0 list-none flex-wrap items-center gap-x-1.5 gap-y-1 p-0 text-sm leading-tight">
         {displayItems.map((item, index) => {
           const isLast = index === displayItems.length - 1;
           const isHome = index === 0;
+          const hideOnMobile = index < displayItems.length - 2;
 
           return (
-            <li key={item.label} className="flex items-center gap-1">
-              {/* Chevron separator (except for first item) */}
+            <li
+              key={item.label}
+              className={`${hideOnMobile ? 'hidden sm:inline-flex' : 'inline-flex'} min-w-0 max-w-full items-center gap-1.5 align-middle`}
+            >
               {index > 0 && (
                 <ChevronRight
                   size={14}
-                  className="text-slate-400 shrink-0"
+                  className="shrink-0 text-slate-400"
                   aria-hidden="true"
                 />
               )}
 
-              {/* Link or current page */}
               {item.isCurrent || isLast ? (
                 <span
-                  className="text-slate-900 font-medium truncate max-w-[150px] sm:max-w-[200px]"
+                  className="inline-flex min-w-0 max-w-full items-center rounded-md px-1 py-0.5 font-medium text-slate-900"
                   aria-current="page"
+                  title={item.label}
                 >
-                  {item.label}
+                  <span className="max-w-full whitespace-normal break-words">{item.label}</span>
                 </span>
               ) : (() => {
                 const href = item.href ?? '#';
                 const commonClasses = `
-                  flex items-center gap-1
+                  inline-flex min-w-0 max-w-full items-center gap-1
+                  rounded-md px-1 py-0.5
                   text-slate-600 hover:text-cyan-700
                   transition-colors duration-200
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700 focus-visible:ring-offset-2 rounded
-                  ${isHome && showHomeIcon ? 'hidden sm:flex' : ''}
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700 focus-visible:ring-offset-2
                 `;
 
-                const content = isHome && showHomeIcon ? (
-                  <Home size={14} aria-hidden="true" />
-                ) : (
-                  <span className="truncate max-w-[100px]">{item.label}</span>
+                const content = (
+                  <>
+                    {isHome && showHomeIcon ? <Home size={14} aria-hidden="true" /> : null}
+                    <span className="max-w-full whitespace-normal break-words" title={item.label}>
+                      {item.label}
+                    </span>
+                  </>
                 );
 
                 return isExternalHref(href) ? (
-                  <a href={href} className={commonClasses} {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}>
+                  <a
+                    href={href}
+                    className={commonClasses}
+                    {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}
+                  >
                     {content}
                   </a>
                 ) : (
-                  <Link href={href} className={commonClasses} {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}>
+                  <Link
+                    href={href}
+                    className={commonClasses}
+                    {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}
+                  >
                     {content}
                   </Link>
                 );
               })()}
-
-              {/* Home text on desktop */}
-              {isHome && showHomeIcon && !item.isCurrent && (
-                <span className="hidden sm:inline text-slate-600 truncate max-w-[100px]">
-                  {item.label}
-                </span>
-              )}
             </li>
           );
         })}

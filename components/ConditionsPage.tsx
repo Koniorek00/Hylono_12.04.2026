@@ -15,7 +15,7 @@ interface ConditionsPageProps {
 }
 
 const modalityProductHref = {
-  mHBOT: '/product/hbot',
+  HBOT: '/product/hbot',
   H2: '/product/hydrogen',
   RLT: '/product/rlt',
   PEMF: '/product/pemf',

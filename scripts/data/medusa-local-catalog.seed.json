@@ -1,0 +1,15 @@
+{
+  "seedVersion": "2026-03-20",
+  "seedName": "Hylono Medusa local catalog baseline",
+  "canonicalProduct": {
+    "title": "Hydrogen Inhalation Machine with Pulse Mode",
+    "handle": "hydrogen-inhalation-machine-with-pulse-mode",
+    "status": "published"
+  },
+  "expectedTables": {
+    "product": 1,
+    "region": 1,
+    "stock_location": 1,
+    "api_key_publishable": 1
+  }
+}

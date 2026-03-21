@@ -29,7 +29,7 @@ export const EcosystemSection: React.FC = () => {
                 {/* Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card
-                        title="Oxygen — mHBOT"
+                        title="Oxygen — HBOT"
                         desc="Hyperbaric oxygen environments that saturate tissues beyond normal respiratory limits."
                         gradient="from-[#E8F4FD] to-white"
                         icon={<Wind className="text-[#0A6E6E]" size={64} />}

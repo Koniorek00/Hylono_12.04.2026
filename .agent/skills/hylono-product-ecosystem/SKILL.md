@@ -5,7 +5,7 @@
 
 ## The Four Modalities
 
-### 🫁 Oxygen — mHBOT (Mild Hyperbaric Oxygen Therapy)
+### 🫁 Oxygen — HBOT (Mild Hyperbaric Oxygen Therapy)
 - **Technology**: Pressurized chamber delivering oxygen at 1.3-1.5 ATA
 - **Mechanism**: Increased atmospheric pressure dissolves more oxygen in blood plasma
 - **Research areas**: Recovery, cognitive function, wound healing, inflammation reduction
@@ -40,10 +40,10 @@
 
 ## Protocol Stacking
 Hylono's USP includes stacking modalities for synergistic effects:
-- **Recovery Protocol**: mHBOT + RLT (oxygen + cellular repair)
+- **Recovery Protocol**: HBOT + RLT (oxygen + cellular repair)
 - **Cognitive Protocol**: PEMF + Hydrogen (neuroprotection + focus)
 - **Sleep Protocol**: RLT (evening) + PEMF mat
-- **Performance Protocol**: mHBOT + RLT + Hydrogen
+- **Performance Protocol**: HBOT + RLT + Hydrogen
 
 ## Product Line Architecture
 ```

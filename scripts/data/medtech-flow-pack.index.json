@@ -1,0 +1,34 @@
+{
+  "packVersion": "2026-03-20",
+  "sourcePack": "docs/strategy/medtech-intake-flow-pack.json",
+  "sourcePolicy": "official-primary-sources-only",
+  "artifacts": [
+    {
+      "laneId": "intake-to-crm",
+      "file": "scripts/data/medtech-flow-pack.intake-to-crm.json",
+      "purpose": "Normalize intake and upsert CRM records before notifying operators."
+    },
+    {
+      "laneId": "consent-first-onboarding",
+      "file": "scripts/data/medtech-flow-pack.consent-first-onboarding.json",
+      "purpose": "Issue reusable consent or agreement flows before the next operational step."
+    },
+    {
+      "laneId": "scheduling-qualification",
+      "file": "scripts/data/medtech-flow-pack.scheduling-qualification.json",
+      "purpose": "Screen, route, and book the right slot before confirmation."
+    },
+    {
+      "laneId": "reminder-ladder",
+      "file": "scripts/data/medtech-flow-pack.reminder-ladder.json",
+      "purpose": "Escalate overdue follow-up and keep consent or onboarding moving."
+    }
+  ],
+  "operatorRules": [
+    "Prefer reusable templates over one-off flow edits.",
+    "Prefer stable external IDs and upsert semantics over create-only writes.",
+    "Keep webhook acknowledgements explicit and fast.",
+    "Use Novu topics for groups and subscriberId for one-to-one messages.",
+    "Use Cal.com routing before booking when qualification matters."
+  ]
+}

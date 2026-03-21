@@ -59,7 +59,7 @@ const splitTerms = (value: string): string[] =>
     .filter((term) => term.length > 1);
 
 const modalityRouteByProduct = {
-  mHBOT: 'product/HBOT',
+  HBOT: 'product/HBOT',
   H2_inhalation: 'product/HYDROGEN',
   H2_water: 'product/HYDROGEN',
   RLT_NIR: 'product/RLT',

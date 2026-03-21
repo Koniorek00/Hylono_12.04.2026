@@ -1,62 +1,69 @@
 import Link from "next/link";
-import { getManifest, getVerifiedLocalUiServices } from "@/lib/manifest";
 import { CopyButton } from "@/components/CopyButton";
+import { getManifest, getVerifiedLocalUiServices } from "@/lib/manifest";
+import { getStagingHandoffSnapshot } from "@/lib/staging-handoff";
 
 const PHASES = [
   {
-    id: "infrastructure",
-    label: "Infrastructure",
-    cmd: "bash scripts/setup.sh infrastructure",
-    tip: "PostgreSQL, Redis, MinIO, MongoDB, Uptime Kuma",
+    id: "launcher",
+    label: "Desktop Launcher",
+    cmd: ".\\start-dev.bat",
+    tip: "Preferred local entrypoint. Starts the stack and replays the seeded operator bootstrap.",
   },
   {
-    id: "1a",
-    label: "Phase 1A",
-    cmd: "bash scripts/setup.sh 1a",
-    tip: "Medusa, Lago, Snipe-IT, Cal.com, Twenty, Documenso, Zitadel, Novu, n8n",
+    id: "granular",
+    label: "Granular Recovery",
+    cmd: ".\\scripts\\setup.ps1 1a",
+    tip: "Use the PowerShell startup scripts only when you need partial control or recovery.",
   },
   {
     id: "stack-review",
     label: "Stack Review",
     cmd: null,
-    tip: "Use the explorer for ports, docs, and integration flow details",
+    tip: "Use the explorer for ports, docs, and integration flow details.",
   },
 ] as const;
 
 const FIRST_TIME_SETUP = [
   {
     step: "1",
-    label: "Generate secrets",
-    cmd: "bash scripts/generate-secrets.sh",
-    note: "Creates .env with unique keys. Run once.",
+    label: "Run the desktop launcher",
+    cmd: ".\\start-dev.bat",
+    note: "Preferred local path. It starts the stack and replays the seeded operator baseline automatically.",
   },
   {
     step: "2",
-    label: "Start infrastructure",
-    cmd: "bash scripts/setup.sh infrastructure",
-    note: "PostgreSQL, Redis, MinIO, MongoDB, and Uptime Kuma",
+    label: "Open Credentials",
+    cmd: null,
+    note: "Use the operator logins and secrets from /admin/credentials instead of guessing first-run accounts.",
   },
   {
     step: "3",
-    label: "Initialize databases",
+    label: "Check the status page",
     cmd: null,
-    note: "PostgreSQL databases are created on first infrastructure boot. Snipe-IT uses its own MariaDB from Phase 1A.",
+    note: "Confirm the browser-facing services are green in Uptime Kuma before you start editing app state.",
   },
   {
     step: "4",
-    label: "Launch Phase 1A",
-    cmd: "bash scripts/setup.sh 1a",
-    note: "Brings up the full pinned Phase 1A runtime, including vendor services and their sidecars.",
+    label: "Use granular scripts only if needed",
+    cmd: ".\\scripts\\setup.ps1 1a",
+    note: "The infrastructure and Phase 1A scripts remain useful for recovery, selective restarts, and debugging.",
   },
 ] as const;
 
 export default function DashboardPage() {
   const manifest = getManifest();
+  const staging = getStagingHandoffSnapshot();
   const all = [...manifest.infrastructure, ...manifest.services];
   const verifiedUiServices = getVerifiedLocalUiServices();
   const essential = all.filter((service) => service.verdict === "ESSENTIAL").length;
   const recommended = all.filter((service) => service.verdict === "RECOMMENDED").length;
   const buildFromSource = all.filter((service) => service.buildFromSource).length;
+  const stagingIssueCount =
+    staging.envSummary.missingKeys.length +
+    staging.envSummary.placeholderKeys.length +
+    staging.envSummary.urlIssues.length +
+    staging.envSummary.numericIssues.length;
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
@@ -69,7 +76,7 @@ export default function DashboardPage() {
             <div>
               <h1 className="text-xl font-bold leading-tight text-white">Hylono Stack</h1>
               <p className="text-xs text-gray-500">
-                v{manifest.meta.version} · Control Panel · Local runtime dashboard
+                v{manifest.meta.version} | Control Panel | Local runtime dashboard
               </p>
             </div>
             <div className="ml-auto hidden text-right sm:block">
@@ -83,9 +90,9 @@ export default function DashboardPage() {
         <div className="mb-6 rounded-xl border border-amber-800/40 bg-amber-950/20 p-4 text-sm text-amber-100/80">
           <p className="font-semibold text-amber-300">Runtime scope</p>
           <p className="mt-1">
-            This panel catalogs the full stack. The current checkout now auto-starts
-            infrastructure plus the pinned Phase 1A runtime. Later phases remain catalogued but
-            are still roadmap-only from this repo.
+            This panel catalogs the full stack. The current checkout now auto-starts infrastructure
+            plus the pinned Phase 1A runtime. Later phases remain catalogued but are still
+            roadmap-only from this repo.
           </p>
         </div>
 
@@ -108,9 +115,59 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        <div className="mb-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+            <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Staging env readiness
+            </div>
+            <div
+              className={`mt-2 text-lg font-bold ${
+                staging.envSummary.ready ? "text-emerald-300" : "text-amber-300"
+              }`}
+            >
+              {staging.envSummary.ready ? "Ready for handoff" : "Needs operator work"}
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              Required keys: {staging.envSummary.requiredKeyCount} | Candidate keys:{" "}
+              {staging.envSummary.candidateKeyCount} | Issues: {stagingIssueCount}
+            </div>
+            <Link
+              href="/admin/staging"
+              className="mt-3 inline-flex text-xs text-cyan-400 transition-colors hover:text-cyan-300"
+            >
+              Open staging surface
+            </Link>
+          </div>
+
+          <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+            <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Operator backbone
+            </div>
+            <div className="mt-2 text-lg font-bold text-white">Local-to-staging contract</div>
+            <div className="mt-2 text-xs leading-relaxed text-gray-500">
+              Local launcher, seeded operator accounts, exported workflows, and file-backed staging
+              validation are the canonical baseline. Promote artifacts, not ad hoc app state.
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                href="/admin/blueprints"
+                className="rounded-lg border border-cyan-700/40 bg-cyan-900/20 px-3 py-1.5 text-xs text-cyan-300 transition-colors hover:bg-cyan-800/30 hover:text-cyan-200"
+              >
+                Blueprints
+              </Link>
+              <Link
+                href="/admin/progress"
+                className="rounded-lg border border-emerald-700/40 bg-emerald-900/20 px-3 py-1.5 text-xs text-emerald-300 transition-colors hover:bg-emerald-800/30 hover:text-emerald-200"
+              >
+                Progress
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <div className="mb-10">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-            Deployment Pipeline
+            Operator Entry
           </h2>
           <div className="space-y-2">
             {PHASES.map((phase, index) => (
@@ -142,7 +199,7 @@ export default function DashboardPage() {
 
         <div className="mb-10">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-            First-Time Setup
+            First-Time Local Flow
           </h2>
           <div className="divide-y divide-gray-800 rounded-xl border border-gray-800 bg-gray-900">
             {FIRST_TIME_SETUP.map((item) => (
@@ -186,9 +243,28 @@ export default function DashboardPage() {
 
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { href: "/admin/stack", icon: "[]", label: "Stack", desc: "Catalog + flow map" },
-            { href: "/admin/credentials", icon: "K", label: "Credentials", desc: "First login + secrets" },
-            { href: "/admin/deploy", icon: "/\\", label: "Deploy", desc: "Accurate launch steps" },
+            { href: "/admin/progress", icon: "P", label: "Progress", desc: "What is ready now" },
+            {
+              href: "/admin/blueprints",
+              icon: "B",
+              label: "Blueprints",
+              desc: "Source-backed flow pack",
+            },
+            { href: "/admin/staging", icon: "T", label: "Staging", desc: "Handoff scaffold" },
+            { href: "/admin/stack", icon: "S", label: "Stack", desc: "Catalog + flow map" },
+            {
+              href: "/admin/credentials",
+              icon: "K",
+              label: "Credentials",
+              desc: "First login + secrets",
+            },
+            {
+              href: "/admin/quickstart",
+              icon: "1",
+              label: "Quick Start",
+              desc: "Launcher-first path",
+            },
+            { href: "/admin/deploy", icon: "D", label: "Deploy", desc: "Accurate launch steps" },
             { href: "/admin/commands", icon: ">", label: "Commands", desc: "Copy real commands" },
             { href: "/admin/help", icon: "?", label: "Help", desc: "Troubleshooting notes" },
           ].map((item) => (

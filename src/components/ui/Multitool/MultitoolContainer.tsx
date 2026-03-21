@@ -175,7 +175,7 @@ const MultitoolDropdown: React.FC<{
       exit="hidden"
       className={`
         fixed
-        w-[300px] max-w-[calc(100vw-32px)]
+        w-72 max-w-[92vw]
         bg-white/95 backdrop-blur-md
         border border-slate-200
         rounded-xl shadow-xl shadow-slate-900/15
@@ -560,4 +560,3 @@ export const MultitoolContainer: React.FC<MultitoolContainerProps> = ({
 };
 
 export default MultitoolContainer;
-

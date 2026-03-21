@@ -59,7 +59,7 @@ export const HelpCenterPage: React.FC<HelpCenterPageProps> = ({ initialTab = 'fa
     const shouldReduceMotion = useReducedMotion();
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-10 pb-24">
+        <div className="min-h-screen bg-slate-50 pt-6 pb-24 md:pt-8">
             <div className="max-w-6xl mx-auto px-6">
                 {/* Hero Header */}
                 <motion.div

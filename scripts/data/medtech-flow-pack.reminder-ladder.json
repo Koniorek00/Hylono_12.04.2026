@@ -1,0 +1,49 @@
+{
+  "packVersion": "2026-03-20",
+  "laneId": "reminder-ladder",
+  "laneName": "Reminder ladder",
+  "purpose": "Reduce no-shows and complete consent or onboarding.",
+  "sourcePolicy": "official-primary-sources-only",
+  "sourceTools": ["Twenty", "n8n", "Novu"],
+  "trigger": {
+    "tool": "Twenty",
+    "pattern": "Scheduled workflow or overdue task"
+  },
+  "recordModel": {
+    "twentyObjects": ["Tasks", "Opportunities", "Notes"],
+    "escalationStateField": "followUpStatus",
+    "notificationRouting": ["subscriberId", "topicKey"]
+  },
+  "payloadContract": {
+    "required": ["externalId", "ownerEmail", "workflowState", "nextReminderAt"],
+    "recommended": ["taskTitle", "taskBody", "priority", "reminderStep", "topicKey"],
+    "normalizationRules": [
+      "Escalate only after the current due window expires.",
+      "Use topic fan-out for shared queues and subscriberId for individuals.",
+      "Keep reminder state deterministic so retries do not duplicate messaging."
+    ]
+  },
+  "actions": [
+    "Check for overdue tasks or missing completion events",
+    "Send first reminder in Novu",
+    "Escalate through n8n after delay if still incomplete",
+    "Update record stage or owner if needed"
+  ],
+  "recommendedSeeds": [
+    "scripts/data/twenty-operator-workspace.seed.json",
+    "n8n-workflows/phase-2-local/order_created.json",
+    "n8n-workflows/phase-2-local/rental_requested.json"
+  ],
+  "officialSources": [
+    "https://docs.novu.co/platform/how-novu-works",
+    "https://docs.novu.co/platform/concepts/topics",
+    "https://docs.novu.co/platform/concepts/subscribers",
+    "https://docs.twenty.com/user-guide/workflows/capabilities/workflow-triggers",
+    "https://docs.twenty.com/user-guide/workflows/capabilities/workflow-actions"
+  ],
+  "guardrails": [
+    "Do not start the ladder from unqualified or missing state.",
+    "Do not send reminders without a stable owner or subscriber target.",
+    "Do not create a new notification flow when a reusable topic already exists."
+  ]
+}

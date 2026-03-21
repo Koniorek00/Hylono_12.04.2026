@@ -31,6 +31,7 @@ const AUTH_SESSION_ROUTE_PREFIXES = [
   '/account',
   '/affiliate',
   '/login',
+  '/nexus',
   '/partners',
   '/rewards',
 ];
@@ -47,6 +48,17 @@ export function Providers({ children }: ProvidersProps) {
   const pathname = usePathname();
 
   useEffect(() => {
+    const deferAnalyticsInit = () => {
+      const schedule =
+        'requestIdleCallback' in window
+          ? window.requestIdleCallback.bind(window)
+          : (callback: () => void) => window.setTimeout(callback, 1);
+
+      schedule(() => {
+        void initPostHog();
+      });
+    };
+
     let localStorageRaw: string | null = null;
     try { localStorageRaw = localStorage.getItem(CONSENT_KEY); } catch { /* ignore */ }
     const localStorageConsent = parseConsentPayload(localStorageRaw);
@@ -67,7 +79,7 @@ export function Providers({ children }: ProvidersProps) {
       if (raw) {
         const stored = JSON.parse(raw) as Partial<ConsentDetail>;
         if (stored.analytics === true) {
-          void initPostHog();
+          deferAnalyticsInit();
         }
       }
     } catch {
@@ -79,7 +91,7 @@ export function Providers({ children }: ProvidersProps) {
       if ('detail' in e) {
         const detail = (e as CustomEvent<ConsentDetail>).detail;
         if (detail?.analytics === true) {
-          void initPostHog();
+          deferAnalyticsInit();
         }
       }
     };

@@ -56,3 +56,19 @@ system-architect | T1
 [DECISION-2026-03-03-013]: Add intent-level acceptance verification and Type E partial-success failure classification to system-architect contracts |
 User-reported backup incident proved command exit success can mask scope failure; system must validate artifact scope + quantitative sanity before completion claims | If a stronger cross-role verification framework supersedes this rule set |
 system-architect | T1
+
+[DECISION-2026-03-03-014]: Redirect legacy AppRouter breadcrumb import to canonical `src/components/navigation/Breadcrumbs` and remove stale Layout breadcrumb import |
+Deleting legacy breadcrumb file without import realignment risked runtime/build breakage and contradicted canonicalization goals from audit phase 1 | If breadcrumb ownership is moved back to a dedicated legacy compatibility wrapper |
+architect-orchestrator | T3
+
+[DECISION-2026-03-03-015]: Enforce expanded CI guardrails (motion import policy, env access boundary, metadata/use-client separation, WCAG critical audit) |
+Audit phases 2 and 5 required automated prevention of known architectural/accessibility drift classes rather than manual review | If equivalent or stronger checks are implemented in a centralized reusable pipeline package |
+architect-orchestrator | T3
+
+[DECISION-2026-03-03-016]: Stabilize HIGH-01 by deprecating and compile-excluding legacy SPA shell before full deletion |
+Immediate hard deletion risked breaking compatibility imports during active remediation; deprecation markers plus `tsconfig.json` exclusion reduce runtime drift safely while preserving a controlled removal path | If dependency-cutoff verification confirms zero operational consumers and full graph deletion can proceed safely |
+architect-orchestrator | T3
+
+[DECISION-2026-03-03-017]: Canonicalize proxy security boundary via shim-only `src/proxy.ts` re-export of root `proxy.ts` |
+Keeping one authoritative policy implementation eliminates divergent security behavior while preserving compatibility for residual import paths | If all compatibility imports are removed and `src/proxy.ts` can be deleted without reintroducing boundary drift |
+architect-orchestrator | T3

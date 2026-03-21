@@ -1,0 +1,50 @@
+{
+  "packVersion": "2026-03-20",
+  "laneId": "scheduling-qualification",
+  "laneName": "Scheduling qualification",
+  "purpose": "Ask screening questions before booking the right slot.",
+  "sourcePolicy": "official-primary-sources-only",
+  "sourceTools": ["Cal.com", "n8n", "Twenty", "Novu"],
+  "trigger": {
+    "tool": "Cal.com",
+    "pattern": "Routing form or booking webhook"
+  },
+  "recordModel": {
+    "twentyObjects": ["People", "Companies", "Opportunities", "Tasks"],
+    "calcomObjects": ["Event Types", "Routing Forms", "Webhooks"],
+    "scheduleRef": "Hylono Medtech Operator Availability"
+  },
+  "payloadContract": {
+    "required": ["externalId", "contactEmail", "preferredDate", "preferredTime", "timezone"],
+    "recommended": ["carePath", "referralStatus", "notes", "phone", "bookingType"],
+    "normalizationRules": [
+      "Route before booking when qualification matters.",
+      "Use one event type per booking intent.",
+      "Forward booking confirmations to CRM and notification systems."
+    ]
+  },
+  "actions": [
+    "Screen attendee with routing questions",
+    "Route to the correct event type or team member",
+    "Send booking webhook to n8n",
+    "Update CRM stage and owner task",
+    "Send confirmation and reminder notifications"
+  ],
+  "recommendedSeeds": [
+    "scripts/data/calcom-operator-baseline.template.json",
+    "scripts/seed-calcom-operator-baseline.ps1",
+    "n8n-workflows/phase-2-local/booking_requested.json"
+  ],
+  "officialSources": [
+    "https://cal.com/help/event-types/event-types",
+    "https://cal.com/help/event-types/create-first-event",
+    "https://cal.com/routing",
+    "https://cal.com/help/webhooks",
+    "https://docs.novu.co/platform/workflow/create-a-workflow"
+  ],
+  "guardrails": [
+    "Keep personal and team event types separate.",
+    "Use booking webhooks instead of polling for state changes.",
+    "Do not let routing questions become ad hoc one-off forms."
+  ]
+}

@@ -34,7 +34,7 @@ const TECH_CONFIG: {
 }[] = [
     {
         type: TechType.HBOT,
-        title: 'mHBOT',
+        title: 'HBOT',
         tagline: 'Bio-Available Oxygen & Pressure',
         icon: <Wind size={28} />,
         iconBg: 'bg-cyan-500',

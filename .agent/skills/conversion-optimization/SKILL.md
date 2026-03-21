@@ -20,7 +20,7 @@ Can a visitor answer these in 10 seconds?
 ### Friction Points by Stage
 
 **Awareness → Interest**
-- No clear category explanation (what IS mHBOT?)
+- No clear category explanation (what IS HBOT?)
 - Too much jargon, not enough transformation language
 - No social proof visible
 - Hero takes too long to load

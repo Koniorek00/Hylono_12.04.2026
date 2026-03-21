@@ -1,7 +1,7 @@
 'use client';
 
-import { HelpCenterPage } from '@/components/HelpCenterPage';
+import { ContactPage } from '@/components/ContactPage';
 
 export function ContactClient() {
-  return <HelpCenterPage initialTab="contact" />;
+  return <ContactPage />;
 }

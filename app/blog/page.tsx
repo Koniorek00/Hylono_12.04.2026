@@ -21,7 +21,7 @@ const BLOG_CATEGORY_TO_PRODUCT_ROUTE: Record<string, string | null> = {
 };
 
 const BLOG_CATEGORY_TO_PRODUCT_NAME: Record<string, string> = {
-  HBOT: 'Hylono mHBOT',
+  HBOT: 'Hylono HBOT',
   PEMF: 'Hylono PEMF + VNS',
   RLT: 'Hylono PBM / Red Light',
   Hydrogen: 'Hylono Hydrogen',
@@ -110,12 +110,12 @@ export default function BlogPageRoute() {
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
             about: [
-              { '@type': 'Product', '@id': `${SITE_URL}/product/hbot#product`, name: 'Hylono mHBOT', url: `${SITE_URL}/product/hbot` },
+              { '@type': 'Product', '@id': `${SITE_URL}/product/hbot#product`, name: 'Hylono HBOT', url: `${SITE_URL}/product/hbot` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/hydrogen#product`, name: 'Hylono Hydrogen', url: `${SITE_URL}/product/hydrogen` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/rlt#product`, name: 'Hylono PBM / Red Light', url: `${SITE_URL}/product/rlt` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/pemf#product`, name: 'Hylono PEMF + VNS', url: `${SITE_URL}/product/pemf` },
             ],
-            keywords: 'hyperbaric oxygen therapy articles, PEMF wellness research, hydrogen therapy blog, red light therapy articles, mHBOT research notes, wellness protocol guides',
+            keywords: 'hyperbaric oxygen therapy articles, PEMF wellness research, hydrogen therapy blog, red light therapy articles, HBOT research notes, wellness protocol guides',
             mainEntity: { '@id': `${SITE_URL}/blog#article-list` },
             speakable: {
               '@type': 'SpeakableSpecification',

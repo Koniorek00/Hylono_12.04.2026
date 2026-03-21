@@ -5,30 +5,30 @@ import { getVerifiedLocalUiServices } from "@/lib/manifest";
 const STEPS = [
   {
     num: "1",
-    title: "Generate secrets",
-    desc: "Create a local .env file with unique passwords and app secrets. Run once.",
-    code: "bash scripts/generate-secrets.sh",
-    note: "Safe to run. The script skips if .env already exists.",
+    title: "Run the desktop launcher",
+    desc: "Use the desktop/local launcher instead of piecing the stack together manually. It is the default local entrypoint now.",
+    code: ".\\start-dev.bat",
+    note: "This starts the site, control panel, Docker services, and the seeded operator bootstrap.",
     color: "border-blue-700 bg-blue-950/20",
-    icon: "KEY",
+    icon: "BAT",
   },
   {
     num: "2",
-    title: "Start infrastructure",
-    desc: "Boot the shared core services: PostgreSQL, Redis, MinIO, MongoDB, and Uptime Kuma.",
-    code: "bash scripts/setup.sh infrastructure",
-    note: "First boot can take about 30 seconds because images may need to be pulled.",
-    color: "border-purple-700 bg-purple-950/20",
-    icon: "INFRA",
+    title: "Open Credentials",
+    desc: "Use the operator logins and secrets from the credentials page instead of guessing first-run accounts.",
+    code: null,
+    note: "Go to /admin/credentials for browser logins, API keys, and infrastructure access.",
+    color: "border-emerald-700 bg-emerald-950/20",
+    icon: "KEY",
   },
   {
     num: "3",
-    title: "Start Phase 1A",
-    desc: "Launch the pinned Phase 1A runtime: Medusa, Lago, Snipe-IT, Cal.com, Twenty CRM, Documenso, Zitadel, Novu, n8n, and the required sidecars.",
-    code: "bash scripts/setup.sh 1a",
-    note: "First boot is heavier here because Medusa is built locally and Cal.com runs additional seed steps.",
-    color: "border-green-700 bg-green-950/20",
-    icon: "1A",
+    title: "Check local health",
+    desc: "Confirm the stack is green in the status page before changing app state or debugging a service.",
+    code: "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\smoke-local-stack.ps1",
+    note: "Use the deep variant later when you want to verify the full intake and operator path.",
+    color: "border-purple-700 bg-purple-950/20",
+    icon: "CHK",
   },
 ] as const;
 
@@ -41,7 +41,7 @@ export default function QuickStartPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">Quick Start</h1>
           <p className="mt-1 text-sm text-gray-400">
-            Follow these three steps to bring up the verified local stack.
+            Launcher-first path for bringing the verified local stack online.
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export default function QuickStartPage() {
             <li>Docker Desktop must be running</li>
             <li>Reserve at least 8 GB RAM for the local stack</li>
             <li>Run commands from the project root directory</li>
-            <li>On Windows, use Git Bash or WSL for the shell scripts</li>
+            <li>Use the PowerShell-native scripts on Windows</li>
           </ul>
         </div>
 
@@ -68,7 +68,7 @@ export default function QuickStartPage() {
                     <h2 className="text-base font-semibold text-white">{step.title}</h2>
                   </div>
                   <p className="mb-3 text-sm text-gray-300">{step.desc}</p>
-                  <CopyCodeBlock code={step.code} />
+                  {step.code ? <CopyCodeBlock code={step.code} /> : null}
                   <p className="mt-2 text-xs text-gray-500">{step.note}</p>
                 </div>
               </div>
@@ -79,7 +79,8 @@ export default function QuickStartPage() {
         <div className="mt-8 rounded-xl border border-gray-800 bg-gray-900 p-5">
           <h2 className="mb-3 text-base font-semibold text-white">Verified browser URLs</h2>
           <p className="mb-4 text-sm text-gray-400">
-            Once the stack is up, these are the browser-facing entry points for the verified local runtime.
+            Once the launcher finishes, these are the browser-facing entry points for the verified
+            local runtime.
           </p>
           <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
             {verifiedUiServices.map((service) => (
@@ -95,6 +96,13 @@ export default function QuickStartPage() {
         </div>
 
         <div className="mt-6 flex gap-3">
+          <Link
+            href="/admin/credentials"
+            className="flex-1 rounded-xl border border-gray-800 bg-gray-900 p-4 text-center transition-colors hover:border-gray-600"
+          >
+            <div className="text-sm font-medium text-white">Credentials</div>
+            <div className="mt-0.5 text-xs text-gray-500">Logins and secrets</div>
+          </Link>
           <Link
             href="/admin/commands"
             className="flex-1 rounded-xl border border-gray-800 bg-gray-900 p-4 text-center transition-colors hover:border-gray-600"

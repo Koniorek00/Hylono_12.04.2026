@@ -1,18 +1,18 @@
 ---
-title: "Micro-Hyperbaric Oxygen Therapy (mHBOT) | Hylono"
+title: "Micro-Hyperbaric Oxygen Therapy (HBOT) | Hylono"
 modality: "HBOT"
 slug: "hbot"
 id: "KP-HBOT-001"
 last_updated: "2026-02-22"
 ---
 
-# Micro-Hyperbaric Oxygen Therapy (mHBOT)
+# Micro-Hyperbaric Oxygen Therapy (HBOT)
 
-## What is mHBOT?
+## What is HBOT?
 
-Micro-Hyperbaric Oxygen Therapy (mHBOT) delivers concentrated oxygen at mildly elevated atmospheric pressure—typically 1.1 to 1.5 ATA (atmospheres absolute). This combination allows your bloodstream to carry significantly more oxygen than under normal conditions, saturating tissues and supporting cellular processes that depend on oxygen availability.
+Micro-Hyperbaric Oxygen Therapy (HBOT) delivers concentrated oxygen at mildly elevated atmospheric pressure—typically 1.1 to 1.5 ATA (atmospheres absolute). This combination allows your bloodstream to carry significantly more oxygen than under normal conditions, saturating tissues and supporting cellular processes that depend on oxygen availability.
 
-Unlike clinical HBOT used in hospitals (2.0+ ATA for approved medical conditions), mHBOT operates in the "mild" pressure range designed for wellness applications, recovery support, and general wellbeing optimisation. The lower pressure profile makes it suitable for home use while still creating a meaningful hyperoxic environment.
+Unlike clinical HBOT used in hospitals (2.0+ ATA for approved medical conditions), HBOT operates in the "mild" pressure range designed for wellness applications, recovery support, and general wellbeing optimisation. The lower pressure profile makes it suitable for home use while still creating a meaningful hyperoxic environment.
 
 ### The Science Behind It
 
@@ -24,7 +24,7 @@ At 1.3 ATA with 95% oxygen:
 - Mitochondria receive additional substrate for ATP production
 - The hyperoxic environment persists for 30-60 minutes post-session
 
-This is why mHBOT is sometimes described as "creating a hyperoxic reserve" — the extra oxygen dissolved in plasma becomes available to tissues that may have been operating in a suboptimal oxygen state.
+This is why HBOT is sometimes described as "creating a hyperoxic reserve" — the extra oxygen dissolved in plasma becomes available to tissues that may have been operating in a suboptimal oxygen state.
 
 ---
 
@@ -39,7 +39,7 @@ This is why mHBOT is sometimes described as "creating a hyperoxic reserve" — t
 
 ---
 
-## What mHBOT May Support
+## What HBOT May Support
 
 Research suggests mild hyperbaric oxygen therapy may support the following wellness outcomes. Individual results vary based on baseline health status, consistency of use, and protocol adherence.
 
@@ -71,7 +71,7 @@ Research suggests mild hyperbaric oxygen therapy may support the following welln
 
 ---
 
-## How mHBOT Works — The Mechanism
+## How HBOT Works — The Mechanism
 
 ### Step 1: Pressure Environment
 The hyperbaric chamber creates a pressurised environment (1.1–1.5 ATA). This is equivalent to being approximately 1-5 metres underwater — enough pressure to significantly affect gas dissolution in body fluids, but well within safe limits for healthy individuals.
@@ -114,7 +114,7 @@ The benefits extend beyond the session itself. Hyperoxia-induced changes (gene e
 4. Monitor cumulative benefits over 8-12 week periods
 
 ### Combination Protocols
-mHBOT works synergistically with other modalities:
+HBOT works synergistically with other modalities:
 - **HBOT + RLT**: Light therapy before chamber session may prime mitochondria
 - **HBOT + PEMF**: Electromagnetic support post-session may enhance tissue effects
 - **HBOT + Hydrogen**: Antioxidant support alongside hyperoxic sessions
@@ -184,9 +184,9 @@ mHBOT works synergistically with other modalities:
 
 ---
 
-## mHBOT vs. Clinical HBOT — Understanding the Difference
+## HBOT vs. Clinical HBOT — Understanding the Difference
 
-| Characteristic | mHBOT (Wellness) | Clinical HBOT (Medical) |
+| Characteristic | HBOT (Wellness) | Clinical HBOT (Medical) |
 |---------------|------------------|------------------------|
 | Pressure | 1.1–1.5 ATA | 2.0–3.0 ATA |
 | Setting | Home, wellness centres | Hospital, clinics |
@@ -195,7 +195,7 @@ mHBOT works synergistically with other modalities:
 | Cost per session | Significantly lower | Significantly higher |
 | Session frequency | Regular ongoing use | Condition-specific protocols |
 
-Clinical HBOT is used for approved medical indications (wound healing, carbon monoxide poisoning, decompression sickness) under physician supervision. mHBOT is designed for wellness applications where the goal is general health optimisation, not treatment of specific medical conditions.
+Clinical HBOT is used for approved medical indications (wound healing, carbon monoxide poisoning, decompression sickness) under physician supervision. HBOT is designed for wellness applications where the goal is general health optimisation, not treatment of specific medical conditions.
 
 ---
 
@@ -216,7 +216,7 @@ Portable, lower-pressure options for those seeking a gentler introduction to hyp
 
 ---
 
-## Who Uses mHBOT
+## Who Uses HBOT
 
 - **Athletes & fitness enthusiasts** — Supporting recovery between training sessions
 - **High-performance professionals** — Maintaining cognitive function under demanding workloads
@@ -231,27 +231,27 @@ Portable, lower-pressure options for those seeking a gentler introduction to hyp
 ### How does it feel inside the chamber?
 Most people describe it as similar to being on an aeroplane during descent. You'll feel pressure in your ears, which is relieved by yawning or swallowing. Once at pressure, it feels normal — you can read, listen to music, or simply relax.
 
-### Is mHBOT safe?
-When used according to guidelines and with awareness of contraindications, mHBOT has an excellent safety profile. The pressure range (1.1–1.5 ATA) is significantly lower than clinical HBOT and well-tolerated by healthy individuals.
+### Is HBOT safe?
+When used according to guidelines and with awareness of contraindications, HBOT has an excellent safety profile. The pressure range (1.1–1.5 ATA) is significantly lower than clinical HBOT and well-tolerated by healthy individuals.
 
 ### How long until I notice benefits?
 Many users report subtle effects (improved sleep, morning energy) within the first 1-2 weeks of consistent use. More substantial benefits typically emerge over 4-8 weeks of regular sessions.
 
-### Can I use mHBOT if I'm healthy?
-Yes. mHBOT is designed for wellness applications and can be used by healthy individuals seeking to optimise recovery, cognitive function, and general wellbeing.
+### Can I use HBOT if I'm healthy?
+Yes. HBOT is designed for wellness applications and can be used by healthy individuals seeking to optimise recovery, cognitive function, and general wellbeing.
 
 ### Do I need a prescription?
-No prescription is required for mHBOT in most jurisdictions because it operates at pressures below the clinical medical device threshold. However, we always recommend consulting your healthcare provider before starting any new wellness protocol.
+No prescription is required for HBOT in most jurisdictions because it operates at pressures below the clinical medical device threshold. However, we always recommend consulting your healthcare provider before starting any new wellness protocol.
 
 ---
 
 ## Medical Disclaimer
 
-**Not intended to diagnose, treat, cure, or prevent any disease.** The information provided is for educational purposes only. mHBOT is a wellness device designed to support general wellbeing. Always consult your healthcare provider before beginning any new wellness protocol, especially if you have a pre-existing medical condition, are pregnant, or are taking medication.
+**Not intended to diagnose, treat, cure, or prevent any disease.** The information provided is for educational purposes only. HBOT is a wellness device designed to support general wellbeing. Always consult your healthcare provider before beginning any new wellness protocol, especially if you have a pre-existing medical condition, are pregnant, or are taking medication.
 
 ---
 
-## Ready to Start Your mHBOT Journey?
+## Ready to Start Your HBOT Journey?
 
 Explore our HBOT chamber options or speak with an advisor to find the right configuration for your needs.
 

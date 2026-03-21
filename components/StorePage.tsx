@@ -56,7 +56,7 @@ const parsePriceValue = (price: string): number => {
 const normalizeTerm = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]/g, '');
 
 const getModalityLabel = (tech: TechData): string => {
-    if (tech.id === TechType.HBOT) return 'mHBOT';
+    if (tech.id === TechType.HBOT) return 'HBOT';
     if (tech.id === TechType.HYDROGEN) return 'Hydrogen';
     if (tech.id === TechType.RLT) return 'Red light / NIR';
     if (tech.id === TechType.PEMF) return 'PEMF';
@@ -68,7 +68,7 @@ const getModalityLabel = (tech: TechData): string => {
 };
 
 const modalityToTechMap: Record<string, TechType> = {
-    mHBOT: TechType.HBOT,
+    HBOT: TechType.HBOT,
     H2_inhalation: TechType.HYDROGEN,
     H2_water: TechType.HYDROGEN,
     RLT_NIR: TechType.RLT,
@@ -124,7 +124,7 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
 
             if (selectedTechnologies.size > 0) {
                 const technologyMatches = Array.from(selectedTechnologies).some((selectedTech) => {
-                    if (selectedTech === 'mHBOT') return tech.id === TechType.HBOT;
+                    if (selectedTech === 'HBOT') return tech.id === TechType.HBOT;
                     if (selectedTech === 'H2') return tech.id === TechType.HYDROGEN;
                     if (selectedTech === 'RLT') return tech.id === TechType.RLT;
                     if (selectedTech === 'PEMF') return tech.id === TechType.PEMF;

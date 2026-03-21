@@ -208,7 +208,7 @@ That is the best of both worlds.
 
 Yes, often that is the best solution.
 
-For Hylono, this is especially true for `mHBOT`.
+For Hylono, this is especially true for `HBOT`.
 
 ### Why it can be good
 

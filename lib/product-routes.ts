@@ -4,7 +4,7 @@ const TECH_TYPES = Object.values(TechType) as TechType[];
 
 export const LEGACY_PRODUCT_ROUTE_REDIRECTS = {
   'h2-hop450': 'hydrogen',
-  'mhbot-st1700': 'hbot',
+  'hbot-st1700': 'hbot',
 } as const;
 
 export const getTechRouteSlug = (tech: TechType): string => tech.toLowerCase();

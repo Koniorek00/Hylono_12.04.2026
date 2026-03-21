@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo, useCallback } from 'react';
 import { PartnerLayout } from './PartnerLayout';
 import { motion, AnimatePresence } from 'motion/react';
@@ -498,7 +500,7 @@ export const Nexus: React.FC = () => {
     ];
 
     return (
-        <PartnerLayout title="Clients — Nexus">
+        <PartnerLayout title="Clients">
             <div className="flex flex-col h-full -m-4 md:-m-6 lg:-m-8">
 
                 {/* ── Toolbar ─────────────────────────────────────── */}

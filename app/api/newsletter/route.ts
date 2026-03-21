@@ -7,8 +7,11 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { env } from '@/lib/env';
-import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
 import { newsletterSubscriptionsTable } from '@/lib/db/schema';
+import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
+import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
+import { syncPersonToTwenty } from '@/lib/integrations/twenty';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface NewsletterRequest {
@@ -64,6 +67,7 @@ export async function POST(request: Request): Promise<Response> {
             );
         }
 
+        await ensureDatabaseReady();
         const db = getDb();
 
         try {
@@ -129,6 +133,39 @@ export async function POST(request: Request): Promise<Response> {
                 updatedAt: new Date(),
             })
             .where(eq(newsletterSubscriptionsTable.email, sanitizedEmail));
+
+        await Promise.allSettled([
+            dispatchIntakeEventToN8n({
+                target: 'newsletter',
+                eventType: 'newsletter.subscribed',
+                payload: {
+                    email: sanitizedEmail,
+                    firstName: sanitizedFirstName,
+                    providerSynced,
+                    source,
+                },
+            }),
+            syncPersonToTwenty({
+                email: sanitizedEmail,
+                firstName: sanitizedFirstName,
+                source: `newsletter:${source}`,
+            }),
+            syncAndNotifySubscriberViaNovu({
+                email: sanitizedEmail,
+                firstName: sanitizedFirstName,
+                source: `newsletter:${source}`,
+                title: 'Newsletter subscription confirmed',
+                message: `You are subscribed to Hylono updates from the ${source} flow. We will use this channel for product, protocol, and research updates.`,
+                data: {
+                    providerSynced,
+                    source,
+                },
+                payload: {
+                    providerSynced,
+                    source,
+                },
+            }),
+        ]);
 
         // Non-PII operational log (keep for observability until provider integration is wired)
         console.info(`[newsletter] Subscription accepted: source=${source}`);

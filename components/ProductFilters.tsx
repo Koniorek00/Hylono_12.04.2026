@@ -49,7 +49,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ onFilterChange, 
     const [expandedSection, setExpandedSection] = useState<string | null>('technology');
 
     const technologies = [
-        { value: 'mHBOT', label: 'Hyperbaric chambers' },
+        { value: 'HBOT', label: 'Hyperbaric chambers' },
         { value: 'H2', label: 'Hydrogen' },
         { value: 'RLT', label: 'Red light / NIR' },
         { value: 'PEMF', label: 'PEMF' },

@@ -20,7 +20,7 @@ const GOAL_OPTIONS: Array<{ id: GoalKey; label: string }> = [
 ];
 
 const MODALITY_OPTIONS: Array<{ id: keyof typeof modalityLabels; label: string }> = [
-  { id: 'mHBOT', label: 'mHBOT' },
+  { id: 'HBOT', label: 'HBOT' },
   { id: 'H2', label: 'H2' },
   { id: 'RLT_NIR', label: 'RLT' },
   { id: 'PEMF', label: 'PEMF' },
@@ -29,14 +29,14 @@ const MODALITY_OPTIONS: Array<{ id: keyof typeof modalityLabels; label: string }
 const SPACE_OPTIONS = ['Home room', 'Clinic room', 'Studio corner', 'Dedicated wellness zone'] as const;
 
 const modalityToProductModalities: Record<string, string[]> = {
-  mHBOT: ['mHBOT', 'O2'],
+  HBOT: ['HBOT', 'O2'],
   H2: ['H2_inhalation', 'H2_water'],
   RLT_NIR: ['RLT_NIR'],
   PEMF: ['PEMF', 'VNS'],
 };
 
 const modalityToLabel: Record<string, string> = {
-  mHBOT: 'mHBOT',
+  HBOT: 'HBOT',
   H2: 'H2',
   RLT_NIR: 'RLT',
   PEMF: 'PEMF',
@@ -58,7 +58,7 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
   const recommendation = useMemo(() => {
-    const modalityScores: Record<string, number> = { mHBOT: 0, H2: 0, RLT_NIR: 0, PEMF: 0 };
+    const modalityScores: Record<string, number> = { HBOT: 0, H2: 0, RLT_NIR: 0, PEMF: 0 };
 
     if (selectedGoals.length > 0) {
       selectedGoals.forEach((goal) => {
@@ -206,7 +206,7 @@ export const ZoneBuilder: React.FC<ZoneBuilderProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-16">
+    <div className="min-h-screen bg-slate-50 pt-6 pb-16 md:pt-8">
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <header className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
           <h1 className="text-3xl font-bold text-slate-900">Wellness Planner</h1>

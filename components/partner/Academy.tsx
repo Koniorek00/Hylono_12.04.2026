@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { PartnerLayout } from './PartnerLayout';
 import { GraduationCap, Clock } from 'lucide-react';

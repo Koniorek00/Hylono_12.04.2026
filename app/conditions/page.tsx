@@ -12,7 +12,7 @@ import { ConditionsClient } from './ConditionsClient';
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 const MODALITY_SLUG_TO_PRODUCT_ROUTE: Record<string, string> = {
-  mHBOT: 'hbot',
+  HBOT: 'hbot',
   H2: 'hydrogen',
   RLT: 'rlt',
   PEMF: 'pemf',

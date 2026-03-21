@@ -1,0 +1,121 @@
+[
+  {
+    "updatedAt": "2026-03-20T07:49:00.000Z",
+    "createdAt": "2026-03-20T07:49:00.000Z",
+    "id": "opFollowup01A",
+    "name": "medtech_followup_digest_escalation",
+    "description": "Builds a compact operator digest plus reminder and escalation actions from a follow-up snapshot payload.",
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "hylono/operator/followup-digest-escalation",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "5cc7bcec-49d3-43c6-ad37-b743d388f84d",
+        "name": "Webhook",
+        "webhookId": "27d3df0e-345f-4725-8bac-4cd9f6bb1b16"
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "const input = $input.first().json ?? {};\nconst body = input.body && typeof input.body === 'object' && !Array.isArray(input.body) ? input.body : input;\nconst toText = (value) => {\n  if (value === null || value === undefined) {\n    return '';\n  }\n\n  return String(value).trim();\n};\nconst toLower = (value) => toText(value).toLowerCase();\nconst novuContract = {\n  digest: {\n    eventName: 'operator.digest.daily',\n    templateKey: 'digest-daily'\n  },\n  reminder: {\n    eventName: 'operator.followup.reminder',\n    templateKey: 'followup-reminder'\n  },\n  escalation: {\n    eventName: 'operator.escalation.raised',\n    templateKey: 'escalation-raised'\n  }\n};\nconst validationErrors = [];\nif (!toText(body.batchId)) {\n  validationErrors.push('batchId is required');\n}\nif (!Array.isArray(body.items)) {\n  validationErrors.push('items[] is required');\n}\nconst snapshotAtRaw = toText(body.snapshotAt) || new Date().toISOString();\nconst snapshotAtDate = Number.isNaN(Date.parse(snapshotAtRaw)) ? new Date() : new Date(snapshotAtRaw);\nconst items = Array.isArray(body.items) ? body.items : [];\nconst normalizedItems = items.map((entry, index) => {\n  const queueName = toText(entry.queueName) || 'Website contact follow-up queue';\n  const ownerEmail = toLower(entry.ownerEmail) || 'unassigned@hylono.local';\n  const followUpId = toText(entry.followUpId) || toText(entry.externalId) || `followup_${index + 1}`;\n  const dueAtRaw = toText(entry.dueAt);\n  const dueAtDate = dueAtRaw && !Number.isNaN(Date.parse(dueAtRaw)) ? new Date(dueAtRaw) : null;\n  const dueInHours = dueAtDate ? Math.round((dueAtDate.getTime() - snapshotAtDate.getTime()) / 3600000) : null;\n  const overdueHours = dueAtDate ? Math.max(0, Math.round((snapshotAtDate.getTime() - dueAtDate.getTime()) / 3600000)) : null;\n  const reminderCount = Number(entry.reminderCount ?? 0);\n  const priority = toLower(entry.priority) || 'routine';\n  const preferredChannel = toLower(entry.preferredChannel) || 'email';\n  const bookingStatus = toLower(entry.bookingStatus) || 'pending';\n  const consentStatus = toLower(entry.consentStatus) || 'unknown';\n  const requiresEscalation = Boolean(entry.requiresEscalation) || priority === 'high' || reminderCount >= 2 || (overdueHours !== null && overdueHours >= 24) || consentStatus === 'missing';\n  const needsReminder = (overdueHours !== null && overdueHours >= 0) || consentStatus === 'missing' || bookingStatus === 'unconfirmed';\n  const escalationLevel = requiresEscalation ? (priority === 'high' || consentStatus === 'missing' ? 'clinical-review' : 'operator-escalation') : needsReminder ? 'reminder' : 'monitor';\n  const suggestedNotification = requiresEscalation ? novuContract.escalation : needsReminder ? novuContract.reminder : novuContract.digest;\n  return {\n    followUpId,\n    queueName,\n    ownerEmail,\n    priority,\n    preferredChannel,\n    bookingStatus,\n    consentStatus,\n    reminderCount,\n    dueAt: dueAtDate ? dueAtDate.toISOString() : null,\n    dueInHours,\n    overdueHours,\n    requiresEscalation,\n    needsReminder,\n    escalationLevel,\n    suggestedNovuEvent: suggestedNotification.eventName,\n    suggestedTemplateKey: suggestedNotification.templateKey,\n    patientName: toText(entry.patientName) || null,\n    patientEmail: toLower(entry.patientEmail) || null,\n    note: toText(entry.note) || null\n  };\n});\nconst overdueItems = normalizedItems.filter((item) => item.overdueHours !== null && item.overdueHours > 0);\nconst dueSoonItems = normalizedItems.filter((item) => item.dueInHours !== null && item.dueInHours >= 0 && item.dueInHours <= 4);\nconst escalationItems = normalizedItems.filter((item) => item.requiresEscalation);\nconst summarizeByKey = (source, keyName) => {\n  const map = new Map();\n  for (const item of source) {\n    const key = item[keyName] || 'unknown';\n    const current = map.get(key) || { key, total: 0, overdue: 0, escalations: 0 };\n    current.total += 1;\n    if (item.overdueHours !== null && item.overdueHours > 0) {\n      current.overdue += 1;\n    }\n    if (item.requiresEscalation) {\n      current.escalations += 1;\n    }\n    map.set(key, current);\n  }\n  return Array.from(map.values()).sort((left, right) => right.escalations - left.escalations || right.overdue - left.overdue || left.key.localeCompare(right.key));\n};\nconst byQueue = summarizeByKey(normalizedItems, 'queueName');\nconst byOwner = summarizeByKey(normalizedItems, 'ownerEmail');\nconst reminders = normalizedItems\n  .filter((item) => item.needsReminder)\n  .sort((left, right) => (right.overdueHours ?? -999) - (left.overdueHours ?? -999))\n  .slice(0, 25)\n  .map((item) => ({\n    followUpId: item.followUpId,\n    queueName: item.queueName,\n    ownerEmail: item.ownerEmail,\n    escalationLevel: item.escalationLevel,\n    suggestedNovuEvent: item.suggestedNovuEvent,\n    suggestedTemplateKey: item.suggestedTemplateKey,\n    preferredChannel: item.preferredChannel,\n    dueAt: item.dueAt,\n    overdueHours: item.overdueHours,\n    suggestedTaskTitle: item.requiresEscalation ? `Escalate ${item.followUpId} for same-day review` : `Send reminder for ${item.followUpId}`\n  }));\nconst escalations = escalationItems.slice(0, 25).map((item) => ({\n  followUpId: item.followUpId,\n  queueName: item.queueName,\n  ownerEmail: item.ownerEmail,\n  escalationLevel: item.escalationLevel,\n  reason: item.consentStatus === 'missing' ? 'missing-consent' : item.overdueHours !== null && item.overdueHours >= 24 ? 'overdue-24h' : item.priority === 'high' ? 'priority-high' : 'manual-flag',\n  suggestedNovuEvent: novuContract.escalation.eventName,\n  suggestedTemplateKey: novuContract.escalation.templateKey,\n  suggestedNovuTopicKey: item.queueName === 'Rental request triage queue' ? 'operator-rental-triage' : item.queueName === 'Checkout recovery queue' ? 'operator-checkout-recovery' : 'operator-intake-general'\n}));\nconst digest = {\n  headline: `${overdueItems.length} overdue follow-ups, ${escalationItems.length} escalations`,\n  totalItems: normalizedItems.length,\n  overdueCount: overdueItems.length,\n  dueSoonCount: dueSoonItems.length,\n  escalationCount: escalationItems.length,\n  reminderCount: reminders.length,\n  suggestedNovuEvent: novuContract.digest.eventName,\n  suggestedTemplateKey: novuContract.digest.templateKey,\n  byQueue,\n  byOwner\n};\nconst responseBody = {\n  workflow: 'medtech_followup_digest_escalation',\n  status: validationErrors.length > 0 ? 'invalid' : 'accepted',\n  batchId: toText(body.batchId) || null,\n  snapshotAt: snapshotAtDate.toISOString(),\n  sourceSystem: toText(body.sourceSystem) || 'unknown',\n  digest,\n  reminders,\n  escalations,\n  validationErrors,\n  suggestedNextSteps: [\n    'Persist reminder and escalation actions in Twenty tasks or opportunity notes',\n    'Trigger Novu topic-based notifications for operator visibility',\n    'Run the snapshot at least once per business day before the first operator shift'\n  ]\n};\nreturn [\n  {\n    json: {\n      responseCode: validationErrors.length > 0 ? 422 : 202,\n      responseBody\n    }\n  }\n];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          280,
+          0
+        ],
+        "id": "e6f00af8-8d48-4d38-bf79-1b1ad7056936",
+        "name": "Build Digest"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{$json.responseBody}}",
+          "options": {
+            "responseCode": "={{$json.responseCode}}"
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          580,
+          0
+        ],
+        "id": "bf1cf854-e7c8-42cf-b595-53cd89ec6d7d",
+        "name": "Respond"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Build Digest",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Digest": {
+        "main": [
+          [
+            {
+              "node": "Respond",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": null,
+    "meta": null,
+    "pinData": {},
+    "versionId": "04f53d04-f020-4a5d-a118-a8d8cb6dc343",
+    "activeVersionId": "04f53d04-f020-4a5d-a118-a8d8cb6dc343",
+    "versionCounter": 1,
+    "triggerCount": 1,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-03-20T07:49:00.000Z",
+        "createdAt": "2026-03-20T07:49:00.000Z",
+        "role": "workflow:owner",
+        "workflowId": "opFollowup01A",
+        "projectId": "qsxWp8D20vB0PcZF",
+        "project": {
+          "updatedAt": "2026-03-17T21:06:45.538Z",
+          "createdAt": "2026-03-17T11:07:51.539Z",
+          "id": "qsxWp8D20vB0PcZF",
+          "name": "W M <wiktormyszor@proton.me>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "67a98355-ee40-44cc-9d5b-a64bb47601c5"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": "Medtech operator default",
+      "description": "Webhook-driven follow-up digest and escalation planner for local operator defaults."
+    }
+  }
+]

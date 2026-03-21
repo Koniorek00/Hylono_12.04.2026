@@ -20,7 +20,7 @@ const TESTIMONIALS: Testimonial[] = [
       "The guided HBOT protocol felt immediately different from anything I'd tried before. The structured approach — timing, breathing, recovery intervals — made the experience feel genuinely purposeful. Worth every minute.",
     name: 'Marcus T.',
     role: 'Software Architect',
-    tech: 'mHBOT Protocol',
+    tech: 'HBOT Protocol',
     tag: 'Cognitive Support',
   },
   {

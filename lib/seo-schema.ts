@@ -172,7 +172,7 @@ export const createWebSiteSchema = () => ({
     'wellness technology rental',
     'bio-optimization',
     'evidence-informed wellness',
-    'mHBOT',
+    'HBOT',
   ],
   inLanguage: 'en',
   isAccessibleForFree: true,

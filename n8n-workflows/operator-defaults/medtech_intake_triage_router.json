@@ -1,0 +1,121 @@
+[
+  {
+    "updatedAt": "2026-03-20T07:48:00.000Z",
+    "createdAt": "2026-03-20T07:48:00.000Z",
+    "id": "opMedTriage01",
+    "name": "medtech_intake_triage_router",
+    "description": "Normalizes Hylono intake envelopes into operator queue, SLA, and escalation hints for medtech follow-up.",
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "hylono/operator/intake-triage",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "6f9a8e5a-02dc-4b4e-9607-95dc35cccf4b",
+        "name": "Webhook",
+        "webhookId": "5993dc12-2327-4f3f-9176-df61f235e411"
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "const input = $input.first().json ?? {};\nconst envelope = input.body && typeof input.body === 'object' && !Array.isArray(input.body) ? input.body : input;\nconst payload = envelope.payload && typeof envelope.payload === 'object' && !Array.isArray(envelope.payload) ? envelope.payload : {};\nconst toText = (value) => {\n  if (value === null || value === undefined) {\n    return '';\n  }\n\n  return String(value).trim();\n};\nconst toLower = (value) => toText(value).toLowerCase();\nconst sourceEventType = toText(envelope.eventType);\nconst eventId = toText(envelope.eventId);\nconst occurredAtRaw = toText(envelope.occurredAt) || new Date().toISOString();\nconst occurredAtDate = Number.isNaN(Date.parse(occurredAtRaw)) ? new Date() : new Date(occurredAtRaw);\nconst ticketId = toText(payload.ticketId) || eventId || 'unknown';\nconst fullName = toText(payload.fullName) || toText(payload.name) || `${toText(payload.firstName)} ${toText(payload.lastName)}`.trim();\nconst email = toLower(payload.email);\nconst preferredChannel = toLower(payload.preferredChannel) || 'email';\nconst requestedService = toLower(payload.requestedService) || toLower(payload.intent) || toLower(payload.productLine) || sourceEventType;\nconst urgency = toLower(payload.urgency);\nconst message = `${toText(payload.message)} ${toText(payload.notes)}`.trim().toLowerCase();\nconst symptomFlags = Array.isArray(payload.symptomFlags) ? payload.symptomFlags.map((value) => toLower(value)).filter(Boolean) : [];\nconst referralSource = toText(payload.referralSource) || toText(payload.source) || toText(envelope.source) || 'unknown';\nconst consentAccepted = Boolean(payload.consentAccepted ?? payload.marketingConsent ?? false);\nconst riskKeywords = ['urgent', 'pain', 'fall', 'bleeding', 'infection', 'post-op', 'post op', 'respiratory', 'breathing'];\nconst hasClinicalRisk = symptomFlags.some((value) => riskKeywords.some((keyword) => value.includes(keyword))) || riskKeywords.some((keyword) => message.includes(keyword));\nlet queueName = 'Website contact follow-up queue';\nlet operatorOwnerRole = 'contact-desk';\nlet novuTopicKey = 'operator-intake-general';\nif (sourceEventType === 'rental.requested' || requestedService.includes('rental')) {\n  queueName = 'Rental request triage queue';\n  operatorOwnerRole = 'support-desk';\n  novuTopicKey = 'operator-rental-triage';\n} else if (sourceEventType === 'order.created' || requestedService.includes('checkout') || requestedService.includes('purchase') || requestedService.includes('order')) {\n  queueName = 'Checkout recovery queue';\n  operatorOwnerRole = 'ops-queue';\n  novuTopicKey = 'operator-checkout-recovery';\n}\nlet triageLevel = 'routine';\nif (sourceEventType === 'booking.requested' || requestedService.includes('consult') || requestedService.includes('booking')) {\n  triageLevel = 'fast-track';\n}\nif (urgency === 'high' || urgency === 'urgent' || urgency === 'same-day') {\n  triageLevel = 'priority';\n}\nif (hasClinicalRisk) {\n  triageLevel = 'clinical-review';\n}\nlet followUpWindowHours = 24;\nif (triageLevel === 'fast-track') {\n  followUpWindowHours = 4;\n}\nif (triageLevel === 'priority') {\n  followUpWindowHours = 2;\n}\nif (triageLevel === 'clinical-review') {\n  followUpWindowHours = 1;\n}\nconst followUpDueAt = new Date(occurredAtDate.getTime() + followUpWindowHours * 60 * 60 * 1000).toISOString();\nconst validationErrors = [];\nif (!sourceEventType) {\n  validationErrors.push('eventType is required');\n}\nif (!ticketId || ticketId === 'unknown') {\n  validationErrors.push('payload.ticketId or eventId is required');\n}\nif (!email) {\n  validationErrors.push('payload.email is required');\n}\nconst recommendedActions = [\n  `Create or upsert the person in Twenty using ${email || 'the submitted email'}`,\n  `Route the opportunity into \\\"${queueName}\\\"`,\n  `Schedule first operator touchpoint by ${followUpDueAt}`,\n  `Trigger Novu topic ${novuTopicKey} after CRM sync`\n];\nif (!consentAccepted) {\n  recommendedActions.push('Request explicit consent confirmation before sending benefit-oriented follow-up');\n}\nif (triageLevel === 'clinical-review') {\n  recommendedActions.push('Escalate to a human operator for symptom review before scheduling or selling');\n}\nconst triageId = `triage_${ticketId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;\nconst responseBody = {\n  workflow: 'medtech_intake_triage_router',\n  status: validationErrors.length > 0 ? 'invalid' : 'accepted',\n  triageId,\n  queueName,\n  twentyOpportunityName: queueName,\n  operatorOwnerRole,\n  novuTopicKey,\n  triageLevel,\n  needsHumanReview: hasClinicalRisk || !consentAccepted,\n  followUpDueAt,\n  followUpWindowHours,\n  escalationLevel: triageLevel === 'clinical-review' ? 'clinical-review' : triageLevel === 'priority' ? 'priority' : 'standard',\n  recommendedActions,\n  validationErrors,\n  normalizedPayload: {\n    eventId: eventId || null,\n    eventType: sourceEventType,\n    occurredAt: occurredAtDate.toISOString(),\n    ticketId,\n    email,\n    fullName: fullName || null,\n    phone: toText(payload.phone) || null,\n    city: toText(payload.city) || null,\n    companyName: toText(payload.companyName) || null,\n    requestedService: requestedService || null,\n    preferredChannel,\n    referralSource,\n    urgency: urgency || 'standard',\n    consentAccepted,\n    symptomFlags,\n    bookingWindow: toText(payload.requestedWindow) || null,\n    notes: toText(payload.message) || toText(payload.notes) || null\n  }\n};\nreturn [\n  {\n    json: {\n      responseCode: validationErrors.length > 0 ? 422 : 202,\n      responseBody\n    }\n  }\n];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          260,
+          0
+        ],
+        "id": "580fd5dc-9053-4d93-bf53-09f3d5ef07c1",
+        "name": "Route Intake"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{$json.responseBody}}",
+          "options": {
+            "responseCode": "={{$json.responseCode}}"
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          560,
+          0
+        ],
+        "id": "0a6b37c7-42f3-4214-a69f-a27f8ca4ab4e",
+        "name": "Respond"
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Route Intake",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route Intake": {
+        "main": [
+          [
+            {
+              "node": "Respond",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": null,
+    "meta": null,
+    "pinData": {},
+    "versionId": "cf696699-2cf0-48d6-b727-06fdf04bbf2c",
+    "activeVersionId": "cf696699-2cf0-48d6-b727-06fdf04bbf2c",
+    "versionCounter": 1,
+    "triggerCount": 1,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-03-20T07:48:00.000Z",
+        "createdAt": "2026-03-20T07:48:00.000Z",
+        "role": "workflow:owner",
+        "workflowId": "opMedTriage01",
+        "projectId": "qsxWp8D20vB0PcZF",
+        "project": {
+          "updatedAt": "2026-03-17T21:06:45.538Z",
+          "createdAt": "2026-03-17T11:07:51.539Z",
+          "id": "qsxWp8D20vB0PcZF",
+          "name": "W M <wiktormyszor@proton.me>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "67a98355-ee40-44cc-9d5b-a64bb47601c5"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": "Medtech operator default",
+      "description": "Webhook-driven intake triage router for local operator defaults."
+    }
+  }
+]

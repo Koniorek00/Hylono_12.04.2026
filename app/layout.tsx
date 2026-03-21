@@ -1,15 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
-import { Suspense } from 'react';
 import { Inter, Syncopate } from 'next/font/google';
 import { siteEntity } from '@/content/site-entity';
 import { env } from '@/lib/env';
 import { createOrganizationSchema, createWebSiteSchema } from '@/lib/seo-schema';
-import StructuredData from '@/src/components/StructuredData';
-import { Footer } from '@/src/components/layout/Footer';
-import { GlobalOverlays } from '@/src/components/layout/GlobalOverlays';
-import { Header } from '@/src/components/layout/Header';
-import { RouteBreadcrumbs } from '@/src/components/layout/RouteBreadcrumbs';
+import { StaticStructuredData } from '@/src/components/StaticStructuredData';
+import { SiteChrome } from '@/src/components/layout/SiteChrome';
 import { ConsentAwareVercelTelemetry } from '@/src/components/providers/ConsentAwareVercelTelemetry';
 import { Providers } from '@/src/components/providers/Providers';
 import './globals.css';
@@ -102,32 +98,22 @@ function RootLayoutContent({ children }: RootLayoutContentProps) {
 
   return (
     <>
-      <Suspense fallback={null}>
-        <StructuredData id="jsonld-organization" data={organizationSchema} />
-        <StructuredData id="jsonld-website" data={webSiteSchema} />
-      </Suspense>
-      <Suspense fallback={null}>
-        <Providers>
-          <Suspense fallback={null}>
-            <Header />
-          </Suspense>
-          <RouteBreadcrumbs />
-          <main className="relative z-0 pt-[72px] md:pt-[104px]">{children}</main>
-          <Suspense fallback={null}>
-            <Footer />
-          </Suspense>
-        </Providers>
-      </Suspense>
-      <Suspense fallback={null}>
-        <GlobalOverlays />
-      </Suspense>
+      <StaticStructuredData id="jsonld-organization" data={organizationSchema} />
+      <StaticStructuredData id="jsonld-website" data={webSiteSchema} />
+      <Providers>
+        <SiteChrome>{children}</SiteChrome>
+      </Providers>
     </>
   );
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" className={`${inter.className} ${syncopate.variable}`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${inter.className} ${syncopate.variable}`}
+    >
       <head>
         <link
           rel="alternate"

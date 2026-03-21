@@ -177,10 +177,10 @@ export const PartnerPortal: React.FC = () => {
                         <p className="text-slate-600 text-sm mb-6">
                             Access your partner dashboard, place orders, and download resources.
                         </p>
-                        <Link href="/partner/dashboard" className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2">
-                            Launch Partner OS
+                        <Link href="/nexus" className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2">
+                            Open Nexus
                         </Link>
-                        <Link href="/partner/studio" className="w-full mt-3 py-4 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 flex items-center justify-center gap-2">
+                        <Link href="/nexus/studio" className="w-full mt-3 py-4 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 flex items-center justify-center gap-2">
                             <TrendingUp size={18} /> Access Marketing Studio
                         </Link>
                     </div>
@@ -230,4 +230,3 @@ export const PartnerPortal: React.FC = () => {
         </div>
     );
 };
-

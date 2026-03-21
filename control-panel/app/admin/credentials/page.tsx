@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CopyCodeBlock } from "@/components/CopyButton";
 import { SecretValue } from "@/components/SecretValue";
+import { checkHealth } from "@/lib/health";
+import { getServices } from "@/lib/manifest";
 import {
   getFirstLoginEntries,
   getOperatorCredentialEntries,
@@ -55,14 +57,19 @@ const PRIORITY_META: Record<
 
 const OPERATOR_COMMANDS = [
   {
+    title: "Start the full local operator stack",
+    code: ".\\start-dev.bat",
+    note: "Preferred single entry point. Starts Docker services, the control panel, the site on localhost:3000, and replays the local operator bootstrap seeds for Kuma, Medusa, Snipe-IT, Cal.com, Lago, Twenty, n8n, Novu, plus the mail-profile validation pass.",
+  },
+  {
     title: "Start infrastructure",
-    code: "bash scripts/setup.sh infrastructure",
-    note: "Starts PostgreSQL, Redis, MinIO, MongoDB, and Uptime Kuma.",
+    code: ".\\scripts\\setup.ps1 infrastructure",
+    note: "Run from the repo root in PowerShell. Starts PostgreSQL, Redis, MinIO, MongoDB, and Uptime Kuma.",
   },
   {
     title: "Start Phase 1A runtime",
-    code: "bash scripts/setup.sh 1a",
-    note: "Starts the verified app layer on top of infrastructure.",
+    code: ".\\scripts\\setup.ps1 1a",
+    note: "Run from the repo root in PowerShell. Starts the verified app layer on top of infrastructure.",
   },
   {
     title: "Check infrastructure status",
@@ -74,13 +81,34 @@ const OPERATOR_COMMANDS = [
     code: "docker compose -f docker/phase-1a/docker-compose.yml ps",
     note: "Shows whether the app containers are running and healthy.",
   },
+  {
+    title: "Reapply the operator bootstrap",
+    code: ".\\scripts\\seed-uptime-kuma-operator-config.ps1; .\\scripts\\seed-medusa-local-catalog.ps1; .\\scripts\\seed-snipeit-operator-baseline.ps1; .\\scripts\\seed-calcom-operator-baseline.ps1; .\\scripts\\seed-lago-local-billing.ps1; .\\scripts\\seed-twenty-operator-workspace.ps1; .\\scripts\\seed-n8n-phase2-workflows.ps1; .\\scripts\\seed-novu-operator-bootstrap.ps1; .\\scripts\\validate-mail-provider-env.ps1",
+    note: "Use this if you want to reconcile the local operator layer without re-running the full launcher.",
+  },
 ];
 
 function sortByOrder<T extends { order: number }>(items: T[]) {
   return [...items].sort((a, b) => a.order - b.order);
 }
 
-export default function CredentialsPage() {
+export default async function CredentialsPage() {
+  const services = getServices();
+  const infrastructureServices = services.filter(
+    (service) => service.phase === "infrastructure" && service.verdict === "ESSENTIAL"
+  );
+  const phase1BrowserServices = services.filter(
+    (service) => service.phase === "1a" && Boolean(service.uiUrl)
+  );
+  const [infrastructureHealth, phase1Health] = await Promise.all([
+    Promise.all(infrastructureServices.map((service) => checkHealth(service))),
+    Promise.all(phase1BrowserServices.map((service) => checkHealth(service))),
+  ]);
+  const infrastructureReady =
+    infrastructureHealth.length > 0 &&
+    infrastructureHealth.every((result) => result.status === "running");
+  const appLayerReady =
+    phase1Health.length > 0 && phase1Health.every((result) => result.status === "running");
   const firstLoginEntries = getFirstLoginEntries();
   const operatorEntries = getOperatorCredentialEntries();
   const startHereEntries = sortByOrder(
@@ -118,6 +146,32 @@ export default function CredentialsPage() {
           </p>
         </div>
 
+        {appLayerReady ? (
+          <div className="mb-8 rounded-xl border border-emerald-900/40 bg-emerald-950/20 p-4 text-sm text-emerald-100/80">
+            <p className="font-semibold text-emerald-300">Local stack already running</p>
+            <p className="mt-1">
+              Infrastructure and Phase 1A browser apps are already up on this machine. You can skip
+              the startup commands below and go straight to the first-login cards.
+            </p>
+          </div>
+        ) : infrastructureReady ? (
+          <div className="mb-8 rounded-xl border border-blue-900/40 bg-blue-950/20 p-4 text-sm text-blue-100/80">
+            <p className="font-semibold text-blue-300">Infrastructure already running</p>
+            <p className="mt-1">
+              Core services are already up. You only need the Phase 1A startup command if one of the
+              browser apps is missing.
+            </p>
+          </div>
+        ) : (
+          <div className="mb-8 rounded-xl border border-gray-800 bg-gray-900 p-4 text-sm text-gray-300">
+            <p className="font-semibold text-white">Run commands from the repo root</p>
+            <p className="mt-1">
+              Open PowerShell in <code className="rounded bg-gray-950 px-1.5 py-0.5 text-xs">F:\\ag projects\\Hylono_MAIN - SEO BOOST</code>{" "}
+              before using the startup commands below.
+            </p>
+          </div>
+        )}
+
         <div className="mb-10 grid grid-cols-1 gap-4 xl:grid-cols-2">
           <section className="rounded-xl border border-gray-800 bg-gray-900 p-5">
             <div className="mb-4">
@@ -136,21 +190,25 @@ export default function CredentialsPage() {
             <div className="space-y-3">
               <div className="rounded-lg border border-gray-800 bg-gray-950 p-3">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                  1. Start the stack
+                  1. Start infrastructure only if needed
                 </div>
-                <CopyCodeBlock code="bash scripts/setup.sh infrastructure" />
+                <CopyCodeBlock code=".\\scripts\\setup.ps1 infrastructure" />
                 <div className="mt-2 text-xs text-gray-500">
-                  Then run Phase 1A after infrastructure is healthy.
+                  {infrastructureReady
+                    ? "Already running right now. Skip this unless infrastructure was stopped."
+                    : "Run from the repo root in PowerShell. Bash alternative: bash scripts/setup.sh infrastructure."}
                 </div>
               </div>
 
               <div className="rounded-lg border border-gray-800 bg-gray-950 p-3">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                  2. Start the app layer
+                  2. Start the app layer only if needed
                 </div>
-                <CopyCodeBlock code="bash scripts/setup.sh 1a" />
+                <CopyCodeBlock code=".\\scripts\\setup.ps1 1a" />
                 <div className="mt-2 text-xs text-gray-500">
-                  This brings up the verified local app modules from this checkout.
+                  {appLayerReady
+                    ? "Already running right now. Skip this and continue directly to the browser modules below."
+                    : "Run from the repo root in PowerShell. Bash alternative: bash scripts/setup.sh 1a."}
                 </div>
               </div>
 
@@ -221,7 +279,16 @@ export default function CredentialsPage() {
             <div className="mt-4 rounded-lg border border-amber-900/30 bg-amber-950/20 p-3 text-xs text-amber-100/80">
               Browser apps are only one layer. As operator, you should treat the `Operator
               Credentials` section below as the canonical source for DB/cache/storage access in this
-              checkout.
+              checkout. The seeded local status page is available at{" "}
+              <a
+                href="http://localhost:3002/status/hylono-local"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-300 hover:text-blue-200"
+              >
+                http://localhost:3002/status/hylono-local
+              </a>
+              .
             </div>
           </section>
         </div>

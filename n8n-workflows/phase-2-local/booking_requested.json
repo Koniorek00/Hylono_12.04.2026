@@ -1,0 +1,65 @@
+[
+  {
+    "updatedAt": "2026-03-19T19:56:46.376Z",
+    "createdAt": "2026-03-19T19:56:40.431Z",
+    "id": "7o751mk74qU",
+    "name": "booking_requested",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "hylono/booking-requested",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "ec43d20f-9bbd-4d1f-8933-ad1bd9cb462f",
+        "name": "Webhook",
+        "webhookId": "6a7560da-03d9-48a0-8306-5660c401fa10"
+      }
+    ],
+    "connections": {},
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": null,
+    "meta": null,
+    "pinData": {},
+    "versionId": "44fa1765-f122-4f41-b8ee-e0f4cf2c4f42",
+    "activeVersionId": "44fa1765-f122-4f41-b8ee-e0f4cf2c4f42",
+    "versionCounter": 3,
+    "triggerCount": 1,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-03-19T19:56:40.431Z",
+        "createdAt": "2026-03-19T19:56:40.431Z",
+        "role": "workflow:owner",
+        "workflowId": "7o751mk74qU",
+        "projectId": "qsxWp8D20vB0PcZF",
+        "project": {
+          "updatedAt": "2026-03-17T21:06:45.538Z",
+          "createdAt": "2026-03-17T11:07:51.539Z",
+          "id": "qsxWp8D20vB0PcZF",
+          "name": "W M <wiktormyszor@proton.me>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "67a98355-ee40-44cc-9d5b-a64bb47601c5"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": "Initial local import",
+      "description": "Local phase 2 webhook intake"
+    }
+  }
+]

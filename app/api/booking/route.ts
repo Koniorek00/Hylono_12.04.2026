@@ -7,7 +7,10 @@
 import { z } from 'zod';
 import { env } from '@/lib/env';
 import { bookingRequestsTable } from '@/lib/db/schema';
-import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
+import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
+import { syncPersonAndFollowUpToTwenty } from '@/lib/integrations/twenty';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface BookingRequest {
@@ -34,6 +37,30 @@ interface ResendSendPayload {
     reply_to: string;
     subject: string;
     text: string;
+}
+
+const COMMON_EMAIL_DOMAINS = new Set([
+    'gmail.com',
+    'googlemail.com',
+    'hotmail.com',
+    'icloud.com',
+    'interia.pl',
+    'o2.pl',
+    'outlook.com',
+    'proton.me',
+    'protonmail.com',
+    'wp.pl',
+    'yahoo.com',
+]);
+
+function inferCompanyNameFromEmail(email: string): string | undefined {
+    const domain = email.trim().toLowerCase().split('@')[1];
+
+    if (!domain || COMMON_EMAIL_DOMAINS.has(domain)) {
+        return undefined;
+    }
+
+    return domain;
 }
 
 const bookingSchema = z.object({
@@ -95,6 +122,7 @@ export async function POST(request: Request): Promise<Response> {
                 : undefined,
             bookingType,
         };
+        const inferredCompanyName = inferCompanyNameFromEmail(sanitized.email);
 
         // Generate booking reference
         const bookingRef = `BK-${Date.now().toString(36).toUpperCase()}`;
@@ -113,6 +141,7 @@ export async function POST(request: Request): Promise<Response> {
             );
         }
 
+        await ensureDatabaseReady();
         const db = getDb();
         await db.insert(bookingRequestsTable).values({
             id: crypto.randomUUID(),
@@ -127,6 +156,63 @@ export async function POST(request: Request): Promise<Response> {
             notes: sanitized.notes,
             bookingType: sanitized.bookingType,
         });
+
+        await Promise.allSettled([
+            dispatchIntakeEventToN8n({
+                target: 'booking',
+                eventType: 'booking.requested',
+                payload: {
+                    bookingRef,
+                    ...sanitized,
+                },
+            }),
+            syncPersonAndFollowUpToTwenty({
+                email: sanitized.email,
+                fullName: sanitized.name,
+                phone: sanitized.phone,
+                companyName: inferredCompanyName,
+                source: `booking:${sanitized.bookingType}`,
+                taskTitle: `Booking follow-up ${bookingRef}`,
+                taskBodyText: [
+                    `Booking reference: ${bookingRef}`,
+                    `Type: ${sanitized.bookingType}`,
+                    `Name: ${sanitized.name}`,
+                    `Email: ${sanitized.email}`,
+                    `Phone: ${sanitized.phone ?? 'N/A'}`,
+                    `Company: ${inferredCompanyName ?? 'N/A'}`,
+                    `Preferred date: ${sanitized.preferredDate ?? 'N/A'}`,
+                    `Preferred time: ${sanitized.preferredTime ?? 'N/A'}`,
+                    `Timezone: ${sanitized.timezone}`,
+                    `Technology interest: ${sanitized.techInterest ?? 'N/A'}`,
+                    '',
+                    `Notes: ${sanitized.notes ?? 'N/A'}`,
+                ].join('\n'),
+            }),
+            syncAndNotifySubscriberViaNovu({
+                email: sanitized.email,
+                fullName: sanitized.name,
+                phone: sanitized.phone,
+                source: `booking:${sanitized.bookingType}`,
+                title: 'Booking request received',
+                message: `Your ${sanitized.bookingType} booking request is saved as ${bookingRef}. We will confirm timing for ${sanitized.preferredDate ?? 'your preferred date'} shortly.`,
+                data: {
+                    bookingRef,
+                    bookingType: sanitized.bookingType,
+                    preferredDate: sanitized.preferredDate ?? null,
+                    preferredTime: sanitized.preferredTime ?? null,
+                    techInterest: sanitized.techInterest ?? null,
+                    timezone: sanitized.timezone,
+                },
+                payload: {
+                    bookingRef,
+                    bookingType: sanitized.bookingType,
+                    preferredDate: sanitized.preferredDate ?? null,
+                    preferredTime: sanitized.preferredTime ?? null,
+                    techInterest: sanitized.techInterest ?? null,
+                    timezone: sanitized.timezone,
+                },
+            }),
+        ]);
 
         const resendApiKey = env.RESEND_API_KEY;
         if (!resendApiKey) {

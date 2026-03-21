@@ -162,7 +162,7 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
                 exit="hidden"
                 className={`
                   absolute right-0 mt-2
-                  w-[280px] max-w-[calc(100vw-48px)]
+                  w-72 max-w-[90vw]
                   bg-white/95 backdrop-blur-md
                   border border-slate-200
                   rounded-xl shadow-xl shadow-slate-900/15

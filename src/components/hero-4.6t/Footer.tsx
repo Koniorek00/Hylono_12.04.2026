@@ -20,7 +20,7 @@ export const Footer: React.FC = () => {
                     </div>
 
                     {[
-                        { title: "Ecosystem", links: ["Oxygen (mHBOT)", "Hydrogen", "Light (RLT)", "Signal (PEMF)", "Protocol Builder"] },
+                        { title: "Ecosystem", links: ["Oxygen (HBOT)", "Hydrogen", "Light (RLT)", "Signal (PEMF)", "Protocol Builder"] },
                         { title: "Access", links: ["Rental Programs", "Subscriptions", "Professional Deployment", "Pricing"] },
                         { title: "Company", links: ["About Hylono", "Trust & Standards", "Research", "Journal", "Contact"] }
                     ].map((col, idx) => (

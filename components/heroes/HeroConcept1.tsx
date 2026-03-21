@@ -49,7 +49,7 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
   return (
     <motion.section
       ref={heroRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#fafaf8]"
+      className="relative -mt-[72px] min-h-screen flex items-center justify-center overflow-hidden bg-[#fafaf8] md:-mt-[104px]"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ opacity: heroOpacity }}
@@ -284,4 +284,3 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
     </motion.section>
   );
 };
-

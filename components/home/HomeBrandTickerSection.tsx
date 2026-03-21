@@ -77,7 +77,7 @@ export function HomeBrandTickerSection(): React.JSX.Element {
               key="c4"
               className="text-[10px] font-medium uppercase tracking-[0.3em] text-cyan-600/60"
             >
-              mHBOT · PEMF · RLT · H2
+              HBOT · PEMF · RLT · H2
             </span>,
             <span
               key="c5"

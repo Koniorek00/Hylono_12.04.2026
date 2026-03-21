@@ -22,11 +22,11 @@ import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { TECH_DETAILS } from '../../../constants';
 import { batch3NavigationContent } from '../../../content/batch3';
 import { CartIcon } from '../../../components/Cart';
-import { GlobalSearch } from '../../../components/GlobalSearch';
 import { isFeatureEnabled } from '../../../utils/featureFlags';
 import { useMultitoolStore } from '@/src/stores/multitoolStore';
 import {
   getCurrentPageFromPathname,
+  navigateWithScroll,
   resolveLegacyPagePath,
 } from '../../lib/navigation';
 
@@ -35,6 +35,16 @@ const loadMegaMenu = () =>
     default: module.MegaMenu,
   }));
 const MegaMenu = dynamic(loadMegaMenu, { loading: () => null });
+const GlobalSearch = dynamic(
+  () =>
+    import('../../../components/GlobalSearch').then((module) => ({
+      default: module.GlobalSearch,
+    })),
+  {
+    loading: () => null,
+    ssr: false,
+  }
+);
 
 type NavLinkProps = {
   label: string;
@@ -67,8 +77,11 @@ function NavLink({ label, target, currentPage, onClick }: NavLinkProps) {
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement | null>(null);
   const currentPage = getCurrentPageFromPathname(pathname);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [compactHeader, setCompactHeader] = useState(false);
+  const headerSyncFrameRef = useRef<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [announcementDismissed, setAnnouncementDismissed] = useState(() => {
@@ -82,11 +95,9 @@ export function Header() {
       return false;
     }
   });
-  const [hidden, setHidden] = useState(false);
   const { isOpen: multitoolOpen, toggle: toggleMultitool, openAtPosition } =
     useMultitoolStore();
 
-  const lastScrollY = useRef(0);
   const navGoalsEnabled = isFeatureEnabled('feature_nav_goals');
   const headerTrustEnabled = isFeatureEnabled('feature_header_trust');
 
@@ -105,16 +116,13 @@ export function Header() {
   });
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    const previous = lastScrollY.current;
-    setIsScrolled(latest > 20);
+    const nextIsScrolled = latest > 20;
+    const nextCompactHeader = latest > 96 && !mobileOpen && !megaMenuOpen && !multitoolOpen;
 
-    if (latest > previous && latest > 80) {
-      setHidden(true);
-    } else {
-      setHidden(false);
-    }
-
-    lastScrollY.current = latest;
+    setIsScrolled((previous) => (previous === nextIsScrolled ? previous : nextIsScrolled));
+    setCompactHeader((previous) =>
+      previous === nextCompactHeader ? previous : nextCompactHeader
+    );
   });
 
   useEffect(() => {
@@ -132,17 +140,89 @@ export function Header() {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    if (mobileOpen || megaMenuOpen || multitoolOpen) {
+      setCompactHeader(false);
+    }
+  }, [megaMenuOpen, mobileOpen, multitoolOpen]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const syncHeaderOffset = () => {
+      const navRect = navRef.current?.getBoundingClientRect();
+      const measuredHeight = navRect?.height ?? 0;
+      const measuredOffset = navRect?.bottom ?? measuredHeight;
+
+      const nextHeight = `${measuredHeight}px`;
+      const nextOffset = `${measuredOffset}px`;
+
+      if (root.style.getPropertyValue('--route-header-height') !== nextHeight) {
+        root.style.setProperty('--route-header-height', nextHeight);
+      }
+
+      if (root.style.getPropertyValue('--route-header-offset') !== nextOffset) {
+        root.style.setProperty('--route-header-offset', nextOffset);
+      }
+    };
+
+    const scheduleHeaderSync = () => {
+      if (headerSyncFrameRef.current !== null) {
+        window.cancelAnimationFrame(headerSyncFrameRef.current);
+      }
+
+      headerSyncFrameRef.current = window.requestAnimationFrame(() => {
+        syncHeaderOffset();
+        headerSyncFrameRef.current = null;
+      });
+    };
+
+    scheduleHeaderSync();
+
+    const observer =
+      typeof ResizeObserver !== 'undefined' && navRef.current
+        ? new ResizeObserver(() => scheduleHeaderSync())
+        : null;
+
+    if (observer && navRef.current) {
+      observer.observe(navRef.current);
+    }
+
+    const handleTransitionEnd = (event: TransitionEvent) => {
+      if (event.target === navRef.current) {
+        scheduleHeaderSync();
+      }
+    };
+
+    navRef.current?.addEventListener('transitionend', handleTransitionEnd);
+    window.addEventListener('resize', scheduleHeaderSync);
+
+    return () => {
+      if (headerSyncFrameRef.current !== null) {
+        window.cancelAnimationFrame(headerSyncFrameRef.current);
+        headerSyncFrameRef.current = null;
+      }
+
+      observer?.disconnect();
+      navRef.current?.removeEventListener('transitionend', handleTransitionEnd);
+      window.removeEventListener('resize', scheduleHeaderSync);
+      root.style.setProperty('--route-header-height', '0px');
+      root.style.setProperty('--route-header-offset', '0px');
+    };
+  }, [compactHeader, headerTrustEnabled, mobileOpen]);
+
   const navigate = (page: string) => {
     const href = resolveLegacyPagePath(page);
     if (!href) {
       return;
     }
 
-    router.push(href);
-    window.scrollTo(0, 0);
+    navigateWithScroll(router, href);
   };
 
-  const navClasses = `fixed top-0 left-0 right-0 z-50 border-b py-4 ${
+  const navClasses = `fixed top-0 left-0 right-0 z-50 border-b transition-[padding,background-color,border-color,box-shadow] duration-300 ${
+    compactHeader ? 'py-2 md:py-2.5' : 'py-4'
+  } ${
     isScrolled
       ? 'bg-white/60 backdrop-blur-xl border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]'
       : 'bg-transparent border-transparent'
@@ -163,21 +243,16 @@ export function Header() {
 
   return (
     <motion.nav
+      ref={navRef}
       aria-label="Main navigation"
       className={`${navClasses} animate-resonance`}
-      variants={{
-        visible: { y: 0 },
-        hidden: { y: '-100%' },
-      }}
-      animate={hidden ? 'hidden' : 'visible'}
-      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       <motion.div
         className="absolute top-0 left-0 right-0 z-10 h-[2px] origin-left bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
         style={{ scaleX }}
       />
 
-      {headerTrustEnabled && (
+      {headerTrustEnabled && !compactHeader && (
         <div className="border-b border-white/20 bg-white/60 backdrop-blur-xl">
           <div className="mx-auto hidden max-w-7xl items-center justify-end gap-4 px-6 py-1 md:flex">
             {trustMarkers.slice(0, 3).map((marker) => (
@@ -192,18 +267,24 @@ export function Header() {
         </div>
       )}
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:justify-center md:gap-16">
+      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-6 md:gap-8">
         <Link
           href="/"
           data-testid="logo-link"
-          className="group flex items-center gap-3"
+          className={`group flex items-center transition-all duration-300 ${
+            compactHeader ? 'gap-0 md:min-w-[24px]' : 'gap-3'
+          }`}
         >
           <Hexagon
             className="text-gray-900 transition-transform duration-700 group-hover:rotate-180"
             strokeWidth={1.5}
-            size={24}
+            size={compactHeader ? 18 : 24}
           />
-          <div className="flex flex-col items-start">
+          <div
+            className={`flex flex-col items-start overflow-hidden transition-all duration-300 ${
+              compactHeader ? 'max-w-0 opacity-0' : 'max-w-[160px] opacity-100'
+            }`}
+          >
             <span className="futuristic-font text-xl leading-none font-bold tracking-[0.1em] text-gray-900 md:text-2xl">
               HYLONO
             </span>
@@ -213,7 +294,11 @@ export function Header() {
           </div>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex xl:gap-10">
+        <div
+          className={`hidden items-center md:flex md:flex-1 md:justify-center ${
+            compactHeader ? 'gap-6 xl:gap-8' : 'gap-8 xl:gap-10'
+          }`}
+        >
           <NavLink
             label="Concept"
             target="home"
@@ -272,45 +357,89 @@ export function Header() {
           onNavigate={(page, techId) => {
             setMegaMenuOpen(false);
             if (techId) {
-              router.push(`/product/${techId.toLowerCase()}`);
-              window.scrollTo(0, 0);
+              navigateWithScroll(router, `/product/${techId.toLowerCase()}`);
               return;
             }
             navigate(page);
           }}
         />
 
-        <CartIcon
-          onClick={() => {
-            router.push('/checkout');
-            window.scrollTo(0, 0);
-          }}
-        />
-
-        <div className="hidden items-center gap-2 md:flex">
+        <div
+          className={`hidden items-center md:ml-auto md:flex ${
+            compactHeader ? 'md:gap-6' : 'md:gap-10'
+          }`}
+        >
           <GlobalSearch onNavigate={navigate} />
-          <button
-            onClick={handleAccessibilityClick}
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${
-              multitoolOpen
-                ? 'bg-cyan-500 text-white'
-                : 'text-gray-600 hover:bg-slate-100'
-            }`}
-            aria-label="Open accessibility tools"
-            aria-expanded={multitoolOpen}
-          >
-            <Accessibility size={20} />
-          </button>
-          <button
-            onClick={() => {
-              router.push('/account');
-              window.scrollTo(0, 0);
-            }}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
-            aria-label="Open user account menu"
-          >
-            <User size={20} className="text-gray-600" />
-          </button>
+
+          <div className={`flex gap-3 ${compactHeader ? 'items-center' : 'items-start'}`}>
+            <div
+              className={`flex items-center text-center ${
+                compactHeader ? 'w-auto flex-row gap-0' : 'w-14 flex-col gap-1'
+              }`}
+            >
+              <button
+                onClick={handleAccessibilityClick}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 ${
+                  multitoolOpen
+                    ? 'bg-cyan-500 text-white'
+                    : 'text-gray-600 hover:bg-slate-100'
+                }`}
+                aria-label="Open accessibility tools"
+                aria-expanded={multitoolOpen}
+              >
+                <Accessibility size={20} />
+              </button>
+              <span
+                className={`text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${
+                  compactHeader ? 'hidden' : ''
+                }`}
+              >
+                Access
+              </span>
+            </div>
+
+            <div
+              className={`flex items-center text-center ${
+                compactHeader ? 'w-auto flex-row gap-0' : 'w-14 flex-col gap-1'
+              }`}
+            >
+              <button
+                onClick={() => {
+                  navigateWithScroll(router, '/account');
+                }}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                aria-label="Open user account menu"
+              >
+                <User size={20} className="text-gray-600" />
+              </button>
+              <span
+                className={`text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${
+                  compactHeader ? 'hidden' : ''
+                }`}
+              >
+                Account
+              </span>
+            </div>
+
+            <div
+              className={`flex items-center text-center ${
+                compactHeader ? 'w-auto flex-row gap-0' : 'w-14 flex-col gap-1'
+              }`}
+            >
+              <CartIcon
+                onClick={() => {
+                  navigateWithScroll(router, '/checkout');
+                }}
+              />
+              <span
+                className={`text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${
+                  compactHeader ? 'hidden' : ''
+                }`}
+              >
+                Basket
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">

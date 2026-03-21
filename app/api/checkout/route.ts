@@ -13,9 +13,12 @@
 import { z } from 'zod';
 import { createHash } from 'node:crypto';
 import { TECH_DETAILS } from '@/constants';
-import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
 import { checkoutOrdersTable } from '@/lib/db/schema';
 import { env } from '@/lib/env';
+import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
+import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
+import { syncPersonAndFollowUpToTwenty } from '@/lib/integrations/twenty';
 import { TechType } from '@/types';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
@@ -68,6 +71,20 @@ const TECH_ID_TO_TYPE: Record<string, TechType> = {
     'tech-cryo': TechType.CRYO,
 };
 
+const COMMON_EMAIL_DOMAINS = new Set([
+    'gmail.com',
+    'googlemail.com',
+    'hotmail.com',
+    'icloud.com',
+    'interia.pl',
+    'o2.pl',
+    'outlook.com',
+    'proton.me',
+    'protonmail.com',
+    'wp.pl',
+    'yahoo.com',
+]);
+
 const toMinorUnit = (amountText: string): number => {
     const parsed = Number(amountText.replace(/[^0-9.]/g, ''));
     if (!Number.isFinite(parsed) || parsed <= 0) {
@@ -87,8 +104,18 @@ const getTrustedUnitPriceCents = (itemId: string): number | null => {
     const tech = TECH_DETAILS[techType];
     const unitPriceCents = toMinorUnit(tech.price);
 
-    return unitPriceCents > 0 ? unitPriceCents : null;
+  return unitPriceCents > 0 ? unitPriceCents : null;
 };
+
+function inferCompanyNameFromEmail(email: string): string | undefined {
+    const domain = email.trim().toLowerCase().split('@')[1];
+
+    if (!domain || COMMON_EMAIL_DOMAINS.has(domain)) {
+        return undefined;
+    }
+
+    return domain;
+}
 
 const buildCheckoutIdempotencyKey = (
     items: Array<{ id: string; quantity: number; unitPriceCents: number }>,
@@ -163,6 +190,7 @@ export async function POST(request: Request): Promise<Response> {
             postalCode: sanitizeText(shipping.postalCode, 20),
             country: sanitizeText(shipping.country ?? 'Poland', 50),
         };
+        const inferredCompanyName = inferCompanyNameFromEmail(sanitizedShipping.email);
 
         const trustedItems = items.map((item) => {
             const unitPriceCents = getTrustedUnitPriceCents(item.id);
@@ -207,6 +235,7 @@ export async function POST(request: Request): Promise<Response> {
             );
         }
 
+        await ensureDatabaseReady();
         const db = getDb();
 
         // Generate order ID
@@ -234,6 +263,87 @@ export async function POST(request: Request): Promise<Response> {
             });
         };
 
+        const persistAndDispatchOrder = async (
+            status: CheckoutOrderStatus,
+            stripePaymentIntentId?: string
+        ): Promise<void> => {
+            await persistOrder(status, stripePaymentIntentId);
+            await Promise.allSettled([
+                dispatchIntakeEventToN8n({
+                    target: 'order',
+                    eventType: 'order.created',
+                    payload: {
+                        orderId,
+                        paymentMethod,
+                        email: sanitizedShipping.email,
+                        shipping: sanitizedShipping,
+                        items: orderItemsRecord,
+                        totalCents,
+                        status,
+                        stripePaymentIntentId,
+                    },
+                }),
+                syncPersonAndFollowUpToTwenty({
+                    email: sanitizedShipping.email,
+                    firstName: sanitizedShipping.firstName,
+                    lastName: sanitizedShipping.lastName,
+                    phone: sanitizedShipping.phone,
+                    city: sanitizedShipping.city,
+                    companyName: inferredCompanyName,
+                    source: `checkout:${paymentMethod}`,
+                    taskTitle: `Checkout follow-up ${orderId}`,
+                    taskBodyText: [
+                        `Order: ${orderId}`,
+                        `Status: ${status}`,
+                        `Payment method: ${paymentMethod}`,
+                        `Customer: ${sanitizedShipping.firstName} ${sanitizedShipping.lastName}`,
+                        `Email: ${sanitizedShipping.email}`,
+                        `Phone: ${sanitizedShipping.phone ?? 'N/A'}`,
+                        `City: ${sanitizedShipping.city}`,
+                        `Company: ${inferredCompanyName ?? 'N/A'}`,
+                        `Country: ${sanitizedShipping.country}`,
+                        `Total cents: ${totalCents}`,
+                        '',
+                        `Items: ${orderItemsRecord.map((item) => `${item.id} x${item.quantity}`).join(', ')}`,
+                    ].join('\n'),
+                    opportunity: {
+                        name: `Checkout order ${orderId}`,
+                        amountMicros: totalCents * 10000,
+                        currencyCode: 'PLN',
+                        stage: 'NEW',
+                    },
+                }),
+                syncAndNotifySubscriberViaNovu({
+                    email: sanitizedShipping.email,
+                    firstName: sanitizedShipping.firstName,
+                    lastName: sanitizedShipping.lastName,
+                    phone: sanitizedShipping.phone,
+                    source: `checkout:${paymentMethod}`,
+                    title: 'Checkout intake captured',
+                    message: `Your Hylono order ${orderId} is recorded with status ${status}. We will keep you updated as payment and fulfillment progress.`,
+                    data: {
+                        orderId,
+                        paymentMethod,
+                        status,
+                        totalCents,
+                        items: orderItemsRecord,
+                        city: sanitizedShipping.city,
+                        country: sanitizedShipping.country,
+                        stripePaymentIntentId: stripePaymentIntentId ?? null,
+                    },
+                    payload: {
+                        orderId,
+                        paymentMethod,
+                        status,
+                        totalCents,
+                        city: sanitizedShipping.city,
+                        country: sanitizedShipping.country,
+                        stripePaymentIntentId: stripePaymentIntentId ?? null,
+                    },
+                }),
+            ]);
+        };
+
         // --- Stripe Payment Intent (card payments) ---
         if (paymentMethod === 'card') {
             const stripeSecretKey = env.STRIPE_SECRET_KEY;
@@ -244,7 +354,7 @@ export async function POST(request: Request): Promise<Response> {
             );
 
             if (!stripeSecretKey) {
-                await persistOrder('pending_card_configuration');
+                await persistAndDispatchOrder('pending_card_configuration');
 
                 return Response.json(
                     {
@@ -277,7 +387,7 @@ export async function POST(request: Request): Promise<Response> {
                 const stripeError = await stripeResponse.json();
                 console.error('[checkout] Stripe PaymentIntent error:', stripeError);
 
-                await persistOrder('payment_intent_failed');
+                await persistAndDispatchOrder('payment_intent_failed');
 
                 return Response.json(
                     {
@@ -294,7 +404,7 @@ export async function POST(request: Request): Promise<Response> {
                 client_secret?: string;
             };
 
-            await persistOrder('payment_intent_created', paymentIntent.id);
+            await persistAndDispatchOrder('payment_intent_created', paymentIntent.id);
 
             return Response.json(
                 {
@@ -308,7 +418,7 @@ export async function POST(request: Request): Promise<Response> {
         }
 
         // --- Non-card payments (bank transfer, financing) ---
-        await persistOrder('awaiting_offline_payment');
+        await persistAndDispatchOrder('awaiting_offline_payment');
 
         return Response.json(
             {

@@ -150,8 +150,6 @@ const sanitizePersistedMultitoolStorage = () => {
   }
 };
 
-sanitizePersistedMultitoolStorage();
-
 const DEFAULT_POSITION: MultitoolPosition = { x: 0, y: 0 };
 
 const DEFAULT_DROPDOWN_POSITION: DropdownPosition = { top: 72, right: 16 };
@@ -161,6 +159,8 @@ const noopStorage: StateStorage = {
   setItem: () => {},
   removeItem: () => {},
 };
+
+const isTestEnvironment = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
 
 const initialState = {
   isOpen: false,
@@ -307,7 +307,9 @@ export const useMultitoolStore = create<MultitoolState>()(
     }),
     {
       name: 'hylono-multitool',
-      storage: createJSONStorage(() => (typeof window !== 'undefined' ? localStorage : noopStorage)),
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' && !isTestEnvironment ? localStorage : noopStorage
+      ),
       merge: (persistedState, currentState) => {
         const persisted = persistedState as Partial<MultitoolState> | undefined;
 

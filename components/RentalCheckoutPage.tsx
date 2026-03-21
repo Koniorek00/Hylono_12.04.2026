@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useActionState, useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ArrowRight, CheckCircle, Info } from 'lucide-react';
+import { ArrowRight, CheckCircle, Info, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { NavigateFunction } from '../types';
 import { FeatureGate } from './FeatureGate';
 import { rentalCheckoutContent } from '../content/rentalCheckout';
+import { submitRentalFormAction, type FormActionResult } from '../src/actions/formActions';
 
 interface RentalCheckoutPageProps {
     onNavigate: NavigateFunction;
@@ -15,21 +16,26 @@ interface RentalPlan {
     label: string;
     monthlyPrice: number;
     minPeriod: string;
+    termMonths: number;
 }
 
+const RENTAL_ITEMS = [{ techId: 'tech-hbot', quantity: 1 }];
+
 const RENTAL_PLANS: RentalPlan[] = [
-    { id: 'starter', label: 'Starter 3-month plan', monthlyPrice: 129, minPeriod: '3 months' },
-    { id: 'standard', label: 'Standard 6-month plan', monthlyPrice: 109, minPeriod: '6 months' },
-    { id: 'performance', label: 'Performance 12-month plan', monthlyPrice: 89, minPeriod: '12 months' },
+    { id: 'starter', label: 'Starter 3-month plan', monthlyPrice: 129, minPeriod: '3 months', termMonths: 3 },
+    { id: 'standard', label: 'Standard 6-month plan', monthlyPrice: 109, minPeriod: '6 months', termMonths: 6 },
+    { id: 'performance', label: 'Performance 12-month plan', monthlyPrice: 89, minPeriod: '12 months', termMonths: 12 },
 ];
 
 const DEFAULT_RENTAL_PLAN: RentalPlan =
     RENTAL_PLANS[1] ??
-    RENTAL_PLANS[0] ?? {
+    RENTAL_PLANS[0] ??
+    {
         id: 'starter',
         label: 'Starter 3-month plan',
         monthlyPrice: 129,
         minPeriod: '3 months',
+        termMonths: 3,
     };
 
 const LegacyRentalCheckoutFallback: React.FC<{ onNavigate: NavigateFunction }> = ({ onNavigate }) => (
@@ -57,17 +63,35 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
     const [deliveryAddress, setDeliveryAddress] = useState('');
     const [deliveryCity, setDeliveryCity] = useState('');
     const [deliveryPostalCode, setDeliveryPostalCode] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank'>('card');
+    const [deliveryCountry, setDeliveryCountry] = useState('Poland');
+    const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer'>('card');
     const [acceptRentalTerms, setAcceptRentalTerms] = useState(false);
     const [acceptIntendedUse, setAcceptIntendedUse] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+
+    const [rentalState, rentalFormAction, rentalPending] = useActionState<FormActionResult, FormData>(
+        submitRentalFormAction,
+        { success: false, message: '' }
+    );
 
     const selectedPlan = useMemo(
         () => RENTAL_PLANS.find((plan) => plan.id === selectedPlanId) ?? DEFAULT_RENTAL_PLAN,
         [selectedPlanId],
     );
 
-    const productTitle = 'Hylono mHBOT Starter System';
+    const rentalItemsJson = useMemo(
+        () =>
+            JSON.stringify([
+                {
+                    ...RENTAL_ITEMS[0],
+                    monthlyPrice: selectedPlan.monthlyPrice,
+                },
+            ]),
+        [selectedPlan.monthlyPrice]
+    );
+
+    const productTitle = 'Hylono HBOT Starter System';
     const deposit = 199;
     const firstPayment = selectedPlan.monthlyPrice + deposit;
 
@@ -76,15 +100,22 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
         deliveryEmail.includes('@') &&
         deliveryAddress.trim().length > 4 &&
         deliveryCity.trim().length > 1 &&
-        deliveryPostalCode.trim().length > 2;
+        deliveryPostalCode.trim().length > 2 &&
+        deliveryCountry.trim().length > 1;
 
     const canSubmit = isDeliveryValid && acceptRentalTerms && acceptIntendedUse;
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
-        if (!canSubmit) return;
-        setSubmitted(true);
-    };
+    useEffect(() => {
+        if (rentalState.success) {
+            setSubmitted(true);
+            setSubmitError(null);
+            return;
+        }
+
+        if (rentalState.message) {
+            setSubmitError(rentalState.message);
+        }
+    }, [rentalState]);
 
     if (submitted) {
         return (
@@ -93,10 +124,13 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                     <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center justify-center mb-5">
                         <CheckCircle size={30} />
                     </div>
-                    <h1 className="text-3xl font-black text-slate-900 mb-3 futuristic-font">Rental activated</h1>
-                    <p className="text-slate-600 mb-6">
-                        Your first payment of €{firstPayment} was authorized using {paymentMethod === 'card' ? 'card' : 'bank transfer'}.
+                    <h1 className="text-3xl font-black text-slate-900 mb-3 futuristic-font">Rental request received</h1>
+                    <p className="text-slate-600 mb-2">
+                        We recorded your rental request for {productTitle} and will contact {deliveryEmail} with the next steps.
                     </p>
+                    {rentalState.rentalId && (
+                        <p className="text-sm text-slate-500 mb-6">Reference: {rentalState.rentalId}</p>
+                    )}
                     <button
                         onClick={() => onNavigate('account')}
                         className="min-h-11 px-6 py-3 rounded-xl bg-slate-900 text-white font-semibold inline-flex items-center gap-2"
@@ -154,7 +188,10 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                     transition={{ duration: 0.35, delay: 0.05 }}
                     className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 md:p-8"
                 >
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <form action={rentalFormAction} className="space-y-8">
+                        <input type="hidden" name="itemsJson" value={rentalItemsJson} />
+                        <input type="hidden" name="termMonths" value={String(selectedPlan.termMonths)} />
+
                         <fieldset>
                             <legend className="text-lg font-bold text-slate-900 mb-3">Select rental plan</legend>
                             <div className="space-y-2">
@@ -168,7 +205,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                             onChange={() => setSelectedPlanId(plan.id)}
                                         />
                                         <span className="text-sm text-slate-700">
-                                            {plan.label} — €{plan.monthlyPrice}/mo
+                                            {plan.label} - €{plan.monthlyPrice}/mo
                                         </span>
                                     </label>
                                 ))}
@@ -182,6 +219,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                     <label htmlFor="rental-name" className="text-sm font-semibold text-slate-700 block mb-2">Full name</label>
                                     <input
                                         id="rental-name"
+                                        name="fullName"
                                         value={deliveryName}
                                         onChange={(event) => setDeliveryName(event.target.value)}
                                         className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
@@ -192,6 +230,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                     <label htmlFor="rental-email" className="text-sm font-semibold text-slate-700 block mb-2">Email</label>
                                     <input
                                         id="rental-email"
+                                        name="email"
                                         type="email"
                                         value={deliveryEmail}
                                         onChange={(event) => setDeliveryEmail(event.target.value)}
@@ -205,6 +244,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                     <label htmlFor="rental-phone" className="text-sm font-semibold text-slate-700 block mb-2">Phone</label>
                                     <input
                                         id="rental-phone"
+                                        name="phone"
                                         value={deliveryPhone}
                                         onChange={(event) => setDeliveryPhone(event.target.value)}
                                         className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
@@ -214,6 +254,7 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                     <label htmlFor="rental-postal" className="text-sm font-semibold text-slate-700 block mb-2">Postal code</label>
                                     <input
                                         id="rental-postal"
+                                        name="postalCode"
                                         value={deliveryPostalCode}
                                         onChange={(event) => setDeliveryPostalCode(event.target.value)}
                                         className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
@@ -225,21 +266,36 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                 <label htmlFor="rental-address" className="text-sm font-semibold text-slate-700 block mb-2">Address</label>
                                 <input
                                     id="rental-address"
+                                    name="address"
                                     value={deliveryAddress}
                                     onChange={(event) => setDeliveryAddress(event.target.value)}
                                     className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
                                     required
                                 />
                             </div>
-                            <div className="mt-4">
-                                <label htmlFor="rental-city" className="text-sm font-semibold text-slate-700 block mb-2">City</label>
-                                <input
-                                    id="rental-city"
-                                    value={deliveryCity}
-                                    onChange={(event) => setDeliveryCity(event.target.value)}
-                                    className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
-                                    required
-                                />
+                            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="rental-city" className="text-sm font-semibold text-slate-700 block mb-2">City</label>
+                                    <input
+                                        id="rental-city"
+                                        name="city"
+                                        value={deliveryCity}
+                                        onChange={(event) => setDeliveryCity(event.target.value)}
+                                        className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="rental-country" className="text-sm font-semibold text-slate-700 block mb-2">Country</label>
+                                    <input
+                                        id="rental-country"
+                                        name="country"
+                                        value={deliveryCountry}
+                                        onChange={(event) => setDeliveryCountry(event.target.value)}
+                                        className="w-full min-h-11 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800"
+                                        required
+                                    />
+                                </div>
                             </div>
                         </fieldset>
 
@@ -289,8 +345,8 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                                     <input
                                         type="radio"
                                         name="rental-payment"
-                                        checked={paymentMethod === 'bank'}
-                                        onChange={() => setPaymentMethod('bank')}
+                                        checked={paymentMethod === 'bank_transfer'}
+                                        onChange={() => setPaymentMethod('bank_transfer')}
                                         className="mt-1 accent-cyan-600"
                                     />
                                     <span className="text-sm text-slate-700">Bank transfer</span>
@@ -308,11 +364,18 @@ const EnhancedRentalCheckout: React.FC<RentalCheckoutPageProps> = ({ onNavigate 
                             <span>{rentalCheckoutContent.intendedUse}</span>
                         </label>
 
+                        {submitError && (
+                            <p className="text-sm text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-4 py-3">
+                                {submitError}
+                            </p>
+                        )}
+
                         <button
                             type="submit"
-                            disabled={!canSubmit}
-                            className="w-full min-h-11 px-6 py-3 rounded-xl bg-slate-900 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={!canSubmit || rentalPending}
+                            className="w-full min-h-11 px-6 py-3 rounded-xl bg-slate-900 text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
                         >
+                            {rentalPending ? <Loader2 size={16} className="animate-spin" /> : null}
                             {rentalCheckoutContent.paymentButtonPrefix} €{firstPayment}
                         </button>
                     </form>

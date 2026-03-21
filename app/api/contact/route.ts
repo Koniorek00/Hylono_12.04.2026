@@ -6,8 +6,11 @@
 
 import { z } from 'zod';
 import { env } from '@/lib/env';
-import { getDb, isDatabaseConfigured } from '@/lib/db/client';
+import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
 import { contactInquiriesTable } from '@/lib/db/schema';
+import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
+import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
+import { syncPersonAndFollowUpToTwenty } from '@/lib/integrations/twenty';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface ContactRequest {
@@ -32,6 +35,30 @@ interface ResendSendPayload {
     reply_to: string;
     subject: string;
     text: string;
+}
+
+const COMMON_EMAIL_DOMAINS = new Set([
+    'gmail.com',
+    'googlemail.com',
+    'hotmail.com',
+    'icloud.com',
+    'interia.pl',
+    'o2.pl',
+    'outlook.com',
+    'proton.me',
+    'protonmail.com',
+    'wp.pl',
+    'yahoo.com',
+]);
+
+function inferCompanyNameFromEmail(email: string): string | undefined {
+    const domain = email.trim().toLowerCase().split('@')[1];
+
+    if (!domain || COMMON_EMAIL_DOMAINS.has(domain)) {
+        return undefined;
+    }
+
+    return domain;
 }
 
 const contactSchema = z.object({
@@ -77,6 +104,7 @@ export async function POST(request: Request): Promise<Response> {
             company: company ? sanitizeText(company, 100) : undefined,
             inquiryType,
         };
+        const inferredCompanyName = sanitized.company ?? inferCompanyNameFromEmail(sanitized.email);
 
         // Generate a simple ticket ID for tracking
         const ticketId = `HYL-${Date.now().toString(36).toUpperCase()}`;
@@ -95,6 +123,7 @@ export async function POST(request: Request): Promise<Response> {
             );
         }
 
+        await ensureDatabaseReady();
         const db = getDb();
         await db.insert(contactInquiriesTable).values({
             id: crypto.randomUUID(),
@@ -107,6 +136,56 @@ export async function POST(request: Request): Promise<Response> {
             company: sanitized.company,
             inquiryType: sanitized.inquiryType,
         });
+
+        await Promise.allSettled([
+            dispatchIntakeEventToN8n({
+                target: 'contact',
+                eventType: 'contact.created',
+                payload: {
+                    ticketId,
+                    ...sanitized,
+                },
+            }),
+            syncPersonAndFollowUpToTwenty({
+                email: sanitized.email,
+                fullName: sanitized.name,
+                phone: sanitized.phone,
+                companyName: inferredCompanyName,
+                source: `contact:${sanitized.inquiryType}`,
+                taskTitle: `Contact follow-up ${ticketId}`,
+                taskBodyText: [
+                    `Ticket: ${ticketId}`,
+                    `Inquiry type: ${sanitized.inquiryType}`,
+                    `Subject: ${sanitized.subject}`,
+                    `Name: ${sanitized.name}`,
+                    `Email: ${sanitized.email}`,
+                    `Phone: ${sanitized.phone ?? 'N/A'}`,
+                    `Company: ${inferredCompanyName ?? 'N/A'}`,
+                    '',
+                    sanitized.message,
+                ].join('\n'),
+            }),
+            syncAndNotifySubscriberViaNovu({
+                email: sanitized.email,
+                fullName: sanitized.name,
+                phone: sanitized.phone,
+                source: `contact:${sanitized.inquiryType}`,
+                title: 'Contact request received',
+                message: `Thanks for reaching out to Hylono. Your request is recorded under ${ticketId} and we will review "${sanitized.subject}" shortly.`,
+                data: {
+                    ticketId,
+                    company: sanitized.company ?? null,
+                    inquiryType: sanitized.inquiryType,
+                    subject: sanitized.subject,
+                },
+                payload: {
+                    ticketId,
+                    inquiryType: sanitized.inquiryType,
+                    subject: sanitized.subject,
+                    company: sanitized.company ?? null,
+                },
+            }),
+        ]);
 
         const resendApiKey = env.RESEND_API_KEY;
         if (!resendApiKey) {

@@ -4,14 +4,14 @@ import { traceableClaim, TRACE } from './utils/traceMetadata';
 export const TECH_DETAILS: Record<TechType, TechData> = {
     [TechType.HBOT]: {
         id: TechType.HBOT,
-        name: 'mHBOT',
+        name: 'HBOT',
         friendlyName: 'Oxygen Chamber',
         plainDescription: 'Breathe pure oxygen in a pressurised chamber — speeds up recovery, sharpens focus, and helps your body heal faster.',
         goalTags: ['recovery', 'performance', 'cognitive'],
         icon: '🫁',
         tagline: 'Pressurized Oxygen Therapy System',
         descriptionStandard: traceableClaim('Our mild Hyperbaric Oxygen Therapy chamber delivers the elemental power of pressurized oxygen directly to your cells, bypassing the limitations of hemoglobin-dependent transport. Operating at 1.3-1.5 ATA, this system dissolves oxygen directly into plasma, achieving 10-15x normal saturation levels. This is cellular renewal at the most fundamental level: enhanced cognitive function, accelerated tissue repair, reduced inflammation, and the profound vitality that comes from saturating every cell with therapeutic oxygen. FDA-cleared Class II medical device, professionally supported, with flexible rental or ownership options.', TRACE.HBOT_OXYGEN_SATURATION),
-        descriptionExpert: traceableClaim('Mild Hyperbaric Oxygen Therapy (mHBOT) operates on Henry\'s Law, dissolving oxygen directly into plasma at pressures of 1.3-1.5 ATA. This creates a 10-15x increase in dissolved oxygen, independent of hemoglobin transport. The resulting hyperoxic-hypoxic paradox triggers HIF-1a activation, stem cell mobilization, and mitochondrial biogenesis. Clinical applications include traumatic brain injury recovery, post-surgical healing, inflammatory conditions, and cognitive optimization. Our chambers deliver medical-grade pressure differentials with continuous oxygen concentration monitoring.', TRACE.HBOT_COGNITIVE_CLARITY),
+        descriptionExpert: traceableClaim('Mild Hyperbaric Oxygen Therapy (HBOT) operates on Henry\'s Law, dissolving oxygen directly into plasma at pressures of 1.3-1.5 ATA. This creates a 10-15x increase in dissolved oxygen, independent of hemoglobin transport. The resulting hyperoxic-hypoxic paradox triggers HIF-1a activation, stem cell mobilization, and mitochondrial biogenesis. Clinical applications include traumatic brain injury recovery, post-surgical healing, inflammatory conditions, and cognitive optimization. Our chambers deliver medical-grade pressure differentials with continuous oxygen concentration monitoring.', TRACE.HBOT_COGNITIVE_CLARITY),
         benefits: ['Accelerated Recovery', 'Cognitive Clarity', 'Anti-Aging', 'Sleep Optimization'],
         technicalSpecs: [
             { label: 'Pressure Range', value: '1.3 - 1.5 ATA' },

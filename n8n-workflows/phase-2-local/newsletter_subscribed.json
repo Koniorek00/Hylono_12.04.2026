@@ -1,0 +1,65 @@
+[
+  {
+    "updatedAt": "2026-03-19T19:56:48.982Z",
+    "createdAt": "2026-03-19T19:56:43.626Z",
+    "id": "ZpdaLnv42PY",
+    "name": "newsletter_subscribed",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "hylono/newsletter-subscribed",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "7b80ff13-9b44-4cda-9125-7b420c67bfbc",
+        "name": "Webhook",
+        "webhookId": "88959fc9-3343-4c35-bc3d-b545acc44bb4"
+      }
+    ],
+    "connections": {},
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": null,
+    "meta": null,
+    "pinData": {},
+    "versionId": "5d93e8f3-696e-420c-8bfe-b34cf7eb6620",
+    "activeVersionId": "5d93e8f3-696e-420c-8bfe-b34cf7eb6620",
+    "versionCounter": 3,
+    "triggerCount": 1,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-03-19T19:56:43.626Z",
+        "createdAt": "2026-03-19T19:56:43.626Z",
+        "role": "workflow:owner",
+        "workflowId": "ZpdaLnv42PY",
+        "projectId": "qsxWp8D20vB0PcZF",
+        "project": {
+          "updatedAt": "2026-03-17T21:06:45.538Z",
+          "createdAt": "2026-03-17T11:07:51.539Z",
+          "id": "qsxWp8D20vB0PcZF",
+          "name": "W M <wiktormyszor@proton.me>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "creatorId": "67a98355-ee40-44cc-9d5b-a64bb47601c5"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": "Initial local import",
+      "description": "Local phase 2 webhook intake"
+    }
+  }
+]

@@ -20,11 +20,11 @@ export const metadata: Metadata = createPageMetadata({
 
 export default function ResearchPageRoute() {
   const RESEARCH_MODALITY_PRODUCT_ROUTE: Record<string, string> = {
-    mHBOT: 'hbot',
+    HBOT: 'hbot',
     H2: 'hydrogen',
   };
   const RESEARCH_MODALITY_PRODUCT_NAME: Record<string, string> = {
-    mHBOT: 'Hylono mHBOT',
+    HBOT: 'Hylono HBOT',
     H2: 'Hylono Hydrogen',
   };
   const researchStudyList = {
@@ -36,7 +36,7 @@ export default function ResearchPageRoute() {
     url: `${env.NEXT_PUBLIC_SITE_URL}/research`,
     inLanguage: 'en',
     dateModified: SCHEMA_DATE_MODIFIED,
-    keywords: ['hyperbaric oxygen therapy', 'hydrogen wellness', 'mHBOT', 'wellness technology research', 'H2 therapy'],
+    keywords: ['hyperbaric oxygen therapy', 'hydrogen wellness', 'HBOT', 'wellness technology research', 'H2 therapy'],
     isPartOf: { '@id': WEBSITE_ID() },
     publisher: { '@id': ORGANIZATION_ID() },
     itemListOrder: 'https://schema.org/ItemListUnordered',
@@ -104,10 +104,10 @@ export default function ResearchPageRoute() {
   const researchPageSchema = {
     ...researchPageSchemaBase,
     about: [
-      { '@type': 'Product', '@id': `${env.NEXT_PUBLIC_SITE_URL}/product/hbot#product`, name: 'Hylono mHBOT', url: `${env.NEXT_PUBLIC_SITE_URL}/product/hbot` },
+      { '@type': 'Product', '@id': `${env.NEXT_PUBLIC_SITE_URL}/product/hbot#product`, name: 'Hylono HBOT', url: `${env.NEXT_PUBLIC_SITE_URL}/product/hbot` },
       { '@type': 'Product', '@id': `${env.NEXT_PUBLIC_SITE_URL}/product/hydrogen#product`, name: 'Hylono Hydrogen', url: `${env.NEXT_PUBLIC_SITE_URL}/product/hydrogen` },
     ],
-    keywords: 'hyperbaric oxygen therapy research, hydrogen wellness evidence, mHBOT clinical studies, H2 therapy research, wellness technology evidence',
+    keywords: 'hyperbaric oxygen therapy research, hydrogen wellness evidence, HBOT clinical studies, H2 therapy research, wellness technology evidence',
     ...(researchProductMentions.length > 0 ? { mentions: researchProductMentions } : {}),
     relatedLink: [
       `${env.NEXT_PUBLIC_SITE_URL}/protocols`,

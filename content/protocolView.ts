@@ -20,7 +20,7 @@ export const getProtocolModalities = (slug: string): string[] => {
       day.sessions.forEach((session) => {
         const label = session.modality.toLowerCase();
 
-        if (label.includes('hb')) modalities.add('mHBOT');
+        if (label.includes('hb')) modalities.add('HBOT');
         else if (label.includes('hydrogen')) modalities.add('H2');
         else if (label.includes('red') || label.includes('nir')) modalities.add('RLT');
         else if (label.includes('pemf')) modalities.add('PEMF');

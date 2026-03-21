@@ -15,7 +15,7 @@ test.describe('Partner Portal', () => {
 
     test('partner landing page loads successfully', async ({ page }) => {
         await page.goto('/partners');
-        await expect(page).toHaveTitle(/partner/i);
+        await expect(page).toHaveTitle(/nexus|partner/i);
     });
 
     test('partner page shows a CTA to sign up or log in', async ({ page }) => {
@@ -28,14 +28,14 @@ test.describe('Partner Portal', () => {
 
     // ── Auth guard on protected routes ────────────────────────────────────────
 
-    test('unauthenticated user visiting /partner/dashboard is redirected or sees auth gate', async ({ page }) => {
-        await page.goto('/partner/dashboard');
+    test('unauthenticated user visiting /nexus is redirected or sees auth gate', async ({ page }) => {
+        await page.goto('/nexus');
         // Should either redirect to /login, /partner, remain on dashboard,
         // or show a login/auth gate prompt.
         const currentPath = new URL(page.url()).pathname;
         const isRedirected = currentPath === '/login'
             || currentPath === '/partner'
-            || currentPath === '/partner/dashboard';
+            || currentPath === '/nexus';
 
         // Check for either a redirect or an auth gate UI
         const hasAuthGate = await page.getByText(/sign in|log in|login|access denied|unauthorized/i)
@@ -46,8 +46,8 @@ test.describe('Partner Portal', () => {
         expect(isRedirected || hasAuthGate).toBeTruthy();
     });
 
-    test('unauthenticated user visiting /partner/nexus is redirected or sees auth gate', async ({ page }) => {
-        await page.goto('/partner/nexus');
+    test('unauthenticated user visiting /nexus/clients is redirected or sees auth gate', async ({ page }) => {
+        await page.goto('/nexus/clients');
         const hasAuthGate = await page.getByText(/sign in|log in|login|access denied|unauthorized/i)
             .first()
             .isVisible()
@@ -78,11 +78,11 @@ test.describe('Partner Portal', () => {
         expect(criticalErrors).toHaveLength(0);
     });
 
-    test('no JavaScript console errors on /partner/dashboard', async ({ page }) => {
+    test('no JavaScript console errors on /nexus', async ({ page }) => {
         const errors: string[] = [];
         page.on('pageerror', (err) => errors.push(err.message));
 
-        await page.goto('/partner/dashboard', { waitUntil: 'domcontentloaded' });
+        await page.goto('/nexus', { waitUntil: 'domcontentloaded' });
 
         const criticalErrors = errors.filter(
             (e) => !e.includes('extension') && !e.includes('net::ERR')
@@ -93,10 +93,10 @@ test.describe('Partner Portal', () => {
     // ── Key partner sub-routes smoke test ─────────────────────────────────────
 
     const partnerRoutes = [
-        '/partner/academy',
-        '/partner/studio',
-        '/partner/fleet',
-        '/partner/shop',
+        '/nexus/academy',
+        '/nexus/studio',
+        '/nexus/fleet',
+        '/nexus/supplies',
     ];
 
     for (const route of partnerRoutes) {

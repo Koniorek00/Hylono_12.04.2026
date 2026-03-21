@@ -25,22 +25,97 @@ const TABS: Tab[] = [
     desc: "Commands to initialize and start the pinned local stack from this checkout.",
     commands: [
       {
+        label: "Start the full local stack",
+        code: ".\\start-dev.bat",
+        note: "Single entry point for Docker, control panel, the website on localhost:3000, and the launcher-wired operator bootstrap for Kuma, Medusa, Snipe-IT, Cal.com, Lago, Twenty, n8n, Novu, plus the local mail-profile validation pass.",
+      },
+      {
         label: "Generate secrets (.env)",
-        code: "bash scripts/generate-secrets.sh",
-        note: "Safe to run. It skips if .env already exists.",
+        code: ".\\scripts\\generate-secrets.ps1",
+        note: "Primary Windows path. Safe to run. It skips if .env already exists.",
       },
       {
         label: "Start infrastructure only",
-        code: "bash scripts/setup.sh infrastructure",
+        code: ".\\scripts\\setup.ps1 infrastructure",
       },
       {
         label: "Start infrastructure plus default Phase 1A",
-        code: "bash scripts/setup.sh 1a",
-        note: "Brings up Medusa, Lago, Snipe-IT, Cal.com, Twenty, Documenso, Zitadel, Novu, n8n, and the required sidecars.",
+        code: ".\\scripts\\setup.ps1 1a",
+        note: "Brings up Medusa, Lago, Snipe-IT, Cal.com, Twenty, Documenso, Zitadel, Novu, n8n, and the required sidecars. The full desktop launcher replays the Medusa, Snipe-IT, Cal.com, and Lago baseline seeders automatically after the containers are healthy.",
+      },
+      {
+        label: "Generate Documenso signing certificate",
+        code: ".\\scripts\\generate-documenso-signing-certificate.ps1",
+        note: "Creates the local PKCS#12 signing certificate used by Documenso for real document signatures.",
+      },
+      {
+        label: "Reassert Phase 1A operator logins",
+        code: ".\\scripts\\seed-phase1a-operator-logins.ps1",
+        note: "Resets the verified local operator passwords for Lago, Snipe-IT, Cal.com, and Documenso against the running containers. Medusa keeps its own seeded admin baseline and does not use this password-reset script.",
+      },
+      {
+        label: "Seed Uptime Kuma operator config",
+        code: ".\\scripts\\seed-uptime-kuma-operator-config.ps1",
+        note: "Creates the local Hylono status page, monitor groups, and monitor tags at http://localhost:3002/status/hylono-local.",
+      },
+      {
+        label: "Seed Twenty CRM operator workspace",
+        code: ".\\scripts\\seed-twenty-operator-workspace.ps1",
+        note: "Idempotently seeds Hylono Operations, canonical operator contacts, opportunities, and follow-up tasks into Twenty.",
+      },
+      {
+        label: "Seed Medusa local catalog baseline",
+        code: ".\\scripts\\seed-medusa-local-catalog.ps1",
+        note: "Guards the bundled Medusa demo seed so products, regions, stock locations, and a publishable store key exist without duplicating the starter catalog on every run.",
+      },
+      {
+        label: "Seed Cal.com operator baseline",
+        code: ".\\scripts\\seed-calcom-operator-baseline.ps1",
+        note: "Ensures the local operator user has a default schedule, weekday availability, and the canonical public event types wired to that schedule.",
+      },
+      {
+        label: "Seed Lago local billing baseline",
+        code: ".\\scripts\\seed-lago-local-billing.ps1",
+        note: "Idempotently creates the local demo customer, billable metric, and plan used as the deterministic billing baseline in Lago.",
+      },
+      {
+        label: "Seed Snipe-IT operator baseline",
+        code: ".\\scripts\\seed-snipeit-operator-baseline.ps1",
+        note: "Seeds the operator-ready Warsaw clinic location, Hylono Medtech manufacturer, HBOT category and model, and the baseline HBOT-001 asset in Snipe-IT.",
+      },
+      {
+        label: "Reconcile n8n Phase 2 workflows",
+        code: ".\\scripts\\seed-n8n-phase2-workflows.ps1",
+        note: "Reimports the versioned intake workflows, republishes the desired five, unpublishes stale ones, adds tags, and refreshes the local backup snapshot.",
+      },
+      {
+        label: "Seed Novu operator bootstrap",
+        code: ".\\scripts\\seed-novu-operator-bootstrap.ps1",
+        note: "Upserts canonical operator subscribers and seeds one inbox bootstrap notification per canonical mailbox without re-spamming on every run.",
+      },
+      {
+        label: "Validate mail provider profile",
+        code: ".\\scripts\\validate-mail-provider-env.ps1",
+        note: "Checks whether the current local mail profile is consistent for app mailers and Novu before you cut over from local-safe to a real delivery provider.",
+      },
+      {
+        label: "Validate staging env scaffold",
+        code: ".\\scripts\\validate-staging-env.ps1 -Path .\\.env.staging",
+        note: "Checks a real .env.staging against the staging template so you catch placeholder secrets, bad URLs, and missing values before server launch.",
       },
       {
         label: "Check Phase 1A status",
         code: "docker compose -f docker/phase-1a/docker-compose.yml ps",
+      },
+      {
+        label: "Surface smoke check",
+        code: ".\\scripts\\smoke-local-stack.ps1",
+        note: "Confirms the browser-facing URLs respond cleanly.",
+      },
+      {
+        label: "Deep smoke check",
+        code: ".\\scripts\\smoke-local-stack.ps1 -Deep",
+        note: "Runs live intake submissions and verifies DB plus Twenty plus Novu wiring, Medusa storefront access, Cal.com schedule availability, Lago billing baseline records, Snipe-IT operator inventory baseline, and mail-profile validation.",
       },
     ],
   },
@@ -62,6 +137,11 @@ const TABS: Tab[] = [
         label: "View one Phase 1A service log",
         code: "docker compose -f docker/phase-1a/docker-compose.yml logs -f n8n",
         note: "Replace n8n with medusa, lago-api, lago-front, snipe-it, calcom, twenty, documenso, zitadel, novu-api, novu-worker, novu-ws, or novu-dashboard.",
+      },
+      {
+        label: "Restart n8n after manual workflow edits",
+        code: "docker restart hylono-n8n",
+        note: "Useful after making workflow publish changes through the CLI or importing updated local workflow JSON.",
       },
       {
         label: "Stop infrastructure",
@@ -97,6 +177,21 @@ const TABS: Tab[] = [
         code: "docker exec -it hylono-postgres psql -U postgres",
       },
       {
+        label: "Inspect Medusa local baseline",
+        code: "@'\nselect 'users=' || count(*) from \"user\";\nselect 'products=' || count(*) from product;\nselect 'regions=' || count(*) from region;\nselect 'locations=' || count(*) from stock_location;\nselect 'keys=' || count(*) from api_key;\n'@ | docker exec -i hylono-postgres psql -U postgres -d medusa_db -t -A",
+        note: "Confirms that the local Medusa admin, starter catalog, regions, stock locations, and publishable key are still present.",
+      },
+      {
+        label: "Inspect Cal.com local baseline",
+        code: "@'\nselect 'users=' || count(*) from users;\nselect 'event_types=' || count(*) from \"EventType\";\n'@ | docker exec -i hylono-postgres psql -U postgres -d calcom_db -t -A",
+        note: "Confirms that the local Cal.com operator account and baseline event types are still present. The seeded public booking page is expected at http://localhost:8106/hylono.",
+      },
+      {
+        label: "Inspect Lago local baseline",
+        code: "@'\nselect 'users=' || count(*) from users;\nselect 'organizations=' || count(*) from organizations;\nselect 'customers=' || count(*) from customers;\nselect 'billable_metrics=' || count(*) from billable_metrics;\nselect 'plans=' || count(*) from plans;\n'@ | docker exec -i hylono-postgres psql -U postgres -d lago_db -t -A",
+        note: "Confirms that the local Lago operator account, demo organization, customer, billable metric, and plan baseline are still present.",
+      },
+      {
         label: "List PostgreSQL databases",
         code: "docker exec -it hylono-postgres psql -U postgres -c '\\l'",
       },
@@ -107,8 +202,8 @@ const TABS: Tab[] = [
       },
       {
         label: "Open Snipe-IT MariaDB shell",
-        code: "docker exec -it hylono-snipe-it-db mariadb -uroot -p${POSTGRES_ROOT_PASSWORD}",
-        note: "Load .env into your shell first so POSTGRES_ROOT_PASSWORD is available.",
+        code: "docker exec -it hylono-snipe-it-db mariadb -usnipeit -p${SNIPEIT_DB_PASSWORD} snipeit_db",
+        note: "Load .env into your shell first so SNIPEIT_DB_PASSWORD is available.",
       },
       {
         label: "Open Redis CLI",
@@ -174,7 +269,8 @@ export default function CommandsPage() {
           <span className="font-semibold text-blue-300">Note:</span> Run all commands from the
           project root directory. On Windows PowerShell, use <code>.\\scripts\\generate-secrets.ps1</code> and{" "}
           <code>.\\scripts\\setup.ps1 infrastructure</code> or <code>.\\scripts\\setup.ps1 1a</code>.
-          Git Bash or WSL still work with the <code>bash</code> variants.
+          Git Bash or WSL still work with the <code>bash</code> variants. For normal day-to-day
+          startup, prefer <code>.\\start-dev.bat</code>.
         </div>
 
         <div className="mb-6 flex flex-wrap gap-1 rounded-xl border border-gray-800 bg-gray-900 p-1">

@@ -68,7 +68,7 @@ export const CartIcon: React.FC<{ onClick: () => void }> = ({ onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="relative p-2 hover:bg-slate-100 rounded-full transition-colors"
+            className="relative flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-slate-100"
             aria-label="Open shopping cart"
             data-testid="cart-button"
         >
@@ -187,4 +187,3 @@ export const CartSidebar: React.FC<{ isOpen: boolean; onClose: () => void; onChe
         </AnimatePresence>
     );
 };
-

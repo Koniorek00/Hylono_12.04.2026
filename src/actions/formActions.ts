@@ -15,6 +15,7 @@ export interface FormActionResult {
   ticketId?: string;
   bookingRef?: string;
   orderId?: string;
+  rentalId?: string;
   statusCode?: number;
 }
 
@@ -24,9 +25,21 @@ interface RentalActionItem {
   monthlyPrice: number;
 }
 
+interface RentalActionContact {
+  fullName: string;
+  email: string;
+  phone?: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  company?: string;
+}
+
 interface RentalActionResponse {
   id: string;
   userId: string;
+  contact: RentalActionContact;
   items: RentalActionItem[];
   termMonths: number;
   status: 'pending' | 'active' | 'cancelled';
@@ -94,7 +107,15 @@ const bookingSchema = z.object({
 
 const rentalSchema = z.object({
   itemsJson: z.string().min(1),
-  userId: z.string().trim().min(1),
+  userId: z.string().trim().min(1).optional(),
+  fullName: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(254),
+  phone: z.string().trim().max(30).optional(),
+  address: z.string().trim().min(3).max(200),
+  city: z.string().trim().min(2).max(100),
+  postalCode: z.string().trim().min(2).max(20),
+  country: z.string().trim().min(2).max(50),
+  company: z.string().trim().max(100).optional(),
   termMonths: z.coerce.number().int().min(1).max(60).optional().default(12),
 });
 
@@ -569,7 +590,15 @@ export async function submitRentalFormAction(
 ): Promise<FormActionResult> {
   const parsed = rentalSchema.safeParse({
     itemsJson: formData.get('itemsJson'),
-    userId: formData.get('userId'),
+    userId: formData.get('userId') || undefined,
+    fullName: formData.get('fullName'),
+    email: formData.get('email'),
+    phone: formData.get('phone') || undefined,
+    address: formData.get('address'),
+    city: formData.get('city'),
+    postalCode: formData.get('postalCode'),
+    country: formData.get('country'),
+    company: formData.get('company') || undefined,
     termMonths: formData.get('termMonths') || undefined,
   });
 
@@ -600,7 +629,15 @@ export async function submitRentalFormAction(
 
   const payload = {
     items: itemsResult.data,
-    userId: parsed.data.userId,
+    userId: parsed.data.userId || parsed.data.email,
+    fullName: parsed.data.fullName,
+    email: parsed.data.email,
+    phone: parsed.data.phone,
+    address: parsed.data.address,
+    city: parsed.data.city,
+    postalCode: parsed.data.postalCode,
+    country: parsed.data.country,
+    company: parsed.data.company,
     termMonths: parsed.data.termMonths,
   };
 
@@ -622,6 +659,7 @@ export async function submitRentalFormAction(
     return {
       success: result.success,
       message: result.message,
+      rentalId: result.rental?.id,
       statusCode: response.status,
     };
   } catch (error) {

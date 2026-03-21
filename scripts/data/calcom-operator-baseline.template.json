@@ -1,0 +1,326 @@
+{
+  "seedVersion": "2026-03-20",
+  "seedName": "Hylono medtech Cal.com operator baseline",
+  "operator": {
+    "email": "wiktormyszor@proton.me",
+    "timeZone": "Europe/Warsaw",
+    "interfaceLanguage": "en"
+  },
+  "schedule": {
+    "name": "Hylono Medtech Operator Availability",
+    "legacyReplacementSignature": [
+      {
+        "days": [1, 2, 3, 4, 5],
+        "startTime": "09:00:00",
+        "endTime": "17:00:00"
+      }
+    ],
+    "availabilityWindows": [
+      {
+        "days": [1, 2, 3, 4, 5],
+        "startTime": "08:30:00",
+        "endTime": "12:00:00"
+      },
+      {
+        "days": [1, 2, 3, 4],
+        "startTime": "13:00:00",
+        "endTime": "17:30:00"
+      },
+      {
+        "days": [5],
+        "startTime": "13:00:00",
+        "endTime": "15:30:00"
+      }
+    ]
+  },
+  "eventTypes": [
+    {
+      "key": "medtech-intake-triage",
+      "slug": "medtech-intake-triage",
+      "title": "Medtech Intake Triage",
+      "description": "Short intake booking for first-contact triage before consultation, onboarding, or rental follow-up.",
+      "eventName": "Medtech intake triage",
+      "length": 15,
+      "hidden": false,
+      "minimumBookingNotice": 240,
+      "minimumRescheduleNotice": 120,
+      "beforeEventBuffer": 10,
+      "afterEventBuffer": 10,
+      "slotInterval": 15,
+      "requiresConfirmation": false,
+      "requiresConfirmationWillBlockSlot": false,
+      "disableGuests": true,
+      "hideCalendarNotes": true,
+      "hideCalendarEventDetails": true,
+      "hideOrganizerEmail": true,
+      "disableCancelling": false,
+      "disableRescheduling": false,
+      "requiresBookerEmailVerification": false,
+      "bookingRequiresAuthentication": false,
+      "lockTimeZoneToggleOnBookingPage": false,
+      "useBookerTimezone": true,
+      "currency": "eur",
+      "metadata": {
+        "additionalNotesRequired": true
+      },
+      "bookingFields": [
+        {
+          "name": "attendeePhoneNumber",
+          "type": "phone",
+          "label": "Contact phone number",
+          "required": true
+        },
+        {
+          "name": "carePath",
+          "type": "select",
+          "label": "Primary reason for contact",
+          "required": true,
+          "options": [
+            {
+              "label": "HBOT consultation",
+              "value": "hbot-consultation"
+            },
+            {
+              "label": "Rental request",
+              "value": "rental-request"
+            },
+            {
+              "label": "Recovery support",
+              "value": "recovery-support"
+            },
+            {
+              "label": "Clinic or partner referral",
+              "value": "clinic-referral"
+            }
+          ]
+        },
+        {
+          "name": "triageUrgency",
+          "type": "radio",
+          "label": "How quickly do you need a callback?",
+          "required": true,
+          "options": [
+            {
+              "label": "Within 24 hours",
+              "value": "within-24h"
+            },
+            {
+              "label": "This week",
+              "value": "this-week"
+            },
+            {
+              "label": "Planning only",
+              "value": "planning-only"
+            }
+          ]
+        },
+        {
+          "name": "redFlagAcknowledgement",
+          "type": "boolean",
+          "label": "I understand this booking is not for emergency care and does not replace medical treatment.",
+          "required": true
+        }
+      ],
+      "aliases": [
+        {
+          "slug": "15min",
+          "title": "Legacy alias - Medtech Intake Triage",
+          "description": "Compatibility alias for local smoke checks. Hidden by default.",
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "key": "consultation-booking-readiness",
+      "slug": "medtech-consultation",
+      "title": "Medtech Consultation",
+      "description": "Primary consultation booking for qualified leads, referred patients, and equipment onboarding conversations.",
+      "eventName": "Medtech consultation",
+      "length": 30,
+      "hidden": false,
+      "minimumBookingNotice": 720,
+      "minimumRescheduleNotice": 240,
+      "beforeEventBuffer": 15,
+      "afterEventBuffer": 15,
+      "slotInterval": 30,
+      "requiresConfirmation": true,
+      "requiresConfirmationWillBlockSlot": true,
+      "disableGuests": true,
+      "hideCalendarNotes": true,
+      "hideCalendarEventDetails": true,
+      "hideOrganizerEmail": true,
+      "disableCancelling": false,
+      "disableRescheduling": false,
+      "requiresBookerEmailVerification": false,
+      "bookingRequiresAuthentication": false,
+      "lockTimeZoneToggleOnBookingPage": false,
+      "useBookerTimezone": true,
+      "currency": "eur",
+      "metadata": {
+        "additionalNotesRequired": true
+      },
+      "bookingFields": [
+        {
+          "name": "attendeePhoneNumber",
+          "type": "phone",
+          "label": "Contact phone number",
+          "required": true
+        },
+        {
+          "name": "consultationTrack",
+          "type": "select",
+          "label": "Consultation focus",
+          "required": true,
+          "options": [
+            {
+              "label": "HBOT suitability review",
+              "value": "hbot-suitability"
+            },
+            {
+              "label": "Rental planning",
+              "value": "rental-planning"
+            },
+            {
+              "label": "Clinic partnership discussion",
+              "value": "clinic-partnership"
+            },
+            {
+              "label": "Device onboarding walkthrough",
+              "value": "device-onboarding"
+            }
+          ]
+        },
+        {
+          "name": "referralStatus",
+          "type": "radio",
+          "label": "How are you arriving to this consultation?",
+          "required": true,
+          "options": [
+            {
+              "label": "Self-directed enquiry",
+              "value": "self-directed"
+            },
+            {
+              "label": "Clinician referral",
+              "value": "clinician-referral"
+            },
+            {
+              "label": "Returning lead",
+              "value": "returning-lead"
+            }
+          ]
+        },
+        {
+          "name": "consentPrep",
+          "type": "boolean",
+          "label": "I can share relevant medical context and any referral details during the consultation.",
+          "required": true
+        }
+      ],
+      "aliases": [
+        {
+          "slug": "30min",
+          "title": "Legacy alias - Medtech Consultation",
+          "description": "Compatibility alias for local smoke checks. Hidden by default.",
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "key": "post-consult-follow-up",
+      "slug": "post-consult-follow-up",
+      "title": "Post-Consult Follow-up",
+      "description": "Operator-managed follow-up for existing leads or patients after consultation, onboarding, or rental review.",
+      "eventName": "Post-consult follow-up",
+      "length": 20,
+      "hidden": true,
+      "minimumBookingNotice": 240,
+      "minimumRescheduleNotice": 120,
+      "beforeEventBuffer": 10,
+      "afterEventBuffer": 10,
+      "slotInterval": 20,
+      "requiresConfirmation": false,
+      "requiresConfirmationWillBlockSlot": false,
+      "disableGuests": true,
+      "hideCalendarNotes": true,
+      "hideCalendarEventDetails": true,
+      "hideOrganizerEmail": true,
+      "disableCancelling": false,
+      "disableRescheduling": false,
+      "requiresBookerEmailVerification": false,
+      "bookingRequiresAuthentication": false,
+      "lockTimeZoneToggleOnBookingPage": false,
+      "useBookerTimezone": true,
+      "currency": "eur",
+      "metadata": {
+        "additionalNotesRequired": true
+      },
+      "bookingFields": [
+        {
+          "name": "attendeePhoneNumber",
+          "type": "phone",
+          "label": "Best callback number",
+          "required": false
+        },
+        {
+          "name": "followUpReason",
+          "type": "select",
+          "label": "Primary follow-up goal",
+          "required": true,
+          "options": [
+            {
+              "label": "Review recommendations",
+              "value": "review-recommendations"
+            },
+            {
+              "label": "Rental next steps",
+              "value": "rental-next-steps"
+            },
+            {
+              "label": "Clinical paperwork",
+              "value": "clinical-paperwork"
+            },
+            {
+              "label": "Progress check-in",
+              "value": "progress-check-in"
+            }
+          ]
+        },
+        {
+          "name": "lastTouchpoint",
+          "type": "text",
+          "label": "Most recent session or contact date",
+          "required": false
+        },
+        {
+          "name": "readinessSignal",
+          "type": "radio",
+          "label": "Current readiness",
+          "required": true,
+          "options": [
+            {
+              "label": "Ready now",
+              "value": "ready-now"
+            },
+            {
+              "label": "Need more information",
+              "value": "need-more-info"
+            },
+            {
+              "label": "Waiting for internal approval",
+              "value": "waiting-approval"
+            }
+          ]
+        }
+      ],
+      "aliases": [
+        {
+          "slug": "secret",
+          "title": "Legacy alias - Post-Consult Follow-up",
+          "description": "Compatibility alias for local smoke checks. Hidden by default.",
+          "hidden": true
+        }
+      ]
+    }
+  ]
+}

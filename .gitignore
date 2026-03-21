@@ -10,9 +10,19 @@ lerna-debug.log*
 node_modules
 node_modules/
 .next/
+.next-check/
+.next-preview/
+.preview-server.json
+.preview-server.log
+.preview-server.err.log
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+!.env.*.example
+.tmp-*
 
 # Editor directories and files
 .vscode/*
@@ -49,6 +59,13 @@ eslint_report.json
 lint_results.txt
 screenshots/
 compressed-web/
+playwright-report/
+test-results/
+output/
+.claude/
+.codex/
+.codex-task-splitter/
+.semgrep/
 
 # Local dev scripts / one-off tools
 comprehensive_audit.py

@@ -18,7 +18,7 @@ const PUBLIC_ROUTES = [
   '/meridian',
   '/press',
   '/privacy',
-  '/product/mhbot-st1700',
+  '/product/hbot-st1700',
   '/protocols',
   '/rental',
   '/research',

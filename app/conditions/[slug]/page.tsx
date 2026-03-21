@@ -19,14 +19,14 @@ import StructuredData from '@/src/components/StructuredData';
 import { ConditionDetailClient } from './ConditionDetailClient';
 
 const MODALITY_SLUG_TO_PRODUCT_ROUTE: Record<string, string> = {
-  mHBOT: 'hbot',
+  HBOT: 'hbot',
   H2: 'hydrogen',
   RLT: 'rlt',
   PEMF: 'pemf',
 };
 
 const MODALITY_SLUG_TO_PRODUCT_NAME: Record<string, string> = {
-  mHBOT: 'Hylono mHBOT',
+  HBOT: 'Hylono HBOT',
   H2: 'Hylono Hydrogen',
   RLT: 'Hylono PBM / Red Light',
   PEMF: 'Hylono PEMF + VNS',

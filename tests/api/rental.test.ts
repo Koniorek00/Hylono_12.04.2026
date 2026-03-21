@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockDb = {
   insert: vi.fn(),
@@ -8,6 +8,9 @@ const mockDb = {
 const mockInsertValues = vi.fn();
 const mockSelectFrom = vi.fn();
 const mockSelectWhere = vi.fn();
+const mockDispatchIntakeEventToN8n = vi.fn(async () => undefined);
+const mockSyncAndNotifySubscriberViaNovu = vi.fn(async () => undefined);
+const mockSyncPersonAndFollowUpToTwenty = vi.fn(async () => undefined);
 
 mockDb.insert.mockReturnValue({ values: mockInsertValues });
 mockDb.select.mockReturnValue({
@@ -18,6 +21,19 @@ mockSelectFrom.mockReturnValue({ where: mockSelectWhere });
 vi.mock('@/lib/db/client', () => ({
   isDatabaseConfigured: () => true,
   getDb: () => mockDb,
+  ensureDatabaseReady: vi.fn(async () => undefined),
+}));
+
+vi.mock('@/lib/integrations/n8n', () => ({
+  dispatchIntakeEventToN8n: mockDispatchIntakeEventToN8n,
+}));
+
+vi.mock('@/lib/integrations/novu', () => ({
+  syncAndNotifySubscriberViaNovu: mockSyncAndNotifySubscriberViaNovu,
+}));
+
+vi.mock('@/lib/integrations/twenty', () => ({
+  syncPersonAndFollowUpToTwenty: mockSyncPersonAndFollowUpToTwenty,
 }));
 
 const rentalStoreByUser = new Map<
@@ -25,6 +41,16 @@ const rentalStoreByUser = new Map<
   Array<{
     rentalId: string;
     userId: string;
+    contact: {
+      fullName: string;
+      email: string;
+      phone?: string;
+      address: string;
+      city: string;
+      postalCode: string;
+      country: string;
+      company?: string;
+    } | null;
     items: Array<{ techId: string; quantity: number; monthlyPrice: number }>;
     termMonths: number;
     status: 'pending' | 'active' | 'cancelled';
@@ -33,22 +59,32 @@ const rentalStoreByUser = new Map<
   }>
 >();
 
-mockInsertValues.mockImplementation(async (payload: {
-  rentalId: string;
-  userId: string;
-  items: Array<{ techId: string; quantity: number; monthlyPrice: number }>;
-  termMonths: number;
-  status: 'pending' | 'active' | 'cancelled';
-  totalMonthlyCents: number;
-  createdAt: Date;
-}) => {
-  const existing = rentalStoreByUser.get(payload.userId) ?? [];
-  rentalStoreByUser.set(payload.userId, [payload, ...existing]);
-});
+mockInsertValues.mockImplementation(
+  async (payload: {
+    rentalId: string;
+    userId: string;
+    contact: {
+      fullName: string;
+      email: string;
+      phone?: string;
+      address: string;
+      city: string;
+      postalCode: string;
+      country: string;
+      company?: string;
+    } | null;
+    items: Array<{ techId: string; quantity: number; monthlyPrice: number }>;
+    termMonths: number;
+    status: 'pending' | 'active' | 'cancelled';
+    totalMonthlyCents: number;
+    createdAt: Date;
+  }) => {
+    const existing = rentalStoreByUser.get(payload.userId) ?? [];
+    rentalStoreByUser.set(payload.userId, [payload, ...existing]);
+  }
+);
 
-mockSelectWhere.mockImplementation(async () => {
-  return Array.from(rentalStoreByUser.values()).flat();
-});
+mockSelectWhere.mockImplementation(async () => Array.from(rentalStoreByUser.values()).flat());
 
 const { GET: getRental, POST: postRental } = await import('../../app/api/rental/route');
 
@@ -64,6 +100,9 @@ describe('rental API', () => {
     rentalStoreByUser.clear();
     mockInsertValues.mockClear();
     mockSelectWhere.mockClear();
+    mockDispatchIntakeEventToN8n.mockClear();
+    mockSyncAndNotifySubscriberViaNovu.mockClear();
+    mockSyncPersonAndFollowUpToTwenty.mockClear();
   });
 
   it('rejects invalid payloads', async () => {
@@ -78,11 +117,19 @@ describe('rental API', () => {
     expect(result.success).toBe(false);
   });
 
-  it('creates and retrieves rental applications by user id', async () => {
-    const userId = `USER-${Date.now().toString(36)}`;
+  it('creates and retrieves rental applications with contact details', async () => {
+    const email = `user-${Date.now().toString(36)}@hylono.example`;
     const createRequest = createPostRequest({
-      userId,
       termMonths: 12,
+      userId: email,
+      fullName: 'Hylono Operator',
+      email,
+      phone: '+48 600 111 222',
+      address: 'Test Street 12',
+      city: 'Warsaw',
+      postalCode: '00-001',
+      country: 'Poland',
+      company: 'Hylono Labs',
       items: [
         {
           techId: 'TECH-HBOT',
@@ -98,6 +145,12 @@ describe('rental API', () => {
       rental?: {
         id: string;
         userId: string;
+        contact: {
+          fullName: string;
+          email: string;
+          city: string;
+          country: string;
+        };
         items: Array<{ techId: string; quantity: number; monthlyPrice: number }>;
       };
     };
@@ -105,35 +158,70 @@ describe('rental API', () => {
     expect(createResponse.status).toBe(201);
     expect(createResult.success).toBe(true);
     expect(createResult.rental).toBeDefined();
-    expect(createResult.rental?.userId).toBe(userId.toLowerCase());
+    expect(createResult.rental?.userId).toBe(email);
+    expect(createResult.rental?.contact.fullName).toBe('Hylono Operator');
+    expect(createResult.rental?.contact.email).toBe(email);
     expect(createResult.rental?.items[0]?.techId).toBe('tech-hbot');
 
+    expect(mockDispatchIntakeEventToN8n).toHaveBeenCalledWith(
+      expect.objectContaining({
+        target: 'rental',
+        eventType: 'rental.requested',
+        payload: expect.objectContaining({
+          contact: expect.objectContaining({
+            email,
+            fullName: 'Hylono Operator',
+          }),
+        }),
+      })
+    );
+    expect(mockSyncPersonAndFollowUpToTwenty).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email,
+        fullName: 'Hylono Operator',
+        companyName: 'Hylono Labs',
+        taskTitle: expect.stringContaining('Rental follow-up'),
+        opportunity: expect.objectContaining({
+          name: expect.stringContaining('Rental request'),
+          currencyCode: 'EUR',
+        }),
+      })
+    );
+    expect(mockSyncAndNotifySubscriberViaNovu).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email,
+        fullName: 'Hylono Operator',
+        source: 'rental:pending',
+      })
+    );
+
     const listResponse = await getRental(
-      new Request(
-        `http://localhost:3000/api/rental?userId=${encodeURIComponent(userId)}`,
-        {
-          method: 'GET',
-        }
-      )
+      new Request(`http://localhost:3000/api/rental?email=${encodeURIComponent(email)}`, {
+        method: 'GET',
+      })
     );
     const listResult = (await listResponse.json()) as {
       success: boolean;
-      rentals: Array<{ id: string }>;
+      rentals: Array<{ id: string; contact: { email: string } | null }>;
     };
 
     expect(listResponse.status).toBe(200);
     expect(listResult.success).toBe(true);
     expect(listResult.rentals.length).toBeGreaterThan(0);
-    expect(listResult.rentals.some((rental) => rental.id === createResult.rental?.id)).toBe(
-      true
-    );
+    expect(listResult.rentals.some((rental) => rental.id === createResult.rental?.id)).toBe(true);
+    expect(listResult.rentals[0]?.contact?.email).toBe(email);
   });
 
   it('normalizes userId and techId with slug-safe sanitization', async () => {
-    const rawUserId = '  USER Name <> `  ';
+    const rawEmail = `  USER.Name+Tag@Example.com  `;
     const createRequest = createPostRequest({
-      userId: rawUserId,
-      termMonths: 12,
+      userId: rawEmail,
+      fullName: 'User Name',
+      email: rawEmail,
+      address: 'Main Street 1',
+      city: 'Berlin',
+      postalCode: '10115',
+      country: 'Germany',
       items: [
         {
           techId: '  TECH HBOT <>  ',
@@ -149,18 +237,20 @@ describe('rental API', () => {
       rental?: {
         id: string;
         userId: string;
+        contact: { email: string };
         items: Array<{ techId: string; quantity: number; monthlyPrice: number }>;
       };
     };
 
     expect(createResponse.status).toBe(201);
     expect(createResult.success).toBe(true);
-    expect(createResult.rental?.userId).toBe('user-name');
+    expect(createResult.rental?.userId).toBe('user.name+tag@example.com');
+    expect(createResult.rental?.contact.email).toBe('user.name+tag@example.com');
     expect(createResult.rental?.items[0]?.techId).toBe('tech-hbot');
 
     const listResponse = await getRental(
       new Request(
-        `http://localhost:3000/api/rental?userId=${encodeURIComponent(rawUserId)}`,
+        `http://localhost:3000/api/rental?userId=${encodeURIComponent(rawEmail)}`,
         {
           method: 'GET',
         }

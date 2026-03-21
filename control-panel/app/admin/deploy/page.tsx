@@ -15,81 +15,76 @@ type Step = {
 const STEPS: Step[] = [
   {
     number: 1,
-    title: "Generate Secrets",
-    subtitle: "One-time setup",
-    icon: "KEY",
+    title: "Run Desktop Launcher",
+    subtitle: "Preferred local startup path",
+    icon: "BAT",
     description:
-      "Creates a .env file with randomly generated passwords and secrets for the local stack. The script skips if .env already exists.",
-    command: "bash scripts/generate-secrets.sh",
+      "Use the launcher instead of piecing the stack together by hand. It starts Docker services, replays the operator bootstrap, rebuilds stale app surfaces, and opens the local site and control panel.",
+    command: ".\\start-dev.bat",
     checks: [
-      "A .env file exists in the project root",
-      "The file is not empty",
-      "The file stays out of git",
+      "Main site responds at http://localhost:3000",
+      "Control panel responds at http://localhost:3005/admin",
+      "Uptime Kuma status page responds at http://localhost:3002/status/hylono-local",
     ],
+    warning:
+      "Only drop to the granular scripts if you are debugging or recovering a partially broken local stack.",
   },
   {
     number: 2,
-    title: "Start Infrastructure",
-    subtitle: "PostgreSQL, Redis, MinIO, MongoDB, Uptime Kuma",
-    icon: "INFRA",
+    title: "Use Operator Credentials",
+    subtitle: "Deterministic local logins and secrets",
+    icon: "KEY",
     description:
-      "Launches the shared core services. Wait for the infrastructure containers to settle before bringing up application services.",
-    command: "bash scripts/setup.sh infrastructure",
+      "The launcher gets the services online, but the operator panel is the source of truth for app logins, API keys, and infrastructure access. Start there instead of improvising first-run accounts.",
     checks: [
-      "docker compose -f docker/infrastructure/docker-compose.yml ps shows healthy core services",
-      "Uptime Kuma is reachable at http://localhost:3002",
-      "MinIO Console is reachable at http://localhost:9001",
+      "Open /admin/credentials for browser logins and runtime secrets",
+      "Open /admin/progress for the current seeded and running state",
+      "Use /admin/help for bootstrap expectations and local limitations",
+      "Use /admin/commands for the explicit seed and recovery commands",
     ],
-    warning: "If a service is restarting or exited, fix that before moving to Phase 1A.",
   },
   {
     number: 3,
-    title: "Deploy Phase 1A",
-    subtitle: "Full pinned Phase 1A runtime",
-    icon: "1A",
+    title: "Use Granular Recovery Only When Needed",
+    subtitle: "PowerShell paths for partial control",
+    icon: "PS1",
     description:
-      "Runs the full Phase 1A slice from this checkout. It brings up Medusa, Lago, Snipe-IT, Cal.com, Twenty, Documenso, Zitadel, Novu, n8n, and their pinned sidecars.",
-    command: "bash scripts/setup.sh 1a",
+      "If one layer needs to be restarted or reconciled in isolation, use the PowerShell scripts directly from the repo root. That is the correct operator path on Windows; bash is no longer the default guidance.",
+    command: ".\\scripts\\setup.ps1 1a",
     checks: [
-      "Medusa responds at http://localhost:8100/health",
-      "Lago responds at http://localhost:8102",
-      "n8n opens at http://localhost:5678",
-      "Snipe-IT responds at http://localhost:8104",
-      "Cal.com responds at http://localhost:8106",
-      "Twenty CRM responds at http://localhost:8107",
-      "Documenso responds at http://localhost:8108",
-      "Zitadel responds at http://localhost:8109",
-      "Novu responds at http://localhost:8110",
+      "Infrastructure only: .\\scripts\\setup.ps1 infrastructure",
+      "Phase 1A only: .\\scripts\\setup.ps1 1a",
+      "Full operator bootstrap replay: /admin/commands",
     ],
     warning:
-      "First boot can take longer here because Medusa is built locally and Cal.com seeds its bundled app catalog during startup.",
+      "The launcher already replays the Medusa, Snipe-IT, Cal.com, Lago, Twenty, n8n, Novu, and Kuma baselines. Do not re-run seed scripts blindly unless you are intentionally reconciling state.",
   },
   {
     number: 4,
-    title: "Review Stack",
-    subtitle: "Catalogued runtime plus roadmap context",
-    icon: "PLAN",
+    title: "Review Runtime and Roadmap Separately",
+    subtitle: "Do not confuse the local slice with the full manifest",
+    icon: "MAP",
     description:
-      "The stack explorer still catalogs the full roadmap. Use it to verify ports, docs, and integration edges after the local runtime is online.",
+      "The stack explorer still catalogs the broader roadmap. Use it to inspect ports, docs, and integration edges, but treat the local status page and deep smoke as the truth for what is actually live from this checkout.",
     checks: [
-      "Use /admin/stack to review catalogued services and flow dependencies",
-      "Phase 1B and later remain roadmap-only in this checkout",
-      "Leihs remains build-from-source and is not part of the current runnable Phase 1A slice",
+      "Use /admin/stack for the full catalog and flow graph",
+      "Use http://localhost:3002/status/hylono-local for live local browser status",
+      "Later phases remain roadmap-only from this repo",
     ],
   },
 ];
 
 const PHASE_COLOR: Record<number, string> = {
-  1: "border-purple-700/50 bg-purple-900/10",
-  2: "border-blue-700/50 bg-blue-900/10",
-  3: "border-cyan-700/50 bg-cyan-900/10",
+  1: "border-blue-700/50 bg-blue-900/10",
+  2: "border-emerald-700/50 bg-emerald-900/10",
+  3: "border-purple-700/50 bg-purple-900/10",
   4: "border-teal-700/50 bg-teal-900/10",
 };
 
 const STEP_NUM_COLOR: Record<number, string> = {
-  1: "bg-purple-800 text-purple-200",
-  2: "bg-blue-800 text-blue-200",
-  3: "bg-cyan-800 text-cyan-200",
+  1: "bg-blue-800 text-blue-200",
+  2: "bg-emerald-800 text-emerald-200",
+  3: "bg-purple-800 text-purple-200",
   4: "bg-teal-800 text-teal-200",
 };
 
@@ -100,8 +95,7 @@ export default function DeployPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white">Deploy Wizard</h1>
           <p className="mt-1 text-sm text-gray-400">
-            Follow the verified local launch order. Each step depends on the previous one being
-            healthy.
+            Launcher-first local runbook for the verified stack in this checkout.
           </p>
         </div>
 
@@ -110,8 +104,7 @@ export default function DeployPage() {
           <ul className="list-inside list-disc space-y-1 text-xs text-blue-200/70">
             <li>Docker Desktop must be running</li>
             <li>Run commands from the project root directory</li>
-            <li>On Windows PowerShell, use .\scripts\generate-secrets.ps1 and .\scripts\setup.ps1</li>
-            <li>Git Bash or WSL still work with the bash script variants</li>
+            <li>Use PowerShell-native scripts on Windows</li>
             <li>Reserve at least 8 GB RAM and 20 GB free disk space</li>
           </ul>
         </div>
@@ -125,7 +118,7 @@ export default function DeployPage() {
                 >
                   {step.number}
                 </div>
-                <p className="mt-1 max-w-[72px] text-center text-[9px] leading-tight text-gray-600">
+                <p className="mt-1 max-w-[88px] text-center text-[9px] leading-tight text-gray-600">
                   {step.title}
                 </p>
               </div>
@@ -193,16 +186,24 @@ export default function DeployPage() {
         </div>
 
         <div className="mt-8 rounded-xl border border-green-800/30 bg-green-950/20 p-5 text-center">
-          <h3 className="mb-1 text-base font-semibold text-green-300">When the local stack is healthy</h3>
+          <h3 className="mb-1 text-base font-semibold text-green-300">
+            When the local stack is healthy
+          </h3>
           <p className="mb-4 text-xs text-gray-500">
-            Use the verified URLs on the dashboard and the stack explorer for day-to-day work.
+            Use the status page, credentials surface, and stack explorer as the operator trio.
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             <Link
-              href="/admin"
+              href="/admin/progress"
+              className="rounded-lg border border-emerald-700/40 bg-emerald-900/20 px-3 py-1.5 text-xs text-emerald-300 transition-colors hover:bg-emerald-800/30 hover:text-emerald-200"
+            >
+              Open progress
+            </Link>
+            <Link
+              href="/admin/credentials"
               className="rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
             >
-              Back to dashboard
+              Open credentials
             </Link>
             <Link
               href="/admin/stack"

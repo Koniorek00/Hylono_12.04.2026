@@ -128,7 +128,7 @@ export default function StorePage() {
               '@id': `${SITE_URL}/product/${slug}#product`,
               url: `${SITE_URL}/product/${slug}`,
             })),
-            keywords: 'wellness technology store, hyperbaric oxygen chamber rental, hydrogen therapy device, red light therapy device, PEMF device rental, mHBOT, wellness equipment purchase',
+            keywords: 'wellness technology store, hyperbaric oxygen chamber rental, hydrogen therapy device, red light therapy device, PEMF device rental, HBOT, wellness equipment purchase',
             mainEntity: { '@id': `${SITE_URL}/store#product-list` },
             relatedLink: [
               `${SITE_URL}/rental`,

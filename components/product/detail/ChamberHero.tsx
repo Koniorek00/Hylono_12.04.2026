@@ -210,7 +210,7 @@ export const ChamberHero: React.FC<ChamberHeroProps> = ({
 
                         {/* Title */}
                         <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-3 tracking-tight leading-none">
-                            {selectedChamber.type === 'monoplace' ? 'mHBOT' : 
+                            {selectedChamber.type === 'monoplace' ? 'HBOT' : 
                              selectedChamber.type === 'multiplace' ? 'Multiplace HBOT' : 'Soft HBOT'}
                         </h1>
                         <p className="text-lg text-slate-500 font-light mb-8 leading-relaxed">

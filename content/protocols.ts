@@ -50,9 +50,9 @@ export const protocols: Protocol[] = [
     durationWeeks: 4,
     timePerDay: '45–70 min',
     shortDescription:
-      'A practical mHBOT-first routine designed to support recovery rhythm, sleep depth, and post-training reset.',
+      'A practical HBOT-first routine designed to support recovery rhythm, sleep depth, and post-training reset.',
     targetAudience: 'Active adults, runners, strength athletes, and high-load professionals',
-    requiredDevices: [{ productId: 'mhbot-st1700', role: 'primary' }],
+    requiredDevices: [{ productId: 'hbot-st1700', role: 'primary' }],
     weeks: [
       {
         number: 1,
@@ -62,7 +62,7 @@ export const protocols: Protocol[] = [
             number: 1,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '45 min',
                 parameters: '1.3 ATA, calm breathing cadence',
               },
@@ -72,7 +72,7 @@ export const protocols: Protocol[] = [
             number: 3,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '50 min',
                 parameters: '1.3 ATA, hydration before and after',
               },
@@ -82,7 +82,7 @@ export const protocols: Protocol[] = [
             number: 5,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '55 min',
                 parameters: '1.35 ATA, evening recovery window',
               },
@@ -98,7 +98,7 @@ export const protocols: Protocol[] = [
             number: 2,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '60 min',
                 parameters: '1.35 ATA, low-stimulus environment',
               },
@@ -108,7 +108,7 @@ export const protocols: Protocol[] = [
             number: 4,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '60 min',
                 parameters: '1.4 ATA, recovery-focused breathing',
               },
@@ -213,7 +213,7 @@ export const protocols: Protocol[] = [
   },
   {
     slug: 'vitality-dual-stack',
-    title: 'Vitality Dual Stack (mHBOT + H2)',
+    title: 'Vitality Dual Stack (HBOT + H2)',
     goal: 'Whole-system vitality',
     goalTag: 'vitality',
     difficulty: 'Intermediate',
@@ -223,7 +223,7 @@ export const protocols: Protocol[] = [
       'A structured dual-modality stack combining oxygen pressure and hydrogen sessions to support recovery consistency and daily vitality.',
     targetAudience: 'Committed users seeking a protocol-first home wellness routine',
     requiredDevices: [
-      { productId: 'mhbot-st1700', role: 'primary' },
+      { productId: 'hbot-st1700', role: 'primary' },
       { productId: 'h2-hop450', role: 'supplementary' },
     ],
     weeks: [
@@ -235,7 +235,7 @@ export const protocols: Protocol[] = [
             number: 1,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '50 min',
                 parameters: '1.3 ATA, low-stimulus session',
               },
@@ -266,7 +266,7 @@ export const protocols: Protocol[] = [
             number: 2,
             sessions: [
               {
-                modality: 'mHBOT',
+                modality: 'HBOT',
                 duration: '60 min',
                 parameters: '1.35–1.4 ATA, recovery day',
               },

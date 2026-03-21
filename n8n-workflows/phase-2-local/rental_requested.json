@@ -1,0 +1,47 @@
+[
+  {
+    "updatedAt": "2026-03-19T21:15:00.000Z",
+    "createdAt": "2026-03-19T21:15:00.000Z",
+    "id": "HylonoLocalRentalRequested01",
+    "name": "rental_requested",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "hylono/rental-requested",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "249ab0e8-ce24-42a0-be08-a58fed6a0bc5",
+        "name": "Webhook",
+        "webhookId": "5812a0bc-fb78-4501-b541-c68ad77b130c"
+      }
+    ],
+    "connections": {},
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": null,
+    "meta": null,
+    "pinData": {},
+    "versionId": "d6c2f6f8-7118-40c0-8657-a7d36a5033bb",
+    "activeVersionId": "d6c2f6f8-7118-40c0-8657-a7d36a5033bb",
+    "versionCounter": 1,
+    "triggerCount": 0,
+    "tags": [],
+    "shared": [],
+    "versionMetadata": {
+      "name": "Version d6c2f6f8",
+      "description": ""
+    }
+  }
+]

@@ -14,7 +14,7 @@ const TECH_TREE_MAPPING = {
         { name: 'Oura Ring', owned: true }
     ],
     [Tier.OPTIMIZATION]: [
-        { name: 'mHBOT Chamber', owned: false },
+        { name: 'HBOT Chamber', owned: false },
         { name: 'Hydrogen Inhaler', owned: false },
         { name: 'Cryo Local', owned: false }
     ]

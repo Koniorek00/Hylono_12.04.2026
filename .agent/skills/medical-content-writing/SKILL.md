@@ -4,7 +4,7 @@
 ---
 
 ## Hylono Content Philosophy
-We are educators first, marketers second. Our audience is awareness-stage — they don't know what mHBOT is. We must educate before we can sell. Every piece of content should leave readers smarter, not just more interested.
+We are educators first, marketers second. Our audience is awareness-stage — they don't know what HBOT is. We must educate before we can sell. Every piece of content should leave readers smarter, not just more interested.
 
 ## Awareness Stage Mapping (Schwartz)
 | Stage | Reader State | Our Job |
@@ -86,7 +86,7 @@ We are educators first, marketers second. Our audience is awareness-stage — th
 
 ### Headlines
 ```
-❌ "Cure Your Fatigue with mHBOT"
+❌ "Cure Your Fatigue with HBOT"
 ✅ "Breathe Deeper. Recover Faster. The Science of Oxygen Therapy."
 
 ❌ "Proven to Reduce Inflammation"
