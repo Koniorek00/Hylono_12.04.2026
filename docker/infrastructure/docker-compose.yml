@@ -76,4 +76,18 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports: ["3002:3001"]
+    environment:
+      UPTIME_KUMA_DB_TYPE: sqlite
     volumes: [uptimekuma:/app/data]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3001/setup-database-info').then(async (response) => { const body = await response.text(); process.exit(response.ok && body.includes('\"needSetup\":false') ? 0 : 1); }).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s

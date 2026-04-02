@@ -5,6 +5,9 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
+  $PSNativeCommandUseErrorActionPreference = $false
+}
 
 if (-not $PSBoundParameters.ContainsKey("SeedPath")) {
   $SeedPath = Join-Path $PSScriptRoot "data\twenty-operator-workspace.seed.json"
@@ -50,6 +53,326 @@ function Merge-EnvMaps {
   }
 
   return $Base
+}
+
+function Set-EnvValue {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Name,
+    [Parameter(Mandatory = $true)][string]$Value
+  )
+
+  $lines = if (Test-Path $Path) { @(Get-Content -Path $Path) } else { @() }
+  $pattern = "^\s*$([regex]::Escape($Name))="
+  $updated = $false
+
+  for ($index = 0; $index -lt $lines.Count; $index++) {
+    if ($lines[$index] -match $pattern) {
+      $lines[$index] = "$Name=$Value"
+      $updated = $true
+      break
+    }
+  }
+
+  if (-not $updated) {
+    if ($lines.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace($lines[-1])) {
+      $lines += ""
+    }
+
+    $lines += "$Name=$Value"
+  }
+
+  Set-Content -Path $Path -Value $lines
+}
+
+function Get-TwentySeedState {
+  param([Parameter(Mandatory = $true)][string]$Path)
+
+  $emptyState = [pscustomobject]@{
+    Companies = @{}
+    People = @{}
+    Opportunities = @{}
+    Tasks = @{}
+  }
+
+  if (-not (Test-Path $Path)) {
+    return $emptyState
+  }
+
+  try {
+    $state = Get-Content -Raw -Path $Path | ConvertFrom-Json
+  } catch {
+    Write-Warning "Ignoring invalid Twenty state file at $Path. $($_.Exception.Message)"
+    return $emptyState
+  }
+
+  $companies = @{}
+  $people = @{}
+  $opportunities = @{}
+  $tasks = @{}
+
+  if ($state.PSObject.Properties["companies"]) {
+    foreach ($property in @($state.companies.PSObject.Properties)) {
+      $companies[$property.Name] = [string]$property.Value
+    }
+  }
+
+  if ($state.PSObject.Properties["people"]) {
+    foreach ($property in @($state.people.PSObject.Properties)) {
+      $people[$property.Name] = [string]$property.Value
+    }
+  }
+
+  if ($state.PSObject.Properties["opportunities"]) {
+    foreach ($property in @($state.opportunities.PSObject.Properties)) {
+      $opportunities[$property.Name] = [string]$property.Value
+    }
+  }
+
+  if ($state.PSObject.Properties["tasks"]) {
+    foreach ($property in @($state.tasks.PSObject.Properties)) {
+      $tasks[$property.Name] = [string]$property.Value
+    }
+  }
+
+  return [pscustomobject]@{
+    Companies = $companies
+    People = $people
+    Opportunities = $opportunities
+    Tasks = $tasks
+  }
+}
+
+function Save-TwentySeedState {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][object]$SeedArtifact,
+    [Parameter(Mandatory = $true)][hashtable]$CompanyIds,
+    [Parameter(Mandatory = $true)][hashtable]$PersonIds,
+    [Parameter(Mandatory = $true)][hashtable]$OpportunityIds,
+    [Parameter(Mandatory = $true)][hashtable]$TaskIds
+  )
+
+  $directory = Split-Path -Parent $Path
+  if (-not (Test-Path $directory)) {
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+  }
+
+  $payload = [ordered]@{
+    seedVersion = [string]$SeedArtifact.seedVersion
+    seedName = [string]$SeedArtifact.seedName
+    updatedAt = (Get-Date).ToUniversalTime().ToString("o")
+    companies = [ordered]@{}
+    people = [ordered]@{}
+    opportunities = [ordered]@{}
+    tasks = [ordered]@{}
+  }
+
+  foreach ($key in ($CompanyIds.Keys | Sort-Object)) {
+    if (-not [string]::IsNullOrWhiteSpace([string]$CompanyIds[$key])) {
+      $payload.companies[$key] = $CompanyIds[$key]
+    }
+  }
+
+  foreach ($key in ($PersonIds.Keys | Sort-Object)) {
+    if (-not [string]::IsNullOrWhiteSpace([string]$PersonIds[$key])) {
+      $payload.people[$key] = $PersonIds[$key]
+    }
+  }
+
+  foreach ($key in ($OpportunityIds.Keys | Sort-Object)) {
+    if (-not [string]::IsNullOrWhiteSpace([string]$OpportunityIds[$key])) {
+      $payload.opportunities[$key] = $OpportunityIds[$key]
+    }
+  }
+
+  foreach ($key in ($TaskIds.Keys | Sort-Object)) {
+    if (-not [string]::IsNullOrWhiteSpace([string]$TaskIds[$key])) {
+      $payload.tasks[$key] = $TaskIds[$key]
+    }
+  }
+
+  $payload | ConvertTo-Json -Depth 10 | Set-Content -Path $Path
+}
+
+function Invoke-TwentyDbScalar {
+  param([Parameter(Mandatory = $true)][string]$Sql)
+
+  $output = $Sql | docker exec -i hylono-postgres psql -U postgres -d twenty_db -At -f -
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to query the Twenty database."
+  }
+
+  return (($output | Select-Object -First 1) | Out-String).Trim()
+}
+
+function Get-TwentyBootstrapState {
+  $workspaceCount = [int](Invoke-TwentyDbScalar -Sql @'
+select count(*) from core.workspace;
+'@)
+  $apiKeyCount = [int](Invoke-TwentyDbScalar -Sql @'
+select count(*)
+from core."apiKey"
+where "revokedAt" is null;
+'@)
+  $workspaceId = Invoke-TwentyDbScalar -Sql @'
+select coalesce(
+  (
+    select "workspaceId"::text
+    from core."apiKey"
+    where "revokedAt" is null
+    order by "createdAt" desc
+    limit 1
+  ),
+  (
+    select id::text
+    from core.workspace
+    where "activationStatus" = 'ACTIVE'
+    order by
+      case when "displayName" = 'Apple' then 0 else 1 end,
+      "createdAt" asc
+    limit 1
+  ),
+  ''
+);
+'@
+
+  return [pscustomobject]@{
+    WorkspaceCount = $workspaceCount
+    ApiKeyCount = $apiKeyCount
+    WorkspaceId = $workspaceId
+  }
+}
+
+function Invoke-TwentyCli {
+  param([Parameter(Mandatory = $true)][string]$Command)
+
+  $stdoutFile = [System.IO.Path]::GetTempFileName()
+  $stderrFile = [System.IO.Path]::GetTempFileName()
+  $dockerArguments = @(
+    "exec",
+    "hylono-twenty",
+    "sh",
+    "-lc",
+    "cd /app/packages/twenty-server && NODE_ENV=development yarn command:prod $Command"
+  )
+  $argumentString = (
+    $dockerArguments | ForEach-Object {
+      if ($_ -match '[\s"]') {
+        '"' + ($_ -replace '"', '\"') + '"'
+      } else {
+        $_
+      }
+    }
+  ) -join " "
+
+  try {
+    $process = Start-Process -FilePath "docker.exe" -ArgumentList $argumentString -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+    $stdout = if (Test-Path $stdoutFile) { @(Get-Content $stdoutFile) } else { @() }
+    $stderr = if (Test-Path $stderrFile) { @(Get-Content $stderrFile) } else { @() }
+    $combinedOutput = @($stdout + $stderr) | Where-Object { $_ -ne $null }
+
+    if ($process.ExitCode -ne 0) {
+      $renderedOutput = ($combinedOutput | Out-String).Trim()
+      if ($renderedOutput) {
+        throw "Twenty CLI command failed: $Command`n$renderedOutput"
+      }
+
+      throw "Twenty CLI command failed: $Command"
+    }
+
+    return $combinedOutput
+  } finally {
+    Remove-Item $stdoutFile, $stderrFile -Force -ErrorAction SilentlyContinue
+  }
+}
+
+function Ensure-TwentyWorkspaceState {
+  $state = Get-TwentyBootstrapState
+  if ($state.WorkspaceCount -gt 0 -and -not [string]::IsNullOrWhiteSpace($state.WorkspaceId)) {
+    return $state
+  }
+
+  Write-Host "Twenty workspace state is empty. Running built-in dev bootstrap..." -ForegroundColor Yellow
+  $null = Invoke-TwentyCli -Command "workspace:seed:dev"
+
+  $state = Get-TwentyBootstrapState
+  if ($state.WorkspaceCount -le 0 -or [string]::IsNullOrWhiteSpace($state.WorkspaceId)) {
+    throw "Twenty dev bootstrap completed, but no active workspace is available for local seeding."
+  }
+
+  return $state
+}
+
+function New-TwentyApiKey {
+  param([Parameter(Mandatory = $true)][string]$WorkspaceId)
+
+  $output = Invoke-TwentyCli -Command "workspace:generate-api-key --workspace-id $WorkspaceId"
+  $tokenLine = $output | Where-Object { $_ -match 'TOKEN:(.+)$' } | Select-Object -Last 1
+  if (-not $tokenLine) {
+    throw "Twenty generated an API key, but the token was not present in the command output."
+  }
+
+  $token = ([string]$tokenLine) -replace '.*TOKEN:', ''
+  $token = $token.Trim()
+  if ([string]::IsNullOrWhiteSpace($token)) {
+    throw "Twenty generated an API key, but the token was blank."
+  }
+
+  return $token
+}
+
+function Test-TwentyApiAccess {
+  param([AllowNull()][AllowEmptyString()][string]$ApiKey)
+
+  if ([string]::IsNullOrWhiteSpace($ApiKey)) {
+    return $false
+  }
+
+  try {
+    $null = Invoke-RestMethod -Method GET -Uri "$script:TwentyBaseUrl/rest/people?limit=1" -Headers @{
+      Authorization = "Bearer $ApiKey"
+    } -TimeoutSec 20
+    return $true
+  } catch {
+    return $false
+  }
+}
+
+function Ensure-TwentyApiKey {
+  param(
+    [Parameter(Mandatory = $true)][hashtable]$EnvMap,
+    [Parameter(Mandatory = $true)][string]$EnvLocalPath
+  )
+
+  $currentApiKey = $EnvMap["TWENTY_API_KEY"]
+  if (Test-TwentyApiAccess -ApiKey $currentApiKey) {
+    return $currentApiKey
+  }
+
+  if ($currentApiKey) {
+    Write-Host "Existing Twenty API key is stale. Regenerating a local token..." -ForegroundColor Yellow
+  } else {
+    Write-Host "TWENTY_API_KEY is missing. Generating a local token..." -ForegroundColor Yellow
+  }
+
+  $state = Ensure-TwentyWorkspaceState
+  if ($state.ApiKeyCount -le 0) {
+    Write-Host "Twenty has no active API keys yet. Creating the first local API key..." -ForegroundColor Yellow
+  }
+
+  $freshApiKey = New-TwentyApiKey -WorkspaceId $state.WorkspaceId
+  Set-EnvValue -Path $EnvLocalPath -Name "TWENTY_API_BASE_URL" -Value $script:TwentyBaseUrl
+  Set-EnvValue -Path $EnvLocalPath -Name "TWENTY_API_KEY" -Value $freshApiKey
+  $EnvMap["TWENTY_API_BASE_URL"] = $script:TwentyBaseUrl
+  $EnvMap["TWENTY_API_KEY"] = $freshApiKey
+
+  if (-not (Test-TwentyApiAccess -ApiKey $freshApiKey)) {
+    throw "Generated a new Twenty API key, but the local REST API still rejected it."
+  }
+
+  Write-Host "Refreshed TWENTY_API_KEY in .env.local from the running Twenty workspace." -ForegroundColor Green
+  return $freshApiKey
 }
 
 function Get-SeedArtifact {
@@ -232,6 +555,7 @@ function Invoke-TwentyJson {
     Uri = "$script:TwentyBaseUrl/$Path"
     Headers = $Headers
     TimeoutSec = 30
+    ErrorAction = "Stop"
   }
 
   if ($PSBoundParameters.ContainsKey("Body")) {
@@ -240,6 +564,33 @@ function Invoke-TwentyJson {
   }
 
   return Invoke-RestMethod @requestParams
+}
+
+function Test-TwentyDuplicateError {
+  param([Parameter(Mandatory = $true)][System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+  $message = $ErrorRecord.ToString()
+  return $message -match "duplicate entry"
+}
+
+function Get-TwentyRecordById {
+  param(
+    [Parameter(Mandatory = $true)][string]$ResourcePath,
+    [Parameter(Mandatory = $true)][string]$ResponseKey,
+    [AllowNull()][AllowEmptyString()][string]$Id
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Id)) {
+    return $null
+  }
+
+  try {
+    $response = Invoke-TwentyJson -Method GET -Path "rest/$ResourcePath/$Id" -Headers $script:TwentyHeaders
+  } catch {
+    return $null
+  }
+
+  return $response.data.$ResponseKey
 }
 
 function ConvertTo-BlocknoteDocument {
@@ -299,8 +650,14 @@ function Get-FirstMatchingItem {
 function Ensure-Company {
   param(
     [Parameter(Mandatory = $true)][string]$Name,
-    [string]$Domain
+    [string]$Domain,
+    [string]$KnownId
   )
+
+  $knownRecord = Get-TwentyRecordById -ResourcePath "companies" -ResponseKey "company" -Id $KnownId
+  if ($knownRecord -and $knownRecord.name -eq $Name) {
+    return $knownRecord.id
+  }
 
   $companies = @((Invoke-TwentyJson -Method GET -Path "rest/companies?limit=200" -Headers $script:TwentyHeaders).data.companies)
   $existing = Get-FirstMatchingItem -Items $companies -Predicate {
@@ -324,8 +681,27 @@ function Ensure-Company {
     }
   }
 
-  $response = Invoke-TwentyJson -Method POST -Path "rest/companies" -Headers $script:TwentyHeaders -Body $body
-  return $response.data.createCompany.id
+  try {
+    $response = Invoke-TwentyJson -Method POST -Path "rest/companies" -Headers $script:TwentyHeaders -Body $body
+    return $response.data.createCompany.id
+  } catch {
+    if (-not (Test-TwentyDuplicateError -ErrorRecord $_)) {
+      throw
+    }
+
+    $companies = @((Invoke-TwentyJson -Method GET -Path "rest/companies?limit=200" -Headers $script:TwentyHeaders).data.companies)
+    $existing = Get-FirstMatchingItem -Items $companies -Predicate {
+      param($company)
+      $company.name -eq $Name
+    }
+
+    if ($existing) {
+      return $existing.id
+    }
+
+    Write-Warning "Task '$Title' already exists in Twenty, but its id could not be recovered from the list API. Continuing without rewriting it."
+    return $KnownId
+  }
 }
 
 function Ensure-Person {
@@ -335,8 +711,14 @@ function Ensure-Person {
     [Parameter(Mandatory = $true)][string]$LastName,
     [string]$Phone,
     [string]$City,
-    [string]$CompanyId
+    [string]$CompanyId,
+    [string]$KnownId
   )
+
+  $knownRecord = Get-TwentyRecordById -ResourcePath "people" -ResponseKey "person" -Id $KnownId
+  if ($knownRecord -and $knownRecord.emails.primaryEmail -eq $Email) {
+    return $knownRecord.id
+  }
 
   $people = @((Invoke-TwentyJson -Method GET -Path "rest/people?limit=200" -Headers $script:TwentyHeaders).data.people)
   $existing = Get-FirstMatchingItem -Items $people -Predicate {
@@ -376,8 +758,26 @@ function Ensure-Person {
     $body["companyId"] = $CompanyId
   }
 
-  $response = Invoke-TwentyJson -Method POST -Path "rest/people" -Headers $script:TwentyHeaders -Body $body
-  return $response.data.createPerson.id
+  try {
+    $response = Invoke-TwentyJson -Method POST -Path "rest/people" -Headers $script:TwentyHeaders -Body $body
+    return $response.data.createPerson.id
+  } catch {
+    if (-not (Test-TwentyDuplicateError -ErrorRecord $_)) {
+      throw
+    }
+
+    $people = @((Invoke-TwentyJson -Method GET -Path "rest/people?limit=200" -Headers $script:TwentyHeaders).data.people)
+    $existing = Get-FirstMatchingItem -Items $people -Predicate {
+      param($person)
+      $person.emails.primaryEmail -eq $Email
+    }
+
+    if ($existing) {
+      return $existing.id
+    }
+
+    throw
+  }
 }
 
 function Ensure-Opportunity {
@@ -387,8 +787,14 @@ function Ensure-Opportunity {
     [Parameter(Mandatory = $true)][string]$CurrencyCode,
     [string]$Stage = "NEW",
     [string]$CompanyId,
-    [string]$PointOfContactId
+    [string]$PointOfContactId,
+    [string]$KnownId
   )
+
+  $knownRecord = Get-TwentyRecordById -ResourcePath "opportunities" -ResponseKey "opportunity" -Id $KnownId
+  if ($knownRecord -and $knownRecord.name -eq $Name) {
+    return $knownRecord.id
+  }
 
   $opportunities = @((Invoke-TwentyJson -Method GET -Path "rest/opportunities?limit=200" -Headers $script:TwentyHeaders).data.opportunities)
   $existing = Get-FirstMatchingItem -Items $opportunities -Predicate {
@@ -417,16 +823,40 @@ function Ensure-Opportunity {
     $body["pointOfContactId"] = $PointOfContactId
   }
 
-  $response = Invoke-TwentyJson -Method POST -Path "rest/opportunities" -Headers $script:TwentyHeaders -Body $body
-  return $response.data.createOpportunity.id
+  try {
+    $response = Invoke-TwentyJson -Method POST -Path "rest/opportunities" -Headers $script:TwentyHeaders -Body $body
+    return $response.data.createOpportunity.id
+  } catch {
+    if (-not (Test-TwentyDuplicateError -ErrorRecord $_)) {
+      throw
+    }
+
+    $opportunities = @((Invoke-TwentyJson -Method GET -Path "rest/opportunities?limit=200" -Headers $script:TwentyHeaders).data.opportunities)
+    $existing = Get-FirstMatchingItem -Items $opportunities -Predicate {
+      param($opportunity)
+      $opportunity.name -eq $Name
+    }
+
+    if ($existing) {
+      return $existing.id
+    }
+
+    throw
+  }
 }
 
 function Ensure-Task {
   param(
     [Parameter(Mandatory = $true)][string]$Title,
     [Parameter(Mandatory = $true)][string]$BodyText,
-    [string]$Status = "TODO"
+    [string]$Status = "TODO",
+    [string]$KnownId
   )
+
+  $knownRecord = Get-TwentyRecordById -ResourcePath "tasks" -ResponseKey "task" -Id $KnownId
+  if ($knownRecord -and $knownRecord.title -eq $Title) {
+    return $knownRecord.id
+  }
 
   $tasks = @((Invoke-TwentyJson -Method GET -Path "rest/tasks?limit=200" -Headers $script:TwentyHeaders).data.tasks)
   $existing = Get-FirstMatchingItem -Items $tasks -Predicate {
@@ -439,16 +869,34 @@ function Ensure-Task {
   }
 
   $blocknote = ConvertTo-BlocknoteDocument -Text $BodyText
-  $response = Invoke-TwentyJson -Method POST -Path "rest/tasks" -Headers $script:TwentyHeaders -Body @{
-    title = $Title
-    bodyV2 = @{
-      blocknote = $blocknote
-      markdown = $BodyText
+  try {
+    $response = Invoke-TwentyJson -Method POST -Path "rest/tasks" -Headers $script:TwentyHeaders -Body @{
+      title = $Title
+      bodyV2 = @{
+        blocknote = $blocknote
+        markdown = $BodyText
+      }
+      status = $Status
     }
-    status = $Status
-  }
 
-  return $response.data.createTask.id
+    return $response.data.createTask.id
+  } catch {
+    if (-not (Test-TwentyDuplicateError -ErrorRecord $_)) {
+      throw
+    }
+
+    $tasks = @((Invoke-TwentyJson -Method GET -Path "rest/tasks?limit=200" -Headers $script:TwentyHeaders).data.tasks)
+    $existing = Get-FirstMatchingItem -Items $tasks -Predicate {
+      param($task)
+      $task.title -eq $Title
+    }
+
+    if ($existing) {
+      return $existing.id
+    }
+
+    throw
+  }
 }
 
 function Resolve-SeedReferenceId {
@@ -493,9 +941,12 @@ if ($ValidateOnly) {
 }
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$envMap = Parse-EnvFile -Path (Join-Path $root ".env")
-if ((Test-Path (Join-Path $root ".env.local"))) {
-  $envMap = Merge-EnvMaps -Base $envMap -Overrides (Parse-EnvFile -Path (Join-Path $root ".env.local"))
+$envFile = Join-Path $root ".env"
+$envLocalFile = Join-Path $root ".env.local"
+$stateFile = Join-Path $root "output\twenty-bootstrap\operator-workspace-state.json"
+$envMap = Parse-EnvFile -Path $envFile
+if (Test-Path $envLocalFile) {
+  $envMap = Merge-EnvMaps -Base $envMap -Overrides (Parse-EnvFile -Path $envLocalFile)
 }
 
 $script:TwentyBaseUrl = if ($envMap["TWENTY_API_BASE_URL"]) {
@@ -504,20 +955,20 @@ $script:TwentyBaseUrl = if ($envMap["TWENTY_API_BASE_URL"]) {
   "http://localhost:8107"
 }
 
-$twentyApiKey = $envMap["TWENTY_API_KEY"]
-if (-not $twentyApiKey) {
-  throw "TWENTY_API_KEY is missing from .env or .env.local."
-}
+$twentyApiKey = Ensure-TwentyApiKey -EnvMap $envMap -EnvLocalPath $envLocalFile
 
 $script:TwentyHeaders = @{
   Authorization = "Bearer $twentyApiKey"
 }
 
+$existingState = Get-TwentySeedState -Path $stateFile
+
 $resolvedCompanyIds = @{}
 foreach ($company in $seedCompanies) {
   $resolvedCompanyIds[[string]$company.key] = Ensure-Company `
     -Name ([string]$company.name) `
-    -Domain ([string]$company.domain)
+    -Domain ([string]$company.domain) `
+    -KnownId $existingState.Companies[[string]$company.key]
 }
 
 $resolvedPersonIds = @{}
@@ -533,9 +984,11 @@ foreach ($person in $seedPeople) {
     -LastName ([string]$person.lastName) `
     -Phone ([string]$person.phone) `
     -City ([string]$person.city) `
-    -CompanyId $companyId
+    -CompanyId $companyId `
+    -KnownId $existingState.People[[string]$person.key]
 }
 
+ $resolvedOpportunityIds = @{}
 foreach ($opportunity in $seedOpportunities) {
   $companyId = Resolve-SeedReferenceId `
     -Reference ([string]$opportunity.companyRef) `
@@ -546,21 +999,32 @@ foreach ($opportunity in $seedOpportunities) {
     -ResolvedIds $resolvedPersonIds `
     -Description "opportunity pointOfContactRef"
 
-  $null = Ensure-Opportunity `
+  $resolvedOpportunityIds[[string]$opportunity.key] = Ensure-Opportunity `
     -Name ([string]$opportunity.name) `
     -AmountMicros ([long]$opportunity.amountMicros) `
     -CurrencyCode ([string]$opportunity.currencyCode) `
     -Stage ([string]$opportunity.stage) `
     -CompanyId $companyId `
-    -PointOfContactId $pointOfContactId
+    -PointOfContactId $pointOfContactId `
+    -KnownId $existingState.Opportunities[[string]$opportunity.key]
 }
 
+ $resolvedTaskIds = @{}
 foreach ($task in $seedTasks) {
-  $null = Ensure-Task `
+  $resolvedTaskIds[[string]$task.title] = Ensure-Task `
     -Title ([string]$task.title) `
     -BodyText ([string]$task.bodyText) `
-    -Status ([string]$task.status)
+    -Status ([string]$task.status) `
+    -KnownId $existingState.Tasks[[string]$task.title]
 }
+
+Save-TwentySeedState `
+  -Path $stateFile `
+  -SeedArtifact $seedArtifact `
+  -CompanyIds $resolvedCompanyIds `
+  -PersonIds $resolvedPersonIds `
+  -OpportunityIds $resolvedOpportunityIds `
+  -TaskIds $resolvedTaskIds
 
 Write-Host "Twenty CRM operator workspace seeded." -ForegroundColor Green
 Write-Host "Artifact: $resolvedSeedPath"

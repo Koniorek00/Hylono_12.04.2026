@@ -77,6 +77,8 @@ limit 1;
 $productCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from product;")
 $regionCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from region;")
 $stockLocationCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from stock_location;")
+$publishableKeysAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from api_key where type = 'publishable';")
+$adminUsersAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from ""user"";")
 $canonicalProductCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql @"
 select count(*)
 from product
@@ -106,15 +108,15 @@ $state = [ordered]@{
     products = $productCountAfter
     regions = $regionCountAfter
     stockLocations = $stockLocationCountAfter
-    publishableKeys = $publishableKeys
-    adminUsers = $adminUsers
+    publishableKeys = $publishableKeysAfter
+    adminUsers = $adminUsersAfter
   }
 }
 
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 $state | ConvertTo-Json -Depth 6 | Set-Content -Path $outputPath -Encoding UTF8
 
-if ($adminUsers -eq 0) {
+if ($adminUsersAfter -eq 0) {
   Write-Warning "No Medusa admin user exists yet. The catalog is seeded, but admin login still needs to be created separately."
 }
 

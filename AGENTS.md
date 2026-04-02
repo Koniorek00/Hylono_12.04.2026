@@ -50,3 +50,15 @@ If the goal is to recover the old pre-SEO-update visual feel without breaking th
 - `config/seo-redirects.ts`
 
 If a new page cannot meet the guide's requirements yet, prefer `noindex,follow` or a redirect until it is ready.
+
+## Review Guidelines
+
+- Default review focus in this repo is regressions, not style.
+- Prioritize issues on public routes, canonical tags, metadata, sitemap coverage, robots directives, redirects, JSON-LD, and internal linking.
+- Flag any public page that becomes client-only or shifts primary rendering out of the server-first path.
+- Flag copy that creates unsupported medical, benefit, review, testimonial, rating, or evidence claims.
+- Flag mismatches between content changes and the required source-of-truth files listed above.
+- Flag regressions in intake flows tied to `contact`, `booking`, `newsletter`, `order`, or `rental` webhook dispatch.
+- For SEO-sensitive review or remediation work, run `pnpm check` before closing.
+- For health-adjacent or benefit-oriented copy, run `pnpm compliance:strict` before closing.
+- When public UI changes, include targeted Playwright verification in the review flow.

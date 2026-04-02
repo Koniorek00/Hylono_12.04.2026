@@ -21,6 +21,41 @@ function Invoke-PostgresScalar {
   return ($output | Out-String).Trim()
 }
 
+function Ensure-LagoBootstrap {
+  param(
+    [Parameter(Mandatory = $true)][string]$Email,
+    [Parameter(Mandatory = $true)][string]$Password,
+    [Parameter(Mandatory = $true)][string]$OrganizationName
+  )
+
+  $userExists = Invoke-PostgresScalar -Database "lago_db" -Sql @"
+select count(*)
+from users
+where email = '$Email';
+"@
+  $apiKeyExists = Invoke-PostgresScalar -Database "lago_db" -Sql @"
+select count(*)
+from api_keys;
+"@
+
+  if ($userExists -ne "0" -and $apiKeyExists -ne "0") {
+    return
+  }
+
+  Write-Host "Bootstrapping Lago organization, operator user, and API key." -ForegroundColor Yellow
+  & docker exec `
+    -e LAGO_CREATE_ORG=true `
+    -e LAGO_ORG_USER_EMAIL=$Email `
+    -e LAGO_ORG_USER_PASSWORD=$Password `
+    -e LAGO_ORG_NAME=$OrganizationName `
+    hylono-lago-api `
+    bundle exec rake signup:seed_organization
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to bootstrap the initial Lago organization and API key."
+  }
+}
+
 function Invoke-LagoApi {
   param(
     [Parameter(Mandatory = $true)][string]$Token,
@@ -54,8 +89,13 @@ function Invoke-LagoApi {
 $customerExternalId = "hylono-local-demo"
 $metricCode = "rental_monthly_revenue"
 $planCode = "hylono_local_rental"
+$operatorEmail = "wiktormyszor@proton.me"
+$operatorPassword = "HylonoLagoAdmin123!"
+$organizationName = "Hylono Local"
 
 Write-Step "Checking Lago local billing baseline"
+
+Ensure-LagoBootstrap -Email $operatorEmail -Password $operatorPassword -OrganizationName $organizationName
 
 $apiToken = Invoke-PostgresScalar -Database "lago_db" -Sql @"
 select value

@@ -44,11 +44,10 @@ function Escape-SqlLiteral {
 
 function Invoke-MariaScalar {
   param(
-    [Parameter(Mandatory = $true)][string]$Password,
     [Parameter(Mandatory = $true)][string]$Sql
   )
 
-  $output = $Sql | docker exec -i hylono-snipe-it-db mariadb -N -B -uroot "-p$Password" snipeit_db
+  $output = $Sql | docker exec -i hylono-snipe-it-db mariadb -N -B --user=root snipeit_db
   if ($LASTEXITCODE -ne 0) {
     throw "MariaDB query failed for Snipe-IT."
   }
@@ -58,11 +57,10 @@ function Invoke-MariaScalar {
 
 function Invoke-MariaSql {
   param(
-    [Parameter(Mandatory = $true)][string]$Password,
     [Parameter(Mandatory = $true)][string]$Sql
   )
 
-  $null = $Sql | docker exec -i hylono-snipe-it-db mariadb -uroot "-p$Password" snipeit_db
+  $null = $Sql | docker exec -i hylono-snipe-it-db mariadb --user=root snipeit_db
   if ($LASTEXITCODE -ne 0) {
     throw "MariaDB command failed for Snipe-IT."
   }
@@ -70,20 +68,19 @@ function Invoke-MariaSql {
 
 function Get-OrCreateId {
   param(
-    [Parameter(Mandatory = $true)][string]$Password,
     [Parameter(Mandatory = $true)][string]$Table,
     [Parameter(Mandatory = $true)][string]$LookupSql,
     [Parameter(Mandatory = $true)][string]$InsertSql,
     [Parameter(Mandatory = $true)][string]$ReloadSql
   )
 
-  $existingId = Invoke-MariaScalar -Password $Password -Sql $LookupSql
+  $existingId = Invoke-MariaScalar -Sql $LookupSql
   if ($existingId) {
     return [int]$existingId
   }
 
-  Invoke-MariaSql -Password $Password -Sql $InsertSql
-  $newId = Invoke-MariaScalar -Password $Password -Sql $ReloadSql
+  Invoke-MariaSql -Sql $InsertSql
+  $newId = Invoke-MariaScalar -Sql $ReloadSql
   if (-not $newId) {
     throw "Failed to create or resolve $Table."
   }
@@ -93,11 +90,6 @@ function Get-OrCreateId {
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $envMap = Parse-EnvFile -Path (Join-Path $root ".env")
-$rootPassword = $envMap["POSTGRES_ROOT_PASSWORD"]
-
-if (-not $rootPassword) {
-  throw "POSTGRES_ROOT_PASSWORD is missing from .env"
-}
 
 $operatorEmail = "wiktormyszor@proton.me"
 $today = Get-Date -Format "yyyy-MM-dd"
@@ -107,7 +99,7 @@ $outputPath = Join-Path $outputDir "operator-baseline-state.json"
 Write-Step "Checking Snipe-IT operator baseline"
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 
-$operatorUserId = Invoke-MariaScalar -Password $rootPassword -Sql @"
+$operatorUserId = Invoke-MariaScalar -Sql @"
 SELECT id
 FROM users
 WHERE email = '$(Escape-SqlLiteral $operatorEmail)'
@@ -120,7 +112,7 @@ if (-not $operatorUserId) {
   Write-Warning "Snipe-IT operator user $operatorEmail was not found. The asset baseline will still be seeded, but created_by will remain null."
 }
 
-$locationId = Get-OrCreateId -Password $rootPassword -Table "location" -LookupSql @"
+$locationId = Get-OrCreateId -Table "location" -LookupSql @"
 SELECT id
 FROM locations
 WHERE name = 'Hylono Clinic - Warsaw'
@@ -148,7 +140,7 @@ ORDER BY id
 LIMIT 1;
 "@
 
-$manufacturerId = Get-OrCreateId -Password $rootPassword -Table "manufacturer" -LookupSql @"
+$manufacturerId = Get-OrCreateId -Table "manufacturer" -LookupSql @"
 SELECT id
 FROM manufacturers
 WHERE name = 'Hylono Medtech'
@@ -174,7 +166,7 @@ ORDER BY id
 LIMIT 1;
 "@
 
-$categoryId = Get-OrCreateId -Password $rootPassword -Table "category" -LookupSql @"
+$categoryId = Get-OrCreateId -Table "category" -LookupSql @"
 SELECT id
 FROM categories
 WHERE name = 'HBOT Equipment'
@@ -217,7 +209,7 @@ ORDER BY id
 LIMIT 1;
 "@
 
-$modelId = Get-OrCreateId -Password $rootPassword -Table "model" -LookupSql @"
+$modelId = Get-OrCreateId -Table "model" -LookupSql @"
 SELECT id
 FROM models
 WHERE name = 'HBOT Starter System'
@@ -260,7 +252,7 @@ ORDER BY id
 LIMIT 1;
 "@
 
-$statusId = Invoke-MariaScalar -Password $rootPassword -Sql @"
+$statusId = Invoke-MariaScalar -Sql @"
 SELECT id
 FROM status_labels
 WHERE name = 'Ready to Deploy'
@@ -275,7 +267,7 @@ if (-not $statusId) {
 
 $assetTag = "HBOT-001"
 $serial = "HYL-HBOT-001"
-$assetId = Invoke-MariaScalar -Password $rootPassword -Sql @"
+$assetId = Invoke-MariaScalar -Sql @"
 SELECT id
 FROM assets
 WHERE asset_tag = '$(Escape-SqlLiteral $assetTag)'
@@ -285,7 +277,7 @@ LIMIT 1;
 "@
 
 if (-not $assetId) {
-  Invoke-MariaSql -Password $rootPassword -Sql @"
+  Invoke-MariaSql -Sql @"
 INSERT INTO assets (
   name,
   asset_tag,
@@ -329,7 +321,7 @@ VALUES (
   0
 );
 "@
-  $assetId = Invoke-MariaScalar -Password $rootPassword -Sql @"
+  $assetId = Invoke-MariaScalar -Sql @"
 SELECT id
 FROM assets
 WHERE asset_tag = '$(Escape-SqlLiteral $assetTag)'
@@ -342,7 +334,7 @@ LIMIT 1;
   Write-Host "Snipe-IT baseline asset already exists." -ForegroundColor Green
 }
 
-Invoke-MariaSql -Password $rootPassword -Sql @"
+Invoke-MariaSql -Sql @"
 UPDATE locations
 SET city = 'Warsaw',
     country = 'PL',
@@ -397,11 +389,11 @@ SET name = 'HBOT Starter Unit',
 WHERE id = $assetId;
 "@
 
-$locationCount = [int](Invoke-MariaScalar -Password $rootPassword -Sql "SELECT COUNT(*) FROM locations WHERE deleted_at IS NULL;")
-$manufacturerCount = [int](Invoke-MariaScalar -Password $rootPassword -Sql "SELECT COUNT(*) FROM manufacturers WHERE deleted_at IS NULL;")
-$categoryCount = [int](Invoke-MariaScalar -Password $rootPassword -Sql "SELECT COUNT(*) FROM categories WHERE deleted_at IS NULL;")
-$modelCount = [int](Invoke-MariaScalar -Password $rootPassword -Sql "SELECT COUNT(*) FROM models WHERE deleted_at IS NULL;")
-$assetCount = [int](Invoke-MariaScalar -Password $rootPassword -Sql "SELECT COUNT(*) FROM assets WHERE deleted_at IS NULL;")
+$locationCount = [int](Invoke-MariaScalar -Sql "SELECT COUNT(*) FROM locations WHERE deleted_at IS NULL;")
+$manufacturerCount = [int](Invoke-MariaScalar -Sql "SELECT COUNT(*) FROM manufacturers WHERE deleted_at IS NULL;")
+$categoryCount = [int](Invoke-MariaScalar -Sql "SELECT COUNT(*) FROM categories WHERE deleted_at IS NULL;")
+$modelCount = [int](Invoke-MariaScalar -Sql "SELECT COUNT(*) FROM models WHERE deleted_at IS NULL;")
+$assetCount = [int](Invoke-MariaScalar -Sql "SELECT COUNT(*) FROM assets WHERE deleted_at IS NULL;")
 
 $state = [ordered]@{
   generatedAt = (Get-Date).ToString("o")

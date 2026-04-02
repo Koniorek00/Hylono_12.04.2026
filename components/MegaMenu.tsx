@@ -134,7 +134,8 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-md z-[70]"
+                        className="fixed inset-x-0 bottom-0 bg-black/60 backdrop-blur-md z-[70]"
+                        style={{ top: 'var(--route-header-offset, 0px)' }}
                     />
 
                     <motion.div

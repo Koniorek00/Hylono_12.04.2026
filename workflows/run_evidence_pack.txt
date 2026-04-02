@@ -1,0 +1,19 @@
+[WORKFLOW: EVIDENCE_PACK_RUN]
+Act as the Evidence Researcher.
+1. Use NotebookLM as the primary synthesis layer when a Hylono-approved notebook is available.
+2. Read `/research/queue.yml` and select one P0 or P1 ticket.
+3. Use these repo templates as the output contract:
+   - `/research/templates/deep_research_prompt.txt`
+   - `/research/templates/knowledge_pack.md`
+4. Produce or update a pack in `/research/packs/RQ-XXXX_<slug>.md`.
+5. Update `/research/index.md` with:
+   - ticket id
+   - title
+   - date
+   - decisions unblocked
+   - repo files to update
+6. Mark unsupported claims as forbidden, uncertainty explicitly, and include safe reusable copy.
+--
+SAFETY: No diagnosis, treatment instructions, guaranteed outcomes, fake experts, fake studies, or unsupported benefit claims.
+BLOCKER: If no Hylono NotebookLM source exists yet, stop and ask for the notebook URL or approval to create one.
+PROOF REQUIRED: path to the pack and the updated index entry.

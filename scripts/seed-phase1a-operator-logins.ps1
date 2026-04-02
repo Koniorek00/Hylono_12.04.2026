@@ -61,29 +61,94 @@ function Invoke-PostgresScalar {
   return ($output | Out-String).Trim()
 }
 
-function Invoke-MariaSql {
+function Invoke-MariaRootSql {
   param(
-    [Parameter(Mandatory = $true)][string]$Password,
+    [string]$Database = "snipeit_db",
     [Parameter(Mandatory = $true)][string]$Sql
   )
 
-  $Sql | docker exec -i hylono-snipe-it-db mariadb -usnipeit "-p$Password" snipeit_db | Out-Null
+  $Sql | docker exec -i hylono-snipe-it-db mariadb --user=root $Database | Out-Null
   if ($LASTEXITCODE -ne 0) {
     throw "MariaDB command failed for Snipe-IT."
   }
 }
 
-function Invoke-MariaScalar {
+function Invoke-MariaRootScalar {
   param(
-    [Parameter(Mandatory = $true)][string]$Password,
+    [string]$Database = "snipeit_db",
     [Parameter(Mandatory = $true)][string]$Sql
   )
 
-  $output = $Sql | docker exec -i hylono-snipe-it-db mariadb -N -B -usnipeit "-p$Password" snipeit_db
+  $output = $Sql | docker exec -i hylono-snipe-it-db mariadb -N -B --user=root $Database
   if ($LASTEXITCODE -ne 0) {
     throw "MariaDB query failed for Snipe-IT."
   }
   return ($output | Out-String).Trim()
+}
+
+function Ensure-SnipeItDbUser {
+  param([Parameter(Mandatory = $true)][string]$Password)
+
+  $escapedPassword = $Password.Replace("'", "''")
+  Invoke-MariaRootSql -Database "mysql" -Sql @"
+CREATE DATABASE IF NOT EXISTS snipeit_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'snipeit'@'%' IDENTIFIED BY '$escapedPassword';
+CREATE USER IF NOT EXISTS 'snipeit'@'localhost' IDENTIFIED BY '$escapedPassword';
+GRANT ALL PRIVILEGES ON snipeit_db.* TO 'snipeit'@'%';
+GRANT ALL PRIVILEGES ON snipeit_db.* TO 'snipeit'@'localhost';
+FLUSH PRIVILEGES;
+"@
+}
+
+function Ensure-SnipeItSchema {
+  $migrationsTableExists = Invoke-MariaRootScalar -Database "mysql" -Sql @"
+SELECT COUNT(*)
+FROM information_schema.tables
+WHERE table_schema = 'snipeit_db'
+  AND table_name = 'migrations';
+"@
+
+  if ($migrationsTableExists -ne "0") {
+    return
+  }
+
+  Write-Step "Initializing Snipe-IT database schema"
+  & docker exec hylono-snipe-it php artisan migrate --force
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to initialize the Snipe-IT database schema."
+  }
+}
+
+function Ensure-LagoBootstrap {
+  param(
+    [Parameter(Mandatory = $true)][string]$Email,
+    [Parameter(Mandatory = $true)][string]$Password,
+    [Parameter(Mandatory = $true)][string]$OrganizationName
+  )
+
+  $userExists = Invoke-PostgresScalar -Database "lago_db" -Sql @"
+SELECT COUNT(*) FROM users WHERE email = '$Email';
+"@
+  $apiKeyExists = Invoke-PostgresScalar -Database "lago_db" -Sql @"
+SELECT COUNT(*) FROM api_keys;
+"@
+
+  if ($userExists -ne "0" -and $apiKeyExists -ne "0") {
+    return
+  }
+
+  Write-Host "Bootstrapping Lago organization, operator user, and API key." -ForegroundColor Yellow
+  & docker exec `
+    -e LAGO_CREATE_ORG=true `
+    -e LAGO_ORG_USER_EMAIL=$Email `
+    -e LAGO_ORG_USER_PASSWORD=$Password `
+    -e LAGO_ORG_NAME=$OrganizationName `
+    hylono-lago-api `
+    bundle exec rake signup:seed_organization
+
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to bootstrap the initial Lago organization and operator account."
+  }
 }
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
@@ -99,6 +164,7 @@ $operator = @{
   FirstName = "Wiktor"
   LastName = "Myszor"
   SnipeUsername = "Koniorek"
+  LagoOrganization = "Hylono Local"
   LagoPassword = "HylonoLagoAdmin123!"
   LagoPasswordHash = '$2a$12$Qa584RsNhCZTTDp1ypTdbeheRO.77DFgxRVOfFmSQ9XdTW8w2oYGq'
   DocumensoPassword = "HylonoDocAdmin123!"
@@ -110,6 +176,8 @@ $operator = @{
 }
 
 Write-Step "Reasserting Phase 1A operator logins"
+
+Ensure-LagoBootstrap -Email $operator.Email -Password $operator.LagoPassword -OrganizationName $operator.LagoOrganization
 
 $lagoExists = Invoke-PostgresScalar -Database "lago_db" -Sql @"
 SELECT COUNT(*) FROM users WHERE email = '$($operator.Email)';
@@ -124,7 +192,7 @@ WHERE email = '$($operator.Email)';
 "@
   Write-Host "OK  Lago operator password reasserted." -ForegroundColor Green
 } else {
-  Write-Warning "Lago user $($operator.Email) was not found. Create the account once in the UI, then rerun this script."
+  throw "Lago operator user $($operator.Email) is still missing after bootstrap."
 }
 
 $documensoExists = Invoke-PostgresScalar -Database "documenso_db" -Sql @"
@@ -162,7 +230,10 @@ SET hash = EXCLUDED.hash;
   Write-Warning "Cal.com user $($operator.Email) was not found. Create the account once in the UI, then rerun this script."
 }
 
-$snipeExists = Invoke-MariaScalar -Password $snipeDbPassword -Sql @"
+Ensure-SnipeItDbUser -Password $snipeDbPassword
+Ensure-SnipeItSchema
+
+$snipeExists = Invoke-MariaRootScalar -Sql @"
 SELECT COUNT(*) FROM users WHERE email = '$($operator.Email)' OR username = '$($operator.SnipeUsername)';
 "@
 
@@ -181,7 +252,7 @@ if ($snipeExists -eq "0") {
   }
 }
 
-Invoke-MariaSql -Password $snipeDbPassword -Sql @"
+Invoke-MariaRootSql -Sql @"
 UPDATE users
 SET email = '$($operator.Email)',
     username = '$($operator.SnipeUsername)',

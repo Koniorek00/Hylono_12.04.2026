@@ -172,7 +172,7 @@ export const MeridianPage = () => {
 
             {/* --- NAV --- */}
             <motion.nav
-                className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 md:px-12 backdrop-blur-md bg-[#F6F3EC]/90"
+                className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 md:px-12 bg-[#F6F3EC]"
                 style={{ borderBottom: '1px solid', borderBottomColor: navBorderColor }}
             >
                 {/* Back to Home + Logo */}

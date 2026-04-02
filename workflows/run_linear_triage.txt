@@ -1,0 +1,13 @@
+[WORKFLOW: LINEAR_TRIAGE]
+Act as the Delivery Operator.
+1. Use the `linear` skill and Linear MCP.
+2. Pull the active Hylono project, team, or current cycle issues.
+3. Group work into:
+   - SEO
+   - compliance
+   - product/content
+   - integrations/infra
+4. Recommend the next 3 highest-leverage tasks and the main blocker for each.
+5. If requested, prepare status or comment updates, but do not write to Linear without my approval.
+--
+PROOF REQUIRED: issue ids plus the recommended next-action order.

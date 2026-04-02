@@ -1,0 +1,18 @@
+[WORKFLOW: SIMILARWEB_SNAPSHOT]
+Act as the SEO Intelligence Analyst.
+1. Use Similarweb MCP.
+2. Compare Hylono against named competitors or the top search competitors for the target topic.
+3. Capture:
+   - traffic trend
+   - traffic mix
+   - top pages
+   - geo split
+   - keyword or topic gaps
+   - category positioning
+4. Turn the findings into 3 concrete repo actions:
+   - route/page creation
+   - internal linking or topical graph updates
+   - metadata or SERP positioning changes
+5. Save the summary in `/reports/similarweb/<TODAY>-<slug>.md`.
+--
+PROOF REQUIRED: report path and the 3 recommended repo actions.

@@ -63,7 +63,9 @@ playwright-report/
 test-results/
 output/
 .claude/
-.codex/
+.codex/*
+!.codex/LOCAL_ENVIRONMENT_NOTES.md
+!.codex/config.toml
 .codex-task-splitter/
 .semgrep/
 

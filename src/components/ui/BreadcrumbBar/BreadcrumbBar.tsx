@@ -27,11 +27,10 @@ export interface BreadcrumbBarProps {
   className?: string;
 }
 
-// Default breadcrumbs for HERO-4.6T page
+// Neutral fallback breadcrumbs when no explicit trail is provided
 const DEFAULT_BREADCRUMBS: BreadcrumbItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'Products', href: '/products' },
-  { label: 'HERO-4.6T', href: '/HERO-4.6T', isCurrent: true },
+  { label: 'Current page', isCurrent: true },
 ];
 
 // Animation variants
@@ -109,8 +108,8 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
     <div
       className={`
         fixed top-[72px] left-0 right-0 z-40
-        bg-slate-50/95 backdrop-blur-md
-        border-b border-slate-200/80
+        bg-slate-50
+        border-b border-slate-200
         ${className}
       `}
       role="navigation"
@@ -163,7 +162,7 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
                 className={`
                   absolute right-0 mt-2
                   w-72 max-w-[90vw]
-                  bg-white/95 backdrop-blur-md
+                  bg-white
                   border border-slate-200
                   rounded-xl shadow-xl shadow-slate-900/15
                   overflow-hidden

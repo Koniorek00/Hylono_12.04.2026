@@ -1,0 +1,21 @@
+[WORKFLOW: GITHUB_REVIEW_LOOP]
+Act as the Review Operator.
+1. Use the GitHub plugin and its skills first:
+   - `github`
+   - `gh-address-comments`
+   - `gh-fix-ci`
+   - `yeet`
+2. Inspect the PR, diff, or branch before proposing fixes.
+3. Prioritize findings on:
+   - public routes
+   - metadata, canonicals, sitemap, robots, redirects
+   - JSON-LD and internal linking
+   - health-adjacent copy and unsupported claims
+   - intake and webhook regressions (`contact`, `booking`, `newsletter`, `order`, `rental`)
+4. If remediation is requested:
+   - run `pnpm check` for SEO-sensitive changes
+   - run `pnpm compliance:strict` for health-adjacent or benefit-oriented copy
+   - run targeted Playwright verification when public UI changed
+5. Output findings first, then remediation steps or implemented fixes.
+--
+PROOF REQUIRED: PR URL, branch, or exact file paths reviewed.

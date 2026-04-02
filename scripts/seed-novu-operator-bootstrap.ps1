@@ -4,6 +4,9 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+if ($PSVersionTable.PSVersion.Major -ge 7) {
+  $PSNativeCommandUseErrorActionPreference = $false
+}
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $stateDir = Join-Path $root "output\novu-bootstrap"
@@ -52,20 +55,60 @@ function Merge-EnvMaps {
   return $Base
 }
 
-function Invoke-NovuJson {
+function Set-EnvValue {
   param(
-    [Parameter(Mandatory = $true)][ValidateSet("GET", "POST")][string]$Method,
     [Parameter(Mandatory = $true)][string]$Path,
-    [object]$Body
+    [Parameter(Mandatory = $true)][string]$Key,
+    [Parameter(Mandatory = $true)][AllowEmptyString()][string]$Value
+  )
+
+  $lines = [System.Collections.Generic.List[string]]::new()
+  if (Test-Path $Path) {
+    foreach ($line in Get-Content -Path $Path) {
+      $lines.Add($line)
+    }
+  }
+
+  $updatedLine = "$Key=$Value"
+  $keyPattern = "^\s*$([System.Text.RegularExpressions.Regex]::Escape($Key))="
+  $replaced = $false
+
+  for ($index = 0; $index -lt $lines.Count; $index++) {
+    if ($lines[$index] -match $keyPattern) {
+      $lines[$index] = $updatedLine
+      $replaced = $true
+      break
+    }
+  }
+
+  if (-not $replaced) {
+    if ($lines.Count -gt 0 -and $lines[$lines.Count - 1] -ne "") {
+      $lines.Add("")
+    }
+
+    $lines.Add($updatedLine)
+  }
+
+  Set-Content -Path $Path -Value $lines -Encoding UTF8
+}
+
+function New-JsonRequestParameters {
+  param(
+    [Parameter(Mandatory = $true)][ValidateSet("GET", "POST", "PUT")][string]$Method,
+    [Parameter(Mandatory = $true)][string]$Uri,
+    [hashtable]$Headers,
+    [object]$Body,
+    [int]$TimeoutSec = 30
   )
 
   $requestParams = @{
     Method = $Method
-    Uri = "$script:NovuBaseUrl/$Path"
-    Headers = @{
-      Authorization = "ApiKey $script:NovuApiSecret"
-    }
-    TimeoutSec = 30
+    Uri = $Uri
+    TimeoutSec = $TimeoutSec
+  }
+
+  if ($Headers) {
+    $requestParams["Headers"] = $Headers
   }
 
   if ($PSBoundParameters.ContainsKey("Body")) {
@@ -73,7 +116,361 @@ function Invoke-NovuJson {
     $requestParams["ContentType"] = "application/json"
   }
 
+  return $requestParams
+}
+
+function Invoke-RestJsonRaw {
+  param(
+    [Parameter(Mandatory = $true)][ValidateSet("GET", "POST", "PUT")][string]$Method,
+    [Parameter(Mandatory = $true)][string]$Uri,
+    [hashtable]$Headers,
+    [object]$Body,
+    [int]$TimeoutSec = 30
+  )
+
+  $requestParams = New-JsonRequestParameters @PSBoundParameters
   return Invoke-RestMethod @requestParams
+}
+
+function Get-HttpErrorDetails {
+  param([Parameter(Mandatory = $true)][System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+  $statusCode = 0
+  $message = $ErrorRecord.Exception.Message
+  $body = $null
+
+  if ($ErrorRecord.Exception.Response) {
+    try {
+      $statusCode = [int]$ErrorRecord.Exception.Response.StatusCode
+    } catch {
+      $statusCode = 0
+    }
+
+    try {
+      $stream = $ErrorRecord.Exception.Response.GetResponseStream()
+      if ($stream) {
+        $reader = New-Object System.IO.StreamReader($stream)
+        try {
+          $body = $reader.ReadToEnd()
+        } finally {
+          $reader.Dispose()
+          $stream.Dispose()
+        }
+      }
+    } catch {
+      $body = $null
+    }
+  }
+
+  return @{
+    StatusCode = $statusCode
+    Message = $message
+    Body = $body
+  }
+}
+
+function Invoke-JsonRequest {
+  param(
+    [Parameter(Mandatory = $true)][ValidateSet("GET", "POST", "PUT")][string]$Method,
+    [Parameter(Mandatory = $true)][string]$Uri,
+    [hashtable]$Headers,
+    [object]$Body,
+    [int]$TimeoutSec = 30
+  )
+
+  try {
+    return Invoke-RestJsonRaw @PSBoundParameters
+  } catch {
+    $details = Get-HttpErrorDetails -ErrorRecord $_
+    $statusLabel = if ($details.StatusCode -gt 0) {
+      "HTTP $($details.StatusCode)"
+    } else {
+      "request failure"
+    }
+    $bodyText = if ($details.Body) { $details.Body } else { $details.Message }
+    throw "$Method $Uri failed ($statusLabel): $bodyText"
+  }
+}
+
+function Invoke-NovuJson {
+  param(
+    [Parameter(Mandatory = $true)][ValidateSet("GET", "POST", "PUT")][string]$Method,
+    [Parameter(Mandatory = $true)][string]$Path,
+    [object]$Body
+  )
+
+  $headers = @{
+    Authorization = "ApiKey $script:NovuApiSecret"
+  }
+
+  $request = @{
+    Method = $Method
+    Uri = "$script:NovuBaseUrl/$($Path.TrimStart('/'))"
+    Headers = $headers
+  }
+
+  if ($PSBoundParameters.ContainsKey("Body")) {
+    $request["Body"] = $Body
+  }
+
+  return Invoke-JsonRequest @request
+}
+
+function Invoke-NovuUserJson {
+  param(
+    [Parameter(Mandatory = $true)][ValidateSet("GET", "POST")][string]$Method,
+    [Parameter(Mandatory = $true)][string]$Path,
+    [Parameter(Mandatory = $true)][string]$Token,
+    [object]$Body
+  )
+
+  $headers = @{
+    Authorization = "Bearer $Token"
+  }
+
+  $request = @{
+    Method = $Method
+    Uri = "$script:NovuBaseUrl/$($Path.TrimStart('/'))"
+    Headers = $headers
+  }
+
+  if ($PSBoundParameters.ContainsKey("Body")) {
+    $request["Body"] = $Body
+  }
+
+  return Invoke-JsonRequest @request
+}
+
+function Test-NovuApiAccess {
+  param([AllowNull()][string]$ApiSecret)
+
+  if (-not $ApiSecret) {
+    return $false
+  }
+
+  try {
+    $null = Invoke-JsonRequest -Method GET -Uri "$script:NovuBaseUrl/v2/workflows?limit=1" -Headers @{
+      Authorization = "ApiKey $ApiSecret"
+    }
+
+    return $true
+  } catch {
+    return $false
+  }
+}
+
+function Get-NovuEncryptedApiKeyFromDatabase {
+  if (-not $script:MongoRootPassword) {
+    return $null
+  }
+
+  $javascript = @"
+const dbx = db.getSiblingDB('novu-db');
+const env = dbx.environments.findOne({ type: 'dev' }) || dbx.environments.findOne();
+if (env && env.apiKeys && env.apiKeys.length > 0 && env.apiKeys[0].key) {
+  print(env.apiKeys[0].key);
+}
+"@
+
+  $output = & docker exec hylono-mongo mongosh --quiet --username hylono --password $script:MongoRootPassword --authenticationDatabase admin --eval $javascript 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    return $null
+  }
+
+  $key = @(
+    $output |
+      ForEach-Object { $_.ToString().Trim() } |
+      Where-Object { $_ }
+  ) | Select-Object -Last 1
+
+  if (-not $key) {
+    return $null
+  }
+
+  return [string]$key
+}
+
+function Get-NovuApiKeyFromDatabase {
+  param([AllowNull()][string]$EncryptedApiKey)
+
+  if (-not $EncryptedApiKey) {
+    return $null
+  }
+
+  $output = & docker exec `
+    -e NODE_OPTIONS=--no-warnings `
+    -e NEW_RELIC_ENABLED=false `
+    -e NEW_RELIC_NO_CONFIG_FILE=true `
+    hylono-novu-api `
+    node `
+    -e "const { decryptApiKey } = require('@novu/application-generic'); console.log(decryptApiKey(process.argv[1]));" `
+    -- `
+    $EncryptedApiKey 2>&1
+
+  if ($LASTEXITCODE -ne 0) {
+    return $null
+  }
+
+  $candidates = @(
+    $output |
+      ForEach-Object { $_.ToString().Trim() } |
+      Where-Object { $_ -match '^[a-f0-9]{32}$' }
+  )
+
+  if ($candidates.Count -eq 0) {
+    return $null
+  }
+
+  return [string]$candidates[0]
+}
+
+function Get-NovuBootstrapTokenFromLogin {
+  $body = @{
+    email = $script:NovuBootstrapEmail
+    password = $script:NovuBootstrapPassword
+  }
+
+  try {
+    $response = Invoke-RestJsonRaw -Method POST -Uri "$script:NovuBaseUrl/v1/auth/login" -Body $body
+    return [string]$response.data.token
+  } catch {
+    $details = Get-HttpErrorDetails -ErrorRecord $_
+    if ($details.StatusCode -eq 401) {
+      return $null
+    }
+
+    throw "Novu bootstrap login failed: $(if ($details.Body) { $details.Body } else { $details.Message })"
+  }
+}
+
+function Register-NovuBootstrapUser {
+  $body = @{
+    email = $script:NovuBootstrapEmail
+    firstName = $script:NovuBootstrapFirstName
+    lastName = $script:NovuBootstrapLastName
+    password = $script:NovuBootstrapPassword
+    organizationName = $script:NovuBootstrapOrganizationName
+  }
+
+  try {
+    $response = Invoke-RestJsonRaw -Method POST -Uri "$script:NovuBaseUrl/v1/auth/register" -Body $body
+    return [string]$response.data.token
+  } catch {
+    $details = Get-HttpErrorDetails -ErrorRecord $_
+    if ($details.StatusCode -eq 400 -and $details.Body -match "User already exists") {
+      return $null
+    }
+
+    throw "Novu bootstrap registration failed: $(if ($details.Body) { $details.Body } else { $details.Message })"
+  }
+}
+
+function Get-NovuDevApiKeyFromUserToken {
+  param([Parameter(Mandatory = $true)][string]$Token)
+
+  $environmentResponse = Invoke-NovuUserJson -Method GET -Path "v1/environments" -Token $Token
+  $environments = @($environmentResponse.data)
+  $environment = $environments | Where-Object { $_.type -eq "dev" } | Select-Object -First 1
+  if (-not $environment) {
+    $environment = $environments | Select-Object -First 1
+  }
+
+  if (-not $environment) {
+    throw "Novu bootstrap user has no accessible environments."
+  }
+
+  $apiKeys = @($environment.apiKeys)
+  if ($apiKeys.Count -eq 0 -or -not $apiKeys[0].key) {
+    throw "Novu environment '$($environment.name)' does not expose an API key."
+  }
+
+  return [string]$apiKeys[0].key
+}
+
+function Ensure-NovuApiKey {
+  param([Parameter(Mandatory = $true)][string]$LocalEnvPath)
+
+  if ($script:NovuApiSecret -and (Test-NovuApiAccess -ApiSecret $script:NovuApiSecret)) {
+    return $script:NovuApiSecret
+  }
+
+  Write-Warning "NOVU_API_SECRET is missing or invalid. Recovering local Novu API access."
+
+  $existingApiKey = Get-NovuApiKeyFromDatabase -EncryptedApiKey (Get-NovuEncryptedApiKeyFromDatabase)
+  if ($existingApiKey -and (Test-NovuApiAccess -ApiSecret $existingApiKey)) {
+    $script:NovuApiSecret = $existingApiKey
+    Set-EnvValue -Path $LocalEnvPath -Key "NOVU_API_SECRET" -Value $existingApiKey
+    Set-EnvValue -Path $LocalEnvPath -Key "NOVU_API_BASE_URL" -Value $script:NovuBaseUrl
+    return $script:NovuApiSecret
+  }
+
+  $token = Get-NovuBootstrapTokenFromLogin
+  if (-not $token) {
+    $token = Register-NovuBootstrapUser
+  }
+
+  if (-not $token) {
+    throw "Unable to recover a working Novu API key from the local stack."
+  }
+
+  $freshApiKey = Get-NovuDevApiKeyFromUserToken -Token $token
+  if (-not (Test-NovuApiAccess -ApiSecret $freshApiKey)) {
+    throw "Recovered Novu API key could not access the local Novu API."
+  }
+
+  $script:NovuApiSecret = $freshApiKey
+  Set-EnvValue -Path $LocalEnvPath -Key "NOVU_API_SECRET" -Value $freshApiKey
+  Set-EnvValue -Path $LocalEnvPath -Key "NOVU_API_BASE_URL" -Value $script:NovuBaseUrl
+  return $script:NovuApiSecret
+}
+
+function New-NovuWorkflow {
+  param([Parameter(Mandatory = $true)][string]$WorkflowId)
+
+  $response = Invoke-NovuJson -Method POST -Path "v2/workflows" -Body @{
+    name = "Hylono Operator Notifications"
+    workflowId = $WorkflowId
+    description = "Local operator notification workflow bootstrapped by seed-novu-operator-bootstrap.ps1."
+    active = $true
+    steps = @(
+      @{
+        name = "Inbox Notification"
+        stepId = "operator-inbox"
+        type = "in_app"
+        controlValues = @{
+          body = "{{payload.title}}`n{{payload.message}}"
+        }
+      }
+    )
+  }
+
+  $workflow = Get-PropertyValue -Target $response -Name "data"
+  if ($null -eq $workflow) {
+    $workflow = $response
+  }
+
+  return $workflow
+}
+
+function Ensure-NovuWorkflow {
+  param([Parameter(Mandatory = $true)][string]$WorkflowId)
+
+  $workflowResponse = Invoke-NovuJson -Method GET -Path "v2/workflows?limit=100"
+  $workflow = @($workflowResponse.data.workflows) | Where-Object { $_.workflowId -eq $WorkflowId } | Select-Object -First 1
+
+  if (-not $workflow) {
+    $workflow = New-NovuWorkflow -WorkflowId $WorkflowId
+  }
+
+  if (-not $workflow) {
+    throw "Expected Novu workflow '$WorkflowId' was not found."
+  }
+
+  if ($workflow.status -ne "ACTIVE") {
+    throw "Novu workflow '$WorkflowId' exists but is not ACTIVE."
+  }
+
+  return $workflow
 }
 
 function Get-StringHash {
@@ -497,8 +894,9 @@ function Invoke-SeedEvent {
 
 $notificationPack = Get-NotificationPack
 $envMap = Parse-EnvFile -Path (Join-Path $root ".env")
-if (Test-Path (Join-Path $root ".env.local")) {
-  $envMap = Merge-EnvMaps -Base $envMap -Overrides (Parse-EnvFile -Path (Join-Path $root ".env.local"))
+$localEnvPath = Join-Path $root ".env.local"
+if (Test-Path $localEnvPath) {
+  $envMap = Merge-EnvMaps -Base $envMap -Overrides (Parse-EnvFile -Path $localEnvPath)
 }
 
 $script:NovuBaseUrl = if ($envMap["NOVU_API_BASE_URL"]) {
@@ -507,10 +905,33 @@ $script:NovuBaseUrl = if ($envMap["NOVU_API_BASE_URL"]) {
   "http://localhost:18110"
 }
 
-$script:NovuApiSecret = $envMap["NOVU_API_SECRET"]
-if (-not $script:NovuApiSecret) {
-  throw "NOVU_API_SECRET is missing from .env or .env.local."
+$script:MongoRootPassword = $envMap["MONGO_ROOT_PASSWORD"]
+$script:NovuBootstrapEmail = if ($envMap["NOVU_BOOTSTRAP_EMAIL"]) {
+  [string]$envMap["NOVU_BOOTSTRAP_EMAIL"]
+} else {
+  "operator-bootstrap@hylono.local"
 }
+$script:NovuBootstrapPassword = if ($envMap["NOVU_BOOTSTRAP_PASSWORD"]) {
+  [string]$envMap["NOVU_BOOTSTRAP_PASSWORD"]
+} else {
+  "LocalBootstrap123!"
+}
+$script:NovuBootstrapFirstName = if ($envMap["NOVU_BOOTSTRAP_FIRST_NAME"]) {
+  [string]$envMap["NOVU_BOOTSTRAP_FIRST_NAME"]
+} else {
+  "Operator"
+}
+$script:NovuBootstrapLastName = if ($envMap["NOVU_BOOTSTRAP_LAST_NAME"]) {
+  [string]$envMap["NOVU_BOOTSTRAP_LAST_NAME"]
+} else {
+  "Bootstrap"
+}
+$script:NovuBootstrapOrganizationName = if ($envMap["NOVU_BOOTSTRAP_ORGANIZATION"]) {
+  [string]$envMap["NOVU_BOOTSTRAP_ORGANIZATION"]
+} else {
+  "Hylono Local"
+}
+$script:NovuApiSecret = $envMap["NOVU_API_SECRET"]
 
 $workflowId = if ($envMap["NOVU_WORKFLOW_ID"]) {
   $envMap["NOVU_WORKFLOW_ID"]
@@ -518,15 +939,8 @@ $workflowId = if ($envMap["NOVU_WORKFLOW_ID"]) {
   [string]$notificationPack.workflow.defaultWorkflowId
 }
 
-$workflowResponse = Invoke-NovuJson -Method GET -Path "v2/workflows?limit=20"
-$workflow = @($workflowResponse.data.workflows) | Where-Object { $_.workflowId -eq $workflowId } | Select-Object -First 1
-if (-not $workflow) {
-  throw "Expected Novu workflow '$workflowId' was not found."
-}
-
-if ($workflow.status -ne "ACTIVE") {
-  throw "Novu workflow '$workflowId' exists but is not ACTIVE."
-}
+$script:NovuApiSecret = Ensure-NovuApiKey -LocalEnvPath $localEnvPath
+$workflow = Ensure-NovuWorkflow -WorkflowId $workflowId
 
 $integrationsResponse = Invoke-NovuJson -Method GET -Path "v1/integrations?limit=20"
 $inAppIntegration = @($integrationsResponse.data) | Where-Object {

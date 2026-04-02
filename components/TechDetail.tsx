@@ -2419,7 +2419,7 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                 initial={{ opacity: 0, y: -12 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -12 }}
-                                className="hidden md:block fixed top-0 left-0 right-0 z-[70] border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-sm"
+                                className="hidden md:block fixed top-0 left-0 right-0 z-[70] border-b border-slate-200 bg-white shadow-sm"
                             >
                                 <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
                                     <div className="min-w-0">

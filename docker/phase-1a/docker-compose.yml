@@ -24,6 +24,8 @@ services:
       STORE_CORS: http://localhost:8000,http://localhost:8100
       ADMIN_CORS: http://localhost:8100,http://localhost:3000
       AUTH_CORS: http://localhost:8100,http://localhost:3000
+    volumes:
+      - ./vendor/medusa-starter-default/docker/start-medusa.sh:/app/docker/start-medusa.sh:ro
 
   lago-pdf:
     image: getlago/lago-gotenberg:7.8.2
@@ -173,6 +175,7 @@ services:
     networks: [hylono]
     ports:
       - "8106:3000"
+    command: ["/bin/sh", "/calcom/scripts/hylono-start.sh"]
     environment:
       DATABASE_HOST: postgres
       POSTGRES_USER: calcom
@@ -192,6 +195,9 @@ services:
       CRON_API_KEY: ${CALCOM_CRON_API_KEY}
       ALLOWED_HOSTNAMES: '"localhost:3000","localhost:8106"'
       API_KEY_PREFIX: cal_
+    volumes:
+      - ./calcom/hylono-start.sh:/calcom/scripts/hylono-start.sh:ro
+      - ./calcom/replace-placeholder.cjs:/calcom/scripts/hylono-replace-placeholder.cjs:ro
 
   twenty:
     image: twentycrm/twenty:latest

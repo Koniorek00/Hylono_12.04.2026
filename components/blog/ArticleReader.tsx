@@ -158,7 +158,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-white/95 backdrop-blur-xl flex flex-col"
+            className="fixed inset-0 z-[100] bg-white flex flex-col"
         >
             {/* Reading Progress Bar */}
             <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 z-50">
@@ -169,7 +169,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
             </div>
 
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+            <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-100">
                 <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
                     <button
                         onClick={onClose}
@@ -374,7 +374,7 @@ export const ArticleReader: React.FC<ArticleReaderProps> = ({
             </div>
 
             {/* Navigation Footer */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-100">
+            <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100">
                 <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
                     <button
                         onClick={() => onNavigate('prev')}

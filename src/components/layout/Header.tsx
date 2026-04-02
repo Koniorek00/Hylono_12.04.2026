@@ -98,6 +98,11 @@ export function Header() {
   const { isOpen: multitoolOpen, toggle: toggleMultitool, openAtPosition } =
     useMultitoolStore();
 
+  useEffect(() => {
+    setMegaMenuOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
+
   const navGoalsEnabled = isFeatureEnabled('feature_nav_goals');
   const headerTrustEnabled = isFeatureEnabled('feature_header_trust');
 
@@ -220,15 +225,27 @@ export function Header() {
     navigateWithScroll(router, href);
   };
 
-  const navClasses = `fixed top-0 left-0 right-0 z-50 border-b transition-[padding,background-color,border-color,box-shadow] duration-300 ${
+  const navClasses = `fixed top-0 left-0 right-0 z-50 isolate border-b bg-white transition-[padding,border-color,box-shadow] duration-300 ${
     compactHeader ? 'py-2 md:py-2.5' : 'py-4'
   } ${
     isScrolled
-      ? 'bg-white/60 backdrop-blur-xl border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]'
-      : 'bg-transparent border-transparent'
+      ? 'border-slate-200 shadow-[0_4px_30px_rgba(0,0,0,0.03)]'
+      : 'border-transparent'
   }`;
 
+  const handleExploreToggle = () => {
+    if (multitoolOpen) {
+      toggleMultitool();
+    }
+
+    setMegaMenuOpen((open) => !open);
+  };
+
   const handleAccessibilityClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (megaMenuOpen) {
+      setMegaMenuOpen(false);
+    }
+
     if (multitoolOpen) {
       toggleMultitool();
       return;
@@ -245,15 +262,22 @@ export function Header() {
     <motion.nav
       ref={navRef}
       aria-label="Main navigation"
-      className={`${navClasses} animate-resonance`}
+      className={navClasses}
+      style={{
+        backgroundColor: '#ffffff',
+        opacity: 1,
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
+      }}
     >
+      <div aria-hidden="true" className="absolute inset-0 bg-white" />
       <motion.div
         className="absolute top-0 left-0 right-0 z-10 h-[2px] origin-left bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]"
         style={{ scaleX }}
       />
 
       {headerTrustEnabled && !compactHeader && (
-        <div className="border-b border-white/20 bg-white/60 backdrop-blur-xl">
+        <div className="relative z-20 border-b border-slate-200 bg-white">
           <div className="mx-auto hidden max-w-7xl items-center justify-end gap-4 px-6 py-1 md:flex">
             {trustMarkers.slice(0, 3).map((marker) => (
               <span
@@ -267,7 +291,7 @@ export function Header() {
         </div>
       )}
 
-      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-6 md:gap-8">
+      <div className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 md:gap-8">
         <Link
           href="/"
           data-testid="logo-link"
@@ -316,7 +340,7 @@ export function Header() {
 
           <button
             onMouseEnter={() => loadMegaMenu()}
-            onClick={() => setMegaMenuOpen((open) => !open)}
+            onClick={handleExploreToggle}
             aria-haspopup="true"
             aria-expanded={megaMenuOpen}
             className={`group flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] transition-all duration-300 md:text-xs futuristic-font ${
@@ -465,7 +489,16 @@ export function Header() {
 
       <AnimatePresence>
         {mobileOpen && (
-          <div id="mobile-nav-panel" className="absolute top-full left-0 flex h-screen w-full flex-col space-y-8 border-b border-gray-100 bg-white/95 p-8 backdrop-blur-3xl md:hidden">
+          <div
+            id="mobile-nav-panel"
+            className="absolute top-full left-0 flex h-screen w-full flex-col space-y-8 border-b border-gray-100 bg-white p-8 md:hidden"
+            style={{
+              backgroundColor: '#ffffff',
+              opacity: 1,
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+            }}
+          >
             {headerTrustEnabled && (
               <div className="space-y-2">
                 {trustMarkers.slice(0, 2).map((marker) => (

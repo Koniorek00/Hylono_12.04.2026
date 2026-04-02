@@ -147,7 +147,15 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       </div>
 
       {showPageNavigator ? (
-        <div className="flex w-full shrink-0 items-center justify-end gap-2 self-start rounded-xl border border-slate-200/80 bg-white/80 px-1 py-1 shadow-sm shadow-slate-200/60 backdrop-blur-sm sm:ml-4 sm:w-auto sm:self-auto">
+        <div
+          className="flex w-full shrink-0 items-center justify-end gap-2 self-start rounded-xl border border-slate-200 bg-white px-1 py-1 shadow-sm shadow-slate-200/60 sm:ml-4 sm:w-auto sm:self-auto"
+          style={{
+            backgroundColor: '#ffffff',
+            opacity: 1,
+            backdropFilter: 'none',
+            WebkitBackdropFilter: 'none',
+          }}
+        >
           <button
             type="button"
             onClick={handleScrollToTop}
@@ -209,8 +217,14 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                     absolute right-0 mt-2
                     w-72 max-w-[90vw]
                     overflow-hidden rounded-xl border border-slate-200
-                    bg-white/95 shadow-xl shadow-slate-900/15 backdrop-blur-md
+                    bg-white shadow-xl shadow-slate-900/15
                   "
+                  style={{
+                    backgroundColor: '#ffffff',
+                    opacity: 1,
+                    backdropFilter: 'none',
+                    WebkitBackdropFilter: 'none',
+                  }}
                   role="menu"
                   aria-label="Page sections"
                 >

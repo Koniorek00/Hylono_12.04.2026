@@ -37,6 +37,7 @@ $siteUrl = "http://localhost:3000"
 $controlPanelUrl = "http://localhost:3005/admin"
 $dockerDesktop = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
 $pnpmCmd = "C:\Program Files\nodejs\pnpm.CMD"
+$script:sitePackageRunner = $null
 $siteBuildSources = @(
   (Join-Path $root "app"),
   (Join-Path $root "components"),
@@ -70,6 +71,25 @@ function Write-Step {
   param([string]$Message)
   Write-Host ""
   Write-Host "==> $Message" -ForegroundColor Cyan
+}
+
+function Get-EnvValue {
+  param(
+    [Parameter(Mandatory = $true)][string]$Name,
+    [string]$FilePath = $envFile
+  )
+
+  if (-not (Test-Path $FilePath)) {
+    return $null
+  }
+
+  foreach ($line in Get-Content $FilePath) {
+    if ($line -match "^\s*$([regex]::Escape($Name))=(.*)$") {
+      return $Matches[1]
+    }
+  }
+
+  return $null
 }
 
 function Test-HttpReady {
@@ -147,6 +167,89 @@ function New-ProcessLogPaths {
     Stdout = "$Prefix.$stamp.out.log"
     Stderr = "$Prefix.$stamp.err.log"
   }
+}
+
+function Test-NativeCommandSuccess {
+  param(
+    [Parameter(Mandatory = $true)][string]$FilePath,
+    [string[]]$ArgumentList = @()
+  )
+
+  if (-not (Test-Path $FilePath)) {
+    return $false
+  }
+
+  try {
+    & $FilePath @ArgumentList *> $null
+  } catch {
+    return $false
+  }
+
+  return ($LASTEXITCODE -eq 0)
+}
+
+function Get-SitePackageRunner {
+  if ($script:sitePackageRunner) {
+    return $script:sitePackageRunner
+  }
+
+  $pnpmCommand = Get-Command pnpm.cmd -ErrorAction SilentlyContinue | Select-Object -First 1
+  $npmCommand = Get-Command npm.cmd -ErrorAction SilentlyContinue | Select-Object -First 1
+  $corepackCommand = Get-Command corepack -ErrorAction SilentlyContinue | Select-Object -First 1
+  $candidates = @(
+    @{
+      Name = "pnpm"
+      FilePath = if (Test-Path $pnpmCmd) { $pnpmCmd } else { $null }
+      BaseArgs = @()
+      VersionArgs = @("--version")
+    },
+    @{
+      Name = "pnpm"
+      FilePath = if ($pnpmCommand) { $pnpmCommand.Source } else { $null }
+      BaseArgs = @()
+      VersionArgs = @("--version")
+    },
+    @{
+      Name = "corepack pnpm"
+      FilePath = if ($corepackCommand) { $corepackCommand.Source } else { $null }
+      BaseArgs = @("pnpm")
+      VersionArgs = @("pnpm", "--version")
+    },
+    @{
+      Name = "npm"
+      FilePath = if ($npmCommand) { $npmCommand.Source } else { $null }
+      BaseArgs = @("run")
+      VersionArgs = @("--version")
+    }
+  )
+
+  $attempted = New-Object System.Collections.Generic.List[string]
+  $seenCandidates = New-Object System.Collections.Generic.HashSet[string]
+  foreach ($candidate in $candidates) {
+    if ([string]::IsNullOrWhiteSpace($candidate.FilePath)) {
+      continue
+    }
+
+    $candidateKey = "$($candidate.Name)|$($candidate.FilePath)"
+    if (-not $seenCandidates.Add($candidateKey)) {
+      continue
+    }
+
+    $attempted.Add("$($candidate.Name) -> $($candidate.FilePath)")
+    if (Test-NativeCommandSuccess -FilePath $candidate.FilePath -ArgumentList $candidate.VersionArgs) {
+      $script:sitePackageRunner = @{
+        Name = $candidate.Name
+        FilePath = $candidate.FilePath
+        BaseArgs = [string[]]$candidate.BaseArgs
+      }
+      Write-Host "Website package runner: $($candidate.Name) -> $($candidate.FilePath)" -ForegroundColor DarkGray
+      return $script:sitePackageRunner
+    }
+
+    Write-Warning "Website package runner is present but unusable: $($candidate.Name) -> $($candidate.FilePath)"
+  }
+
+  throw "Could not resolve a working package runner for the website. Checked: $($attempted -join '; ')"
 }
 
 function Get-PortListenerProcessIds {
@@ -271,10 +374,214 @@ function Ensure-DocumensoCertificateMount {
   }
 
   Write-Warning "Documenso certificate mount is stale. Recreating the Documenso container..."
-  & docker compose -f $phase1Compose --env-file $envFile up -d --force-recreate documenso
-  if ($LASTEXITCODE -ne 0) {
+  $recreateExitCode = Invoke-DockerCommand -Arguments @("compose", "-f", $phase1Compose, "--env-file", $envFile, "up", "-d", "--force-recreate", "documenso")
+  if ($recreateExitCode -ne 0) {
     throw "Failed to recreate Documenso with the signing certificate mount."
   }
+}
+
+function Invoke-DockerCommand {
+  param([Parameter(Mandatory = $true)][string[]]$Arguments)
+
+  $stdoutFile = [System.IO.Path]::GetTempFileName()
+  $stderrFile = [System.IO.Path]::GetTempFileName()
+  $argumentString = (
+    $Arguments | ForEach-Object {
+      if ($_ -match '[\s"]') {
+        '"' + ($_ -replace '"', '\"') + '"'
+      } else {
+        $_
+      }
+    }
+  ) -join " "
+
+  try {
+    $process = Start-Process -FilePath "docker.exe" -ArgumentList $argumentString -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+
+    foreach ($path in @($stdoutFile, $stderrFile)) {
+      if (Test-Path $path) {
+        Get-Content $path | ForEach-Object { Write-Host $_ }
+      }
+    }
+
+    return $process.ExitCode
+  } finally {
+    Remove-Item $stdoutFile, $stderrFile -Force -ErrorAction SilentlyContinue
+  }
+}
+
+function Get-ContainerLogs {
+  param(
+    [Parameter(Mandatory = $true)][string]$Name,
+    [int]$Tail = 200
+  )
+
+  $logs = & docker logs $Name --tail $Tail 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    return ""
+  }
+
+  return ($logs | Out-String)
+}
+
+function Get-ContainerVolumeName {
+  param(
+    [Parameter(Mandatory = $true)][string]$ContainerName,
+    [Parameter(Mandatory = $true)][string]$Destination
+  )
+
+  $format = "{{range .Mounts}}{{if eq .Destination `"$Destination`"}}{{.Name}}{{end}}{{end}}"
+  $volumeName = & docker inspect $ContainerName --format $format 2>$null
+  if ($LASTEXITCODE -ne 0) {
+    return $null
+  }
+
+  $volumeName = ($volumeName | Out-String).Trim()
+  if ([string]::IsNullOrWhiteSpace($volumeName)) {
+    return $null
+  }
+
+  return $volumeName
+}
+
+function Repair-UptimeKumaBootstrapState {
+  $volumeName = Get-ContainerVolumeName -ContainerName "hylono-uptime-kuma" -Destination "/app/data"
+  if ([string]::IsNullOrWhiteSpace($volumeName)) {
+    return $false
+  }
+
+  $stateProbe = @'
+if [ -f /app/data/kuma.db ]; then
+  SIZE=$(wc -c < /app/data/kuma.db | tr -d ' ')
+else
+  SIZE=missing
+fi
+
+HAS_WAL=0
+if [ -f /app/data/kuma.db-wal ] || [ -f /app/data/kuma.db-shm ]; then
+  HAS_WAL=1
+fi
+
+HAS_SETTING_TABLE=missing
+if [ -f /app/data/kuma.db ]; then
+  if sqlite3 /app/data/kuma.db "select name from sqlite_master where type='table' and name='setting';" 2>/dev/null | grep -qx "setting"; then
+    HAS_SETTING_TABLE=1
+  else
+    HAS_SETTING_TABLE=0
+  fi
+fi
+
+echo "SIZE=$SIZE"
+echo "HAS_WAL=$HAS_WAL"
+echo "HAS_SETTING_TABLE=$HAS_SETTING_TABLE"
+'@
+
+  $stateLines = & docker run --rm -v "${volumeName}:/app/data" louislam/uptime-kuma:2 sh -lc $stateProbe 2>$null
+  if ($LASTEXITCODE -ne 0) {
+    return $false
+  }
+
+  $state = @{}
+  foreach ($line in $stateLines) {
+    if ($line -match '^([^=]+)=(.*)$') {
+      $state[$Matches[1]] = $Matches[2]
+    }
+  }
+
+  $dbSizeText = if ($state.ContainsKey("SIZE")) { $state["SIZE"] } else { "missing" }
+  $hasWalFiles = $state.ContainsKey("HAS_WAL") -and $state["HAS_WAL"] -eq "1"
+  $hasSettingTable = $state.ContainsKey("HAS_SETTING_TABLE") -and $state["HAS_SETTING_TABLE"] -eq "1"
+  $dbSize = 0
+  $hasDbFile = [int]::TryParse($dbSizeText, [ref]$dbSize)
+
+  $needsCleanup =
+    ((-not $hasDbFile) -and $hasWalFiles) -or
+    ($hasDbFile -and $dbSize -eq 0) -or
+    ($hasDbFile -and -not $hasSettingTable)
+
+  if (-not $needsCleanup) {
+    return $false
+  }
+
+  Write-Step "Repairing Uptime Kuma bootstrap state"
+  & docker run --rm -v "${volumeName}:/app/data" busybox sh -lc "rm -f /app/data/kuma.db /app/data/kuma.db-shm /app/data/kuma.db-wal /app/data/db-config.json"
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to clean the broken Uptime Kuma database bootstrap files."
+  }
+
+  & docker restart hylono-uptime-kuma *> $null
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to restart Uptime Kuma after cleaning its broken bootstrap state."
+  }
+
+  Write-Host "Removed the broken Kuma SQLite bootstrap files and restarted the container." -ForegroundColor Green
+  return $true
+}
+
+function Repair-LagoPgPartmanOwnership {
+  $owner = & docker exec hylono-postgres psql -U postgres -d lago_db -t -A -c "select pg_get_userbyid(extowner) from pg_extension where extname = 'pg_partman';" 2>$null
+  if ($LASTEXITCODE -ne 0) {
+    return $false
+  }
+
+  $owner = ($owner | Out-String).Trim()
+  if ([string]::IsNullOrWhiteSpace($owner) -or $owner -eq "lago") {
+    return $false
+  }
+
+  Write-Step "Repairing Lago pg_partman ownership"
+  & docker exec hylono-postgres psql -U postgres -d lago_db -v ON_ERROR_STOP=1 -c "DROP EXTENSION IF EXISTS pg_partman CASCADE; SET ROLE lago; CREATE EXTENSION IF NOT EXISTS pg_partman; RESET ROLE;"
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to recreate pg_partman as the lago role."
+  }
+
+  Write-Host "Recreated pg_partman under the lago role." -ForegroundColor Green
+  return $true
+}
+
+function Repair-ZitadelSetupState {
+  $logs = Get-ContainerLogs -Name "hylono-zitadel"
+  if ($logs -notmatch "migration already started") {
+    return $false
+  }
+
+  $masterKey = Get-EnvValue -Name "ZITADEL_MASTERKEY"
+  if ([string]::IsNullOrWhiteSpace($masterKey)) {
+    throw "ZITADEL_MASTERKEY is missing from .env, so the stuck setup state cannot be cleaned up."
+  }
+
+  Write-Step "Cleaning stuck Zitadel setup state"
+  & docker exec hylono-zitadel /app/zitadel setup cleanup --masterkey $masterKey --tlsMode disabled
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to clean up the stuck Zitadel migration state."
+  }
+
+  & docker restart hylono-zitadel *> $null
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to restart Zitadel after cleaning its setup state."
+  }
+
+  Write-Host "Cleaned the stale Zitadel migration marker and restarted the container." -ForegroundColor Green
+  return $true
+}
+
+function Repair-Phase1AKnownIssues {
+  $repaired = $false
+
+  $lagoLogs = Get-ContainerLogs -Name "hylono-lago-migrate"
+  if ($lagoLogs -match "must be owner of extension pg_partman") {
+    $repaired = (Repair-LagoPgPartmanOwnership) -or $repaired
+  }
+
+  $repaired = (Repair-ZitadelSetupState) -or $repaired
+
+  return $repaired
+}
+
+function Repair-InfrastructureKnownIssues {
+  $repaired = $false
+  $repaired = (Repair-UptimeKumaBootstrapState) -or $repaired
+  return $repaired
 }
 
 function Invoke-ComposeUp {
@@ -282,19 +589,28 @@ function Invoke-ComposeUp {
     [Parameter(Mandatory = $true)][string]$ComposeFile,
     [Parameter(Mandatory = $true)][string]$Label,
     [int]$Attempts = 2,
-    [int]$RetryDelaySec = 20
+    [int]$RetryDelaySec = 20,
+    [switch]$WaitForHealthy
   )
 
   $args = @("compose", "-f", $ComposeFile, "--env-file", $envFile, "up", "-d")
+  if ($WaitForHealthy) {
+    $args += "--wait"
+  }
 
   for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
     Write-Step "Starting $Label (attempt $attempt/$Attempts)"
-    & docker @args
-    if ($LASTEXITCODE -eq 0) {
+    $composeExitCode = Invoke-DockerCommand -Arguments $args
+    if ($composeExitCode -eq 0) {
       return
     }
 
     if ($attempt -lt $Attempts) {
+      if ($Label -eq "infrastructure") {
+        [void](Repair-InfrastructureKnownIssues)
+      } elseif ($Label -eq "Phase 1A") {
+        [void](Repair-Phase1AKnownIssues)
+      }
       Write-Warning "$Label did not start cleanly on attempt $attempt. Retrying in $RetryDelaySec seconds..."
       Start-Sleep -Seconds $RetryDelaySec
     }
@@ -383,15 +699,14 @@ function Ensure-SiteBuild {
     return $false
   }
 
-  if (-not (Test-Path $pnpmCmd)) {
-    throw "pnpm launcher not found at $pnpmCmd"
-  }
+  $sitePackageRunner = Get-SitePackageRunner
+  $buildArguments = [string[]]($sitePackageRunner.BaseArgs + @("build"))
 
   Push-Location $root
   try {
-    & $pnpmCmd build
+    & $sitePackageRunner.FilePath @buildArguments
     if ($LASTEXITCODE -ne 0) {
-      throw "pnpm build failed for website."
+      throw "$($sitePackageRunner.Name) build failed for website."
     }
   } finally {
     Pop-Location
@@ -428,12 +743,11 @@ function Ensure-Site3000 {
     }
   }
 
-  if (-not (Test-Path $pnpmCmd)) {
-    throw "pnpm launcher not found at $pnpmCmd"
-  }
+  $sitePackageRunner = Get-SitePackageRunner
+  $startArguments = [string[]]($sitePackageRunner.BaseArgs + @("start"))
 
   $siteLogs = New-ProcessLogPaths -Prefix $siteLogPrefix
-  Start-Process -FilePath $pnpmCmd -ArgumentList "start" -WorkingDirectory $root -RedirectStandardOutput $siteLogs.Stdout -RedirectStandardError $siteLogs.Stderr -WindowStyle Hidden
+  Start-Process -FilePath $sitePackageRunner.FilePath -ArgumentList $startArguments -WorkingDirectory $root -RedirectStandardOutput $siteLogs.Stdout -RedirectStandardError $siteLogs.Stderr -WindowStyle Hidden
   Wait-HttpReady -Name "Website" -Url $siteUrl -TimeoutSec 120 -MaxStatusCode 399
   Start-Process $siteUrl
 }
@@ -514,8 +828,8 @@ Ensure-DockerReady
 Ensure-EnvFile
 Sync-LocalEnvOverrides
 Ensure-DocumensoSigningCertificate
-Invoke-ComposeUp -ComposeFile $infraCompose -Label "infrastructure"
-Invoke-ComposeUp -ComposeFile $phase1Compose -Label "Phase 1A"
+Invoke-ComposeUp -ComposeFile $infraCompose -Label "infrastructure" -WaitForHealthy
+Invoke-ComposeUp -ComposeFile $phase1Compose -Label "Phase 1A" -WaitForHealthy
 Ensure-DocumensoCertificateMount
 Ensure-ControlPanel
 Wait-ServiceChecks

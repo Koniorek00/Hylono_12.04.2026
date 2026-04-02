@@ -20,11 +20,14 @@ grant_createdb() {
 EOSQL
 }
 
-enable_extension() {
+enable_extension_as_role() {
   local db=$1
-  local extension=$2
+  local role=$2
+  local extension=$3
   psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "$db" <<-EOSQL
+    SET ROLE $role;
     CREATE EXTENSION IF NOT EXISTS $extension;
+    RESET ROLE;
 EOSQL
 }
 
@@ -32,7 +35,7 @@ EOSQL
 create_db "medusa" "medusa_db" "${MEDUSA_DB_PASSWORD}"
 create_db "lago" "lago_db" "${LAGO_DB_PASSWORD}"
 grant_createdb "lago"
-enable_extension "lago_db" "pg_partman"
+enable_extension_as_role "lago_db" "lago" "pg_partman"
 create_db "twenty" "twenty_db" "${TWENTY_DB_PASSWORD}"
 create_db "n8n" "n8n_db" "${N8N_DB_PASSWORD}"
 create_db "zitadel" "zitadel_db" "${ZITADEL_DB_PASSWORD}"
