@@ -5,10 +5,16 @@ export type RentalTechnologyFilter = 'all' | 'HBOT' | 'H2' | 'RLT' | 'PEMF';
 
 export const rentalLandingContent = {
   hero: {
-    title: 'Try before you buy',
+    title: 'Rent the right system before you commit',
     subtitle:
-      'Regeneration technologies without the upfront investment. Flexible monthly plans and guided onboarding included.',
+      'Compare monthly plans, onboarding support, and what happens next before taking on the full purchase price.',
     cta: 'See available devices',
+    secondaryCta: 'Talk to an advisor',
+    supportingPoints: [
+      'Monthly plans and guided onboarding included',
+      'Return, extend, or buy later where offered',
+      'Review shipping, returns, and warranty before checkout',
+    ],
   },
   howItWorks: [
     {

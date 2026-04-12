@@ -1,0 +1,97 @@
+{
+  "name": "Jitsi",
+  "slug": "jitsi",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "Jitsi Meet / docker-jitsi-meet",
+  "version": "stable-10888",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / mixed component licenses across ecosystem",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source video conferencing platform for meetings and embedded calls.",
+  "solves": "Video meetings, calls, and lightweight conferencing with self-host control.",
+  "users": "Teams and product builders needing meetings or embeddable calls without classroom complexity.",
+  "fit": "Better fit than BigBlueButton for general Hylono video consultations, team meetings, or lightweight session calls.",
+  "runtime": "Multi-service media stack with web app, XMPP/JVB components, TURN/STUN, and optional recording/streaming add-ons.",
+  "components": "Web UI, prosody/Jicofo/JVB, media relays, auth options, and deployment scripts.",
+  "deploy": "Official Docker deployment is the practical path. Still requires media-capacity and TURN/STUN planning.",
+  "deps": "Compute, bandwidth, TURN/STUN, storage for recordings if enabled, TLS, and auth integration.",
+  "datastores": "Config/state plus optional recording storage.",
+  "auth": "Anonymous, token, or integrated auth modes depending on setup.",
+  "apis": "Meet APIs, iframe/embed, JWT auth, recording integrations, and media services.",
+  "complexity": "Medium to High",
+  "security": "Meeting access, media traffic, recording storage, and public exposure need careful configuration.",
+  "setup_path": "Use official docker-jitsi-meet releases and handbook. Good candidate if Hylono needs self-hosted meetings but not full classroom tooling.",
+  "env": "Public URL, TURN/STUN, auth/JWT, media ports, recording settings, and TLS.",
+  "persistence": "Back up config and recording storage if recordings are used.",
+  "operations": "Capacity, NAT/TURN, upgrades, and meeting-access controls matter.",
+  "failure_points": "Underestimating media ops or exposing meetings without proper auth.",
+  "integration": "Good fit for consultations, internal meetings, or embedded session calls. Could integrate with Cal.com booking and site flows.",
+  "verify": "Confirm whether self-hosted video is actually needed versus managed meeting tools.",
+  "risk": "Moderate.",
+  "gdpr": "Calls and recordings can be sensitive; consent and retention matter.",
+  "recommendation": "PRIMARY SELF-HOST VIDEO CANDIDATE IF NEEDED",
+  "priority": 27.5,
+  "overlap": "Preferred over BigBlueButton for general meetings.",
+  "codex_read_first": "Read Jitsi and BBB together before recommending video infrastructure.",
+  "codex_best_path": "Use Jitsi for simple meetings/consultations if self-hosting is really needed; otherwise avoid media ops burden.",
+  "codex_never_assume": "Never assume self-hosted video is cheap to operate just because the software is open source.",
+  "assets": [
+    {
+      "name": "Official handbook",
+      "url": "https://jitsi.github.io/handbook/docs/intro/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0 ecosystem",
+      "version": "stable-10888",
+      "notes": "Primary docs source.",
+      "outdated": false
+    },
+    {
+      "name": "Official docker repo",
+      "url": "https://github.com/jitsi/docker-jitsi-meet",
+      "kind": "deployment repo",
+      "status": "indexed-only",
+      "license": "Apache-2.0 ecosystem",
+      "version": "stable-10888",
+      "notes": "Primary self-host deployment source.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/jitsi/docker-jitsi-meet/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "see project",
+      "version": "stable-10888",
+      "notes": "Version source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/jitsi/docker-jitsi-meet/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "stable-10888",
+      "why": "Version source."
+    },
+    {
+      "url": "https://jitsi.github.io/handbook/docs/intro/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/jitsi/docker-jitsi-meet",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "stable-10888",
+      "why": "Deployment source."
+    }
+  ]
+}

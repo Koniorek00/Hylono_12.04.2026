@@ -6,7 +6,7 @@ const SCHEMA_COPYRIGHT_YEAR = 2026;
 const SCHEMA_COPYRIGHT_NOTICE = `(c) ${SCHEMA_COPYRIGHT_YEAR} Hylono. All rights reserved.`;
 
 // Most recent content + schema update date — update when making substantive changes.
-export const SCHEMA_DATE_MODIFIED = '2026-03-16';
+export const SCHEMA_DATE_MODIFIED = '2026-04-12';
 
 export interface BreadcrumbItem {
   name: string;
@@ -201,14 +201,6 @@ export const createWebSiteSchema = () => ({
   publishingPrinciples: `${SITE_URL}/about`,
   privacyPolicy: `${SITE_URL}/privacy`,
   editorialPolicies: `${SITE_URL}/about`,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
-    },
-    'query-input': 'required name=search_term_string',
-  },
   hasPart: [
     { '@type': 'CollectionPage', '@id': `${SITE_URL}/store`, name: 'Hylono Store', url: `${SITE_URL}/store` },
     { '@type': 'CollectionPage', '@id': `${SITE_URL}/rental`, name: 'Hylono Rentals', url: `${SITE_URL}/rental` },

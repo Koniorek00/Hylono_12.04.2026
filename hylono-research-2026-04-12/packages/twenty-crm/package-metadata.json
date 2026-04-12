@@ -1,0 +1,97 @@
+{
+  "name": "Twenty CRM",
+  "slug": "twenty-crm",
+  "group": "Phase 1A",
+  "status_context": "RUNNING",
+  "researched_as": "Twenty open-source CRM",
+  "version": "v1.21.0",
+  "version_status": "CONFIRMED",
+  "license": "Mostly GPL-3.0 (verify repo licensing scope before bundling code)",
+  "license_status": "CONFIRMED / scope review needed",
+  "what": "Open-source CRM focused on people, companies, opportunities, pipelines, tasks, and CRM customization.",
+  "solves": "Lead and account management, opportunity tracking, relationship context, activity history, and CRM workflow customization.",
+  "users": "Revenue teams, founders, operators, and engineering-led teams that want a self-hostable CRM with modern APIs and UI.",
+  "fit": "High fit. Hylono already cares about Twenty integration, and it aligns well with lead capture, partnership tracking, booking-to-sales follow-up, and premium customer lifecycle management.",
+  "runtime": "Web application with API layer, background processes, database, storage, and extension/webhook surfaces.",
+  "components": "Frontend, API, PostgreSQL-backed data layer, worker/background jobs, file storage, and webhook/API interfaces.",
+  "deploy": "Official Docker Compose is the pragmatic path for self-hosting; production hardening needs persistent storage, backups, reverse proxy, and upgrade discipline.",
+  "deps": "PostgreSQL, storage, mail/outbound integrations, and likely background workers depending on deployment mode.",
+  "datastores": "PostgreSQL primary datastore; storage for files and imports/exports.",
+  "auth": "Built-in auth with workspace/users; evaluate SSO path against ZITADEL if needed.",
+  "apis": "REST and GraphQL APIs, webhooks, imports/exports, and extension/developer surfaces.",
+  "complexity": "Medium",
+  "security": "CRM data will include customer and partner context. Access control, auditability, backup encryption, and GDPR-ready retention matter.",
+  "setup_path": "Use official self-host Docker Compose path first; validate API/webhook behavior in a non-production workspace before wiring site automations.",
+  "env": "DB URL, app URLs, auth secrets, mailer credentials, storage settings, webhook/API keys, and worker-related config.",
+  "persistence": "Back up the PostgreSQL database and any file storage; test export/restore of CRM data.",
+  "operations": "Track upstream schema changes, API stability, webhook payload changes, and license scope before deep customization.",
+  "failure_points": "Over-customizing before core schemas stabilize, mixing source-of-truth ownership across systems, and ignoring GDPR retention/export needs.",
+  "integration": "Strong touchpoints with Next.js contact/booking/rental flows, n8n for orchestration, Novu for notifications, Stripe/rental operations, and PostHog or Metabase for lifecycle analytics.",
+  "verify": "Define system-of-record boundaries: what lives in Twenty versus the Hylono core app database, and whether sales workflow customization should be done in CRM or automation layer.",
+  "risk": "Moderate. Valuable and implementable, but CRM data-model ownership can become messy if sync rules are weak.",
+  "gdpr": "Contains identifiable customer/prospect data. EU hosting, consent basis, retention, export/delete workflows, and access controls are mandatory.",
+  "recommendation": "KEEP AND DEEPEN INTEGRATION EARLY",
+  "priority": 5,
+  "overlap": "Partial overlap with custom internal admin or lightweight lead tables in the site; Twenty should likely be the primary CRM rather than rebuilding CRM features in Next.js.",
+  "codex_read_first": "Read the official developer docs, API/webhook references, and current Hylono API routes before mapping lead and booking events.",
+  "codex_best_path": "Use Twenty as CRM of record for leads/accounts/opportunities; keep the Next.js site focused on capture, identity, commerce, and operational workflows. Synchronize through n8n or explicit server actions/webhooks.",
+  "codex_never_assume": "Never assume site tables and CRM objects have identical schema or lifecycle ownership. Never assume webhook payloads or API scopes without testing against the running version.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/twentyhq/twenty",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "GPL-3.0 scope review required",
+      "version": "v1.21.0",
+      "notes": "Primary implementation source.",
+      "outdated": false
+    },
+    {
+      "name": "Developer docs",
+      "url": "https://twenty.com/developers",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "API, webhooks, and developer guidance.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host docs",
+      "url": "https://twenty.com/developers/self-hosting",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Official self-hosting path.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/twentyhq/twenty/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.21.0",
+      "why": "Confirms latest release researched."
+    },
+    {
+      "url": "https://github.com/twentyhq/twenty",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.21.0",
+      "why": "Primary code and license source."
+    },
+    {
+      "url": "https://twenty.com/developers",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports API, webhook, and self-host guidance."
+    }
+  ]
+}

@@ -66,6 +66,10 @@
 }
 
 :root {
+  --route-header-height: 72px;
+  --route-header-offset: 72px;
+  --route-breadcrumb-height: 0px;
+
   /* Typography System */
   --font-heading: var(--font-syncopate), 'Syncopate', sans-serif;
   --font-body: 'Outfit', sans-serif;
@@ -87,6 +91,14 @@
   /* 2025 Aurora gradient - animatable via @property */
   --aurora-stop-1: 220deg;
   --aurora-stop-2: 160deg;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --route-header-height: 96px;
+    --route-header-offset: 96px;
+    --route-breadcrumb-height: 62px;
+  }
 }
 
 /* CSS @property for smooth gradient angle animation */

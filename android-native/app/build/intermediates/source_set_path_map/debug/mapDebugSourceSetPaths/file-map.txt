@@ -1,0 +1,48 @@
+com.hylono.mobile.app-navigation-runtime-release-0 C:\Users\wikto\.gradle\caches\8.13\transforms\03da511b935c9f92e44ae86bc74dde12\transformed\navigation-runtime-release\res
+com.hylono.mobile.app-lifecycle-livedata-core-2.10.0-1 C:\Users\wikto\.gradle\caches\8.13\transforms\197ac1948f8377d8f86e667e931f5090\transformed\lifecycle-livedata-core-2.10.0\res
+com.hylono.mobile.app-navigation-compose-release-2 C:\Users\wikto\.gradle\caches\8.13\transforms\1a1c39ad7043f707aa2a5826d2a89a1d\transformed\navigation-compose-release\res
+com.hylono.mobile.app-customview-poolingcontainer-1.0.0-3 C:\Users\wikto\.gradle\caches\8.13\transforms\1fe53b71f33b60bd8587a9e36abebcd1\transformed\customview-poolingcontainer-1.0.0\res
+com.hylono.mobile.app-emoji2-1.4.0-4 C:\Users\wikto\.gradle\caches\8.13\transforms\23e5527346a0773666d1517f989267fb\transformed\emoji2-1.4.0\res
+com.hylono.mobile.app-core-ktx-1.17.0-5 C:\Users\wikto\.gradle\caches\8.13\transforms\242bb65d60aa1f24c04fc83d67e9687f\transformed\core-ktx-1.17.0\res
+com.hylono.mobile.app-startup-runtime-1.1.1-6 C:\Users\wikto\.gradle\caches\8.13\transforms\3205d0b193a639d4781d0a0182d1aaf2\transformed\startup-runtime-1.1.1\res
+com.hylono.mobile.app-window-1.5.0-7 C:\Users\wikto\.gradle\caches\8.13\transforms\469594f2865c029661a462fc2027ae3a\transformed\window-1.5.0\res
+com.hylono.mobile.app-navigation-common-release-8 C:\Users\wikto\.gradle\caches\8.13\transforms\49f351e140974d0812e0328083df1dab\transformed\navigation-common-release\res
+com.hylono.mobile.app-lifecycle-viewmodel-9 C:\Users\wikto\.gradle\caches\8.13\transforms\57d70a32ff06496436a91925e58af5eb\transformed\lifecycle-viewmodel\res
+com.hylono.mobile.app-ui-test-manifest-1.10.4-10 C:\Users\wikto\.gradle\caches\8.13\transforms\5809810a99d3f6949d62bcebd760ef96\transformed\ui-test-manifest-1.10.4\res
+com.hylono.mobile.app-annotation-experimental-1.4.1-11 C:\Users\wikto\.gradle\caches\8.13\transforms\62349d855a71c9d270209e5870a5900c\transformed\annotation-experimental-1.4.1\res
+com.hylono.mobile.app-ui-12 C:\Users\wikto\.gradle\caches\8.13\transforms\6d7754bf01e3bcbf41c7ea83b3adafdb\transformed\ui\res
+com.hylono.mobile.app-activity-compose-1.12.1-13 C:\Users\wikto\.gradle\caches\8.13\transforms\75feca1381a65f42b35fc38b5efc1ae7\transformed\activity-compose-1.12.1\res
+com.hylono.mobile.app-lifecycle-livedata-2.10.0-14 C:\Users\wikto\.gradle\caches\8.13\transforms\77d007982dfb8be3675f480767dd8bb8\transformed\lifecycle-livedata-2.10.0\res
+com.hylono.mobile.app-material-15 C:\Users\wikto\.gradle\caches\8.13\transforms\7d2438077099c6aa978f19298e725ac4\transformed\material\res
+com.hylono.mobile.app-ui-text-16 C:\Users\wikto\.gradle\caches\8.13\transforms\7e6b37f620753aedc3b15adf0db543b1\transformed\ui-text\res
+com.hylono.mobile.app-ui-tooling-17 C:\Users\wikto\.gradle\caches\8.13\transforms\84463605adb549a46d0e1627bdd7c3ac\transformed\ui-tooling\res
+com.hylono.mobile.app-lifecycle-viewmodel-ktx-2.10.0-18 C:\Users\wikto\.gradle\caches\8.13\transforms\8cd19041468ac1602087da81d8f87b79\transformed\lifecycle-viewmodel-ktx-2.10.0\res
+com.hylono.mobile.app-material3-19 C:\Users\wikto\.gradle\caches\8.13\transforms\9ba053d4a2fe29e17ccb8770c40fe37a\transformed\material3\res
+com.hylono.mobile.app-foundation-20 C:\Users\wikto\.gradle\caches\8.13\transforms\9f9b09ecca439ea621e40794370692a9\transformed\foundation\res
+com.hylono.mobile.app-activity-ktx-1.12.1-21 C:\Users\wikto\.gradle\caches\8.13\transforms\a1fb641920bd61667093628b549fec59\transformed\activity-ktx-1.12.1\res
+com.hylono.mobile.app-lifecycle-livedata-core-ktx-2.10.0-22 C:\Users\wikto\.gradle\caches\8.13\transforms\a373a8e4bc93d40522787f335f62fb49\transformed\lifecycle-livedata-core-ktx-2.10.0\res
+com.hylono.mobile.app-core-runtime-2.2.0-23 C:\Users\wikto\.gradle\caches\8.13\transforms\ac17bde00457da392b14274a871b1774\transformed\core-runtime-2.2.0\res
+com.hylono.mobile.app-profileinstaller-1.4.0-24 C:\Users\wikto\.gradle\caches\8.13\transforms\b1aa8d611f30a8f6c8aae2842042da2e\transformed\profileinstaller-1.4.0\res
+com.hylono.mobile.app-savedstate-25 C:\Users\wikto\.gradle\caches\8.13\transforms\b5d808cb84e4a7164845d8e9263b7891\transformed\savedstate\res
+com.hylono.mobile.app-core-viewtree-1.0.0-26 C:\Users\wikto\.gradle\caches\8.13\transforms\b5dcdaed614fbf1766a6dfc958caf883\transformed\core-viewtree-1.0.0\res
+com.hylono.mobile.app-core-1.17.0-27 C:\Users\wikto\.gradle\caches\8.13\transforms\b786e9722733b73559cc9b39aa54bcf2\transformed\core-1.17.0\res
+com.hylono.mobile.app-navigationevent-28 C:\Users\wikto\.gradle\caches\8.13\transforms\b8c14069614b5cd197da94cccea3f525\transformed\navigationevent\res
+com.hylono.mobile.app-activity-1.12.1-29 C:\Users\wikto\.gradle\caches\8.13\transforms\c3b18c8d568925880f25f243bc01d7b6\transformed\activity-1.12.1\res
+com.hylono.mobile.app-lifecycle-runtime-30 C:\Users\wikto\.gradle\caches\8.13\transforms\c4b8b67ee01119543b3b804582819fa8\transformed\lifecycle-runtime\res
+com.hylono.mobile.app-runtime-saveable-31 C:\Users\wikto\.gradle\caches\8.13\transforms\c72a6bd2154fc1f077586b26645c5f00\transformed\runtime-saveable\res
+com.hylono.mobile.app-graphics-path-1.0.1-32 C:\Users\wikto\.gradle\caches\8.13\transforms\c8da6955dfa511fddca85ec5796c92b1\transformed\graphics-path-1.0.1\res
+com.hylono.mobile.app-savedstate-ktx-1.4.0-33 C:\Users\wikto\.gradle\caches\8.13\transforms\cc1a18c5b9efd0ca2b634a8f3ded2fc5\transformed\savedstate-ktx-1.4.0\res
+com.hylono.mobile.app-ui-graphics-34 C:\Users\wikto\.gradle\caches\8.13\transforms\e55fb562d7d57edb2b64293d870c1fea\transformed\ui-graphics\res
+com.hylono.mobile.app-lifecycle-process-2.10.0-35 C:\Users\wikto\.gradle\caches\8.13\transforms\eabf41ab75af2a019066f9e67af9d162\transformed\lifecycle-process-2.10.0\res
+com.hylono.mobile.app-transition-1.6.0-36 C:\Users\wikto\.gradle\caches\8.13\transforms\f8f990eb5ebccf91491d71418002e2e5\transformed\transition-1.6.0\res
+com.hylono.mobile.app-tracing-1.2.0-37 C:\Users\wikto\.gradle\caches\8.13\transforms\fb2b2a56f6d316125aef153f8e3996a7\transformed\tracing-1.2.0\res
+com.hylono.mobile.app-material-icons-extended-release-38 C:\Users\wikto\.gradle\caches\8.13\transforms\fd722595b3c6b2e27337948570850472\transformed\material-icons-extended-release\res
+com.hylono.mobile.app-material-icons-core-release-39 C:\Users\wikto\.gradle\caches\8.13\transforms\ff31da8c3a1643b55c5eaa0ab060198d\transformed\material-icons-core-release\res
+com.hylono.mobile.app-pngs-40 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\build\generated\res\pngs\debug
+com.hylono.mobile.app-resValues-41 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\build\generated\res\resValues\debug
+com.hylono.mobile.app-updated_navigation_xml-42 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\build\generated\updated_navigation_xml\debug
+com.hylono.mobile.app-packageDebugResources-43 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.hylono.mobile.app-packageDebugResources-44 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.hylono.mobile.app-debug-45 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.hylono.mobile.app-debug-46 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\src\debug\res
+com.hylono.mobile.app-main-47 F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app\src\main\res

@@ -20,6 +20,6 @@ export const seoRedirects = [
   { source: '/nexus/dashboard', destination: '/nexus', permanent: true },
   { source: '/nexus/nexus', destination: '/nexus/clients', permanent: true },
   { source: '/nexus/shop', destination: '/nexus/supplies', permanent: true },
-  { source: '/support', destination: '/help?tab=support', permanent: true },
+  { source: '/support', destination: '/help', permanent: true },
   { source: '/guarantee', destination: '/returns', permanent: true },
 ] as const;

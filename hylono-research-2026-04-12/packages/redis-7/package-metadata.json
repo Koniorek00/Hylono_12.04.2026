@@ -1,0 +1,97 @@
+{
+  "name": "Redis 7",
+  "slug": "redis-7",
+  "group": "Infrastructure",
+  "status_context": "RUNNING",
+  "researched_as": "Redis 7 major line",
+  "version": "7.4.8",
+  "version_status": "CONFIRMED",
+  "license": "RSALv2 / SSPLv1 for 7.4.x\u20137.8.x; BSDv3 for older 7.2.x and earlier; Redis 8 adds AGPLv3 option",
+  "license_status": "CONFIRMED",
+  "what": "In-memory data structure server used for cache, queues, ephemeral state, rate limiting, and some workflow backplanes.",
+  "solves": "Low-latency caching, job queues, session support, pub/sub or streams, rate limits, and burst absorption between systems.",
+  "users": "Engineering and platform teams that need fast volatile storage or queue primitives for web apps and automation systems.",
+  "fit": "Strong technical fit because many candidate apps use Redis for queues or cache, but the licensing transition requires deliberate human review before expanding use.",
+  "runtime": "Single process server with persistence options, replication/sentinel/cluster modes, and multiple data structures including lists, streams, and sorted sets.",
+  "components": "Redis server, persistent volume if AOF/RDB enabled, optional sentinel/cluster peers, application clients, and observability hooks.",
+  "deploy": "Single-node with persistence for smaller app clusters; HA or managed equivalent only when justified by queue criticality and recovery targets.",
+  "deps": "RAM headroom, persistent storage if durability matters, monitoring, auth/TLS, and app-level retry logic.",
+  "datastores": "Redis is the datastore; often paired with PostgreSQL or MongoDB.",
+  "auth": "ACLs, passwords, TLS, network segmentation, and client-specific credentials.",
+  "apis": "RESP protocol, libraries, pub/sub, streams, queues, and exporter metrics.",
+  "complexity": "Medium",
+  "security": "Network exposure is dangerous. Use TLS or private networking, ACLs, secret rotation, and memory/eviction monitoring.",
+  "setup_path": "Use official Redis 7 packages or containers only after licensing is approved internally; enable persistence only where required and document eviction policy explicitly.",
+  "env": "REDIS_PASSWORD, appendonly/save settings, maxmemory, eviction policy, TLS certs, and network binding.",
+  "persistence": "Choose AOF/RDB deliberately. Do not pretend volatile cache and durable queue workloads have the same recovery requirements.",
+  "operations": "Memory pressure review, eviction monitoring, persistence checks, replica health, and version/license review before upgrades.",
+  "failure_points": "OOM kills, silent key eviction, unauthenticated network exposure, and using Redis as a durable queue without operational guardrails.",
+  "integration": "Needed by Novu, n8n queue mode, and many web apps for caches or background work. It fits the stack, but licensing must be surfaced early to legal and procurement stakeholders.",
+  "verify": "Confirm whether Hylono is comfortable with Redis 7 licensing, whether Valkey is a preferable future path, and which workloads genuinely require Redis rather than database-backed queues.",
+  "risk": "Moderate platform risk because it can become a hidden dependency and the licensing change affects procurement and redistribution decisions.",
+  "gdpr": "Usually stores transient operational data, but payloads may still contain personal data if queue design is sloppy. Minimize and expire sensitive values.",
+  "recommendation": "KEEP FOR EXISTING USE; REQUIRE LICENSE REVIEW BEFORE EXPANSION",
+  "priority": 2,
+  "overlap": "Possible future substitution candidate with Valkey for some workloads.",
+  "codex_read_first": "Read the licensing page and the actual app dependencies before treating Redis as a default choice.",
+  "codex_best_path": "Retain Redis for apps that explicitly need it, but avoid adding new business-critical designs that depend on Redis durability without a clear recovery plan.",
+  "codex_never_assume": "Never assume all Redis 7 builds are permissively licensed. Never assume cache settings are safe for queue workloads.",
+  "assets": [
+    {
+      "name": "Official license page",
+      "url": "https://redis.io/legal/licenses/",
+      "kind": "license reference",
+      "status": "indexed-only",
+      "license": "n/a",
+      "version": "7.x/8.x",
+      "notes": "Critical human-review source for current licensing.",
+      "outdated": false
+    },
+    {
+      "name": "Redis official image",
+      "url": "https://hub.docker.com/_/redis",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "see Redis licensing",
+      "version": "7.x",
+      "notes": "Baseline container artifact.",
+      "outdated": false
+    },
+    {
+      "name": "Redis exporter",
+      "url": "https://github.com/oliver006/redis_exporter",
+      "kind": "monitoring blueprint",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "current",
+      "notes": "Useful for Prometheus/Grafana monitoring.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://redis.io/legal/licenses/",
+      "type": "official legal page",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.x/8.x",
+      "why": "Confirms licensing split across branches."
+    },
+    {
+      "url": "https://github.com/redis/redis/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.4.8 observed",
+      "why": "Used to identify current 7.x point release researched."
+    },
+    {
+      "url": "https://redis.io/docs/latest/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "latest",
+      "why": "Supports deployment and operational guidance."
+    }
+  ]
+}

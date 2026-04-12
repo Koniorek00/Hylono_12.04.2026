@@ -1,0 +1,97 @@
+{
+  "name": "Docusaurus",
+  "slug": "docusaurus",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Docusaurus static documentation site generator",
+  "version": "v3.10.0",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "Static site generator for docs, blogs, and knowledge sites using React/Markdown/MDX.",
+  "solves": "Public documentation portals, help centers, knowledge sites, and documentation-driven content publishing.",
+  "users": "Engineering, docs, and content teams who need a versionable docs site.",
+  "fit": "Useful if Hylono wants a separate docs/help site, but the public website is already Next.js 16 and server-first. Docusaurus is optional, not default.",
+  "runtime": "Node-based build tool that emits static assets; hosting is simple once built.",
+  "components": "Build system, markdown/MDX content, React theme/components, search integrations, and static hosting.",
+  "deploy": "Low operational burden. The bigger question is whether it duplicates the existing Next.js site\u2019s content capabilities.",
+  "deps": "Node/npm, static hosting or CDN, optional search provider, docs-authoring workflow.",
+  "datastores": "Git/content files; optional external search/analytics.",
+  "auth": "None by default; docs can be public or protected behind external hosting patterns.",
+  "apis": "Build-time plugins and static-site integrations.",
+  "complexity": "Low",
+  "security": "Mostly content/hosting security. Much lower ops burden than dynamic apps.",
+  "setup_path": "Only use if Hylono wants a separate docs property. Otherwise keep docs/content inside the existing Next.js site.",
+  "env": "Build-time config, analytics/search keys, base URL, deployment target settings.",
+  "persistence": "Version control is the main persistence model.",
+  "operations": "Content workflows and search/indexing updates matter more than infrastructure.",
+  "failure_points": "Creating a second frontend/docs stack without strong reason.",
+  "integration": "Can coexist as a separate docs site, but the current Next.js stack may already be sufficient for SEO-heavy documentation.",
+  "verify": "Decide whether a separate docs site is strategically better than keeping docs within the main Next.js architecture.",
+  "risk": "Low infrastructure risk, moderate duplication risk.",
+  "gdpr": "Minimal direct risk unless analytics/comment systems are added.",
+  "recommendation": "OPTIONAL / ONLY IF SEPARATE DOCS PROPERTY IS WANTED",
+  "priority": 37,
+  "overlap": "Overlaps with existing Next.js content stack and partly with BookStack/Outline for documentation.",
+  "codex_read_first": "Read the current content architecture before proposing Docusaurus.",
+  "codex_best_path": "Default to the existing Next.js site unless there is a specific reason for a separate docs platform.",
+  "codex_never_assume": "Never assume another React docs framework is automatically a win just because it is popular.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docusaurus.io/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v3.10.0",
+      "notes": "Primary docs and deployment guidance.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/facebook/docusaurus",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v3.10.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Starter template",
+      "url": "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared",
+      "kind": "starter assets",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "current",
+      "notes": "Useful starter reference.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/facebook/docusaurus/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.10.0",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://docusaurus.io/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.10.0",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/facebook/docusaurus",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.10.0",
+      "why": "Code and license source."
+    }
+  ]
+}

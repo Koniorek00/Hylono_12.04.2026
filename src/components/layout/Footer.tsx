@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
   Activity,
@@ -8,19 +8,20 @@ import {
   Hexagon,
   Instagram,
   Linkedin,
-  ShieldCheck,
   Sun,
   Wind,
   Youtube,
   Zap,
 } from 'lucide-react';
 import { Newsletter } from '../../../components/Newsletter';
-import { openCookieSettings } from '../../../components/CookieConsent';
+import { openCookieSettings } from '../../lib/cookie-consent';
 import { TechType } from '../../../types';
+import { footerTopicalGraphSections } from '@/content/topical-graph';
 import { resolveLegacyPagePath } from '../../lib/navigation';
 
 type FooterLink = {
   label: string;
+  href?: string;
   page?: string;
   tech?: TechType;
   icon?: ReactNode;
@@ -49,49 +50,13 @@ const footerSections: FooterSection[] = [
       { label: 'Compare All', page: 'store' },
     ],
   },
-  {
-    title: 'Products',
-    links: [
-      { label: 'HBOT Chambers', tech: TechType.HBOT, icon: <Wind size={12} /> },
-      { label: 'HHO Hydrogen Kits', page: 'hho-car-kit', icon: <Droplets size={12} /> },
-      { label: 'Firesafe™ Range', page: 'firesafe', icon: <ShieldCheck size={12} /> },
-    ],
-  },
-  {
-    title: 'Ecosystem',
-    links: [
-      { label: 'Wellness Planner', page: 'wellness-planner' },
-      { label: 'Protocol Codex', page: 'protocols' },
-      { label: 'Research Hub', page: 'research' },
-      { label: 'Video Library', page: 'videos' },
-      { label: 'Learning Center', page: 'learning' },
-      { label: 'Support Hub', page: 'support' },
-      { label: 'Rewards', page: 'rewards' },
-      { label: 'Refer & Earn', page: 'referral' },
-      { label: 'Financing', page: 'financing' },
-      { label: 'Trade-In', page: 'trade-in' },
-      { label: '30-Day Returns', page: 'returns' },
-      { label: 'Health Conditions', page: 'conditions' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'Our Mission', page: 'about' },
-      { label: 'Science & Evidence', page: 'blog' },
-      { label: 'Press & Media', page: 'press' },
-      { label: 'Press Kit', page: 'press-kit' },
-      { label: 'Contact', page: 'contact' },
-    ],
-  },
-  {
-    title: 'Partnerships',
-    links: [
-      { label: 'Partner Portal', page: 'partners' },
-      { label: 'Find a Center', page: 'locator' },
-      { label: 'Affiliate Program', page: 'affiliate' },
-    ],
-  },
+  ...footerTopicalGraphSections.map((section) => ({
+    title: section.title,
+    links: section.links.map((link) => ({
+      label: link.label,
+      href: link.href,
+    })),
+  })),
   {
     title: 'Legal',
     links: [
@@ -107,6 +72,10 @@ const footerSections: FooterSection[] = [
 ];
 
 const resolveFooterHref = (link: FooterLink): string | null => {
+  if (link.href) {
+    return link.href;
+  }
+
   if (link.tech) {
     return `/product/${link.tech.toLowerCase()}`;
   }
@@ -121,11 +90,7 @@ const resolveFooterHref = (link: FooterLink): string | null => {
 const FALLBACK_YEAR = '2026';
 
 export function Footer() {
-  const [year, setYear] = useState(FALLBACK_YEAR);
-
-  useEffect(() => {
-    setYear(String(new Date().getFullYear()));
-  }, []);
+  const year = FALLBACK_YEAR;
 
   const socialLinkClasses =
     'flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/10 text-gray-400 transition-all hover:border-white/30 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]';
@@ -138,7 +103,7 @@ export function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-7">
           <div className="col-span-2">
-            <Link href="/" className="group mb-6 flex items-center gap-4">
+            <Link href="/" prefetch={false} className="group mb-6 flex items-center gap-4">
               <Hexagon
                 className="text-white transition-transform duration-700 group-hover:rotate-180"
                 strokeWidth={1.2}
@@ -216,6 +181,7 @@ export function Footer() {
                       {href ? (
                         <Link
                           href={href}
+                          prefetch={false}
                           className="group flex items-center gap-1.5 text-[11px] tracking-wide text-gray-400 transition-colors hover:text-white"
                         >
                           {link.icon ? (

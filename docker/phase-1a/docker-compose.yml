@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "8100:9000"
+      - "127.0.0.1:8100:9000"
     environment:
       NODE_ENV: production
       PORT: "9000"
@@ -26,6 +26,12 @@ services:
       AUTH_CORS: http://localhost:8100,http://localhost:3000
     volumes:
       - ./vendor/medusa-starter-default/docker/start-medusa.sh:/app/docker/start-medusa.sh:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:9000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 10s
+      retries: 8
+      start_period: 30s
 
   lago-pdf:
     image: getlago/lago-gotenberg:7.8.2
@@ -74,7 +80,7 @@ services:
     volumes:
       - lago_storage_data:/app/storage
     ports:
-      - "18102:3000"
+      - "127.0.0.1:18102:3000"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
       interval: 10s
@@ -100,7 +106,7 @@ services:
     volumes:
       - ./lago-front/default.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
-      - "8102:80"
+      - "127.0.0.1:8102:80"
 
   lago-worker:
     image: getlago/api:v1.43.0
@@ -157,7 +163,7 @@ services:
       snipe-it-db:
         condition: service_healthy
     ports:
-      - "8104:80"
+      - "127.0.0.1:8104:80"
     environment:
       DB_CONNECTION: mysql
       DB_HOST: snipe-it-db
@@ -174,7 +180,7 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "8106:3000"
+      - "127.0.0.1:8106:3000"
     command: ["/bin/sh", "/calcom/scripts/hylono-start.sh"]
     environment:
       DATABASE_HOST: postgres
@@ -205,7 +211,7 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "8107:3000"
+      - "127.0.0.1:8107:3000"
     environment:
       PG_DATABASE_URL: postgres://twenty:${TWENTY_DB_PASSWORD}@postgres:5432/twenty_db
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
@@ -220,7 +226,7 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "8108:3000"
+      - "127.0.0.1:8108:3000"
     environment:
       NEXTAUTH_URL: http://localhost:8108
       NEXT_PUBLIC_WEBAPP_URL: http://localhost:8108
@@ -260,7 +266,7 @@ services:
       ZITADEL_TLS_ENABLED: "false"
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: root
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: RootPassword1!
+      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_BOOTSTRAP_PASSWORD}
       ZITADEL_FIRSTINSTANCE_LOGINCLIENTPATPATH: /zitadel/bootstrap/login-client.pat
       ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_USERNAME: login-client
       ZITADEL_FIRSTINSTANCE_ORG_LOGINCLIENT_MACHINE_NAME: Automatically Initialized IAM_LOGIN_CLIENT
@@ -338,7 +344,7 @@ services:
       - --ping.entrypoint=web
       - --log.level=INFO
     ports:
-      - "8109:80"
+      - "127.0.0.1:8109:80"
     networks: [hylono]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -354,7 +360,7 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "18110:3000"
+      - "127.0.0.1:18110:3000"
     environment: &novu-env
       NODE_ENV: production
       HOST_NAME: http://localhost
@@ -422,7 +428,7 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "18111:3002"
+      - "127.0.0.1:18111:3002"
     environment:
       <<: *novu-env
       PORT: "3002"
@@ -452,7 +458,7 @@ services:
       VITE_WEBSOCKET_HOSTNAME: http://localhost:18111
       VITE_LEGACY_DASHBOARD_URL: http://localhost:8110
     ports:
-      - "8110:4000"
+      - "127.0.0.1:8110:4000"
 
   n8n:
     image: n8nio/n8n:latest
@@ -460,8 +466,8 @@ services:
     restart: unless-stopped
     networks: [hylono]
     ports:
-      - "5678:5678"
-    environment:
+      - "127.0.0.1:5678:5678"
+    environment: &n8n-env
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: postgres
       DB_POSTGRESDB_PORT: "5432"
@@ -469,10 +475,48 @@ services:
       DB_POSTGRESDB_USER: n8n
       DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD}
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_HIRING_BANNER_ENABLED: "false"
+      N8N_METRICS: "true"
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_SECURE_COOKIE: "false"
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: ${N8N_PORT:-5678}
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-http://localhost:5678}
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      EXECUTIONS_MODE: queue
       QUEUE_BULL_REDIS_HOST: redis
+      QUEUE_BULL_REDIS_PORT: "6379"
       QUEUE_BULL_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      QUEUE_HEALTH_CHECK_ACTIVE: "true"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  n8n-worker:
+    image: n8nio/n8n:latest
+    container_name: hylono-n8n-worker
+    restart: unless-stopped
+    networks: [hylono]
+    depends_on:
+      n8n:
+        condition: service_healthy
+    command: ["worker", "--concurrency=${N8N_WORKER_CONCURRENCY:-10}"]
+    environment:
+      <<: *n8n-env
+    volumes:
+      - n8n_data:/home/node/.n8n
 
 volumes:
   snipe_it_db_data:
   lago_storage_data:
   zitadel_bootstrap:
+  n8n_data:

@@ -1,0 +1,97 @@
+{
+  "name": "DocuSeal",
+  "slug": "docuseal",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "DocuSeal e-signature platform",
+  "version": "2.4.3",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source document signing and forms platform focused on self-hosted e-sign workflows.",
+  "solves": "Signing documents, collecting fields/forms, and hosting signature flows on-prem or in controlled infrastructure.",
+  "users": "Teams that need a lighter-weight self-hosted signature tool.",
+  "fit": "Reasonable fit, but overlaps strongly with Documenso. For Hylono, Documenso looks like the better primary candidate unless DocuSeal\u2019s simpler AGPL stack is preferred.",
+  "runtime": "Web application with database, document/file storage, email, and signing workflows.",
+  "components": "UI/API, DB, storage, signing engine, templates/forms, and audit records.",
+  "deploy": "Supports Docker and other on-prem patterns; operational requirements are similar to Documenso.",
+  "deps": "Database, file storage, mailer, TLS, and secret management.",
+  "datastores": "Relational DB plus document storage.",
+  "auth": "Local auth and API/workspace-style controls.",
+  "apis": "Template/document/signing APIs and embed/integration surfaces.",
+  "complexity": "Medium",
+  "security": "Signed documents and audit records require strict storage and access controls.",
+  "setup_path": "Use official on-prem docs if DocuSeal is chosen, but compare directly against Documenso first.",
+  "env": "DB settings, app URL, secret keys, storage config, mail, and signing settings.",
+  "persistence": "Back up DB and document storage together.",
+  "operations": "Version upgrades, mail delivery, storage integrity, and signature workflow QA matter.",
+  "failure_points": "Running two e-sign tools or assuming simplest install equals best legal/process fit.",
+  "integration": "Can fit rental agreements, waivers, and acknowledgements through Next.js/n8n/Novu integrations.",
+  "verify": "Decide the single primary e-sign tool before implementation.",
+  "risk": "Moderate with high overlap risk.",
+  "gdpr": "Document and signature data are sensitive.",
+  "recommendation": "SECONDARY TO DOCUMENSO",
+  "priority": 27,
+  "overlap": "Substantial overlap with Documenso.",
+  "codex_read_first": "Read the Documenso comparison in the overlap map first.",
+  "codex_best_path": "Only choose DocuSeal if AGPL simplicity and its workflow model are clearly preferable for the intended document types.",
+  "codex_never_assume": "Never implement both signature platforms without a very specific justification.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/docusealco/docuseal",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "2.4.3",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official site/docs",
+      "url": "https://www.docuseal.com/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "2.4.3",
+      "notes": "Install and product docs.",
+      "outdated": false
+    },
+    {
+      "name": "Docker Compose in repo",
+      "url": "https://github.com/docusealco/docuseal/blob/master/docker-compose.yml",
+      "kind": "compose blueprint",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "current",
+      "notes": "Useful deployment reference.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/docusealco/docuseal/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.4.3",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://www.docuseal.com/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary self-host/install source."
+    },
+    {
+      "url": "https://github.com/docusealco/docuseal",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.4.3",
+      "why": "Code and license source."
+    }
+  ]
+}

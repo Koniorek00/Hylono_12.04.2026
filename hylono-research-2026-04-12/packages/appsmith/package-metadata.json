@@ -1,0 +1,97 @@
+{
+  "name": "Appsmith",
+  "slug": "appsmith",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Appsmith internal tools platform",
+  "version": "v1.98",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / enterprise extensions exist",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Low-code platform for building internal tools, dashboards, CRUD apps, and operator consoles.",
+  "solves": "Rapid internal tooling without shipping every admin surface into the customer-facing Next.js codebase.",
+  "users": "Ops, support, engineering, and business teams needing internal interfaces over data and APIs.",
+  "fit": "Strong fit. Hylono will likely need internal admin/ops tools, and Appsmith can absorb that need without bloating the public site.",
+  "runtime": "Containerized web platform with database connections, JS widgets, APIs, and auth/user management.",
+  "components": "Builder UI, runtime, DB/API connectors, user/workspace model, and deployment services.",
+  "deploy": "Docker Compose or Kubernetes are supported. Production requires SSO, environment promotion, and data-connector discipline.",
+  "deps": "Persistent storage, Appsmith runtime, auth/SSO, database/API credentials, and reverse proxy.",
+  "datastores": "Internal metadata store plus connected data sources/APIs.",
+  "auth": "Built-in auth with SSO/OIDC/SAML options depending on setup.",
+  "apis": "Connectors to SQL/REST/GraphQL and JS-based internal apps.",
+  "complexity": "Medium",
+  "security": "Internal tooling can become a privileged data surface. Restrict connectors, credentials, and publishing/admin rights carefully.",
+  "setup_path": "Good candidate after identity/secrets/gateway layers are in place. Use it for internal ops, not customer-facing pages.",
+  "env": "App URL, auth settings, storage, encryption/secrets, and connector credentials.",
+  "persistence": "Back up metadata/config and version critical apps where possible.",
+  "operations": "Connector governance, environment separation, and role/access review matter.",
+  "failure_points": "Letting Appsmith become an uncontrolled privileged UI over every production system.",
+  "integration": "Excellent for internal CRM/rental/ops dashboards over Twenty, Postgres, APIs, and workflow systems.",
+  "verify": "Decide which internal tools should live in Appsmith versus custom Next.js admin surfaces.",
+  "risk": "Moderate but very useful if governed.",
+  "gdpr": "Can expose personal data from many systems, so permissioning is key.",
+  "recommendation": "HIGH-VALUE INTERNAL TOOLING CANDIDATE",
+  "priority": 22,
+  "overlap": "Overlaps with building custom internal admin UIs in Next.js; Appsmith is faster for many internal ops surfaces.",
+  "codex_read_first": "Read the internal-tooling needs and current admin burden before scoping Appsmith.",
+  "codex_best_path": "Use Appsmith for internal-only CRUD/ops tools where speed matters more than pixel-perfect custom UX.",
+  "codex_never_assume": "Never expose Appsmith publicly or connect it to production systems with overly broad credentials.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.appsmith.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v1.98",
+      "notes": "Primary docs and deployment source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/appsmithorg/appsmith",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v1.98",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker install docs",
+      "url": "https://docs.appsmith.com/getting-started/setup/installation-guides/docker",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful deployment path.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/appsmithorg/appsmith/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.98",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://docs.appsmith.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/appsmithorg/appsmith",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.98",
+      "why": "Code source."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+<lint-module
+    format="1"
+    dir="F:\ag projects\Hylono_MAIN - SEO BOOST\android-native\app"
+    name=":app"
+    type="APP"
+    maven="hylono-native:app:unspecified"
+    agpVersion="8.13.2"
+    buildFolder="build"
+    bootClassPath="C:\Users\wikto\AppData\Local\Android\Sdk\platforms\android-36\android.jar;C:\Users\wikto\AppData\Local\Android\Sdk\build-tools\35.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-36"
+    neverShrinking="true">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="debug"/>
+</lint-module>

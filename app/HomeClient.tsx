@@ -16,5 +16,15 @@ export default function HomeClient() {
     navigateWithScroll(router, '/wellness-planner');
   };
 
-  return <Home onSelectTech={handleSelectTech} onLaunchBuilder={handleLaunchBuilder} />;
+  const handleNavigate = (path: string) => {
+    navigateWithScroll(router, path.startsWith('/') ? path : `/${path}`);
+  };
+
+  return (
+    <Home
+      onSelectTech={handleSelectTech}
+      onLaunchBuilder={handleLaunchBuilder}
+      onNavigate={handleNavigate}
+    />
+  );
 }

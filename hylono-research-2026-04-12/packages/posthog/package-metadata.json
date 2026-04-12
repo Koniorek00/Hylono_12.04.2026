@@ -1,0 +1,97 @@
+{
+  "name": "PostHog",
+  "slug": "posthog",
+  "group": "Phase 2",
+  "status_context": "ALREADY IN STACK",
+  "researched_as": "PostHog product analytics platform",
+  "version": "Current self-host docs reviewed; exact monorepo server version intentionally left UNVERIFIED",
+  "version_status": "CONFIRMED product state / exact version UNVERIFIED",
+  "license": "MIT / open-core mix depending on components; verify current packaging as needed",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Product analytics, feature flags, session replay, experiments, and data warehouse-ish product instrumentation platform.",
+  "solves": "Event analytics, funnels, experiments, feature flags, user behavior analysis, and product instrumentation.",
+  "users": "Product, growth, and engineering teams.",
+  "fit": "Already in Hylono\u2019s stack and high value. The key question is not adoption but deployment posture: official guidance still positions self-hosting as more advanced/beta while cloud is preferred.",
+  "runtime": "Large multi-service application with ClickHouse, PostgreSQL, Redis, object storage, workers/plugins, and optional extensive event ingestion.",
+  "components": "Web app, plugin server, event ingestion, ClickHouse, PostgreSQL, Redis, object storage, workers, and analytics features.",
+  "deploy": "Operationally heavy self-hosting. Official docs emphasize hobby/beta self-host paths and recommend cloud for most users.",
+  "deps": "ClickHouse, PostgreSQL, Redis, object storage, background workers, secure ingress, and capacity planning.",
+  "datastores": "ClickHouse, PostgreSQL, Redis, object storage.",
+  "auth": "Built-in auth/org/project model plus data access controls and API keys.",
+  "apis": "Analytics SDKs, APIs, feature flags, data exports, and plugin/event surfaces.",
+  "complexity": "High",
+  "security": "Event pipelines can capture sensitive product and customer context. Data minimization and retention are essential.",
+  "setup_path": "If Hylono already uses PostHog cloud and that satisfies EU/data requirements, keeping it managed is likely simpler than self-hosting.",
+  "env": "Multiservice infra config, object storage, databases, secrets, SDK keys, and worker settings.",
+  "persistence": "All backing stores need coordinated backup strategy in self-hosted mode.",
+  "operations": "Event volume, cost/capacity, data retention, schema drift, and privacy controls dominate.",
+  "failure_points": "Self-hosting for control without resourcing the full data/ops burden, or duplicating analytics across multiple tools.",
+  "integration": "Already integrated with the Next.js site. Also useful for feature flags, lifecycle analytics, and internal admin/product instrumentation.",
+  "verify": "Confirm whether current managed PostHog already satisfies EU/data and feature requirements. If yes, do not replatform lightly.",
+  "risk": "Moderate if managed; high if self-hosted.",
+  "gdpr": "Analytics data is personal data when identifiable. IP/session replay/feature flags all require careful governance.",
+  "recommendation": "KEEP CURRENT USE; AVOID SELF-HOST REPLATFORM UNLESS REQUIRED",
+  "priority": 13,
+  "overlap": "Some overlap with Formbricks for feedback and with Metabase for reporting, but PostHog remains the product analytics anchor.",
+  "codex_read_first": "Read the existing PostHog integration in the Hylono site before proposing any changes.",
+  "codex_best_path": "Keep PostHog focused on product analytics and feature flags; avoid self-hosting unless strong data-control reasons justify the heavier platform footprint.",
+  "codex_never_assume": "Never assume self-host PostHog is an easy drop-in just because the code is open.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://posthog.com/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Product and self-host docs.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host docs",
+      "url": "https://posthog.com/docs/self-host",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Important deployment-positioning source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/PostHog/posthog",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify current repo/license split",
+      "version": "current",
+      "notes": "Primary code source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://posthog.com/docs/self-host",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary self-host posture source."
+    },
+    {
+      "url": "https://github.com/PostHog/posthog",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary code source."
+    },
+    {
+      "url": "https://posthog.com/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Feature and architecture reference."
+    }
+  ]
+}

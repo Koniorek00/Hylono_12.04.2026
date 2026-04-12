@@ -1,0 +1,97 @@
+{
+  "name": "Dify",
+  "slug": "dify",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "Dify LLM app platform",
+  "version": "v1.13.3",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / commercial cloud offerings also exist",
+  "license_status": "PARTLY VERIFIED",
+  "what": "LLM application platform for prompt workflows, RAG apps, agents, knowledge bases, and AI app operations.",
+  "solves": "Building and operating internal or customer-facing AI apps without hand-rolling every orchestration layer.",
+  "users": "AI/product teams building assistant, knowledge, or agent workflows.",
+  "fit": "Useful later if Hylono wants AI copilots, internal assistants, or knowledge-grounded workflows. Not necessary just to integrate existing SaaS/web apps.",
+  "runtime": "Multi-service platform with web app, API, workers, vector/relational stores, object storage, and model-provider integrations.",
+  "components": "App builder, knowledge base/RAG, workers, model connectors, databases, storage, and API surfaces.",
+  "deploy": "Self-host quick-start and Helm charts exist, but production adds significant model/vector/storage considerations.",
+  "deps": "Databases, caches, object storage, model provider keys, possible vector store, and observability.",
+  "datastores": "Relational DB, caches, storage, and optional vector/database components.",
+  "auth": "Workspace/user auth and API keys.",
+  "apis": "LLM app APIs, workflows, knowledge base, and model integration surfaces.",
+  "complexity": "High",
+  "security": "Prompt/input data, knowledge bases, and provider keys require strong governance and privacy controls.",
+  "setup_path": "Only prioritize after core business systems are stable and a real AI product/internal-assistant use case is defined.",
+  "env": "DB/cache/storage/model settings, app secrets, vector store config, and URLs.",
+  "persistence": "Back up metadata DB and storage; knowledge bases may be reproducible but ingestion pipelines matter.",
+  "operations": "Model/provider governance, prompt/version drift, vector/knowledge refresh, and privacy controls matter.",
+  "failure_points": "Deploying AI infrastructure without defined use cases or data-governance guardrails.",
+  "integration": "Could later connect to BookStack, Docusaurus, CRM, support, or internal search/PII tooling.",
+  "verify": "Identify concrete AI use cases and whether Dify is better than lighter custom integrations.",
+  "risk": "High complexity if used prematurely.",
+  "gdpr": "AI workflows can handle personal data; minimization and provider review are critical.",
+  "recommendation": "LATER / USE-CASE DRIVEN",
+  "priority": 47,
+  "overlap": "Could overlap with custom AI tooling or n8n-based assistants.",
+  "codex_read_first": "Read the actual AI use-case notes before considering Dify.",
+  "codex_best_path": "Defer until there is a clearly scoped internal or customer-facing AI workflow.",
+  "codex_never_assume": "Never deploy AI platforms just because they are available; start from use case and data policy.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.dify.ai/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v1.13.3",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/langgenius/dify",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v1.13.3",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Helm chart repo",
+      "url": "https://github.com/langgenius/dify-helm",
+      "kind": "helm charts",
+      "status": "indexed-only",
+      "license": "review repo",
+      "version": "current",
+      "notes": "K8s deployment reference.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/langgenius/dify/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.13.3",
+      "why": "Version source."
+    },
+    {
+      "url": "https://docs.dify.ai/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.13.3",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/langgenius/dify",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.13.3",
+      "why": "Code source."
+    }
+  ]
+}

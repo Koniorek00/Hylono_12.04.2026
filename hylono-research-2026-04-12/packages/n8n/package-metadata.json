@@ -1,0 +1,97 @@
+{
+  "name": "n8n",
+  "slug": "n8n",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "n8n workflow automation platform",
+  "version": "2.15.1 stable (2.16.0 prerelease observed)",
+  "version_status": "CONFIRMED",
+  "license": "Sustainable Use License / fair-code style; review before bundling or redistribution",
+  "license_status": "CONFIRMED",
+  "what": "Workflow automation platform for API orchestration, webhooks, ETL-style workflows, integrations, and agentic automations.",
+  "solves": "Low-code/high-flexibility automation across webhooks, SaaS APIs, internal apps, queues, and scheduled tasks without hardcoding every integration into the site.",
+  "users": "Ops, growth, engineering, and integration teams that need fast automation and event choreography.",
+  "fit": "Very high fit. Hylono already cares about n8n integration, and it is the natural glue between Next.js APIs, Twenty, Novu, Stripe, Cal.com, documents, and internal admin tooling.",
+  "runtime": "Node.js automation platform with workflow engine, database, workers/queue mode, webhook ingestion, and credentials store.",
+  "components": "Editor/UI, execution engine, DB, optional queue workers, Redis for queue mode, webhooks, credentials store, and integrations/nodes.",
+  "deploy": "Docker is standard; production may use queue mode with Redis, separate workers, persistent database, and public webhook reachability.",
+  "deps": "Database, optional Redis for queue mode, webhook ingress, mail/notifications, secrets handling, and storage for binary data if used.",
+  "datastores": "Database for workflows/executions plus optional Redis for queue mode.",
+  "auth": "Built-in user auth, API keys, credential vaulting inside n8n, and webhook auth patterns.",
+  "apis": "REST API, webhook triggers, MCP trigger, hundreds of nodes/connectors, and import/export of workflows.",
+  "complexity": "Medium",
+  "security": "Extremely powerful blast radius. Protect credentials, isolate environments, restrict who can edit workflows, and avoid sensitive payload sprawl in executions.",
+  "setup_path": "Use official self-host docs; deploy with persistent DB, reverse proxy/TLS, and public webhook routing. Add queue mode only when concurrency or reliability requires it.",
+  "env": "DB settings, encryption key, webhook URL, host/base URL, Redis settings if queue mode, execution retention, and credential secrets.",
+  "persistence": "Back up database and export important workflows; review binary data retention and execution logs.",
+  "operations": "Webhook delivery, failed execution handling, credential rotation, workflow versioning, and worker scaling.",
+  "failure_points": "Using it as an ungoverned shadow backend, leaking secrets into workflow nodes, and failing to test webhook callbacks end to end.",
+  "integration": "First-class fit with Next.js routes, Stripe, Resend, Novu, Twenty, Cal.com, Documenso, Lago, PostHog, Slack/internal alerts, and future AI/ops flows.",
+  "verify": "Define clear system boundaries: which automations stay in n8n versus in application code. Decide who owns workflow review and credential governance.",
+  "risk": "Moderate. Huge leverage, but it can create invisible technical debt if not governed.",
+  "gdpr": "Workflow payloads can capture personal data. Apply retention controls, redact where possible, and choose EU-hosted deployment.",
+  "recommendation": "CORE EARLY AUTOMATION LAYER",
+  "priority": 7,
+  "overlap": "Overlaps with Node-RED for automation; n8n is the better default for business/system workflows in this stack.",
+  "codex_read_first": "Read current Next.js API routes, webhook/event map, and n8n production docs before building flows.",
+  "codex_best_path": "Use n8n as the integration/orchestration layer around the core app, not as a substitute for domain logic that belongs in the app codebase.",
+  "codex_never_assume": "Never assume local-test webhooks or tunnel behavior represent production. Never assume execution data can be retained indefinitely.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.n8n.io/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "2.15.1",
+      "notes": "Primary docs and production guidance.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/n8n-io/n8n",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Sustainable Use License",
+      "version": "2.15.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-hosted AI starter kit",
+      "url": "https://github.com/n8n-io/self-hosted-ai-starter-kit",
+      "kind": "starter repo",
+      "status": "indexed-only",
+      "license": "review repo license",
+      "version": "current",
+      "notes": "Useful reference for containerized deployments and AI add-ons.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.n8n.io/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.15.1",
+      "why": "Primary deployment and workflow guidance."
+    },
+    {
+      "url": "https://github.com/n8n-io/n8n/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.15.1",
+      "why": "Confirms current stable version researched."
+    },
+    {
+      "url": "https://github.com/n8n-io/n8n",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.15.1",
+      "why": "Code and license source."
+    }
+  ]
+}

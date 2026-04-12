@@ -1,3 +1,4 @@
+import { fetchWithTimeout } from '@/app/api/_shared/http';
 import { env } from '@/lib/env';
 
 const DEFAULT_TWENTY_API_BASE_URL = 'http://localhost:8107';
@@ -256,7 +257,7 @@ async function requestTwenty<T>(path: string, init?: RequestInit): Promise<T | u
   }
 
   try {
-    const response = await fetch(buildUrl(path), {
+    const response = await fetchWithTimeout(buildUrl(path), {
       ...init,
       headers: {
         Authorization: `Bearer ${env.TWENTY_API_KEY}`,

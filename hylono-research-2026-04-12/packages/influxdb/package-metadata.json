@@ -1,0 +1,97 @@
+{
+  "name": "InfluxDB",
+  "slug": "influxdb",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "InfluxDB 3 Core",
+  "version": "3.9.0 Core",
+  "version_status": "CONFIRMED",
+  "license": "MIT/Apache mix depending on components; verify current packaging",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Time-series database for metrics, events, and telemetry workloads.",
+  "solves": "High-cardinality time-series storage, device telemetry, and operational event analytics.",
+  "users": "IoT, observability, and analytics teams.",
+  "fit": "Useful only if Hylono needs device telemetry or a distinct time-series store beyond Prometheus/ClickHouse/Postgres.",
+  "runtime": "Time-series database server with query engines and data ingest paths.",
+  "components": "DB engine, storage, query/API layer, and ingestion endpoints.",
+  "deploy": "Self-host is feasible; choose only when a clear timeseries need exists.",
+  "deps": "Persistent storage, ingest clients, and query/retention planning.",
+  "datastores": "InfluxDB itself.",
+  "auth": "Tokens/users/org/bucket access controls.",
+  "apis": "Write APIs, query APIs, CLI, and integrations.",
+  "complexity": "Medium",
+  "security": "Protect telemetry and auth tokens; retention and bucket policies matter.",
+  "setup_path": "Do not prioritize until time-series needs exceed Prometheus or simpler stores.",
+  "env": "Storage, org/bucket, tokens, retention, and network/TLS settings.",
+  "persistence": "Back up bucket/data as required; retention design is central.",
+  "operations": "Cardinality, retention, storage, and query costs matter.",
+  "failure_points": "Adding a separate timeseries database before proving its necessity.",
+  "integration": "Useful with device telemetry, Grafana, and IoT stack; not a first-wave business-system dependency.",
+  "verify": "Clarify whether Prometheus alone covers observability and whether device telemetry is near-term.",
+  "risk": "Moderate unnecessary-complexity risk.",
+  "gdpr": "Depends on telemetry content and identifiers.",
+  "recommendation": "LATER / IF TIME-SERIES NEEDS BECOME REAL",
+  "priority": 46,
+  "overlap": "May overlap with Prometheus or Postgres-based event storage for smaller workloads.",
+  "codex_read_first": "Read the observability and IoT stack notes before considering InfluxDB.",
+  "codex_best_path": "Avoid until a specific telemetry workload justifies it.",
+  "codex_never_assume": "Never add a dedicated time-series store without a demonstrated query/scale need.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.influxdata.com/influxdb3/core/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "3.9.0",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/influxdata/influxdb",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current project",
+      "version": "3.9.0",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image docs",
+      "url": "https://docs.influxdata.com/influxdb3/core/install/",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "3.9.0",
+      "notes": "Install guidance.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.influxdata.com/influxdb3/core/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.9.0",
+      "why": "Primary docs and version source."
+    },
+    {
+      "url": "https://github.com/influxdata/influxdb",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.9.0",
+      "why": "Code source."
+    },
+    {
+      "url": "https://www.influxdata.com/products/influxdb/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3 Core",
+      "why": "Product positioning."
+    }
+  ]
+}

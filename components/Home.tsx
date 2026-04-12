@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { HeroConcept1 } from './heroes/HeroConcept1';
 import { TechType } from '../types';
 import { TECH_DETAILS } from '../constants';
 import { isFeatureEnabled } from '../utils/featureFlags';
 import { ArrowRight, CircleDashed } from 'lucide-react';
 import { TiltCard } from './shared/TiltCard';
-import { useRouter } from 'next/navigation';
-import { HomeDemoModal } from './home/HomeDemoModal';
 import { HomeTestimonialsSection } from './home/HomeTestimonialsSection';
 import { HomeBrandTickerSection } from './home/HomeBrandTickerSection';
 import { HomeJumpstartSection } from './home/HomeJumpstartSection';
@@ -16,21 +15,22 @@ import { HomeScienceSection } from './home/HomeScienceSection';
 import { HomeFinalCtaSection } from './home/HomeFinalCtaSection';
 import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
 
+const HomeDemoModal = dynamic(
+    () => import('./home/HomeDemoModal').then((module) => ({ default: module.HomeDemoModal })),
+    { ssr: false, loading: () => null }
+);
+
 interface HomeProps {
     onSelectTech: (type: TechType) => void;
     onLaunchBuilder: () => void;
+    onNavigate: (path: string) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder }) => {
-    const router = useRouter();
+export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder, onNavigate }) => {
     const [hoveredTech, setHoveredTech] = useState<TechType | null>(null);
     const [activeGoal, setActiveGoal] = useState<string | null>(null);
     const [activeStack, setActiveStack] = useState<TechType[] | null>(null);
     const [showDemoModal, setShowDemoModal] = useState(false);
-    const navigateTo = (path: string) => {
-        router.push(`/${path}`);
-        window.scrollTo(0, 0);
-    };
     const homepageEnhancementsEnabled = isFeatureEnabled('feature_homepage_enhancements');
     const lowestRental = Math.min(
         ...Object.values(TECH_DETAILS)
@@ -49,7 +49,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder }) => 
             {/* ── HERO ── */}
             <HeroConcept1
                 onLaunchBuilder={onLaunchBuilder}
-                onNavigate={navigateTo}
+                onNavigate={onNavigate}
                 onWatchDemo={() => setShowDemoModal(true)}
             />
 
@@ -58,7 +58,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder }) => 
                 onClose={() => setShowDemoModal(false)}
                 onBookDemo={() => {
                     setShowDemoModal(false);
-                    navigateTo('contact');
+                    onNavigate('contact');
                 }}
             />
 
@@ -67,10 +67,10 @@ export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder }) => 
             <HomeJumpstartSection
                 homepageEnhancementsEnabled={homepageEnhancementsEnabled}
                 lowestRental={lowestRental}
-                onNavigate={navigateTo}
+                onNavigate={onNavigate}
             />
 
-            <HomeValuePropSection onNavigate={navigateTo} />
+            <HomeValuePropSection onNavigate={onNavigate} />
 
             {/* --- ECOSYSTEM: THE MONOLITHS --- */}
             <section id="ecosystem" className="py-40 bg-slate-50 relative">
@@ -280,7 +280,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectTech, onLaunchBuilder }) => 
                 </div>
             </section>
 
-            <HomeFinalCtaSection onLaunchBuilder={onLaunchBuilder} onNavigate={navigateTo} />
+            <HomeFinalCtaSection onLaunchBuilder={onLaunchBuilder} onNavigate={onNavigate} />
 
 
         </div>

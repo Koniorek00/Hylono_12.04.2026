@@ -1,670 +1,357 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'motion/react';
+import Link from 'next/link';
+import React, { useMemo, useState } from 'react';
 import {
-    BookOpen, Calendar, Clock, ArrowRight, Tag, Search, Filter,
-    Bookmark, BookmarkCheck, TrendingUp, Sparkles, Shield,
-    Grid, List, SlidersHorizontal, X, ChevronDown, Star,
-    Microscope, FileText, Eye, MessageCircle, Zap, Edit3, Plus
+    ArrowRight,
+    Calendar,
+    Clock,
+    Search,
+    Shield,
+    X
 } from 'lucide-react';
+import { toBlogSlug } from '@/lib/blog';
 import { SmartText } from './SmartText';
-import { BLOG_POSTS, BlogPost, RESEARCH_STUDIES } from '../constants/content';
+import { BLOG_POSTS, type BlogPost } from '../constants/content';
 
-// Lazy load heavy components
-const ArticleReader = dynamic(() => import('./blog/ArticleReader').then(m => ({ default: m.ArticleReader })), { loading: () => null });
-const BlogEditor = dynamic(() => import('./blog/BlogEditor').then(m => ({ default: m.BlogEditor })), { loading: () => null });
+type SortOption = 'latest' | 'readTime';
 
-// === TYPES ===
-type ViewType = 'grid' | 'list' | 'compact';
-type SortOption = 'latest' | 'popular' | 'readTime';
-
-interface ReadingListItem {
-    id: number;
-    addedAt: string;
-}
-
-const deterministicMetric = (seed: number, min: number, max: number): number => {
-    const normalized = Math.abs(Math.sin(seed * 12.9898) * 43758.5453) % 1;
-    return Math.floor(normalized * (max - min + 1)) + min;
-};
-
-// === FEATURED ARTICLE CARD ===
-const FeaturedArticleCard: React.FC<{ post: BlogPost; onClick: () => void }> = ({ post, onClick }) => (
-    <motion.article
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        onClick={onClick}
-        className="relative rounded-3xl overflow-hidden cursor-pointer group"
-    >
-        <div className={`h-80 md:h-96 bg-gradient-to-br ${post.image} p-8 flex flex-col justify-end`}>
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-
-            {/* Content */}
-            <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                    <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-lg text-xs font-bold text-white uppercase tracking-wider">
-                        Featured
-                    </span>
-                    <span className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-lg text-xs font-bold text-white/80">
-                        {post.category}
-                    </span>
-                </div>
-
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">
-                    {post.title}
-                </h2>
-
-                <p className="text-white/70 text-sm md:text-base mb-4 line-clamp-2">
-                    <SmartText>{post.excerpt}</SmartText>
-                </p>
-
-                <div className="flex items-center gap-4 text-white/60 text-sm">
-                    <span className="flex items-center gap-1">
-                        <Clock size={14} /> {post.readTime}
-                    </span>
-                    <span className="flex items-center gap-1">
-                        <Calendar size={14} /> {post.date}
-                    </span>
-                    {post.trace_id && (
-                        <span className="flex items-center gap-1 text-emerald-400">
-                            <Shield size={12} /> {post.trace_id}
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            {/* Hover Arrow */}
-            <motion.div
-                className="absolute bottom-8 right-8 w-12 h-12 bg-white rounded-full flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"
-                whileHover={{ scale: 1.1 }}
-            >
-                <ArrowRight size={20} />
-            </motion.div>
-        </div>
-    </motion.article>
-);
-
-// === ARTICLE CARD ===
-interface ArticleCardProps {
-    post: BlogPost;
-    viewType: ViewType;
-    isBookmarked: boolean;
-    onToggleBookmark: () => void;
-    onClick: () => void;
-    index: number;
-}
-
-const ArticleCard: React.FC<ArticleCardProps> = ({
-    post, viewType, isBookmarked, onToggleBookmark, onClick, index
-}) => {
-    // Grid view
-    if (viewType === 'grid') {
-        return (
-            <motion.article
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:border-cyan-100 transition-all group cursor-pointer"
-            >
-                <div onClick={onClick}>
-                    <div className={`h-40 bg-gradient-to-br ${post.image} relative`}>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
-                            className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-lg hover:bg-white transition-all"
-                        >
-                            {isBookmarked ? (
-                                <BookmarkCheck size={16} className="text-cyan-600" />
-                            ) : (
-                                <Bookmark size={16} className="text-slate-400" />
-                            )}
-                        </button>
-                    </div>
-                    <div className="p-5">
-                        <div className="flex items-center gap-3 mb-3">
-                            <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${post.category === 'HBOT' ? 'bg-cyan-100 text-cyan-700' :
-                                post.category === 'PEMF' ? 'bg-purple-100 text-purple-700' :
-                                    post.category === 'RLT' ? 'bg-red-100 text-red-700' :
-                                        post.category === 'Hydrogen' ? 'bg-sky-100 text-sky-700' :
-                                            'bg-slate-100 text-slate-700'
-                                }`}>
-                                {post.category}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-slate-400">
-                                <Eye size={12} /> {deterministicMetric(post.id, 100, 600)}
-                            </span>
-                        </div>
-
-                        <h3 className="font-bold text-slate-900 mb-2 group-hover:text-cyan-600 transition-colors line-clamp-2">
-                            {post.title}
-                        </h3>
-
-                        <p className="text-sm text-slate-500 mb-4 line-clamp-2">
-                            <SmartText>{post.excerpt}</SmartText>
-                        </p>
-
-                        {post.trace_id && (
-                            <div className="flex items-center gap-2 mb-4 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                                <Shield size={12} className="text-emerald-500" />
-                                <span className="text-[10px] font-mono font-bold text-emerald-700">
-                                    {post.trace_id}
-                                </span>
-                            </div>
-                        )}
-
-                        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                            <span className="text-xs text-slate-400 flex items-center gap-1">
-                                <Calendar size={12} /> {post.date}
-                            </span>
-                            <span className="text-xs font-bold text-cyan-600 flex items-center gap-1 group-hover:gap-2 transition-all">
-                                Read <ArrowRight size={12} />
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </motion.article>
-        );
-    }
-
-    // List view
-    if (viewType === 'list') {
-        return (
-            <motion.article
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.03 }}
-                onClick={onClick}
-                className="bg-white rounded-2xl border border-slate-100 p-5 flex gap-6 hover:shadow-lg hover:border-cyan-100 transition-all group cursor-pointer"
-            >
-                <div className={`w-48 h-32 rounded-xl bg-gradient-to-br ${post.image} flex-shrink-0`} />
-
-                <div className="flex-1 flex flex-col">
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${post.category === 'HBOT' ? 'bg-cyan-100 text-cyan-700' :
-                            post.category === 'PEMF' ? 'bg-purple-100 text-purple-700' :
-                                post.category === 'RLT' ? 'bg-red-100 text-red-700' :
-                                    post.category === 'Hydrogen' ? 'bg-sky-100 text-sky-700' :
-                                        'bg-slate-100 text-slate-700'
-                            }`}>
-                            {post.category}
-                        </span>
-                        {post.trace_id && (
-                            <span className="flex items-center gap-1 text-emerald-600 text-xs">
-                                <Shield size={12} /> Verified
-                            </span>
-                        )}
-                    </div>
-
-                    <h3 className="font-bold text-lg text-slate-900 mb-2 group-hover:text-cyan-600 transition-colors">
-                        {post.title}
-                    </h3>
-
-                    <p className="text-sm text-slate-500 flex-1">
-                        <SmartText>{post.excerpt}</SmartText>
-                    </p>
-
-                    <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
-                            <Clock size={12} /> {post.readTime}
-                        </span>
-                        <span className="flex items-center gap-1">
-                            <Calendar size={12} /> {post.date}
-                        </span>
-                        <span className="flex items-center gap-1">
-                            <Eye size={12} /> {deterministicMetric(post.id, 100, 600)}
-                        </span>
-                    </div>
-                </div>
-
-                <button
-                    onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
-                    className="self-start p-2 hover:bg-slate-100 rounded-lg transition-all"
-                >
-                    {isBookmarked ? (
-                        <BookmarkCheck size={18} className="text-cyan-600" />
-                    ) : (
-                        <Bookmark size={18} className="text-slate-400" />
-                    )}
-                </button>
-            </motion.article>
-        );
-    }
-
-    // Compact view
-    return (
-        <motion.article
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: index * 0.02 }}
-            onClick={onClick}
-            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-100 hover:border-cyan-200 hover:bg-cyan-50/50 transition-all cursor-pointer group"
-        >
-            <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${post.image} flex-shrink-0`} />
-            <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-slate-900 truncate group-hover:text-cyan-600 transition-colors">
-                    {post.title}
-                </h3>
-                <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span>{post.category}</span>
-                    <span>•</span>
-                    <span>{post.readTime}</span>
-                </div>
-            </div>
-            <ArrowRight size={16} className="text-slate-300 group-hover:text-cyan-600 transition-colors" />
-        </motion.article>
-    );
-};
-
-// === MAIN BLOG PAGE ===
 interface BlogPageProps {
     onNavigate?: (page: string, tech?: string, mode?: string) => void;
 }
 
-export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
-    // State
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [viewType, setViewType] = useState<ViewType>('grid');
-    const [sortBy, setSortBy] = useState<SortOption>('latest');
-    const [readingList, setReadingList] = useState<ReadingListItem[]>([]);
-    const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
-    const [showEditor, setShowEditor] = useState(false);
-    const [showFilters, setShowFilters] = useState(false);
+const BLOG_CATEGORY_TO_ROUTE: Record<BlogPost['category'], string> = {
+    HBOT: '/product/hbot',
+    PEMF: '/product/pemf',
+    RLT: '/product/rlt',
+    Hydrogen: '/product/hydrogen',
+    Protocols: '/protocols',
+};
 
-    // Categories
-    const categories = ['All', 'HBOT', 'PEMF', 'RLT', 'Hydrogen', 'Protocols'];
+const BLOG_CATEGORY_TO_ROUTE_LABEL: Record<BlogPost['category'], string> = {
+    HBOT: 'See HBOT systems',
+    PEMF: 'See PEMF systems',
+    RLT: 'See red light systems',
+    Hydrogen: 'See hydrogen systems',
+    Protocols: 'Browse protocols',
+};
 
-    // Load reading list from localStorage
-    useEffect(() => {
-        try {
-            const saved = localStorage.getItem('hylono_reading_list');
-            if (!saved) return;
-            setReadingList(JSON.parse(saved));
-        } catch {
-            try { localStorage.removeItem('hylono_reading_list'); } catch { /* ignore */ }
-        }
-    }, []);
+const categoryBadgeClass = (category: BlogPost['category']): string => {
+    switch (category) {
+        case 'HBOT':
+            return 'bg-cyan-100 text-cyan-700';
+        case 'PEMF':
+            return 'bg-fuchsia-100 text-fuchsia-700';
+        case 'RLT':
+            return 'bg-red-100 text-red-700';
+        case 'Hydrogen':
+            return 'bg-sky-100 text-sky-700';
+        case 'Protocols':
+            return 'bg-slate-200 text-slate-700';
+        default:
+            return 'bg-slate-100 text-slate-700';
+    }
+};
 
-    // Save reading list to localStorage
-    useEffect(() => {
-        try {
-            localStorage.setItem('hylono_reading_list', JSON.stringify(readingList));
-        } catch {
-            // Ignore storage errors (private browsing, quota exceeded)
-        }
-    }, [readingList]);
+const articleHref = (post: BlogPost): string => `/blog/${toBlogSlug(post.title)}`;
 
-    // Filter and sort posts
-    const filteredPosts = useMemo(() => {
-        let posts = [...BLOG_POSTS];
+const FeaturedArticleCard: React.FC<{ post: BlogPost }> = ({ post }) => (
+    <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className={`relative min-h-[22rem] bg-gradient-to-br ${post.image} p-8 md:p-10`}>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/45 to-transparent" />
 
-        // Category filter
-        if (selectedCategory && selectedCategory !== 'All') {
-            posts = posts.filter(p => p.category === selectedCategory);
-        }
+            <div className="relative z-10 flex h-full flex-col justify-end gap-5">
+                <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-white">
+                        Featured guide
+                    </span>
+                    <span className="rounded-full bg-white/12 px-3 py-1 text-xs font-bold text-white/85">
+                        {post.category}
+                    </span>
+                    {post.trace_id && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-100">
+                            <Shield size={12} />
+                            Traceable claim
+                        </span>
+                    )}
+                </div>
 
-        // Search filter
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            posts = posts.filter(p =>
-                p.title.toLowerCase().includes(query) ||
-                p.excerpt.toLowerCase().includes(query) ||
-                p.category.toLowerCase().includes(query)
-            );
-        }
-
-        // Sort
-        switch (sortBy) {
-            case 'popular':
-                // Deterministic popularity proxy to avoid SSR/client hydration drift
-                posts.sort((a, b) => {
-                    const scoreA = deterministicMetric(a.id, 1, 1000);
-                    const scoreB = deterministicMetric(b.id, 1, 1000);
-                    return scoreB - scoreA;
-                });
-                break;
-            case 'readTime':
-                posts.sort((a, b) => parseInt(a.readTime) - parseInt(b.readTime));
-                break;
-            default: // latest
-                posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        }
-
-        return posts;
-    }, [selectedCategory, searchQuery, sortBy]);
-
-    // Toggle bookmark
-    const toggleBookmark = useCallback((postId: number) => {
-        setReadingList(list => {
-            const exists = list.find(item => item.id === postId);
-            if (exists) {
-                return list.filter(item => item.id !== postId);
-            }
-            return [...list, { id: postId, addedAt: new Date().toISOString() }];
-        });
-    }, []);
-
-    // Check if bookmarked
-    const isBookmarked = useCallback((postId: number) => {
-        return readingList.some(item => item.id === postId);
-    }, [readingList]);
-
-    // Navigate articles in reader
-    const handleNavigateArticle = useCallback((direction: 'prev' | 'next') => {
-        if (!selectedPost) return;
-        const currentIndex = filteredPosts.findIndex(p => p.id === selectedPost.id);
-        const previousPost = currentIndex > 0 ? filteredPosts[currentIndex - 1] : undefined;
-        const nextPost = currentIndex < filteredPosts.length - 1 ? filteredPosts[currentIndex + 1] : undefined;
-
-        if (direction === 'prev' && currentIndex > 0) {
-            if (previousPost) {
-                setSelectedPost(previousPost);
-            }
-        } else if (direction === 'next' && currentIndex < filteredPosts.length - 1) {
-            if (nextPost) {
-                setSelectedPost(nextPost);
-            }
-        }
-    }, [selectedPost, filteredPosts]);
-
-    // Featured post (first post or first with trace_id)
-    const featuredPost = BLOG_POSTS.find(p => p.trace_id) ?? BLOG_POSTS[0] ?? null;
-
-    // === RENDER ===
-    return (
-        <div className="min-h-screen bg-slate-50 pt-10 pb-24">
-            <div className="max-w-7xl mx-auto px-6">
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-12"
-                >
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-100 text-cyan-700 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-                        <Sparkles size={14} />
-                        Knowledge Hub
-                    </div>
-                    <h1 id="blog-hero-headline" className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                        Bio-Optimization Insights
-                    </h1>
-                    <p id="blog-hero-description" className="text-slate-500 max-w-xl mx-auto">
-                        Evidence-based articles, research summaries, and protocol guides for your regeneration journey
+                <div className="max-w-3xl">
+                    <h2 className="text-3xl font-bold text-white md:text-4xl">
+                        {post.title}
+                    </h2>
+                    <p className="mt-3 max-w-2xl text-base text-white/80 md:text-lg">
+                        <SmartText>{post.excerpt}</SmartText>
                     </p>
-                </motion.div>
+                </div>
 
-                {/* Search & Filter Bar */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-white rounded-2xl border border-slate-200 p-4 mb-8 shadow-sm"
+                <div className="flex flex-wrap items-center gap-4 text-sm text-white/75">
+                    <span className="inline-flex items-center gap-2">
+                        <Clock size={14} />
+                        {post.readTime}
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                        <Calendar size={14} />
+                        {post.date}
+                    </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <Link
+                        href={articleHref(post)}
+                        className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-slate-100"
+                    >
+                        Read featured guide
+                        <ArrowRight size={16} />
+                    </Link>
+                    <Link
+                        href={BLOG_CATEGORY_TO_ROUTE[post.category]}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-white/50 hover:bg-white/10"
+                    >
+                        {BLOG_CATEGORY_TO_ROUTE_LABEL[post.category]}
+                    </Link>
+                </div>
+            </div>
+        </div>
+    </article>
+);
+
+const ArticleCard: React.FC<{ post: BlogPost }> = ({ post }) => (
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
+        <div className={`h-40 bg-gradient-to-br ${post.image}`} />
+
+        <div className="flex flex-1 flex-col p-5">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+                <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] ${categoryBadgeClass(post.category)}`}>
+                    {post.category}
+                </span>
+                {post.trace_id && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
+                        <Shield size={12} />
+                        Traceable claim
+                    </span>
+                )}
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-950">
+                <Link href={articleHref(post)} className="transition-colors hover:text-cyan-700">
+                    {post.title}
+                </Link>
+            </h3>
+
+            <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">
+                <SmartText>{post.excerpt}</SmartText>
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                <span className="inline-flex items-center gap-2">
+                    <Clock size={14} />
+                    {post.readTime}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                    <Calendar size={14} />
+                    {post.date}
+                </span>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+                <Link
+                    href={articleHref(post)}
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800"
                 >
-                    <div className="flex flex-col md:flex-row gap-4">
-                        {/* Search */}
-                        <div className="flex-1 relative">
+                    Read article
+                    <ArrowRight size={15} />
+                </Link>
+                <Link
+                    href={BLOG_CATEGORY_TO_ROUTE[post.category]}
+                    className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-950"
+                >
+                    {BLOG_CATEGORY_TO_ROUTE_LABEL[post.category]}
+                </Link>
+            </div>
+        </div>
+    </article>
+);
+
+export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate: _onNavigate }) => {
+    const [selectedCategory, setSelectedCategory] = useState<BlogPost['category'] | 'All'>('All');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState<SortOption>('latest');
+
+    const categories: Array<BlogPost['category'] | 'All'> = ['All', 'HBOT', 'PEMF', 'RLT', 'Hydrogen', 'Protocols'];
+
+    const guideCount = BLOG_POSTS.length;
+    const traceableCount = BLOG_POSTS.filter((post) => Boolean(post.trace_id)).length;
+    const protocolCount = BLOG_POSTS.filter((post) => post.category === 'Protocols').length;
+
+    const filteredPosts = useMemo(() => {
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+
+        const posts = BLOG_POSTS.filter((post) => {
+            if (selectedCategory !== 'All' && post.category !== selectedCategory) {
+                return false;
+            }
+
+            if (!normalizedQuery) {
+                return true;
+            }
+
+            return (
+                post.title.toLowerCase().includes(normalizedQuery) ||
+                post.excerpt.toLowerCase().includes(normalizedQuery) ||
+                post.category.toLowerCase().includes(normalizedQuery)
+            );
+        });
+
+        if (sortBy === 'readTime') {
+            return posts.sort((a, b) => parseInt(a.readTime, 10) - parseInt(b.readTime, 10));
+        }
+
+        return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [searchQuery, selectedCategory, sortBy]);
+
+    const showFeatured = selectedCategory === 'All' && searchQuery.trim().length === 0;
+    const featuredPost = showFeatured
+        ? BLOG_POSTS.find((post) => Boolean(post.trace_id)) ?? BLOG_POSTS[0] ?? null
+        : null;
+
+    return (
+        <div className="min-h-screen bg-slate-50 pb-24 pt-10">
+            <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6">
+                <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm md:p-10">
+                    <div className="inline-flex items-center rounded-full bg-cyan-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-cyan-800">
+                        Guide Index
+                    </div>
+
+                    <h1 id="blog-hero-headline" className="mt-5 max-w-4xl text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
+                        Wellness Technology Guides
+                    </h1>
+
+                    <p id="blog-hero-description" className="mt-4 max-w-3xl text-lg leading-8 text-slate-600">
+                        Read guides and find the next step for HBOT, PEMF, red light, hydrogen, and stacked routines.
+                    </p>
+
+                    <div className="mt-7 flex flex-wrap items-center gap-3">
+                        <a
+                            href="#blog-article-grid"
+                            className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                        >
+                            Browse latest guides
+                            <ArrowRight size={16} />
+                        </a>
+                        <Link
+                            href="/protocols"
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-950"
+                        >
+                            See protocols
+                        </Link>
+                    </div>
+
+                    <div className="mt-8 grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <span className="font-semibold text-slate-950">{guideCount}</span> current guides
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <span className="font-semibold text-slate-950">{traceableCount}</span> traceable-claim articles
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <span className="font-semibold text-slate-950">{protocolCount}</span> protocol stack guide
+                        </div>
+                    </div>
+                </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_13rem]">
+                        <div className="relative">
                             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                             <input
-                                type="text"
-                                placeholder="Search articles, topics, or keywords..."
+                                type="search"
+                                placeholder="Search articles, topics, or keywords"
                                 value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 outline-none focus:border-cyan-300 focus:ring-4 focus:ring-cyan-50 transition-all"
+                                onChange={(event) => setSearchQuery(event.target.value)}
+                                className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-12 text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-cyan-300"
                             />
                             {searchQuery && (
                                 <button
                                     onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-200 rounded-full"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                                    aria-label="Clear search"
                                 >
-                                    <X size={14} className="text-slate-400" />
+                                    <X size={16} />
                                 </button>
                             )}
                         </div>
 
-                        {/* View Type Toggle */}
-                        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
-                            {[
-                                { type: 'grid' as ViewType, icon: <Grid size={16} /> },
-                                { type: 'list' as ViewType, icon: <List size={16} /> },
-                                { type: 'compact' as ViewType, icon: <FileText size={16} /> }
-                            ].map(item => (
-                                <button
-                                    key={item.type}
-                                    onClick={() => setViewType(item.type)}
-                                    className={`p-2 rounded-lg transition-all ${viewType === item.type
-                                        ? 'bg-white text-slate-900 shadow-sm'
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
-                                >
-                                    {item.icon}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Sort */}
                         <select
                             value={sortBy}
-                            onChange={e => setSortBy(e.target.value as SortOption)}
-                            className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 cursor-pointer hover:border-slate-300 transition-colors"
+                            onChange={(event) => setSortBy(event.target.value as SortOption)}
+                            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-cyan-300"
+                            aria-label="Sort guides"
                         >
-                            <option value="latest">Latest</option>
-                            <option value="popular">Popular</option>
-                            <option value="readTime">Quick Reads</option>
+                            <option value="latest">Latest first</option>
+                            <option value="readTime">Quick reads</option>
                         </select>
-
-                        {/* Filter Toggle */}
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-all ${showFilters
-                                ? 'bg-slate-900 text-white border-slate-900'
-                                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
-                                }`}
-                        >
-                            <SlidersHorizontal size={16} />
-                            Filters
-                        </button>
-
-                        {/* Write Button (for writers) */}
-                        <button
-                            onClick={() => setShowEditor(true)}
-                            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
-                        >
-                            <Edit3 size={16} />
-                            Write
-                        </button>
                     </div>
 
-                    {/* Expanded Filters */}
-                    <AnimatePresence>
-                        {showFilters && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="pt-4 mt-4 border-t border-slate-100">
-                                    <div className="flex flex-wrap gap-3">
-                                        {categories.map(cat => (
-                                            <button
-                                                key={cat}
-                                                onClick={() => setSelectedCategory(cat === 'All' ? null : cat)}
-                                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${(!selectedCategory && cat === 'All') || selectedCategory === cat
-                                                    ? 'bg-slate-900 text-white'
-                                                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                                                    }`}
-                                            >
-                                                {cat}
-                                            </button>
-                                        ))}
+                    <div className="mt-4 flex flex-wrap gap-3">
+                        {categories.map((category) => {
+                            const isActive = selectedCategory === category;
 
-                                        <div className="flex-1" />
+                            return (
+                                <button
+                                    key={category}
+                                    onClick={() => setSelectedCategory(category)}
+                                    className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] transition-colors ${
+                                        isActive
+                                            ? 'bg-slate-950 text-white'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                                    }`}
+                                >
+                                    {category}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </section>
 
-                                        {/* Reading List Count */}
-                                        {readingList.length > 0 && (
-                                            <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-xl text-amber-700 text-xs font-bold">
-                                                <Bookmark size={14} />
-                                                {readingList.length} saved
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+                {featuredPost && <FeaturedArticleCard post={featuredPost} />}
 
-                {/* Featured Article */}
-                {!searchQuery && !selectedCategory && featuredPost && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="mb-12"
-                    >
-                        <FeaturedArticleCard
-                            post={featuredPost}
-                            onClick={() => setSelectedPost(featuredPost)}
-                        />
-                    </motion.div>
-                )}
-
-                {/* Quick Stats */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
-                >
-                    {[
-                        { label: 'Total Articles', value: BLOG_POSTS.length, icon: <FileText size={18} /> },
-                        { label: 'Research Backed', value: BLOG_POSTS.filter(p => p.trace_id).length, icon: <Shield size={18} /> },
-                        { label: 'Related Studies', value: RESEARCH_STUDIES.length, icon: <Microscope size={18} /> },
-                        { label: 'Your Saved', value: readingList.length, icon: <Bookmark size={18} /> }
-                    ].map((stat, i) => (
-                        <div key={stat.label} className="p-4 bg-white rounded-xl border border-slate-100 flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
-                                {stat.icon}
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                                <p className="text-xs text-slate-500">{stat.label}</p>
-                            </div>
-                        </div>
-                    ))}
-                </motion.div>
-
-                {/* Articles Grid */}
-                <div className={`${viewType === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6' :
-                    viewType === 'list' ? 'flex flex-col gap-4' :
-                        'grid md:grid-cols-2 gap-3'
-                    }`}>
-                    {filteredPosts.map((post, i) => (
-                        <ArticleCard
-                            key={post.id}
-                            post={post}
-                            viewType={viewType}
-                            isBookmarked={isBookmarked(post.id)}
-                            onToggleBookmark={() => toggleBookmark(post.id)}
-                            onClick={() => setSelectedPost(post)}
-                            index={i}
-                        />
-                    ))}
-                </div>
-
-                {/* Empty State */}
-                {filteredPosts.length === 0 && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-center py-20"
-                    >
-                        <Search size={48} className="mx-auto text-slate-300 mb-4" />
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">No articles found</h3>
-                        <p className="text-slate-500 mb-6">Try adjusting your search or filters</p>
-                        <button
-                            onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
-                            className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all"
-                        >
-                            Clear Filters
-                        </button>
-                    </motion.div>
-                )}
-
-                {/* @ Mention Hint */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-16 p-6 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl border border-cyan-100"
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white">
-                            <Zap size={24} />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-bold text-slate-900 mb-1">Smart References</h3>
+                <section id="blog-article-grid" className="scroll-mt-24">
+                    <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-950">Latest guides</h2>
                             <p className="text-sm text-slate-600">
-                                Articles can link to devices (<code className="px-1.5 py-0.5 bg-white rounded text-cyan-600 font-mono text-xs">@machine:HBOT</code>),
-                                research (<code className="px-1.5 py-0.5 bg-white rounded text-cyan-600 font-mono text-xs">@research:VO2-Study</code>),
-                                and protocols (<code className="px-1.5 py-0.5 bg-white rounded text-cyan-600 font-mono text-xs">@protocol:Superhuman</code>).
-                                Hover over linked references in articles to see instant previews.
+                                Showing {filteredPosts.length} of {BLOG_POSTS.length} guides.
                             </p>
                         </div>
                     </div>
-                </motion.div>
-            </div>
 
-            {/* Article Reader Modal */}
-            <AnimatePresence>
-                {selectedPost && (
-                    <ArticleReader
-                        post={selectedPost}
-                        onClose={() => setSelectedPost(null)}
-                        onNavigate={handleNavigateArticle}
-                        canNavigate={{
-                            prev: filteredPosts.findIndex(p => p.id === selectedPost.id) > 0,
-                            next: filteredPosts.findIndex(p => p.id === selectedPost.id) < filteredPosts.length - 1
-                        }}
-                    />
-                )}
-            </AnimatePresence>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {filteredPosts.map((post) => (
+                            <ArticleCard key={post.id} post={post} />
+                        ))}
+                    </div>
+                </section>
 
-            {/* Blog Editor Modal */}
-            <AnimatePresence>
-                {showEditor && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
-                        onClick={() => setShowEditor(false)}
-                    >
-                        <motion.div
-                            role="dialog"
-                            aria-modal="true"
-                            aria-label="Blog editor"
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="w-full max-w-4xl my-8"
-                            onClick={e => e.stopPropagation()}
+                {filteredPosts.length === 0 && (
+                    <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
+                        <h3 className="text-xl font-bold text-slate-950">No guides match that search</h3>
+                        <p className="mt-2 text-slate-600">
+                            Clear the search or switch topic tracks to get back to the main guide index.
+                        </p>
+                        <button
+                            onClick={() => {
+                                setSearchQuery('');
+                                setSelectedCategory('All');
+                                setSortBy('latest');
+                            }}
+                            className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
                         >
-                            <div className="flex justify-end mb-4">
-                                <button
-                                    onClick={() => setShowEditor(false)}
-                                    aria-label="Close blog editor"
-                                    className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
-                                >
-                                    <X size={20} aria-hidden="true" />
-                                </button>
-                            </div>
-                            <BlogEditor />
-                        </motion.div>
-                    </motion.div>
+                            Reset filters
+                        </button>
+                    </section>
                 )}
-            </AnimatePresence>
+            </div>
         </div>
     );
 };

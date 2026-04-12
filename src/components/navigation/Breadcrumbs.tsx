@@ -161,7 +161,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
             onClick={handleScrollToTop}
             className="
               flex h-8 w-8 items-center justify-center rounded-lg border border-transparent
-              text-slate-500 transition-all duration-200
+              text-slate-500 transition-[color,background-color,border-color,box-shadow] duration-200
               hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700
               focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
               sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-1.5
@@ -182,7 +182,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               className={`
                 flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5
                 text-[11px] font-medium tracking-[0.15em] uppercase
-                transition-all duration-200
+                transition-[color,background-color,border-color,box-shadow] duration-200
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
                 ${
                   isDropdownOpen
@@ -191,7 +191,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                 }
               `}
               aria-expanded={isDropdownOpen}
-              aria-haspopup="menu"
+              aria-controls={isDropdownOpen ? 'breadcrumb-page-sections' : undefined}
               aria-label="Page sections navigation"
             >
               <List size={12} aria-hidden="true" />
@@ -209,6 +209,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               {isDropdownOpen && (
                 <motion.div
                   ref={dropdownRef}
+                  id="breadcrumb-page-sections"
                   variants={reduced ? undefined : dropdownVariants}
                   initial="hidden"
                   animate="visible"
@@ -225,7 +226,6 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                     backdropFilter: 'none',
                     WebkitBackdropFilter: 'none',
                   }}
-                  role="menu"
                   aria-label="Page sections"
                 >
                   <PageNavigatorDropdown onSectionClick={() => setIsDropdownOpen(false)} />

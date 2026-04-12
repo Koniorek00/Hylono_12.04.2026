@@ -1,0 +1,97 @@
+{
+  "name": "Medplum",
+  "slug": "medplum",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Medplum healthcare developer platform",
+  "version": "v5.1.6",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / verify hosted-service terms separately if relevant",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source healthcare developer platform built around FHIR, APIs, auth, forms, messaging, and healthcare-grade workflows.",
+  "solves": "Healthcare data models, FHIR APIs, scheduling/forms/workflows, and regulated-health application development.",
+  "users": "Healthcare software teams and organizations building real clinical or patient-data systems.",
+  "fit": "Powerful but likely too heavy and too clinical for Hylono unless the business explicitly enters regulated health data territory. This should not be adopted casually for health-adjacent wellness operations.",
+  "runtime": "Node/TypeScript healthcare platform with database, auth, FHIR APIs, object storage, and operational services.",
+  "components": "FHIR server, auth, web app/components, storage, messaging/forms/workflows, and healthcare-specific APIs.",
+  "deploy": "Self-host docs exist, but production expectations are much closer to healthcare platform operations than ordinary app deployment.",
+  "deps": "Database, storage, auth, backups, observability, security controls, and domain expertise in healthcare data.",
+  "datastores": "Relational database plus object storage and healthcare resources.",
+  "auth": "Integrated auth/identity plus healthcare-facing access controls and APIs.",
+  "apis": "FHIR APIs, auth, forms, bots/hooks, and developer SDKs.",
+  "complexity": "High",
+  "security": "This is PHI-capable infrastructure. Security, auditing, compliance, and incident readiness become central if used.",
+  "setup_path": "Do not implement unless Hylono makes an explicit strategic decision to handle clinical/patient-grade data with the necessary governance.",
+  "env": "DB settings, storage config, auth/domain settings, secrets, and healthcare integration configs.",
+  "persistence": "Back up DB and object storage with healthcare-grade recovery expectations if adopted.",
+  "operations": "Healthcare data governance, upgrades, auditability, and domain-model correctness are the main burden.",
+  "failure_points": "Using Medplum merely because the business is health-adjacent, without true clinical-data requirements or governance readiness.",
+  "integration": "Only relevant if Hylono decides to build regulated or patient-data workflows. Otherwise it is overkill.",
+  "verify": "Decide whether Hylono will ever store PHI/regulated healthcare data. If not, Medplum is likely unnecessary now.",
+  "risk": "Very high compliance and operational burden.",
+  "gdpr": "If used for health data, risk level rises sharply; GDPR plus health-data special-category rules apply.",
+  "recommendation": "DEFER UNLESS EXPLICIT HEALTHCARE DATA PROGRAM EXISTS",
+  "priority": 45,
+  "overlap": "Could overlap with Metriport/FHIR ambitions, but all of those are unnecessary unless true healthcare data enters scope.",
+  "codex_read_first": "Read the health-data strategy decision and compliance notes before considering Medplum.",
+  "codex_best_path": "Do not implement without explicit stakeholder decision that PHI/clinical-grade workflows are in scope.",
+  "codex_never_assume": "Never treat health-adjacent wellness operations as equivalent to a healthcare software mandate.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://www.medplum.com/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v5.1.6",
+      "notes": "Primary product and self-host docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/medplum/medplum",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v5.1.6",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host best practices",
+      "url": "https://www.medplum.com/docs/self-hosting/best-practices",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful for seeing real ops expectations.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/medplum/medplum/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.1.6",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://www.medplum.com/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary architecture and self-host source."
+    },
+    {
+      "url": "https://github.com/medplum/medplum",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.1.6",
+      "why": "Code source."
+    }
+  ]
+}

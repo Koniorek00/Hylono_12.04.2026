@@ -1,0 +1,97 @@
+{
+  "name": "Fides",
+  "slug": "fides",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Fides privacy and data governance platform",
+  "version": "v2.78.2",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / verify enterprise/commercial layers if used",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source privacy engineering and data governance platform for consent, privacy requests, data inventory, and policy enforcement workflows.",
+  "solves": "Operationalizing privacy programs: consent, DSAR workflows, data mapping, and governance over data systems.",
+  "users": "Privacy, legal, security, and engineering teams with active governance requirements.",
+  "fit": "Potentially valuable for GDPR maturity, but heavier than CookieConsent or Presidio because it is a program-level privacy platform rather than a single feature component.",
+  "runtime": "Containerized multi-service platform with database, web app, workers, and integrations to data systems.",
+  "components": "Privacy center/admin UI, database, consent/request workflows, data connectors, and orchestration services.",
+  "deploy": "Production docs exist for modern container orchestration. This is a real platform, not a lightweight plugin.",
+  "deps": "Database, workers, mail, app/data-system connectors, secrets management, and privacy-process ownership.",
+  "datastores": "Relational database plus connector metadata.",
+  "auth": "Admin/user roles and auth integrations depending on deployment.",
+  "apis": "Consent/privacy APIs, connectors, request orchestration, and governance interfaces.",
+  "complexity": "High",
+  "security": "Handles sensitive privacy inventory and request workflows. Needs careful access control and process ownership.",
+  "setup_path": "Only prioritize once Hylono commits to a real privacy program beyond basic cookie banners and policy docs.",
+  "env": "DB settings, app secrets, connector configs, mail, auth, and deployment-specific worker settings.",
+  "persistence": "Back up the DB and preserve privacy request/state integrity.",
+  "operations": "Connector maintenance, privacy workflow ownership, legal/policy updates, and access review are ongoing.",
+  "failure_points": "Deploying a governance platform before the organization has clear privacy processes and data maps.",
+  "integration": "Could eventually integrate with site consent flows, DSAR processes, data systems, and engineering controls.",
+  "verify": "Clarify whether Hylono currently needs programmatic GDPR/consent orchestration or only basic consent management plus disciplined data handling.",
+  "risk": "Moderate to high process burden.",
+  "gdpr": "Directly relevant. Strong tool only if the privacy program is ready to use it.",
+  "recommendation": "LATER / PRIVACY-PROGRAM DEPENDENT",
+  "priority": 36,
+  "overlap": "Different layer than CookieConsent or Presidio; broader privacy operations platform.",
+  "codex_read_first": "Read actual privacy-program requirements before suggesting Fides implementation.",
+  "codex_best_path": "Keep Fides on the roadmap for later governance maturity, not as an immediate deployment item.",
+  "codex_never_assume": "Never assume privacy software is useful without process and ownership behind it.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/ethyca/fides",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v2.78.2",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official docs",
+      "url": "https://docs.ethyca.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v2.78.2",
+      "notes": "Primary architecture and deployment docs.",
+      "outdated": false
+    },
+    {
+      "name": "Production architecture docs",
+      "url": "https://docs.ethyca.com/fides/getting-started/installation/deployment-options",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful for real deployment planning.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/ethyca/fides/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.78.2",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://docs.ethyca.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary deployment and product source."
+    },
+    {
+      "url": "https://github.com/ethyca/fides",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.78.2",
+      "why": "Code source."
+    }
+  ]
+}

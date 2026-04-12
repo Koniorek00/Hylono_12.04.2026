@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { env } from '@/lib/env';
+import { homepagePrimaryLinks } from '@/content/topical-graph';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { ORGANIZATION_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
@@ -17,7 +18,9 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 // [DECISION: SSG because homepage marketing shell is static and optimized for global caching.]
+// Rendering strategy: server-rendered homepage with crawlable hub references, schema, and a client presentation layer for premium motion.
 export default function HomePage() {
+  const homepageAbsoluteLinks = homepagePrimaryLinks.map((link) => `${SITE_URL}${link.href}`);
   const webPageSchema = {
     ...createWebPageSchema({
       name: 'Hylono',
@@ -47,19 +50,8 @@ export default function HomePage() {
       { '@type': 'CollectionPage', '@id': `${SITE_URL}/protocols`, url: `${SITE_URL}/protocols` },
       { '@type': 'CollectionPage', '@id': `${SITE_URL}/conditions`, url: `${SITE_URL}/conditions` },
     ],
-    significantLink: [
-      `${SITE_URL}/store`,
-      `${SITE_URL}/rental`,
-      `${SITE_URL}/protocols`,
-      `${SITE_URL}/research`,
-    ],
-    relatedLink: [
-      `${SITE_URL}/store`,
-      `${SITE_URL}/rental`,
-      `${SITE_URL}/protocols`,
-      `${SITE_URL}/conditions`,
-      `${SITE_URL}/research`,
-    ],
+    significantLink: homepageAbsoluteLinks,
+    relatedLink: [...homepageAbsoluteLinks, `${SITE_URL}/contact`],
   };
 
   return (

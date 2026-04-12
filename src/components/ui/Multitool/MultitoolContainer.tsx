@@ -11,7 +11,7 @@
  * - WCAG compliant touch targets
  * - Global keyboard shortcut (?)
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { X, Compass } from 'lucide-react';
@@ -19,6 +19,7 @@ import { useMultitoolStore, type ToolId } from '../../../stores/multitoolStore';
 import { ReadingTools, FocusMode, PageNavigator } from './tools';
 import { useScrollSpy } from './hooks/useScrollSpy';
 import type { MultitoolContainerProps } from './types';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 
 // Z-index layers
 const Z_INDEX_FAB = 35;
@@ -97,6 +98,9 @@ const TOOL_CONFIG: {
   { id: 'focus', label: 'Focus', icon: <FocusIcon /> },
 ];
 
+const getTabId = (tool: ToolId) => `multitool-tab-${tool}`;
+const getPanelId = (tool: ToolId) => `multitool-panel-${tool}`;
+
 // Custom icons for tabs
 function NavigateIcon() {
   return (
@@ -149,7 +153,12 @@ const MultitoolDropdown: React.FC<{
   position,
 }) => {
   const reduced = useReducedMotion();
-  const panelRef = useRef<HTMLDivElement>(null);
+  const panelRef = useFocusTrap<HTMLDivElement>({
+    active: true,
+    initialFocus: '#multitool-dropdown-close',
+    clickOutsideDeactivates: false,
+    escapeDeactivates: false,
+  });
 
   // Filter visible tools based on context
   const visibleTools = TOOL_CONFIG.filter((tool) => {
@@ -168,6 +177,7 @@ const MultitoolDropdown: React.FC<{
   return (
     <motion.div
       ref={panelRef}
+      id="multitool-accessibility-tools"
       custom={reduced}
       variants={dropdownVariants}
       initial="hidden"
@@ -189,7 +199,8 @@ const MultitoolDropdown: React.FC<{
       }}
       role="dialog"
       aria-label="Accessibility tools"
-      aria-modal="false"
+      aria-modal="true"
+      tabIndex={-1}
     >
       {/* Header with close button */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
@@ -197,6 +208,7 @@ const MultitoolDropdown: React.FC<{
           Accessibility Tools
         </span>
         <motion.button
+          id="multitool-dropdown-close"
           whileTap={reduced ? undefined : { scale: 0.95 }}
           onClick={onClose}
           className={`
@@ -236,6 +248,12 @@ const MultitoolBottomSheet: React.FC<{
   hasNavigatorContent,
 }) => {
   const reduced = useReducedMotion();
+  const bottomSheetRef = useFocusTrap<HTMLDivElement>({
+    active: true,
+    initialFocus: '#multitool-bottomsheet-close',
+    clickOutsideDeactivates: false,
+    escapeDeactivates: false,
+  });
 
   // Filter visible tools
   const visibleTools = TOOL_CONFIG.filter((tool) => {
@@ -265,6 +283,8 @@ const MultitoolBottomSheet: React.FC<{
       
       {/* Bottom sheet */}
       <motion.div
+        ref={bottomSheetRef}
+        id="multitool-accessibility-tools"
         custom={reduced}
         variants={bottomSheetVariants}
         initial="hidden"
@@ -280,6 +300,7 @@ const MultitoolBottomSheet: React.FC<{
         role="dialog"
         aria-label="Accessibility tools"
         aria-modal="true"
+        tabIndex={-1}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-2 pb-1">
@@ -292,6 +313,7 @@ const MultitoolBottomSheet: React.FC<{
             Accessibility Tools
           </span>
           <button
+            id="multitool-bottomsheet-close"
             onClick={onClose}
             className="text-xs text-cyan-500 hover:text-cyan-600 font-medium"
           >
@@ -304,10 +326,14 @@ const MultitoolBottomSheet: React.FC<{
           {visibleTools.map((tool) => (
             <button
               key={tool.id}
+              id={getTabId(tool.id)}
+              type="button"
               onClick={() => setActiveTool(tool.id)}
               role="tab"
               aria-selected={activeTool === tool.id}
+              aria-controls={getPanelId(tool.id)}
               aria-label={tool.label}
+              tabIndex={activeTool === tool.id ? 0 : -1}
               className={`
                 flex-1 min-h-[44px]
                 flex items-center justify-center
@@ -330,10 +356,12 @@ const MultitoolBottomSheet: React.FC<{
             {activeTool === 'navigator' && hasNavigatorContent && (
               <motion.div
                 key="navigator"
+                id={getPanelId('navigator')}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 role="tabpanel"
+                aria-labelledby={getTabId('navigator')}
               >
                 <PageNavigator sectionSelector={sectionSelector} />
               </motion.div>
@@ -342,10 +370,12 @@ const MultitoolBottomSheet: React.FC<{
             {activeTool === 'reading' && (
               <motion.div
                 key="reading"
+                id={getPanelId('reading')}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 role="tabpanel"
+                aria-labelledby={getTabId('reading')}
               >
                 <ReadingTools />
               </motion.div>
@@ -354,10 +384,12 @@ const MultitoolBottomSheet: React.FC<{
             {activeTool === 'focus' && hasNavigatorContent && (
               <motion.div
                 key="focus"
+                id={getPanelId('focus')}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 role="tabpanel"
+                aria-labelledby={getTabId('focus')}
               >
                 <FocusMode sectionSelector={sectionSelector} />
               </motion.div>
@@ -495,7 +527,9 @@ export const MultitoolContainer: React.FC<MultitoolContainerProps> = ({
               transform: 'translateY(-50%)',
             }}
             aria-label="Open page navigation tools"
+            aria-haspopup="dialog"
             aria-expanded={isOpen}
+            aria-controls={isOpen ? 'multitool-accessibility-tools' : undefined}
           >
             {/* Pulse animation ring */}
             <motion.div

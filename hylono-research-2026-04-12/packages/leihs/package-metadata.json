@@ -1,0 +1,97 @@
+{
+  "name": "Leihs",
+  "slug": "leihs",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "Leihs equipment lending and inventory system",
+  "version": "7.13.0",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0 (verify current repo before bundling code)",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source equipment booking, inventory, procurement, and lending system designed around loan workflows.",
+  "solves": "Reservation, lending, returns, inventory visibility, and operational tracking for equipment that moves between users.",
+  "users": "Organizations managing loaner equipment, libraries, institutions, and structured lending workflows.",
+  "fit": "Very strong conceptual fit for Hylono rental/access programs. It is materially closer to Hylono\u2019s lending/rental reality than generic IT asset tools.",
+  "runtime": "Rails-based application stack with database, background jobs, mailers, and operational workflows around reservations and lending.",
+  "components": "Web app, relational database, workers/jobs, mail, storage, and role-based operational UI.",
+  "deploy": "The leihs-instance repo is the most useful public deployment blueprint; production still requires standard app hardening, storage, backups, and role design.",
+  "deps": "Database, mailer, storage, background jobs, reverse proxy/TLS, and operational process configuration.",
+  "datastores": "Relational database plus file/storage components.",
+  "auth": "Application roles and authentication; verify current SSO integration options if required.",
+  "apis": "Operational web UI and app interfaces; API surface should be verified against current version before integration assumptions.",
+  "complexity": "Medium to High",
+  "security": "Reservation histories and user assignments may include personal data. Access control and auditability matter for rental operations.",
+  "setup_path": "Begin with leihs-instance and the main repo docs. Validate whether its workflow model matches Hylono rental logistics before deep implementation.",
+  "env": "App secrets, DB settings, mailer, storage paths, base URLs, worker settings, and any identity/SMTP integrations.",
+  "persistence": "Back up database and uploaded files; treat reservations and lending records as operational truth if adopted.",
+  "operations": "User role mapping, reservation policy tuning, upgrade testing, and reporting/export checks.",
+  "failure_points": "Underestimating workflow adaptation, ignoring customer-facing UX requirements, and assuming institutional defaults match premium commercial rental operations.",
+  "integration": "Strong candidate to back rental/access programs, equipment availability, reservation states, and handoff/return operations. Could integrate with Next.js booking flows, CRM, notifications, and billing.",
+  "verify": "Confirm current API/integration surface, multilingual/customer-facing UX suitability, and whether Hylono wants Leihs as the rental source of truth or only as the back-office engine.",
+  "risk": "Moderate. Best functional fit for rentals, but likely needs adaptation work and careful UX/process mapping.",
+  "gdpr": "Contains identifiable booking and equipment assignment data; EU hosting is a positive fit if deployed carefully.",
+  "recommendation": "PRIORITY CANDIDATE FOR RENTAL OPERATIONS",
+  "priority": 12,
+  "overlap": "Preferred over Snipe-IT for lending/rental. Could overlap partly with custom booking flows or Fleetbase logistics later.",
+  "codex_read_first": "Read the main repo and leihs-instance deployment blueprint before proposing rental-system design.",
+  "codex_best_path": "Prototype Leihs as a back-office rental engine first. Expose only the customer-facing pieces needed through Hylono\u2019s Next.js site or APIs.",
+  "codex_never_assume": "Never assume Leihs customer UX is ready for direct exposure without adaptation. Never assume its institutional workflow defaults match commercial rental needs.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/leihs/leihs",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify current repo license",
+      "version": "7.13.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Leihs instance deployment repo",
+      "url": "https://github.com/leihs/leihs-instance",
+      "kind": "deployment blueprint",
+      "status": "indexed-only",
+      "license": "verify current repo license",
+      "version": "current",
+      "notes": "Best practical self-host starting point.",
+      "outdated": false
+    },
+    {
+      "name": "Release page",
+      "url": "https://github.com/leihs/leihs/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "n/a",
+      "version": "7.13.0",
+      "notes": "Version reference.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/leihs/leihs",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.13.0",
+      "why": "Primary implementation source."
+    },
+    {
+      "url": "https://github.com/leihs/leihs-instance",
+      "type": "official deployment repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Useful deployment blueprint."
+    },
+    {
+      "url": "https://github.com/leihs/leihs/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.13.0",
+      "why": "Confirms version researched."
+    }
+  ]
+}

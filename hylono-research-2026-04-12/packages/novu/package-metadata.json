@@ -1,0 +1,97 @@
+{
+  "name": "Novu",
+  "slug": "novu",
+  "group": "Phase 1A",
+  "status_context": "RUNNING",
+  "researched_as": "Novu notification infrastructure platform",
+  "version": "Platform v3.13.0 observed; JS SDK v3.14.0 also current",
+  "version_status": "CONFIRMED",
+  "license": "MIT core with commercial/open-core enterprise layers",
+  "license_status": "CONFIRMED",
+  "what": "Notification infrastructure platform for email, SMS, push, in-app, and chat notifications with workflows, providers, and templates.",
+  "solves": "Centralized transactional notification orchestration, provider abstraction, templates, preference handling, and event-driven workflow logic.",
+  "users": "Product teams and platform teams that want one notification layer rather than bespoke channel logic in every application.",
+  "fit": "Very high fit. Hylono already uses Novu, and it aligns with booking events, checkout updates, rental lifecycle messaging, service reminders, support notifications, and internal ops alerts.",
+  "runtime": "API/service layer with worker processes, Redis, MongoDB, storage, provider connectors, and workflow/template management.",
+  "components": "API, dashboard, workers, Redis, MongoDB, outbound channel providers, templates, and webhooks.",
+  "deploy": "Self-host via official guides on VMs/containers; production deployments need Redis, MongoDB, storage, secrets, and provider configuration.",
+  "deps": "MongoDB, Redis, storage, outbound providers, TLS/reverse proxy, and worker scaling.",
+  "datastores": "MongoDB plus Redis; object/file storage depending on feature use.",
+  "auth": "API keys, dashboard auth, workspace/user controls, and provider credentials.",
+  "apis": "REST APIs, SDKs, webhooks, event triggers, templates, and provider integrations.",
+  "complexity": "Medium",
+  "security": "Notification payloads can contain PII and order/service context. Keep provider creds in a secrets system, scope API keys, and minimize sensitive data in templates.",
+  "setup_path": "Start from official self-host overview, validate required MongoDB/Redis/storage dependencies, and test outbound providers end-to-end before production use.",
+  "env": "Mongo URL, Redis URL, storage config, API keys, JWT/app secrets, provider credentials, and base URLs.",
+  "persistence": "Back up MongoDB, preserve template/workflow definitions, and version control IaC for deployment settings.",
+  "operations": "Watch queue backlogs, provider failures, webhook retries, payload drift, and version compatibility across API/dashboard/workers.",
+  "failure_points": "Assuming provider abstraction removes deliverability work, under-sizing worker/queue capacity, and storing too much sensitive context in notification payloads.",
+  "integration": "Direct fit with Next.js API routes, Stripe events, rental flows, Cal.com bookings, CRM updates, n8n workflows, and operational alerting.",
+  "verify": "Define which notifications stay in Novu versus Resend-only direct sends, and whether customer preferences live in Novu, the site database, or both.",
+  "risk": "Moderate. High leverage, but notification systems fail noisily if payload ownership, templates, or provider ops are weak.",
+  "gdpr": "Contains user contact details and event context. Respect consent/preferences, minimize sensitive content, and prefer EU-hosted supporting infrastructure where possible.",
+  "recommendation": "KEEP AND HARDEN EARLY",
+  "priority": 6,
+  "overlap": "Overlaps with direct Resend sends, basic n8n notifications, Listmonk campaigns, and Mautic journeys, but Novu should remain the transactional notification backbone.",
+  "codex_read_first": "Read the self-host overview, API/webhook references, and current Hylono messaging flows before adding new templates or events.",
+  "codex_best_path": "Use Novu as the event-driven transactional layer and keep channel provider credentials outside application code. Feed it from site events and orchestration workflows.",
+  "codex_never_assume": "Never assume template variables, provider support, or webhook/event semantics without testing on the current platform version.",
+  "assets": [
+    {
+      "name": "Self-host overview",
+      "url": "https://docs.novu.co/platform/self-hosting/overview",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Primary deployment guidance.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/novuhq/novu",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT core/open-core",
+      "version": "v3.13.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Webhook docs",
+      "url": "https://docs.novu.co/platform/webhooks/introduction",
+      "kind": "integration docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful for event and workflow integration.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/novuhq/novu/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.13.0",
+      "why": "Confirms current platform release researched."
+    },
+    {
+      "url": "https://docs.novu.co/platform/self-hosting/overview",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports required runtime dependency analysis."
+    },
+    {
+      "url": "https://github.com/novuhq/novu",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.13.0",
+      "why": "Primary code and licensing source."
+    }
+  ]
+}

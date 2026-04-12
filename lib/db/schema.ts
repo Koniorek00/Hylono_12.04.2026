@@ -44,6 +44,7 @@ export const contactInquiriesTable = pgTable('contact_inquiries', {
   phone: text('phone'),
   company: text('company'),
   inquiryType: text('inquiry_type').notNull(),
+  submissionHash: text('submission_hash'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -59,6 +60,7 @@ export const bookingRequestsTable = pgTable('booking_requests', {
   techInterest: text('tech_interest'),
   notes: text('notes'),
   bookingType: text('booking_type').notNull(),
+  submissionHash: text('submission_hash'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -77,13 +79,18 @@ export const checkoutOrdersTable = pgTable('checkout_orders', {
   orderId: text('order_id').notNull().unique(),
   paymentMethod: text('payment_method').notNull(),
   email: text('email').notNull(),
+  requestFingerprint: text('request_fingerprint'),
   shipping: jsonb('shipping').$type<CheckoutShippingRecord>().notNull(),
   items: jsonb('items').$type<CheckoutOrderItemRecord[]>().notNull(),
   totalCents: integer('total_cents').notNull(),
   currency: text('currency').notNull().default('pln'),
   status: text('status').notNull(),
   stripePaymentIntentId: text('stripe_payment_intent_id'),
+  stripeClientSecret: text('stripe_client_secret'),
+  lastErrorMessage: text('last_error_message'),
+  paidAt: timestamp('paid_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const rentalApplicationsTable = pgTable('rental_applications', {
@@ -95,5 +102,14 @@ export const rentalApplicationsTable = pgTable('rental_applications', {
   termMonths: integer('term_months').notNull(),
   status: text('status').notNull(),
   totalMonthlyCents: integer('total_monthly_cents').notNull(),
+  submissionHash: text('submission_hash'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const stripeWebhookEventsTable = pgTable('stripe_webhook_events', {
+  id: text('id').primaryKey(),
+  eventType: text('event_type').notNull(),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  orderId: text('order_id'),
+  processedAt: timestamp('processed_at', { withTimezone: true }).notNull().defaultNow(),
 });

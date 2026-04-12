@@ -1,0 +1,97 @@
+{
+  "name": "Fleetbase",
+  "slug": "fleetbase",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Fleetbase logistics and fleet operations platform",
+  "version": "v0.7.29",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source logistics/fleet management platform for dispatch, tracking, operations, and extensible fleet workflows.",
+  "solves": "Driver/fleet operations, dispatch, route and order coordination, vehicle/resource oversight, and logistics extensions.",
+  "users": "Logistics operators, delivery businesses, and internal fleet teams.",
+  "fit": "Conditional. Useful only if Hylono runs meaningful delivery/installation/field-service logistics beyond simple shipment handling.",
+  "runtime": "Laravel/PHP platform with modular extensions, database, web app, API, and infrastructure assets including Docker Compose and Helm.",
+  "components": "Core platform, extensions, DB, admin UI, APIs, and logistics entities such as vehicles/drivers/orders.",
+  "deploy": "Self-hosting appears well-supported in repo assets (compose, Helm, Caddy). Still only justified if logistics becomes a true internal capability.",
+  "deps": "Database, storage, mail, reverse proxy, scheduler/jobs, mapping/tracking integrations depending on use case.",
+  "datastores": "Relational database plus extension data.",
+  "auth": "Local roles/users and API access; verify SSO options if needed.",
+  "apis": "Platform APIs and extension surfaces for logistics workflows.",
+  "complexity": "High",
+  "security": "May include driver/operator data, location data, and customer order context. Strong access control and data minimization are necessary.",
+  "setup_path": "Start from repo blueprints only after confirming a real logistics use case; otherwise keep it off the active roadmap.",
+  "env": "DB settings, app URL, mail, storage, map/tracking provider keys, scheduler/job config, and reverse-proxy settings.",
+  "persistence": "Back up DB and any operational document storage; location/event data retention needs policy.",
+  "operations": "Extension compatibility, dispatch workflow quality, mobile/operator UX, and data retention all require attention.",
+  "failure_points": "Deploying it without a real fleet/logistics domain, or overlapping responsibilities with Leihs, CMMS, and standard shipping tooling.",
+  "integration": "Could connect to rental deliveries, service visits, and field operations if Hylono grows an internal fleet/service organization.",
+  "verify": "Confirm whether Hylono actually has or plans a managed delivery/install fleet. If not, Fleetbase is likely unnecessary.",
+  "risk": "High redundancy risk unless logistics is core.",
+  "gdpr": "Location and operator data increase privacy sensitivity.",
+  "recommendation": "LATER / ONLY IF FLEET OPERATIONS BECOME REAL",
+  "priority": 35,
+  "overlap": "Overlaps partially with Leihs/CMMS for operational assets and with generic dispatch tools.",
+  "codex_read_first": "Read the Hylono operating model before touching Fleetbase.",
+  "codex_best_path": "Do not implement unless a real dispatch/fleet use case is confirmed.",
+  "codex_never_assume": "Never assume shipping or rental logistics automatically justify a fleet platform.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/fleetbase/fleetbase",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v0.7.29",
+      "notes": "Contains docker-compose and helm assets.",
+      "outdated": false
+    },
+    {
+      "name": "Helm assets in repo",
+      "url": "https://github.com/fleetbase/fleetbase/tree/development/infra/helm",
+      "kind": "helm charts",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "current",
+      "notes": "Useful if K8s deployment is ever needed.",
+      "outdated": false
+    },
+    {
+      "name": "Docker Compose in repo",
+      "url": "https://github.com/fleetbase/fleetbase/blob/development/docker-compose.yml",
+      "kind": "compose blueprint",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "current",
+      "notes": "Useful quick-start reference.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/fleetbase/fleetbase/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.7.29",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://github.com/fleetbase/fleetbase",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.7.29",
+      "why": "Primary code and asset source."
+    },
+    {
+      "url": "https://www.fleetbase.io/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Product positioning and docs entry point."
+    }
+  ]
+}

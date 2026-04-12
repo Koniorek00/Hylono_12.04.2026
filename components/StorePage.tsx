@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { RentalConfigurator } from './RentalConfigurator';
 import {
     ArrowRight,
     ShieldCheck,
     Truck,
     ChevronRight,
+    MessageCircle,
     Zap,
     Sparkles,
     Activity,
@@ -19,9 +20,19 @@ import {
 import { useTech } from '../hooks/useTech';
 import { TechData, TechType } from '../types';
 import { analytics } from '../src/lib/analytics';
-import { FilterState, ProductFilters } from './ProductFilters';
+import type { FilterState } from './ProductFilters';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { products as catalogProducts } from '../content/products';
+
+const RentalConfigurator = dynamic(
+    () => import('./RentalConfigurator').then((module) => ({ default: module.RentalConfigurator })),
+    { ssr: false, loading: () => null }
+);
+
+const ProductFilters = dynamic(
+    () => import('./ProductFilters').then((module) => ({ default: module.ProductFilters })),
+    { ssr: false, loading: () => null }
+);
 
 interface StorePageProps {
     onNavigate: (page: string) => void;
@@ -192,72 +203,76 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
         onSelectTech(tech.id);
     }, [onSelectTech]);
 
+    const modeSummary =
+        mode === 'RENT'
+            ? 'Choose rental when you want to test space, routine fit, and long-term confidence before committing.'
+            : 'Choose purchase when you are ready for full ownership, financing, and the complete technical comparison.';
+
     return (
         <div className="min-h-screen pt-10 pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
 
             {/* Hero Header */}
             <div className="text-center mb-12">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={false}
                     animate={{ opacity: 1, y: 0 }}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-50 text-cyan-600 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] mb-6"
                 >
                     <Sparkles size={12} /> Research-Grade Bio-Optimization
                 </motion.div>
-                <h1 id="store-hero-headline" className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-900 mb-4 futuristic-font leading-tight">
-                    Technology <span className="text-cyan-500">+</span> Protocol
+                <h1 id="store-hero-headline" className="mb-4 text-4xl font-bold leading-tight text-slate-900 futuristic-font sm:text-5xl md:text-6xl">
+                    Choose the right technology, then choose how to start
                 </h1>
-                <p id="store-hero-description" className="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
-                    Compare device categories, rental pricing, purchase paths, and protocol fit before you move into specifications, research, and delivery planning.
+                <p id="store-hero-description" className="text-slate-400 max-w-2xl mx-auto text-sm leading-relaxed">
+                    Compare device categories, pricing, rental access, and protocol fit before you move into specifications, research, and delivery planning.
                 </p>
             </div>
 
-            {/* Not Sure? Quiz Entry */}
             <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center justify-center gap-4 mb-8"
-            >
-                <div className="flex items-center gap-3 px-6 py-3 bg-slate-50 border border-slate-200 rounded-2xl">
-                    <Zap size={16} className="text-cyan-500" />
-                    <span className="text-sm text-slate-500">Not sure which technology is right for you?</span>
-                    <Link
-                        href="/wellness-planner"
-                        className="text-sm font-bold text-cyan-600 hover:text-cyan-700 flex items-center gap-1 transition-colors"
-                    >
-                        Use the guided planner <ChevronRight size={14} />
-                    </Link>
-                </div>
-            </motion.div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
                 className="mb-12"
             >
-                <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
-                        Planning links
-                    </span>
+                <div className="mx-auto grid max-w-5xl gap-3 md:grid-cols-3">
                     <Link
-                        href="/rental"
-                        className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        href="/wellness-planner"
+                        prefetch={false}
+                        className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition-colors hover:border-cyan-200 hover:bg-cyan-50/40"
                     >
-                        Rental hub
+                        <div className="flex items-center gap-3">
+                            <Zap size={18} className="text-cyan-500" />
+                            <span className="text-sm font-semibold text-slate-900">Get matched first</span>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-600">
+                            Use the planner if you want a recommendation before comparing specs.
+                        </p>
                     </Link>
                     <Link
-                        href="/research"
-                        className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        href="/rental"
+                        prefetch={false}
+                        className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition-colors hover:border-cyan-200 hover:bg-cyan-50/40"
                     >
-                        Research hub
+                        <div className="flex items-center gap-3">
+                            <Truck size={18} className="text-cyan-500" />
+                            <span className="text-sm font-semibold text-slate-900">Start with rental</span>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-600">
+                            Lower upfront cost, guided onboarding, and a clearer try-before-you-buy path.
+                        </p>
                     </Link>
                     <Link
                         href="/contact"
-                        className="inline-flex min-h-11 items-center rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        prefetch={false}
+                        className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition-colors hover:border-cyan-200 hover:bg-cyan-50/40"
                     >
-                        Talk to Hylono
+                        <div className="flex items-center gap-3">
+                            <MessageCircle size={18} className="text-cyan-500" />
+                            <span className="text-sm font-semibold text-slate-900">Talk to Hylono</span>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-600">
+                            Ask about delivery, financing, clinic use, or which system fits your space.
+                        </p>
                     </Link>
                 </div>
             </motion.div>
@@ -280,6 +295,9 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                     </button>
                 </div>
             </div>
+            <p className="mx-auto mb-16 max-w-2xl text-center text-sm text-slate-500">
+                {modeSummary}
+            </p>
 
             {/* RENTAL MODE */}
             <AnimatePresence mode="wait">
@@ -409,27 +427,38 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center gap-3 w-full sm:w-auto">
-                                                    {/* Explore CTA */}
-                                                    <Link
-                                                        href={`/product/${tech.id.toLowerCase()}`}
-                                                        onClick={(event) => event.stopPropagation()}
-                                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] group-hover:bg-cyan-500 transition-colors"
-                                                    >
-                                                        Explore <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
-                                                    {/* HBOT-only: Browse Chambers CTA */}
-                                                    {tech.id === TechType.HBOT && onNavigateChambers && (
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onNavigateChambers();
-                                                            }}
-                                                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3.5 bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-cyan-100 transition-colors"
+                                                <div className="flex flex-col gap-3 w-full sm:w-auto">
+                                                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                                                        <Link
+                                                            href={`/product/${tech.id.toLowerCase()}`}
+                                                            prefetch={false}
+                                                            onClick={(event) => event.stopPropagation()}
+                                                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] group-hover:bg-cyan-500 transition-colors"
                                                         >
-                                                            <Wind size={13} />
-                                                            Chambers
-                                                        </button>
+                                                            View Details <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                        </Link>
+                                                        {tech.id === TechType.HBOT && onNavigateChambers && (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onNavigateChambers();
+                                                                }}
+                                                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3.5 bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-cyan-100 transition-colors"
+                                                            >
+                                                                <Wind size={13} />
+                                                                Compare Chambers
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    {tech.rentalPrice && (
+                                                        <Link
+                                                            href={`/product/${tech.id.toLowerCase()}?mode=rental`}
+                                                            prefetch={false}
+                                                            onClick={(event) => event.stopPropagation()}
+                                                            className="inline-flex items-center justify-center text-xs font-semibold text-cyan-700 transition-colors hover:text-cyan-800"
+                                                        >
+                                                            Start with rental from EUR {tech.rentalPrice}/mo
+                                                        </Link>
                                                     )}
                                                 </div>
                                             </div>

@@ -1,6 +1,6 @@
 import React, { useActionState, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Calendar, Clock, X, User, Mail, Phone, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, X, User, Check, ChevronLeft } from 'lucide-react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { submitBookingFormAction, type FormActionResult } from '../src/actions/formActions';
 
@@ -11,31 +11,29 @@ interface BookingModalProps {
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, productName }) => {
-    const [step, setStep] = useState<'date' | 'time' | 'info' | 'confirm'>('date');
+    const [step, setStep] = useState<'date' | 'time' | 'info'>('date');
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [info, setInfo] = useState({ name: '', email: '', phone: '', notes: '' });
-    const [booked, setBooked] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
     const [bookingError, setBookingError] = useState<string | null>(null);
     const [bookingRef, setBookingRef] = useState<string | null>(null);
     const [bookingActionState, bookingFormAction, bookingPending] = useActionState<FormActionResult, FormData>(
         submitBookingFormAction,
         { success: false, message: '' }
     );
-    
-    // Focus trap for accessibility
-    const trapRef = useFocusTrap({ 
-        active: isOpen, 
+
+    const trapRef = useFocusTrap({
+        active: isOpen,
         onDeactivate: onClose,
         escapeDeactivates: true,
-        clickOutsideDeactivates: false
+        clickOutsideDeactivates: false,
     });
 
-    // Generate next 14 days
-    const dates = Array.from({ length: 14 }, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() + i + 1);
-        return d;
+    const dates = Array.from({ length: 14 }, (_, index) => {
+        const date = new Date();
+        date.setDate(date.getDate() + index + 1);
+        return date;
     });
 
     const timeSlots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
@@ -43,7 +41,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
     useEffect(() => {
         if (bookingActionState.success) {
             setBookingRef(bookingActionState.bookingRef ?? null);
-            setBooked(true);
+            setSubmitted(true);
             setBookingError(null);
             return;
         }
@@ -57,7 +55,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
         setStep('date');
         setSelectedDate(null);
         setSelectedTime(null);
-        setBooked(false);
+        setSubmitted(false);
         setBookingError(null);
         setBookingRef(null);
         onClose();
@@ -84,14 +82,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         className="fixed inset-x-4 top-1/2 -translate-y-1/2 max-w-lg mx-auto bg-white rounded-2xl z-50 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
                     >
-                        {booked ? (
+                        {submitted ? (
                             <div className="p-8 text-center">
                                 <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
                                     <Check className="text-white" size={32} />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-900 mb-2">Consultation Booked!</h2>
+                                <h2 className="text-2xl font-bold text-slate-900 mb-2">Consultation request received</h2>
                                 <p className="text-slate-600 mb-2">
-                                    {selectedDate} at {selectedTime}
+                                    Requested slot: {selectedDate} at {selectedTime}
                                 </p>
                                 {bookingRef && (
                                     <p className="text-xs font-mono bg-slate-100 text-slate-500 px-3 py-1 rounded-lg inline-block mb-2">
@@ -99,7 +97,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                     </p>
                                 )}
                                 <p className="text-sm text-slate-400 mb-6">
-                                    We've sent a confirmation to {info.email}
+                                    {bookingActionState.message || `We will review the request and reply to ${info.email}.`}
                                 </p>
                                 <button onClick={resetAndClose} className="px-6 py-3 bg-slate-900 text-white rounded-xl font-medium">
                                     Done
@@ -124,20 +122,32 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                 <Calendar size={18} /> Select Date
                                             </h3>
                                             <div className="grid grid-cols-4 gap-2">
-                                                {dates.map((d) => {
-                                                    const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-                                                    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                                                {dates.map((date) => {
+                                                    const dateLabel = date.toLocaleDateString('en-GB', {
+                                                        weekday: 'short',
+                                                        day: 'numeric',
+                                                        month: 'short',
+                                                    });
+                                                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
                                                     return (
                                                         <button
-                                                            key={dateStr}
+                                                            key={dateLabel}
                                                             disabled={isWeekend}
-                                                            onClick={() => { setSelectedDate(dateStr); setStep('time'); }}
-                                                            className={`p-3 rounded-lg text-center text-sm ui-transition-colors ${isWeekend ? 'bg-slate-50 text-slate-300 cursor-not-allowed' :
-                                                                    selectedDate === dateStr ? 'bg-cyan-500 text-white' : 'bg-slate-100 hover:bg-slate-200'
-                                                                }`}
+                                                            onClick={() => {
+                                                                setSelectedDate(dateLabel);
+                                                                setStep('time');
+                                                            }}
+                                                            className={`p-3 rounded-lg text-center text-sm ui-transition-colors ${
+                                                                isWeekend
+                                                                    ? 'bg-slate-50 text-slate-300 cursor-not-allowed'
+                                                                    : selectedDate === dateLabel
+                                                                        ? 'bg-cyan-500 text-white'
+                                                                        : 'bg-slate-100 hover:bg-slate-200'
+                                                            }`}
                                                         >
-                                                            <div className="font-medium">{d.getDate()}</div>
-                                                            <div className="text-xs opacity-70">{d.toLocaleDateString('en', { weekday: 'short' })}</div>
+                                                            <div className="font-medium">{date.getDate()}</div>
+                                                            <div className="text-xs opacity-70">{date.toLocaleDateString('en', { weekday: 'short' })}</div>
                                                         </button>
                                                     );
                                                 })}
@@ -158,9 +168,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                 {timeSlots.map((time) => (
                                                     <button
                                                         key={time}
-                                                        onClick={() => { setSelectedTime(time); setStep('info'); }}
-                                                        className={`p-3 rounded-lg text-center font-medium ui-transition-colors ${selectedTime === time ? 'bg-cyan-500 text-white' : 'bg-slate-100 hover:bg-slate-200'
-                                                            }`}
+                                                        onClick={() => {
+                                                            setSelectedTime(time);
+                                                            setStep('info');
+                                                        }}
+                                                        className={`p-3 rounded-lg text-center font-medium ui-transition-colors ${
+                                                            selectedTime === time ? 'bg-cyan-500 text-white' : 'bg-slate-100 hover:bg-slate-200'
+                                                        }`}
                                                     >
                                                         {time}
                                                     </button>
@@ -186,8 +200,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     name="name"
                                                     placeholder="Full Name"
                                                     value={info.name}
-                                                    onChange={e => setInfo({ ...info, name: e.target.value })}
+                                                    onChange={(event) => setInfo({ ...info, name: event.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
+                                                    required
                                                 />
                                                 <input
                                                     aria-label="Email"
@@ -195,15 +210,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     placeholder="Email"
                                                     type="email"
                                                     value={info.email}
-                                                    onChange={e => setInfo({ ...info, email: e.target.value })}
+                                                    onChange={(event) => setInfo({ ...info, email: event.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
+                                                    required
                                                 />
                                                 <input
                                                     aria-label="Phone"
                                                     name="phone"
                                                     placeholder="Phone"
                                                     value={info.phone}
-                                                    onChange={e => setInfo({ ...info, phone: e.target.value })}
+                                                    onChange={(event) => setInfo({ ...info, phone: event.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none"
                                                 />
                                                 <textarea
@@ -211,7 +227,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                     name="notes"
                                                     placeholder="Notes (optional)"
                                                     value={info.notes}
-                                                    onChange={e => setInfo({ ...info, notes: e.target.value })}
+                                                    onChange={(event) => setInfo({ ...info, notes: event.target.value })}
                                                     className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-cyan-500 focus:outline-none h-24 resize-none"
                                                 />
                                             </div>
@@ -231,9 +247,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
                                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                                                         </svg>
-                                                        Booking…
+                                                        Submitting...
                                                     </>
-                                                ) : 'Confirm Booking'}
+                                                ) : 'Send Request'}
                                             </button>
                                         </form>
                                     )}
@@ -247,7 +263,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pro
     );
 };
 
-// Book Demo Button Component
 export const BookDemoButton: React.FC<{ productName?: string; className?: string }> = ({ productName, className = '' }) => {
     const [showModal, setShowModal] = useState(false);
 
@@ -263,4 +278,3 @@ export const BookDemoButton: React.FC<{ productName?: string; className?: string
         </>
     );
 };
-

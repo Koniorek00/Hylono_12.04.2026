@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { auth } from '@/lib/auth';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { RewardsClient } from './RewardsClient';
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 // [DECISION: SSR because rewards visibility can depend on authenticated user state.]
-export default function RewardsPageRoute() {
-  return <RewardsClient />;
+export default async function RewardsPageRoute() {
+  const session = await auth();
+
+  return <RewardsClient isAuthenticated={Boolean(session?.user?.email)} />;
 }

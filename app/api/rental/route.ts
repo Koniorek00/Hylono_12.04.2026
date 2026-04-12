@@ -1,10 +1,20 @@
 import { z } from 'zod';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, gte, ne } from 'drizzle-orm';
+import { auth } from '@/lib/auth';
+import { resolveRentalPlan } from '@/lib/commerce/rental-catalog';
 import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
 import { rentalApplicationsTable, type RentalContactRecord } from '@/lib/db/schema';
 import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
 import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
 import { syncPersonAndFollowUpToTwenty } from '@/lib/integrations/twenty';
+import {
+    buildRequestFingerprint,
+    recentSubmissionThreshold,
+} from '../_shared/fingerprints';
+import {
+    createRateLimitResponse,
+    consumeRateLimit,
+} from '../_shared/rate-limit';
 import {
     readJsonBody,
     sanitizeText,
@@ -86,6 +96,12 @@ const createRentalPayloadSchema = z.object({
     termMonths: z.number().int().min(1).max(60).optional().default(12),
 }) satisfies z.ZodType<CreateRentalPayload>;
 
+const RENTAL_RATE_LIMIT = {
+    bucket: 'rental',
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+} as const;
+
 const normalizeEmail = (value: string): string =>
     sanitizeText(value, {
         maxLength: 254,
@@ -105,15 +121,36 @@ const normalizeUserId = (userId: string): string => {
     }).toLowerCase();
 };
 
-const normalizeRentalItems = (items: RentalItem[]): RentalItem[] =>
-    items.map((item) => ({
-        techId: sanitizeText(item.techId, {
+const normalizeRentalItems = (
+    items: RentalItem[],
+    termMonths: number
+): RentalItem[] | null => {
+    const resolvedItems = items.map((item) => {
+        const normalizedTechId = sanitizeText(item.techId, {
             maxLength: 80,
             context: 'slug',
-        }).toLowerCase(),
-        quantity: item.quantity,
-        monthlyPrice: Number(item.monthlyPrice.toFixed(2)),
-    }));
+        }).toLowerCase();
+        const resolvedPlan = resolveRentalPlan(normalizedTechId, termMonths);
+
+        if (!resolvedPlan) {
+            return null;
+        }
+
+        return {
+            techId: resolvedPlan.productId,
+            quantity: item.quantity,
+            monthlyPrice: Number(resolvedPlan.monthlyPrice.toFixed(2)),
+        } satisfies RentalItem;
+    });
+
+    if (resolvedItems.some((item) => item === null)) {
+        return null;
+    }
+
+    return resolvedItems.filter(
+        (item): item is RentalItem => Boolean(item)
+    );
+};
 
 const toMinorUnit = (value: number): number => Math.round(value * 100);
 
@@ -188,6 +225,14 @@ function inferCompanyNameFromEmail(email: string): string | undefined {
  */
 export async function POST(request: Request): Promise<Response> {
     try {
+        const rateLimitState = consumeRateLimit(request, RENTAL_RATE_LIMIT);
+        if (!rateLimitState.allowed) {
+            return createRateLimitResponse(
+                rateLimitState,
+                'Too many rental requests. Please wait a few minutes and try again.'
+            );
+        }
+
         const rawBody = await readJsonBody(request);
         const parsed = createRentalPayloadSchema.safeParse(rawBody);
 
@@ -219,7 +264,17 @@ export async function POST(request: Request): Promise<Response> {
             company,
         });
         const normalizedUserId = normalizeUserId(userId ?? normalizedContact.email);
-        const normalizedItems = normalizeRentalItems(items);
+        const normalizedItems = normalizeRentalItems(items, termMonths);
+
+        if (!normalizedItems) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'One or more rental items or term selections are invalid. Please refresh and try again.',
+                } satisfies RentalCreateResponse,
+                { status: 400 }
+            );
+        }
 
         if (!isDatabaseConfigured()) {
             console.error('[RentalAPI] DATABASE_URL missing; cannot persist rental application');
@@ -239,6 +294,46 @@ export async function POST(request: Request): Promise<Response> {
             (sum, item) => sum + item.monthlyPrice * item.quantity,
             0
         );
+        const submissionHash = buildRequestFingerprint({
+            contact: normalizedContact,
+            items: normalizedItems,
+            termMonths,
+            userId: normalizedUserId,
+        });
+        const duplicateAfter = recentSubmissionThreshold();
+        const recentDuplicate = (await db
+            .select()
+            .from(rentalApplicationsTable)
+            .where(
+                and(
+                    eq(rentalApplicationsTable.submissionHash, submissionHash),
+                    gte(rentalApplicationsTable.createdAt, duplicateAfter)
+                )
+            ))
+            .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
+
+        if (recentDuplicate) {
+            const duplicateRental: RentalResponse = {
+                id: recentDuplicate.rentalId,
+                userId: recentDuplicate.userId,
+                contact:
+                    (recentDuplicate.contact as RentalContactRecord | null) ?? null,
+                items: recentDuplicate.items,
+                termMonths: recentDuplicate.termMonths,
+                status: recentDuplicate.status as RentalResponse['status'],
+                totalMonthly: fromMinorUnit(recentDuplicate.totalMonthlyCents),
+                createdAt: recentDuplicate.createdAt.toISOString(),
+            };
+
+            return Response.json(
+                {
+                    success: true,
+                    message: `We already received this rental request. Reference: ${duplicateRental.id}.`,
+                    rental: duplicateRental,
+                } satisfies RentalCreateResponse,
+                { status: 200 }
+            );
+        }
 
         const rentalId = crypto.randomUUID();
         const createdAt = new Date();
@@ -252,6 +347,7 @@ export async function POST(request: Request): Promise<Response> {
             termMonths,
             status: 'pending',
             totalMonthlyCents: toMinorUnit(totalMonthlyAmount),
+            submissionHash,
             createdAt,
         });
 
@@ -374,9 +470,26 @@ export async function POST(request: Request): Promise<Response> {
  */
 export async function GET(request: Request): Promise<Response> {
     try {
+        const session = await auth();
+        const sessionEmail = session?.user?.email
+            ? normalizeUserId(session.user.email)
+            : '';
+
+        if (!sessionEmail) {
+            return Response.json(
+                {
+                    success: false,
+                    message: 'Authentication required.',
+                    rentals: [],
+                } satisfies RentalListResponse,
+                { status: 401 }
+            );
+        }
+
         const url = new URL(request.url);
-        const rawUserId = url.searchParams.get('userId') ?? url.searchParams.get('email');
-        const userId = rawUserId ? normalizeUserId(rawUserId) : '';
+        const rawUserId =
+            url.searchParams.get('userId') ?? url.searchParams.get('email');
+        const userId = rawUserId ? normalizeUserId(rawUserId) : sessionEmail;
 
         if (!isDatabaseConfigured()) {
             return Response.json(
@@ -389,14 +502,14 @@ export async function GET(request: Request): Promise<Response> {
             );
         }
 
-        if (!userId) {
+        if (userId !== sessionEmail) {
             return Response.json(
                 {
                     success: false,
-                    message: 'Missing query param: userId',
+                    message: 'You are not allowed to access rental records for another account.',
                     rentals: [],
                 } satisfies RentalListResponse,
-                { status: 400 }
+                { status: 403 }
             );
         }
 

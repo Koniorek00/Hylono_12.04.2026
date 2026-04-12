@@ -23,6 +23,7 @@ import { ProtocolCard } from './protocols/ProtocolCard';
 import { FeatureGate } from './FeatureGate';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { pdpCommerceContent } from '../content/pdpCommerce';
+import { getProductTopicalLinks } from '../content/topical-graph';
 import { ChamberCompare5, ChamberCompareDock5 } from './ChamberCompare5';
 import { OptimizedImage } from './shared/OptimizedImage';
 import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
@@ -31,6 +32,7 @@ import { ResearchOverviewSection } from './product/detail/ResearchOverviewSectio
 import { TechDetailDeliverySection } from './product/detail/TechDetailDeliverySection';
 import { TechDetailTimelineSection } from './product/detail/TechDetailTimelineSection';
 import { RESULT_TIMELINES } from './product/detail/resultTimelines';
+import { HydrogenModelLibrary } from './product/hydrogen/HydrogenModelLibrary';
 
 function renderChamberDescription(text: string): React.ReactNode {
     return text.split('\n').map((line, i) => {
@@ -119,26 +121,6 @@ const HBOT_TYPE_LABELS: Record<ChamberType, string> = {
     soft: 'Soft Chamber',
 };
 
-const TECH_ROUTE_CLUSTER_LINKS: Partial<
-    Record<TechType, Array<{ href: string; label: string }>>
-> = {
-    [TechType.HBOT]: [
-        { href: '/conditions/recovery', label: 'Recovery condition' },
-        { href: '/conditions/vitality', label: 'Vitality condition' },
-    ],
-    [TechType.PEMF]: [
-        { href: '/conditions/recovery', label: 'Recovery condition' },
-        { href: '/conditions/sleep', label: 'Sleep condition' },
-    ],
-    [TechType.RLT]: [
-        { href: '/conditions/comfort', label: 'Comfort condition' },
-        { href: '/conditions/recovery', label: 'Recovery condition' },
-    ],
-    [TechType.HYDROGEN]: [
-        { href: '/conditions/stress', label: 'Stress condition' },
-        { href: '/conditions/vitality', label: 'Vitality condition' },
-    ],
-};
 const HBOT_TYPE_BADGE_CLASSES: Record<ChamberType, string> = {
     monoplace: 'bg-blue-100 text-blue-700',
     multiplace: 'bg-violet-100 text-violet-700',
@@ -347,28 +329,11 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
             .filter((card) => card.modalities.some((modality) => mappedModalities.includes(modality)));
     }, [data.id]);
     const routeClusterLinks = useMemo(() => {
-        const baseLinks = TECH_ROUTE_CLUSTER_LINKS[data.id] ?? [];
-        const protocolLinks = relatedProtocolCards.slice(0, 2).map((protocolCard) => ({
-            href: `/protocols/${protocolCard.slug}`,
-            label: protocolCard.title,
-        }));
-        const utilityLinks = [
-            { href: '/research', label: 'Research evidence' },
-            { href: '/rental', label: 'Rental planning' },
-            { href: '/contact', label: 'Talk to Hylono' },
-        ];
-
-        const seen = new Set<string>();
-
-        return [...baseLinks, ...protocolLinks, ...utilityLinks].filter((link) => {
-            if (seen.has(link.href)) {
-                return false;
-            }
-
-            seen.add(link.href);
-            return true;
-        });
-    }, [data.id, relatedProtocolCards]);
+        return getProductTopicalLinks(
+            techSlug,
+            relatedProtocolCards.slice(0, 2).map((protocolCard) => protocolCard.slug)
+        );
+    }, [relatedProtocolCards, techSlug]);
 
     const resultTimeline = RESULT_TIMELINES[data.id];
 
@@ -735,6 +700,8 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                     </div>
                 </div>
             </section>
+
+            {data.id === TechType.HYDROGEN && <HydrogenModelLibrary />}
 
             {/* === HBOT TOP MODEL SPOTLIGHT === */}
             {data.id === TechType.HBOT && selectedHbotChamber && (

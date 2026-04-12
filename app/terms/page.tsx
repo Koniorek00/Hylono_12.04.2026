@@ -5,13 +5,14 @@ import { env } from '@/lib/env';
 import { ORGANIZATION_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
-import { TermsClient } from './TermsClient';
+import { TermsOfServicePage } from '@/components/legal/PolicyPages';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Hylono Terms & Conditions | Orders, Rentals, and Platform Use',
-  description: 'Review Hylono terms and conditions for orders, rentals, services, and platform usage.',
+  title: 'Hylono Terms of Service | Orders, Payments, and Site Use',
+  description:
+    'Review the public terms governing Hylono site use, checkout methods, wellness-product positioning, and linked purchase policies.',
   path: '/terms',
 });
 
@@ -24,9 +25,9 @@ export default function TermsPageRoute() {
           id="jsonld-terms-page"
           data={{
             ...createWebPageSchema({
-              name: 'Hylono Terms & Conditions',
+              name: 'Hylono Terms of Service',
               description:
-                'Review Hylono terms and conditions for orders, rentals, services, and platform usage.',
+                'Review the public terms governing Hylono site use, checkout methods, wellness-product positioning, and linked purchase policies.',
               path: '/terms',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
@@ -39,11 +40,11 @@ export default function TermsPageRoute() {
           id="jsonld-terms-breadcrumb"
           data={createBreadcrumbSchema([
             { name: 'Home', path: '/' },
-            { name: 'Terms & Conditions', path: '/terms' },
+            { name: 'Terms of Service', path: '/terms' },
           ])}
         />
       </Suspense>
-      <TermsClient />
+      <TermsOfServicePage />
     </>
   );
 }

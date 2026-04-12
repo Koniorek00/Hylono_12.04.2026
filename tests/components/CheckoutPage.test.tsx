@@ -46,6 +46,15 @@ import { CheckoutPage } from '../../components/CheckoutPage';
 
 const mockNavigate = () => vi.fn() as (page: string) => void;
 
+function fillShippingFields() {
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'Ada' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Lovelace' } });
+    fireEvent.change(screen.getByLabelText(/^email$/i), { target: { value: 'ada@example.com' } });
+    fireEvent.change(screen.getByLabelText(/street address/i), { target: { value: '1 Analytical Engine Way' } });
+    fireEvent.change(screen.getByLabelText(/^city$/i), { target: { value: 'London' } });
+    fireEvent.change(screen.getByLabelText(/postal code/i), { target: { value: 'SW1A 1AA' } });
+}
+
 function mockFetchSuccess(orderId = 'ORD-TEST-001') {
     mockSubmitCheckoutFormAction.mockResolvedValueOnce({
         success: true,
@@ -70,14 +79,20 @@ function mockFetchNetworkError() {
 
 // Helper: navigate CheckoutPage from 'shipping' → 'payment' → 'confirm'
 async function navigateToConfirm() {
-    // Step 1: shipping → payment
-    const continueToPayment = screen.queryByRole('button', { name: /continue to payment/i });
-    if (continueToPayment) fireEvent.click(continueToPayment);
+    fillShippingFields();
 
-    // Step 2: payment → confirm
+    const continueToPayment = screen.getByRole('button', { name: /continue to payment/i });
+    fireEvent.click(continueToPayment);
+
     await waitFor(() => {
-        const reviewOrder = screen.queryByRole('button', { name: /review order/i });
-        if (reviewOrder) fireEvent.click(reviewOrder);
+        expect(screen.queryByText(/payment method/i)).not.toBeNull();
+    });
+
+    const reviewOrder = screen.getByRole('button', { name: /review order/i });
+    fireEvent.click(reviewOrder);
+
+    await waitFor(() => {
+        expect(screen.queryByText(/review your order/i)).not.toBeNull();
     });
 }
 
@@ -117,9 +132,9 @@ describe('CheckoutPage', () => {
 
     it('advances from shipping to payment step on "Continue to Payment"', async () => {
         render(<CheckoutPage onNavigate={mockNavigate()} />);
-        const btn = screen.queryByRole('button', { name: /continue to payment/i });
-        expect(btn).not.toBeNull();
-        if (btn) fireEvent.click(btn);
+        fillShippingFields();
+        const btn = screen.getByRole('button', { name: /continue to payment/i });
+        fireEvent.click(btn);
 
         await waitFor(() => {
             expect(screen.queryByText(/payment method/i)).not.toBeNull();
@@ -128,15 +143,16 @@ describe('CheckoutPage', () => {
 
     it('advances from payment to confirm step on "Review Order"', async () => {
         render(<CheckoutPage onNavigate={mockNavigate()} />);
-        // Go to payment
-        const toPayment = screen.queryByRole('button', { name: /continue to payment/i });
-        if (toPayment) fireEvent.click(toPayment);
+        fillShippingFields();
+        const toPayment = screen.getByRole('button', { name: /continue to payment/i });
+        fireEvent.click(toPayment);
 
         await waitFor(() => {
-            const toConfirm = screen.queryByRole('button', { name: /review order/i });
-            expect(toConfirm).not.toBeNull();
-            if (toConfirm) fireEvent.click(toConfirm);
+            expect(screen.queryByText(/payment method/i)).not.toBeNull();
         });
+
+        const toConfirm = screen.getByRole('button', { name: /review order/i });
+        fireEvent.click(toConfirm);
 
         await waitFor(() => {
             expect(screen.queryByText(/review your order/i)).not.toBeNull();
@@ -254,7 +270,7 @@ describe('CheckoutPage', () => {
             const calls = mockSubmitCheckoutFormAction.mock.calls;
             if (calls.length === 0) return;
             const [, submittedFormData] = calls[0] as [unknown, FormData];
-            expect(submittedFormData.get('paymentMethod')).toBe('card');
+            expect(submittedFormData.get('paymentMethod')).toBe('bank_transfer');
         });
     });
 });

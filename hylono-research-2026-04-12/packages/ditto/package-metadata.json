@@ -1,0 +1,97 @@
+{
+  "name": "Ditto",
+  "slug": "ditto",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Dittofeed [INFERRED]",
+  "version": "Current self-host docs available; exact stable version UNVERIFIED",
+  "version_status": "INFERRED identity / version UNVERIFIED",
+  "license": "Review current repo license before bundling",
+  "license_status": "UNVERIFIED",
+  "what": "Omnichannel customer engagement and campaign platform positioned as an open-source Customer.io alternative.",
+  "solves": "Journey/campaign messaging, customer event ingestion, and engagement automation across channels.",
+  "users": "Growth/product teams running lifecycle messaging and customer journeys.",
+  "fit": "Lower fit than Novu + Listmonk/Mautic for the current Hylono stack. Useful only if Hylono wants a dedicated product-engagement platform beyond transactional notifications and basic marketing automation.",
+  "runtime": "Web app/API/worker platform with database, queueing, and channel-provider integrations.",
+  "components": "Campaign UI, event ingestion, customer profiles, workers, templates, and delivery-provider connectors.",
+  "deploy": "Self-host docs mention Docker Compose and Helm. Production still requires message-provider setup and customer data governance.",
+  "deps": "Database, queues/workers, storage, provider credentials, and ingestion endpoints.",
+  "datastores": "Relational database and/or analytics stores depending on product design; verify current architecture before deployment.",
+  "auth": "Local users/roles and API keys.",
+  "apis": "Event ingestion, campaign APIs, provider integrations, and self-host admin surfaces.",
+  "complexity": "Medium to High",
+  "security": "Campaign tools centralize customer identifiers and event data. Retention, consent, and preference handling matter.",
+  "setup_path": "Treat product identity as inferred and version as unverified. Re-check before implementation.",
+  "env": "DB settings, app URL, secret keys, provider credentials, webhook/event ingestion config, and worker settings.",
+  "persistence": "Back up DB and preserve campaign/template definitions if adopted.",
+  "operations": "Deliverability, segmentation correctness, customer data hygiene, and campaign-governance ownership matter more than basic install.",
+  "failure_points": "Redundant overlap with Novu, Listmonk, Mautic, and direct app logic.",
+  "integration": "Could ingest product events from Next.js or n8n, but current stack already has better-aligned notification/marketing pieces.",
+  "verify": "Primary unresolved item: confirm that 'Ditto' in your inventory really refers to Dittofeed.",
+  "risk": "High overlap and identity ambiguity.",
+  "gdpr": "Customer engagement tooling is consent-sensitive by default.",
+  "recommendation": "LIKELY REDUNDANT / VERIFY IDENTITY FIRST",
+  "priority": 38,
+  "overlap": "Heavy overlap with Novu, Listmonk, Mautic, and some n8n-driven lifecycle flows.",
+  "codex_read_first": "Verify the intended product identity and overlap map before doing anything else.",
+  "codex_best_path": "Do not implement until an explicit lifecycle-marketing gap remains after Novu/Listmonk/Mautic decisions.",
+  "codex_never_assume": "Never assume 'Ditto' means Dittofeed. Never assume another customer-messaging platform is needed just because it exists in the long list.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/dittofeed/dittofeed",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current repo",
+      "version": "UNVERIFIED current",
+      "notes": "Primary code source if Dittofeed is correct.",
+      "outdated": false
+    },
+    {
+      "name": "Official docs",
+      "url": "https://docs.dittofeed.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Self-host and product docs.",
+      "outdated": false
+    },
+    {
+      "name": "Helm chart",
+      "url": "https://github.com/dittofeed/helm-charts",
+      "kind": "helm charts",
+      "status": "indexed-only",
+      "license": "review current repo",
+      "version": "current",
+      "notes": "Useful only if identity is confirmed.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/dittofeed/dittofeed",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "UNVERIFIED current",
+      "why": "Primary code source for inferred target."
+    },
+    {
+      "url": "https://docs.dittofeed.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports self-hosting analysis for inferred target."
+    },
+    {
+      "url": "https://github.com/dittofeed/helm-charts",
+      "type": "official deployment repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Evidence of deployment assets for inferred target."
+    }
+  ]
+}

@@ -139,27 +139,33 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isOpen, onClose, onNavigate 
                     />
 
                     <motion.div
-                        role="menu"
+                        ref={megaMenuRef}
+                        id="site-mega-menu"
+                        role="dialog"
                         aria-expanded={isOpen}
                         aria-label="Navigation menu"
+                        aria-modal="true"
                         initial={{ opacity: 0, y: -40, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -20, scale: 0.95 }}
                         transition={MENU_SPRING}
-                        className="absolute top-full left-0 right-0 mt-4 mx-auto max-w-[1400px] w-[95vw] h-[620px] rounded-3xl z-[80] overflow-hidden ring-1 ring-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)]"
+                        className="grain-overlay absolute top-full left-0 right-0 mt-4 mx-auto h-[620px] w-[95vw] max-w-[1400px] overflow-hidden rounded-3xl ring-1 ring-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] z-[80]"
+                        tabIndex={-1}
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-[#0e3c50] to-slate-950" />
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
 
                         <div
                             className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[180px] -translate-y-1/2 translate-x-1/4 opacity-20 mix-blend-screen ${currentConfig.glow}`}
-                            style={{ transition: 'all 800ms cubic-bezier(0.25, 0.1, 0.25, 1)' }}
+                            style={{
+                                transition:
+                                    'opacity 800ms cubic-bezier(0.25, 0.1, 0.25, 1), transform 800ms cubic-bezier(0.25, 0.1, 0.25, 1), filter 800ms cubic-bezier(0.25, 0.1, 0.25, 1), background-color 800ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+                            }}
                         />
 
                         <button
                             onClick={onClose}
                             aria-label="Close menu"
-                            className="absolute top-6 right-6 p-2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-all z-50 backdrop-blur-md border border-white/5"
+                            className="absolute top-6 right-6 z-50 rounded-full border border-white/5 bg-white/5 p-2 text-white/50 backdrop-blur-md transition-[color,background-color,border-color] duration-200 hover:bg-white/10 hover:text-white"
                         >
                             <X size={20} aria-hidden="true" />
                         </button>

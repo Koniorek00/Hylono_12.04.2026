@@ -1,0 +1,97 @@
+{
+  "name": "Kong",
+  "slug": "kong",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Kong Gateway",
+  "version": "3.14.0.1",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 for open-source gateway / enterprise layers available",
+  "license_status": "CONFIRMED",
+  "what": "API gateway for routing, auth, rate limiting, plugins, observability, and API policy enforcement.",
+  "solves": "Central API ingress, OIDC/JWT auth, rate limiting, service routing, plugin-based controls, and boundary hardening for many services.",
+  "users": "Platform and API teams operating multiple services and integrations.",
+  "fit": "Excellent fit. Hylono already has multiple APIs and self-hosted services in scope; Kong is the cleanest traffic/control-plane anchor for a growing internal/external service estate.",
+  "runtime": "Nginx/OpenResty-based gateway with PostgreSQL-backed config or DB-less mode plus plugin ecosystem.",
+  "components": "Gateway nodes, config store/DB, plugins, admin APIs, declarative config, and observability outputs.",
+  "deploy": "Docker Compose or Kubernetes are common. PostgreSQL-backed mode is practical when plugin/state features are needed.",
+  "deps": "PostgreSQL for DB-backed mode, reverse proxy/TLS, plugin config, monitoring, and careful route/policy design.",
+  "datastores": "PostgreSQL in DB-backed mode, or declarative config in DB-less mode.",
+  "auth": "OIDC, JWT, key auth, ACLs, mTLS, and many plugin-based patterns.",
+  "apis": "Admin API, gateway routes/services/plugins, declarative config, metrics, and plugin ecosystem.",
+  "complexity": "Medium to High",
+  "security": "High leverage security boundary. Misconfiguration can expose services or break auth globally.",
+  "setup_path": "Adopt early for service governance if the stack expands beyond a few isolated apps. Pair with ZITADEL for IdP and Infisical for secrets.",
+  "env": "Kong DB settings or declarative config, proxy/admin ports, TLS, plugin secrets, and service upstream definitions.",
+  "persistence": "If DB-backed, back up Kong PostgreSQL; if declarative, version control the config.",
+  "operations": "Route/plugin testing, certificate handling, upgrade compatibility, and metrics/logging need ownership.",
+  "failure_points": "Overcomplicating a very small stack, or deploying Kong without a clear API catalog and route ownership model.",
+  "integration": "Strong central fit for Next.js APIs, internal tools, webhooks, ZITADEL/OIDC, rate limits, service discovery, and observability.",
+  "verify": "Decide whether Kong fronts only internal admin/service traffic or also public Hylono APIs.",
+  "risk": "Moderate but foundationally useful.",
+  "gdpr": "Gateway logs may include identifiers; configure logging carefully.",
+  "recommendation": "FOUNDATIONAL EARLY PLATFORM CANDIDATE",
+  "priority": 9.5,
+  "overlap": "Some overlap with ad hoc reverse proxies, but Kong becomes the intentional API boundary.",
+  "codex_read_first": "Read the dependency map and current API surface before designing Kong routes.",
+  "codex_best_path": "Introduce Kong as the API boundary for internal/self-hosted services first, then selectively front public APIs where policy controls matter.",
+  "codex_never_assume": "Never expose an admin plane publicly. Never add gateway complexity without a clear service-boundary plan.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.konghq.com/gateway/latest/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "3.14.0.1",
+      "notes": "Primary install/admin docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/Kong/kong",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "3.14.0.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker Compose docs",
+      "url": "https://docs.konghq.com/gateway/latest/install/docker/",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful deployment path.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.konghq.com/gateway/latest/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.14.0.1",
+      "why": "Primary install/admin source."
+    },
+    {
+      "url": "https://github.com/Kong/kong/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.14.0.1",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://github.com/Kong/kong",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.14.0.1",
+      "why": "Code and license source."
+    }
+  ]
+}

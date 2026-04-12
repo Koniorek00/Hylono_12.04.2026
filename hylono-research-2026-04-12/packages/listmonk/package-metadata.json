@@ -1,0 +1,97 @@
+{
+  "name": "Listmonk",
+  "slug": "listmonk",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Listmonk newsletter and mailing-list manager",
+  "version": "v6.1.0",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0",
+  "license_status": "CONFIRMED",
+  "what": "Self-hosted newsletter and mailing-list manager with campaigns, subscribers, templates, and APIs.",
+  "solves": "Email newsletters, list management, segmentation, subscription handling, and lightweight marketing messaging.",
+  "users": "Marketing and content teams that want a simple, self-hosted newsletter system.",
+  "fit": "Good fit for straightforward newsletter and broadcast email. Cleaner and lighter than Mautic when advanced marketing automation is not yet necessary.",
+  "runtime": "Single binary/web app with PostgreSQL and SMTP/provider integration.",
+  "components": "Admin UI, campaign engine, subscriber/list management, templates, API, and optional media storage.",
+  "deploy": "Relatively easy self-host path; PostgreSQL and SMTP/provider config are the main requirements.",
+  "deps": "PostgreSQL, SMTP or email provider, reverse proxy/TLS, and media/file storage if using uploads.",
+  "datastores": "PostgreSQL primary datastore.",
+  "auth": "Local admin users plus API tokens; OIDC support exists.",
+  "apis": "REST API, import/export, webhooks/integrations, and campaign/list operations.",
+  "complexity": "Low to Medium",
+  "security": "Subscriber data and marketing consent must be handled carefully; keep admin access tight and double-check unsubscribe/consent flows.",
+  "setup_path": "Use official docs and single-binary/container deployment. Keep it narrow: newsletters and simple campaigns.",
+  "env": "DB URL, app/admin config, SMTP/provider credentials, media storage, and base URL.",
+  "persistence": "Back up PostgreSQL and any media storage; preserve template/campaign history where needed.",
+  "operations": "Deliverability, unsubscribe correctness, bounce handling, and consent-data integrity matter most.",
+  "failure_points": "Treating it like a full customer-data platform or duplicating preference management poorly with Novu/Mautic/site DB.",
+  "integration": "Strong fit for newsletter signups, product updates, and content broadcasts from the Hylono site. Can integrate with Next.js, n8n, and PostHog audiences/exports.",
+  "verify": "Decide whether newsletter preferences live in Listmonk, the site DB, or both with synchronization rules.",
+  "risk": "Low to moderate.",
+  "gdpr": "Explicit consent, unsubscribe, and retention/delete flows matter.",
+  "recommendation": "GOOD LIGHTWEIGHT MARKETING CANDIDATE",
+  "priority": 26,
+  "overlap": "Preferred over Mautic for simple newsletters; separate from Novu\u2019s transactional role.",
+  "codex_read_first": "Read newsletter-signup flows and current Resend usage before implementing.",
+  "codex_best_path": "Use Listmonk for newsletters/broadcasts only; keep transactional messaging in Novu/Resend.",
+  "codex_never_assume": "Never merge marketing and transactional preference logic without an explicit model.",
+  "assets": [
+    {
+      "name": "Official site/docs",
+      "url": "https://listmonk.app/docs/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v6.1.0",
+      "notes": "Primary install/configuration source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/knadh/listmonk",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v6.1.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image",
+      "url": "https://hub.docker.com/r/knadh/listmonk",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v6.1.0",
+      "notes": "Common deployment artifact.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/knadh/listmonk/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v6.1.0",
+      "why": "Confirms current version researched."
+    },
+    {
+      "url": "https://listmonk.app/docs/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v6.1.0",
+      "why": "Primary install and feature source."
+    },
+    {
+      "url": "https://github.com/knadh/listmonk",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v6.1.0",
+      "why": "Code and license source."
+    }
+  ]
+}

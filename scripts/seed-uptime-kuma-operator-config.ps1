@@ -14,9 +14,11 @@ $monitorDefinitions = @(
   [pscustomobject]@{ Name = "Main Site"; Url = "http://host.docker.internal:3000"; Group = "Core surfaces"; GroupWeight = 100; Tag = "core"; TagColor = "#06b6d4"; TagValue = "public" }
   [pscustomobject]@{ Name = "Control Panel"; Url = "http://host.docker.internal:3005/admin"; Group = "Core surfaces"; GroupWeight = 200; Tag = "ops"; TagColor = "#0f172a"; TagValue = "operator" }
   [pscustomobject]@{ Name = "Uptime Kuma"; Url = "http://host.docker.internal:3002"; Group = "Core surfaces"; GroupWeight = 300; Tag = "ops"; TagColor = "#0f172a"; TagValue = "monitoring" }
+  [pscustomobject]@{ Name = "Prometheus"; Url = "http://host.docker.internal:9090/-/ready"; Group = "Core surfaces"; GroupWeight = 400; Tag = "ops"; TagColor = "#0f172a"; TagValue = "metrics" }
   [pscustomobject]@{ Name = "MinIO Console"; Url = "http://host.docker.internal:9001"; Group = "Commerce and operations"; GroupWeight = 100; Tag = "storage"; TagColor = "#d97706"; TagValue = "s3" }
   [pscustomobject]@{ Name = "n8n"; Url = "http://host.docker.internal:5678"; Group = "App layer"; GroupWeight = 100; Tag = "automation"; TagColor = "#0f766e"; TagValue = "workflow" }
   [pscustomobject]@{ Name = "Medusa Health"; Url = "http://host.docker.internal:8100/app/login"; Group = "Commerce and operations"; GroupWeight = 200; Tag = "commerce"; TagColor = "#0891b2"; TagValue = "catalog" }
+  [pscustomobject]@{ Name = "Kong Gateway"; Url = "http://host.docker.internal:8000/medusa/health"; Group = "Commerce and operations"; GroupWeight = 250; Tag = "ops"; TagColor = "#0f172a"; TagValue = "gateway" }
   [pscustomobject]@{ Name = "Lago Front"; Url = "http://host.docker.internal:8102"; Group = "Commerce and operations"; GroupWeight = 300; Tag = "commerce"; TagColor = "#0891b2"; TagValue = "billing" }
   [pscustomobject]@{ Name = "Snipe-IT"; Url = "http://host.docker.internal:8104/login"; Group = "Commerce and operations"; GroupWeight = 400; Tag = "ops"; TagColor = "#0f172a"; TagValue = "assets" }
   [pscustomobject]@{ Name = "Cal.com"; Url = "http://host.docker.internal:8106"; Group = "App layer"; GroupWeight = 200; Tag = "booking"; TagColor = "#7c3aed"; TagValue = "calendar" }

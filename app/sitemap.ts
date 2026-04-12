@@ -3,13 +3,15 @@ import { env } from '@/lib/env';
 import { conditionGoals } from '@/content/conditions';
 import { BLOG_POSTS } from '@/constants/content';
 import { getBlogPublishedIsoDate, toBlogSlug } from '@/lib/blog';
+import { getHydrogenPremiumPath, hydrogenPremiumPages } from '@/content/hydrogen-premium-2026';
 import { protocols } from '@/content/protocols';
 import { getAllTechRouteSlugs } from '@/lib/product-routes';
+import { SCHEMA_DATE_MODIFIED } from '@/lib/seo-schema';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 // Content baseline date: reflects the most recent substantive schema and content update.
-const CONTENT_BASELINE_DATE = new Date('2026-03-16T00:00:00.000Z');
+const CONTENT_BASELINE_DATE = new Date(`${SCHEMA_DATE_MODIFIED}T00:00:00.000Z`);
 
 // Image sitemap: maps product route slugs to their hero images for Google Image Search indexing.
 const PRODUCT_IMAGE_MAP: Partial<Record<string, string[]>> = {
@@ -59,6 +61,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...(PRODUCT_IMAGE_MAP[techSlug] ? { images: PRODUCT_IMAGE_MAP[techSlug] } : {}),
   }));
 
+  const premiumHydrogenEntries: MetadataRoute.Sitemap = hydrogenPremiumPages.map((page) => ({
+    url: `${SITE_URL}${getHydrogenPremiumPath(page.slug)}`,
+    lastModified: CONTENT_BASELINE_DATE,
+    changeFrequency: 'weekly',
+    priority: 0.78,
+    images: [`${SITE_URL}${page.image}`],
+  }));
+
   const conditionEntries: MetadataRoute.Sitemap = conditionGoals.map((goal) => ({
     url: `${SITE_URL}/conditions/${goal.slug}`,
     lastModified: CONTENT_BASELINE_DATE,
@@ -86,6 +96,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticEntries,
     ...productEntries,
+    ...premiumHydrogenEntries,
     ...conditionEntries,
     ...protocolEntries,
     ...blogEntries,

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { TECH_DETAILS } from '@/constants';
+import { storePlanningLinks } from '@/content/topical-graph';
 import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { ORGANIZATION_ID, WEBSITE_ID, createBreadcrumbSchema, createCollectionPageSchema, SCHEMA_DATE_MODIFIED,
@@ -13,6 +14,7 @@ import { StoreClient } from './StoreClient';
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 // [DECISION: store route is semi-dynamic catalog content and should use cache components/runtime cache behavior; reverse if inventory/pricing moves to strict per-request rendering.]
+// Rendering strategy: server-rendered catalog metadata and schema, with crawlable links preserved in HTML while interactive comparison stays in the client layer.
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Wellness Technology Store | Compare Rentals, Prices and Device Specs',
@@ -22,6 +24,7 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function StorePage() {
+  const storePlanningAbsoluteLinks = storePlanningLinks.map((link) => `${SITE_URL}${link.href}`);
   const techSlugs = getAllTechRouteSlugs();
   const techTermSetSchema = {
     '@context': 'https://schema.org',
@@ -80,6 +83,7 @@ export default function StorePage() {
           offers: {
             '@type': 'Offer',
             url: `${SITE_URL}/product/${slug}`,
+            name: 'Monthly rental plan',
             priceCurrency: 'EUR',
             price: tech?.rentalPrice,
             validFrom: SCHEMA_DATE_MODIFIED,
@@ -89,9 +93,22 @@ export default function StorePage() {
                 ? 'https://schema.org/InStock'
                 : 'https://schema.org/OutOfStock',
             eligibleRegion: { '@type': 'Place', name: 'European Union' },
+            businessFunction: 'https://purl.org/goodrelations/v1#LeaseOut',
             seller: { '@id': ORGANIZATION_ID() },
             shippingDetails: { '@id': `${SITE_URL}/shipping#shipping-policy` },
             hasMerchantReturnPolicy: { '@id': `${SITE_URL}/returns#return-policy` },
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              priceCurrency: 'EUR',
+              price: tech?.rentalPrice,
+              billingDuration: 1,
+              unitText: 'month',
+              referenceQuantity: {
+                '@type': 'QuantitativeValue',
+                value: 1,
+                unitCode: 'MON',
+              },
+            },
           },
         },
       };
@@ -130,12 +147,7 @@ export default function StorePage() {
             })),
             keywords: 'wellness technology store, hyperbaric oxygen chamber rental, hydrogen therapy device, red light therapy device, PEMF device rental, HBOT, wellness equipment purchase',
             mainEntity: { '@id': `${SITE_URL}/store#product-list` },
-            relatedLink: [
-              `${SITE_URL}/rental`,
-              `${SITE_URL}/protocols`,
-              `${SITE_URL}/conditions`,
-              `${SITE_URL}/warranty`,
-            ],
+            relatedLink: [...storePlanningAbsoluteLinks, `${SITE_URL}/warranty`],
             speakable: {
               '@type': 'SpeakableSpecification',
               cssSelector: ['#store-hero-headline', '#store-hero-description'],

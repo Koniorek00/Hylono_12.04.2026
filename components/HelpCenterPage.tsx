@@ -22,6 +22,10 @@ import { SmartText } from './SmartText';
 import { MedicalDisclaimer } from './shared/MedicalDisclaimer';
 import { HELP_FAQ_DATA } from '@/content/help-faq';
 import { siteEntity } from '@/content/site-entity';
+import {
+    createCallbackRequestNote,
+    upsertCallbackRequestNote,
+} from '@/lib/callback-request';
 import { DeviceScanner } from './support/DeviceScanner';
 import { getCSRFToken, validateCSRFToken } from '../utils/csrf';
 import { SmartMessageInput } from './SmartMessageInput';
@@ -245,6 +249,7 @@ const ContactTab: React.FC = () => {
     const [showEmergencyModal, setShowEmergencyModal] = useState(false);
     const [showCallbackModal, setShowCallbackModal] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [callbackNotice, setCallbackNotice] = useState<string | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [ticketId, setTicketId] = useState<string | null>(null);
@@ -272,6 +277,7 @@ const ContactTab: React.FC = () => {
             setTicketId(contactActionState.ticketId ?? null);
             setSubmitted(true);
             setSubmitError(null);
+            setCallbackNotice(null);
             return;
         }
 
@@ -300,6 +306,37 @@ const ContactTab: React.FC = () => {
             if (current.getDay() !== 0 && current.getDay() !== 6) days.push(new Date(current));
         }
         return days;
+    };
+
+    const formatCallbackDateLabel = (date: Date) =>
+        date.toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+        });
+
+    const handleCallbackSchedule = (slot: string) => {
+        if (!selectedDate) {
+            return;
+        }
+
+        const callbackRequestNote = createCallbackRequestNote(
+            formatCallbackDateLabel(selectedDate),
+            slot
+        );
+
+        setFormData((prev) => ({
+            ...prev,
+            subject: prev.subject || 'Callback request',
+            message: upsertCallbackRequestNote(prev.message, callbackRequestNote),
+        }));
+        setFormStep(3);
+        setShowCallbackModal(false);
+        setSelectedDate(null);
+        setSubmitError(null);
+        setCallbackNotice(
+            'Preferred callback slot added to your message. Finish the form and send it to confirm the callback request.'
+        );
     };
 
     return (
@@ -373,20 +410,24 @@ const ContactTab: React.FC = () => {
                                 <div className="space-y-4">
                                     <h4 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2">Select a Date</h4>
                                     <div className="grid gap-2">
-                                        {getNextBusinessDays(5).map((date) => (
-                                            <button
-                                                key={date.toISOString()}
-                                                onClick={() => setSelectedDate(date)}
-                                                className="w-full p-4 rounded-xl border border-slate-200 text-left hover:border-cyan-500 hover:bg-cyan-50 transition-all group"
-                                            >
-                                                <div className="flex justify-between items-center">
-                                                    <span className="font-bold text-slate-700 group-hover:text-cyan-700">
-                                                        {date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-                                                    </span>
-                                                    <ChevronRight size={16} className="text-slate-300 group-hover:text-cyan-500" />
-                                                </div>
-                                            </button>
-                                        ))}
+                                        {getNextBusinessDays(5).map((date) => {
+                                            const dateLabel = formatCallbackDateLabel(date);
+
+                                            return (
+                                                <button
+                                                    key={date.toISOString()}
+                                                    onClick={() => setSelectedDate(date)}
+                                                    className="w-full p-4 rounded-xl border border-slate-200 text-left hover:border-cyan-500 hover:bg-cyan-50 transition-all group"
+                                                >
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="font-bold text-slate-700 group-hover:text-cyan-700">
+                                                            {dateLabel}
+                                                        </span>
+                                                        <ChevronRight size={16} className="text-slate-300 group-hover:text-cyan-500" />
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ) : (
@@ -399,7 +440,7 @@ const ContactTab: React.FC = () => {
                                     </h4>
                                     <div className="grid grid-cols-2 gap-3 mb-6">
                                         {['09:00 AM', '09:30 AM', '10:00 AM', '11:15 AM', '01:00 PM', '02:30 PM', '03:45 PM', '04:15 PM'].map(slot => (
-                                            <button key={slot} onClick={() => { setShowCallbackModal(false); setSelectedDate(null); }}
+                                            <button key={slot} onClick={() => handleCallbackSchedule(slot)}
                                                 className="py-3 px-4 rounded-xl border border-slate-200 text-sm font-medium hover:border-cyan-500 hover:bg-cyan-50 hover:text-cyan-700 transition-all text-slate-600">
                                                 {slot}
                                             </button>
@@ -433,10 +474,16 @@ const ContactTab: React.FC = () => {
                             <input type="hidden" name="message" value={formData.message} />
                             <input type="hidden" name="serialNumber" value={formData.serialNumber} />
                             <input type="hidden" name="clinicName" value={formData.clinicName} />
+                            <input type="hidden" name="patientCount" value={formData.patientCount} />
                             <input type="hidden" name="interest" value={formData.interest} />
                             {csrfTokenError && (
                                 <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <p className="text-red-600 text-sm">Security validation failed. Please refresh and try again.</p>
+                                </div>
+                            )}
+                            {callbackNotice && (
+                                <div role="status" className="mb-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg">
+                                    <p className="text-cyan-900 text-sm">{callbackNotice}</p>
                                 </div>
                             )}
                             <div className="flex gap-2 mb-8">

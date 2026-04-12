@@ -32,6 +32,8 @@ const FONTS = {
 };
 
 const EASING: [number, number, number, number] = [0.16, 1, 0.3, 1]; // "Quiet Precision"
+const SIGNAL_BASE_PATH = "M 0 50 Q 75 0 150 50 T 300 50";
+const SIGNAL_VARIANT_PATH = "M 0 50 Q 75 100 150 50 T 300 50";
 
 // --- UTILITY COMPONENTS ---
 
@@ -764,11 +766,12 @@ const SignalVisual = ({ color }: { color: string }) => (
     <div className="relative w-full h-[200px] flex items-center justify-center">
         <svg width="300" height="100" viewBox="0 0 300 100">
             <motion.path
-                d="M 0 50 Q 75 0 150 50 T 300 50"
+                d={SIGNAL_BASE_PATH}
                 fill="none"
                 stroke={color}
                 strokeWidth="2"
-                animate={{ d: ["M 0 50 Q 75 0 150 50 T 300 50", "M 0 50 Q 75 100 150 50 T 300 50"] }}
+                initial={{ d: SIGNAL_BASE_PATH }}
+                animate={{ d: [SIGNAL_BASE_PATH, SIGNAL_VARIANT_PATH, SIGNAL_BASE_PATH] }}
                 transition={{ duration: 8, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
             />
         </svg>

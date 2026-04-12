@@ -1,0 +1,97 @@
+{
+  "name": "Grafana",
+  "slug": "grafana",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "Grafana",
+  "version": "12.4.2",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0 / enterprise offerings available",
+  "license_status": "CONFIRMED",
+  "what": "Visualization and observability UI platform for dashboards, alerts, logs, and multiple data sources.",
+  "solves": "Operational dashboards, metrics visualization, logs/traces integration, and shared visibility across technical systems.",
+  "users": "Ops, engineering, and technical stakeholders.",
+  "fit": "Strong fit as the main observability UI once Prometheus and other telemetry sources exist.",
+  "runtime": "Web application with internal metadata DB and connectors to data sources like Prometheus, Loki, InfluxDB, PostgreSQL, etc.",
+  "components": "UI, datasource plugins, alerting, dashboards, auth, and metadata store.",
+  "deploy": "Straightforward self-hosting; usually paired with Prometheus and exporters.",
+  "deps": "Metadata storage, data-source connectors, auth/SSO, reverse proxy, and alerting config.",
+  "datastores": "Internal metadata store plus external data sources.",
+  "auth": "Local auth and SSO/OIDC/SAML options depending on edition/setup.",
+  "apis": "Dashboard and datasource APIs, plugins, and alerting APIs.",
+  "complexity": "Medium",
+  "security": "Dashboards can expose internal service data. Use RBAC and least-privilege datasource access.",
+  "setup_path": "Deploy with Prometheus and exporters as part of the observability wave.",
+  "env": "Admin creds, datasource settings, auth/SSO, SMTP, and storage path.",
+  "persistence": "Back up Grafana config/DB or provision dashboards as code.",
+  "operations": "Datasource governance, dashboard sprawl control, and version/plugin upgrades matter.",
+  "failure_points": "Letting Grafana become a manual dashboard graveyard without provisioning discipline.",
+  "integration": "Natural fit with Prometheus, Postgres exporters, Kong, Redis, and infrastructure monitoring.",
+  "verify": "Choose whether dashboards are provisioned as code from day one.",
+  "risk": "Low to moderate; high value.",
+  "gdpr": "Avoid exposing identifiable data in dashboards unless role-controlled.",
+  "recommendation": "DEPLOY WITH OBSERVABILITY STACK",
+  "priority": 17.5,
+  "overlap": "Complements rather than replaces Prometheus/Uptime Kuma.",
+  "codex_read_first": "Read observability target list and decide on dashboards-as-code.",
+  "codex_best_path": "Use Grafana as the shared observability UI over Prometheus and selected app/data sources.",
+  "codex_never_assume": "Never connect Grafana to production sources with broad privileges without RBAC planning.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://grafana.com/docs/grafana/latest/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "12.4.2",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/grafana/grafana",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "12.4.2",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Provisioning docs",
+      "url": "https://grafana.com/docs/grafana/latest/administration/provisioning/",
+      "kind": "docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Important for dashboards-as-code.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/grafana/grafana/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "12.4.2",
+      "why": "Release reference."
+    },
+    {
+      "url": "https://grafana.com/docs/grafana/latest/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "12.4.2",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/grafana/grafana",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "12.4.2",
+      "why": "Code source."
+    }
+  ]
+}

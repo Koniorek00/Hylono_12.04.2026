@@ -1,0 +1,97 @@
+{
+  "name": "Strapi",
+  "slug": "strapi",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "Strapi headless CMS",
+  "version": "v5.42.0",
+  "version_status": "CONFIRMED",
+  "license": "Open-source core with commercial tiers; verify current licensing for enterprise features",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Headless CMS for structured content modeling, APIs, and editorial workflows.",
+  "solves": "Editorial content management for websites, knowledge bases, and multi-channel content delivery.",
+  "users": "Content, marketing, and engineering teams needing a structured CMS.",
+  "fit": "Conditional. Hylono already has a server-first Next.js content-driven site; Strapi is only worthwhile if current content workflows outgrow in-repo/contentlayer-style approaches or custom admin tooling.",
+  "runtime": "Node.js CMS with database, admin UI, media library, and REST/GraphQL APIs.",
+  "components": "Admin UI, content types, APIs, media library, DB, and plugins.",
+  "deploy": "Mature self-host path. Production requires DB, storage, media handling, auth, and editorial process design.",
+  "deps": "Database, file storage, reverse proxy, auth/admin security, and backups.",
+  "datastores": "Relational DB plus media storage.",
+  "auth": "Admin auth and API tokens; external auth patterns possible.",
+  "apis": "REST and GraphQL APIs, webhooks, admin plugins, and content workflows.",
+  "complexity": "Medium",
+  "security": "CMS admin is a privileged surface; media uploads and content API exposure need care.",
+  "setup_path": "Only implement if the current site\u2019s content model and editorial needs justify a dedicated CMS.",
+  "env": "DB settings, JWT/app secrets, storage provider, admin URL, and webhook settings.",
+  "persistence": "Back up DB and media storage; content migrations should be versioned carefully.",
+  "operations": "Content model migrations, plugin updates, and admin security matter.",
+  "failure_points": "Adding CMS complexity when content volume/editorial workflow does not justify it.",
+  "integration": "Could front content for Next.js and possibly docs/help content, but is not automatically needed.",
+  "verify": "Compare current content workflows against real CMS needs before adopting.",
+  "risk": "Moderate duplication risk.",
+  "gdpr": "Mostly editorial data unless user-generated content is added.",
+  "recommendation": "ONLY IF CONTENT OPS OUTGROW CURRENT APPROACH",
+  "priority": 30,
+  "overlap": "Overlaps with current Next.js content setup and partly with Docusaurus/BookStack for docs content.",
+  "codex_read_first": "Read the current Hylono content architecture before recommending Strapi.",
+  "codex_best_path": "Stick with current site architecture unless editorial requirements clearly demand a CMS.",
+  "codex_never_assume": "Never introduce a CMS just because a site is content-heavy; validate real workflow pain first.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.strapi.io/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v5.42.0",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/strapi/strapi",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current repo/license split",
+      "version": "v5.42.0",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Deploy docs",
+      "url": "https://docs.strapi.io/dev-docs/deployment",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v5",
+      "notes": "Useful for self-host planning.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/strapi/strapi/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.42.0",
+      "why": "Version source."
+    },
+    {
+      "url": "https://docs.strapi.io/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/strapi/strapi",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.42.0",
+      "why": "Code source."
+    }
+  ]
+}

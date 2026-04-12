@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { auth } from '@/lib/auth';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { PartnersClient } from './PartnersClient';
 
@@ -10,6 +11,8 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 // [DECISION: SSG because partner program overview is static business information.]
-export default function PartnersPageRoute() {
-  return <PartnersClient />;
+export default async function PartnersPageRoute() {
+  const session = await auth();
+
+  return <PartnersClient isAuthenticated={Boolean(session?.user?.email)} />;
 }

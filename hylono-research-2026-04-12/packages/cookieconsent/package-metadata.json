@@ -1,0 +1,97 @@
+{
+  "name": "CookieConsent",
+  "slug": "cookieconsent",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Orest Bida CookieConsent",
+  "version": "v3.1.0",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "Lightweight cookie consent and script-blocking library for websites.",
+  "solves": "Cookie banners, consent categories, script gating, and front-end consent UX.",
+  "users": "Web teams that need basic consent management without a heavy CMP platform.",
+  "fit": "Good tactical fit for the Hylono website if current consent UX needs improvement. It is not a full privacy program tool, but it is useful and low-friction.",
+  "runtime": "Frontend JavaScript library integrated into the website.",
+  "components": "Banner, modal/preferences UI, consent state handling, script category control, and translation/config options.",
+  "deploy": "Very light. Integrates directly into the existing Next.js frontend.",
+  "deps": "Frontend integration and legal/policy decisions about categories/copy.",
+  "datastores": "Browser-side consent state plus any server-side recording Hylono adds.",
+  "auth": "None.",
+  "apis": "Frontend config/hooks and consent events.",
+  "complexity": "Low",
+  "security": "Main concern is legal/config correctness, not infrastructure.",
+  "setup_path": "Integrate directly into the Next.js site if a lightweight consent banner is sufficient.",
+  "env": "Frontend config values and category definitions.",
+  "persistence": "Consent state in browser or custom server-side logs if implemented.",
+  "operations": "Copy/category maintenance and QA after site changes.",
+  "failure_points": "Treating a banner library as full GDPR compliance.",
+  "integration": "Fits neatly into the existing Next.js frontend and analytics script loading.",
+  "verify": "Confirm whether Hylono needs only a banner/script-control layer or a fuller CMP/privacy operations stack.",
+  "risk": "Low.",
+  "gdpr": "Relevant for consent UX, but only one piece of compliance.",
+  "recommendation": "GOOD LIGHTWEIGHT CONSENT OPTION",
+  "priority": 19,
+  "overlap": "Different layer than Fides or Presidio.",
+  "codex_read_first": "Read the current site analytics/consent implementation before changing anything.",
+  "codex_best_path": "Implement as a focused front-end consent component if existing consent UX is weak.",
+  "codex_never_assume": "Never treat a cookie banner as complete compliance coverage.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://cookieconsent.orestbida.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v3.1.0",
+      "notes": "Primary integration guide.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/orestbida/cookieconsent",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v3.1.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Examples",
+      "url": "https://github.com/orestbida/cookieconsent/tree/master/docs/examples",
+      "kind": "example configs",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "current",
+      "notes": "Useful integration references.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/orestbida/cookieconsent/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.1.0",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://cookieconsent.orestbida.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.1.0",
+      "why": "Primary integration source."
+    },
+    {
+      "url": "https://github.com/orestbida/cookieconsent",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.1.0",
+      "why": "Code and license source."
+    }
+  ]
+}

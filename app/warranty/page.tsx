@@ -5,13 +5,14 @@ import { createPageMetadata } from '@/lib/seo-metadata';
 import { ORGANIZATION_ID, WEBSITE_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
-import { WarrantyClient } from './WarrantyClient';
+import { WarrantyPolicyPage } from '@/components/legal/PolicyPages';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Hylono Warranty Policy | Coverage, Terms, and Service Support',
-  description: 'Review Hylono warranty coverage terms, conditions, and support responsibilities.',
+  title: 'Hylono Warranty | 2-Year Coverage and Support',
+  description:
+    'Review Hylono’s published 2-year warranty term, parts-and-labor scope, covered issue categories, and the public support route.',
   path: '/warranty',
 });
 
@@ -48,7 +49,7 @@ export default function WarrantyPageRoute() {
             ...createWebPageSchema({
               name: 'Hylono Warranty',
               description:
-                'Review Hylono warranty coverage terms, conditions, and support responsibilities.',
+                'Review Hylono’s published 2-year warranty term, parts-and-labor scope, covered issue categories, and the public support route.',
               path: '/warranty',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
@@ -70,7 +71,7 @@ export default function WarrantyPageRoute() {
           ])}
         />
       </Suspense>
-      <WarrantyClient />
+      <WarrantyPolicyPage />
     </>
   );
 }

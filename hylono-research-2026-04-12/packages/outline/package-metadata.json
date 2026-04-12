@@ -1,0 +1,97 @@
+{
+  "name": "Outline",
+  "slug": "outline",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Outline collaborative knowledge base",
+  "version": "v1.6.1",
+  "version_status": "CONFIRMED",
+  "license": "BSL-style / source-available with change date; review carefully",
+  "license_status": "CONFIRMED",
+  "what": "Collaborative team knowledge base with cleaner collaborative editing experience than a traditional wiki.",
+  "solves": "Internal knowledge sharing, collaboration, and polished team docs.",
+  "users": "Teams wanting modern collaborative docs with nicer UX than a classic wiki.",
+  "fit": "Moderate fit, but BookStack is a stronger match for structured SOPs and simpler self-host operations. Outline is more attractive if collaborative editing experience is the priority.",
+  "runtime": "Node.js web app with database, storage, search, and auth integrations.",
+  "components": "Web app, relational DB, Redis/cache if configured, storage, search, and auth providers.",
+  "deploy": "Self-hosting exists, but licensing and environment complexity are less friendly than BookStack.",
+  "deps": "Database, storage, mail/auth provider, reverse proxy, and possibly Redis/search.",
+  "datastores": "Relational DB plus file storage and optional cache/search.",
+  "auth": "SSO/provider integrations and local/admin models depending on setup.",
+  "apis": "Document APIs, auth integrations, and import/export surfaces.",
+  "complexity": "Medium",
+  "security": "Internal docs may be sensitive. License review and auth/storage hardening matter.",
+  "setup_path": "Use only if collaborative editing UX outweighs licensing and ops simplicity concerns.",
+  "env": "DB settings, app secrets, storage/auth config, base URL, and optional Redis/search.",
+  "persistence": "Back up DB and file storage.",
+  "operations": "License tracking, auth integration, storage, and upgrades need attention.",
+  "failure_points": "Choosing Outline for internal SOPs when BookStack is simpler and more structured.",
+  "integration": "Can serve as internal team knowledge base behind ZITADEL/SSO if collaborative editing is valuable.",
+  "verify": "Decide whether collaborative knowledge editing is more important than structured SOP organization.",
+  "risk": "Moderate due to license and overlap.",
+  "gdpr": "Mostly internal docs; still personal data if users author/comment.",
+  "recommendation": "SECONDARY TO BOOKSTACK",
+  "priority": 32,
+  "overlap": "Strong overlap with BookStack for internal docs and with Docusaurus for public docs.",
+  "codex_read_first": "Read the docs-platform overlap map before choosing Outline.",
+  "codex_best_path": "Prefer BookStack unless Outline\u2019s collaborative UX is explicitly required.",
+  "codex_never_assume": "Never ignore source-available license terms when planning reuse or bundling.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/outline/outline",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "BSL-style",
+      "version": "v1.6.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host docs",
+      "url": "https://docs.getoutline.com/s/hosting",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Hosting documentation.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/outline/outline/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "see project terms",
+      "version": "v1.6.1",
+      "notes": "Version source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/outline/outline/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.6.1",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://github.com/outline/outline",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.6.1",
+      "why": "Code and license source."
+    },
+    {
+      "url": "https://docs.getoutline.com/s/hosting",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports self-hosting analysis."
+    }
+  ]
+}

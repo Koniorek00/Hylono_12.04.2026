@@ -118,11 +118,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <link
           rel="alternate"
           type="application/rss+xml"
-          title="Hylono Blog — Research Notes and Wellness Guidance"
+          title="Hylono Blog - Research Notes and Wellness Guidance"
           href={`${SITE_URL}/rss.xml`}
         />
       </head>
       <body className="antialiased">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <noscript>
           <section
             aria-label="JavaScript disabled notice"

@@ -1,0 +1,97 @@
+{
+  "name": "Node-RED",
+  "slug": "node-red",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Node-RED flow-based programming platform",
+  "version": "4.1.8",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0",
+  "license_status": "CONFIRMED",
+  "what": "Flow-based programming and automation platform with strong IoT, MQTT, and message-routing heritage.",
+  "solves": "Event routing, protocol bridging, device automation, MQTT-driven workflows, and low-code integrations.",
+  "users": "IoT, OT, and integration teams that need visual event/message flows.",
+  "fit": "Useful later if Hylono builds device telemetry or MQTT-heavy workflows. For current business/process automation, n8n is the better default.",
+  "runtime": "Node.js runtime hosting flows, connectors, dashboards (if used), and integration nodes.",
+  "components": "Editor/runtime, flows, nodes/plugins, optional dashboard/UI, and persistence for flow definitions.",
+  "deploy": "Docker or simple service deployment is straightforward. Governance matters more than install.",
+  "deps": "Persistent storage for flows, broker/API endpoints, optional MQTT, and plugin/node governance.",
+  "datastores": "Local flow storage or attached storage; optional external systems for state.",
+  "auth": "Admin auth, node credentials, and network/proxy protection.",
+  "apis": "HTTP endpoints, MQTT, industrial/IoT protocols, and extensive node ecosystem.",
+  "complexity": "Low to Medium",
+  "security": "Visual automation plus third-party nodes can create hidden attack surface. Restrict editor access and review nodes carefully.",
+  "setup_path": "Use official install docs only if an IoT/protocol need justifies it. Otherwise prefer n8n.",
+  "env": "Editor/base URL, auth, storage path, node credentials, broker settings, and reverse-proxy config.",
+  "persistence": "Back up flows and credentials storage; version control exports for critical flows.",
+  "operations": "Node/plugin review, flow testing, and environment separation matter.",
+  "failure_points": "Creating two competing automation platforms without a clear reason, or relying on community nodes without security review.",
+  "integration": "Best fit with Mosquitto, ThingsBoard, device telemetry, and protocol bridges. Limited need for pure business automation if n8n is already core.",
+  "verify": "Confirm whether device/IoT workflows are near-term enough to justify Node-RED beside n8n.",
+  "risk": "Moderate overlap risk, low infrastructure risk.",
+  "gdpr": "Mostly depends on payloads flowing through it.",
+  "recommendation": "LATER / IOT-SPECIFIC",
+  "priority": 29,
+  "overlap": "n8n should remain the default for business workflows; Node-RED is for IoT/protocol-heavy use cases.",
+  "codex_read_first": "Read n8n and the IoT stack packages together before deciding on Node-RED.",
+  "codex_best_path": "Only introduce Node-RED when MQTT/device protocol bridging becomes a real requirement.",
+  "codex_never_assume": "Never assume another automation surface is free of governance cost.",
+  "assets": [
+    {
+      "name": "Official site",
+      "url": "https://nodered.org/",
+      "kind": "official site",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "4.1.8",
+      "notes": "Project homepage and docs entry.",
+      "outdated": false
+    },
+    {
+      "name": "Official docs",
+      "url": "https://nodered.org/docs/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "4.1.8",
+      "notes": "Install and admin docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/node-red/node-red",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "4.1.8",
+      "notes": "Primary code source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/node-red/node-red/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "4.1.8",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://nodered.org/docs/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "4.1.8",
+      "why": "Primary install/admin source."
+    },
+    {
+      "url": "https://github.com/node-red/node-red",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "4.1.8",
+      "why": "Code and license source."
+    }
+  ]
+}

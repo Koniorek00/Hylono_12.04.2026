@@ -1,0 +1,97 @@
+{
+  "name": "Cal.com",
+  "slug": "cal-com",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "Cal.com scheduling platform",
+  "version": "v6.2.0",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0 / commercial options",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source scheduling platform for appointment booking, calendar sync, availability, and event-based booking flows.",
+  "solves": "Booking pages, staff/resource availability, scheduling workflows, and customer self-service appointment selection.",
+  "users": "Sales, support, clinics, service teams, and operators who need flexible booking flows.",
+  "fit": "High fit for consultations, onboarding calls, service bookings, demos, and potentially rental/support scheduling across the Hylono site.",
+  "runtime": "Next.js/Node-based application stack with PostgreSQL, Prisma, background jobs, integrations, and calendar providers.",
+  "components": "Web app, DB, cron/jobs, calendar integrations, emails/webhooks, and optional embed flows.",
+  "deploy": "Self-host via official docs with PostgreSQL and scheduled jobs; production needs calendar provider setup, reverse proxy, and reliability on webhooks/cron.",
+  "deps": "PostgreSQL, Node runtime, cron/background jobs, mail, calendar provider credentials, and OAuth/app credentials for integrations.",
+  "datastores": "PostgreSQL primary datastore.",
+  "auth": "Local/workspace auth plus calendar/provider auth and optional SSO paths depending on plan/setup.",
+  "apis": "Booking APIs, webhooks, embeds, OAuth/provider integrations, and scheduling/event workflows.",
+  "complexity": "Medium",
+  "security": "Bookings can expose personal contact details and availability data. Harden admin/user access and validate webhook/auth flows carefully.",
+  "setup_path": "Use official self-host docs. Validate booking flows, availability rules, and calendar sync before public rollout.",
+  "env": "DATABASE_URL, NEXTAUTH/APP secrets, calendar provider creds, email config, base URLs, cron settings, and webhook endpoints.",
+  "persistence": "Back up PostgreSQL and preserve booking/event configurations.",
+  "operations": "Cron reliability, calendar webhook delivery, timezone correctness, and provider API quota/permission review.",
+  "failure_points": "Broken calendar sync, timezone mistakes, and over-embedding without testing SSR/security behavior in the main site.",
+  "integration": "Excellent fit with Next.js booking flows, Novu reminders, n8n orchestration, Twenty CRM lead creation, Stripe-paid sessions if needed, and analytics.",
+  "verify": "Clarify whether Hylono wants Cal.com as the booking source of truth or just as an embedded scheduling surface fronting internal workflows.",
+  "risk": "Moderate. High user-facing value, but calendar sync and scheduling edge cases create support load.",
+  "gdpr": "Stores identifiable booking data and calendar context. EU hosting, retention, and third-party calendar provider handling matter.",
+  "recommendation": "EARLY HIGH-VALUE CANDIDATE",
+  "priority": 9,
+  "overlap": "Could overlap partly with custom booking flows in Next.js, but Cal.com is stronger for availability/scheduling logic.",
+  "codex_read_first": "Read official self-host docs and map all current Hylono booking routes and staff/resource needs.",
+  "codex_best_path": "Use Cal.com for scheduling logic and embed/integrate it into the server-first Next.js site rather than rebuilding calendars internally.",
+  "codex_never_assume": "Never assume provider sync, recurring availability, or timezone behavior without environment-specific testing.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://cal.com/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v6.2.0",
+      "notes": "Primary setup source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/calcom/cal.com",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current repo licensing",
+      "version": "v6.2.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-hosting docs",
+      "url": "https://cal.com/docs/self-hosting/introduction",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Self-host guidance.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/calcom/cal.com/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v6.2.0",
+      "why": "Confirms current version researched."
+    },
+    {
+      "url": "https://cal.com/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary architecture/setup source."
+    },
+    {
+      "url": "https://github.com/calcom/cal.com",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v6.2.0",
+      "why": "Primary code source."
+    }
+  ]
+}

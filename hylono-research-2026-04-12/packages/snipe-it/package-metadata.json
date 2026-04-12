@@ -1,0 +1,97 @@
+{
+  "name": "Snipe-IT",
+  "slug": "snipe-it",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "Snipe-IT asset management",
+  "version": "v8.4.1",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source IT asset management tool for hardware, accessories, consumables, licenses, and user/device assignment.",
+  "solves": "Internal asset inventory, check-in/check-out, depreciation, and auditability for organizational equipment.",
+  "users": "IT and operations teams managing internal equipment fleets.",
+  "fit": "Limited for customer-facing rentals. Useful if Hylono mainly wants internal device/office asset control, but Leihs is a better fit for rental/lending workflows.",
+  "runtime": "Laravel/PHP web app with database, mail, queues/scheduled jobs, and file uploads.",
+  "components": "Web UI/API, relational database, mailer, cron/jobs, storage, and auth integrations like LDAP/SSO options.",
+  "deploy": "Commonly self-hosted via Docker or standard PHP stack behind a reverse proxy.",
+  "deps": "Database, PHP runtime, mailer, storage, cron/scheduler, and optional LDAP/AD integrations.",
+  "datastores": "Relational database (commonly MySQL/MariaDB).",
+  "auth": "Local accounts plus optional LDAP/AD; review SSO options if needed.",
+  "apis": "REST API, import/export, reports, and asset/audit workflows.",
+  "complexity": "Medium",
+  "security": "Contains inventory records, user assignments, and audit data. Standard web-app hardening and backup controls are required.",
+  "setup_path": "Follow official install docs, pick a supported DB/runtime combination, and verify whether internal IT asset scope justifies separate deployment from rental tooling.",
+  "env": "APP_URL, DB settings, mailer config, app key, cron, storage path, and LDAP settings if used.",
+  "persistence": "Back up database and uploaded asset files.",
+  "operations": "Laravel/PHP upgrades, cron reliability, import quality, and access-role review.",
+  "failure_points": "Trying to bend it into a customer rental system, or letting asset ownership drift between Snipe-IT and other systems.",
+  "integration": "Best used only for internal Hylono equipment if needed. Limited direct value to the public site beyond admin links or reporting extracts.",
+  "verify": "Clarify whether Hylono needs internal IT asset management separately from customer rental/loan workflows.",
+  "risk": "Low to moderate if scoped internally; poor fit if stretched into rental operations.",
+  "gdpr": "Mostly operational asset data, but assigned-user records still count as personal data.",
+  "recommendation": "OPTIONAL / INTERNAL ONLY",
+  "priority": 22,
+  "overlap": "Leihs covers lending/rental better; Snipe-IT is for internal asset control.",
+  "codex_read_first": "Read Leihs and Snipe-IT packages together before choosing an asset/rental platform.",
+  "codex_best_path": "Use Snipe-IT only if internal IT asset management is a distinct need separate from customer equipment lending.",
+  "codex_never_assume": "Never assume Snipe-IT is the right backbone for customer-facing rentals.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://snipe-it.readme.io/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v8.4.1",
+      "notes": "Primary install/configuration guidance.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/snipe/snipe-it",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v8.4.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker docs",
+      "url": "https://snipe-it.readme.io/docs/docker",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful for self-host deployment.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/snipe/snipe-it/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v8.4.1",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://snipe-it.readme.io/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary install and configuration source."
+    },
+    {
+      "url": "https://github.com/snipe/snipe-it",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v8.4.1",
+      "why": "Code and license source."
+    }
+  ]
+}

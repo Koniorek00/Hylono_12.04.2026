@@ -1,0 +1,97 @@
+{
+  "name": "MinIO",
+  "slug": "minio",
+  "group": "Infrastructure",
+  "status_context": "UNKNOWN",
+  "researched_as": "MinIO object storage",
+  "version": "Community repo archived; AIStor docs active",
+  "version_status": "CONFIRMED strategic change / exact CE status requires human review",
+  "license": "Historically AGPLv3 for community code; current AIStor materials emphasize commercial licensing",
+  "license_status": "CONFIRMED strategic licensing shift / exact packaging requires human review",
+  "what": "S3-compatible object storage previously common in self-hosted stacks for files, backups, and media.",
+  "solves": "Internal object storage for uploads, documents, backups, artifacts, and application binary payloads.",
+  "users": "Infrastructure teams that need S3-compatible storage under their own control.",
+  "fit": "Technically useful, but strategically risky for new standardization because the public community repo appears archived and the official site/docs now center on commercial AIStor.",
+  "runtime": "Distributed or single-node object storage service with S3 API compatibility, erasure coding, and policy controls.",
+  "components": "Storage nodes, TLS, access policies, buckets, backup/replication design, and monitoring.",
+  "deploy": "Historically container- or Kubernetes-friendly; current official guidance is centered on AIStor and its operator/helm-based patterns.",
+  "deps": "Durable disks, network throughput, TLS, backup/replication design, S3-compatible client validation.",
+  "datastores": "Object data on disk; metadata managed by the service.",
+  "auth": "Access keys, policies, TLS, and admin controls.",
+  "apis": "S3-compatible API, console/admin endpoints, replication and lifecycle features.",
+  "complexity": "Medium to High",
+  "security": "Object storage becomes a central data plane. Misconfigured buckets, replication, or lifecycle rules create serious exposure.",
+  "setup_path": "Do not assume legacy MinIO community guidance still matches the 2026 reality. Revalidate whether Hylono wants MinIO specifically, an AIStor commercial commitment, or another object-storage path.",
+  "env": "Root credentials, domain/bucket config, storage layout, TLS certs, and policy settings.",
+  "persistence": "Object storage durability depends on storage design, replication, and tested backup/restore procedures.",
+  "operations": "Capacity monitoring, lifecycle rule validation, bucket policy review, and strategic vendor/license review.",
+  "failure_points": "Assuming community MinIO remains a stable default, underestimating bucket-policy risk, and building new dependencies before clarifying the product/licensing direction.",
+  "integration": "Would be useful for Documenso/DocuSeal documents, Medusa assets, Listmonk media, backups, and possibly Next.js uploads\u2014but only after the product/licensing direction is settled.",
+  "verify": "Verify whether Hylono already uses MinIO, whether that deployment is supportable, and whether a different object storage platform is preferable for new rollout work.",
+  "risk": "High strategic risk for new adoption because of the apparent community/archive/commercial shift.",
+  "gdpr": "Object storage may contain signed documents, uploads, backups, and audit artifacts. EU hosting, encryption, retention, and access logging matter.",
+  "recommendation": "DO NOT EXPAND UNTIL PRODUCT/LICENSE DIRECTION IS DECIDED",
+  "priority": 18,
+  "overlap": "Can be replaced by managed S3-compatible storage or alternative self-hosted object stores.",
+  "codex_read_first": "Read the official site/docs state and repository status before coding against MinIO assumptions.",
+  "codex_best_path": "If object storage is needed immediately, verify the currently running environment first; otherwise keep the abstraction S3-compatible so the backend can be swapped.",
+  "codex_never_assume": "Never assume legacy MinIO CE deployment advice is still the preferred path for a new 2026 deployment.",
+  "assets": [
+    {
+      "name": "Official site",
+      "url": "https://min.io/",
+      "kind": "official product page",
+      "status": "indexed-only",
+      "license": "commercial focus visible",
+      "version": "AIStor era",
+      "notes": "Signals current product positioning.",
+      "outdated": false
+    },
+    {
+      "name": "GitHub repo",
+      "url": "https://github.com/minio/minio",
+      "kind": "official repository",
+      "status": "indexed-only",
+      "license": "historical community code",
+      "version": "archived public repo observed",
+      "notes": "Needs human review before reuse.",
+      "outdated": false
+    },
+    {
+      "name": "AIStor operator docs",
+      "url": "https://docs.min.io/community/minio-object-store/reference/minio-operator.html",
+      "kind": "kubernetes/operator docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Represents current official deployment direction.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://min.io/",
+      "type": "official product page",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Shows AIStor-centered positioning."
+    },
+    {
+      "url": "https://github.com/minio/minio/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "latest observed community release",
+      "why": "Used to inspect public repo status and recent release history."
+    },
+    {
+      "url": "https://docs.min.io/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports current deployment interpretation."
+    }
+  ]
+}

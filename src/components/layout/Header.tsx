@@ -8,6 +8,7 @@ import {
   Hexagon,
   User,
   Accessibility,
+  SlidersHorizontal,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ import {
   useMotionValueEvent,
   AnimatePresence,
 } from 'motion/react';
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
 import { TECH_DETAILS } from '../../../constants';
 import { batch3NavigationContent } from '../../../content/batch3';
 import { CartIcon } from '../../../components/Cart';
@@ -29,6 +30,7 @@ import {
   navigateWithScroll,
   resolveLegacyPagePath,
 } from '../../lib/navigation';
+import { useFocusTrap } from '../../../hooks/useFocusTrap';
 
 const loadMegaMenu = () =>
   import('../../../components/MegaMenu').then((module) => ({
@@ -58,9 +60,10 @@ function NavLink({ label, target, currentPage, onClick }: NavLinkProps) {
   return (
     <Link
       href={resolveLegacyPagePath(target) ?? '/'}
+      prefetch={false}
       onClick={onClick}
       aria-current={isCurrent ? 'page' : undefined}
-      className={`group relative inline-flex items-center whitespace-nowrap text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-500 futuristic-font ${
+      className={`group relative inline-flex items-center whitespace-nowrap text-[10px] md:text-xs tracking-[0.2em] uppercase transition-colors duration-500 futuristic-font ${
         isCurrent ? 'text-gray-900 font-bold' : 'text-gray-500'
       }`}
     >
@@ -76,7 +79,7 @@ function NavLink({ label, target, currentPage, onClick }: NavLinkProps) {
 
 export function Header() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '/';
   const navRef = useRef<HTMLElement | null>(null);
   const currentPage = getCurrentPageFromPathname(pathname);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -84,6 +87,13 @@ export function Header() {
   const headerSyncFrameRef = useRef<number | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [megaMenuPrimed, setMegaMenuPrimed] = useState(false);
+  const handleMegaMenuClose = useCallback(() => setMegaMenuOpen(false), []);
+  const handleMobileMenuClose = useCallback(() => setMobileOpen(false), []);
+  const primeMegaMenu = useCallback(() => {
+    setMegaMenuPrimed(true);
+    void loadMegaMenu();
+  }, []);
   const [announcementDismissed, setAnnouncementDismissed] = useState(() => {
     if (typeof window === 'undefined') {
       return false;
@@ -97,6 +107,12 @@ export function Header() {
   });
   const { isOpen: multitoolOpen, toggle: toggleMultitool, openAtPosition } =
     useMultitoolStore();
+  const mobilePanelRef = useFocusTrap<HTMLDivElement>({
+    active: mobileOpen,
+    initialFocus: '#mobile-nav-close',
+    clickOutsideDeactivates: false,
+    escapeDeactivates: false,
+  });
 
   useEffect(() => {
     setMegaMenuOpen(false);
@@ -135,15 +151,11 @@ export function Header() {
       return;
     }
 
-    const handleClose = () => {
-      setMobileOpen(false);
-    };
-
-    window.addEventListener('resize', handleClose);
+    window.addEventListener('resize', handleMobileMenuClose);
     return () => {
-      window.removeEventListener('resize', handleClose);
+      window.removeEventListener('resize', handleMobileMenuClose);
     };
-  }, [mobileOpen]);
+  }, [handleMobileMenuClose, mobileOpen]);
 
   useEffect(() => {
     if (mobileOpen || megaMenuOpen || multitoolOpen) {
@@ -234,6 +246,7 @@ export function Header() {
   }`;
 
   const handleExploreToggle = () => {
+    primeMegaMenu();
     if (multitoolOpen) {
       toggleMultitool();
     }
@@ -241,9 +254,27 @@ export function Header() {
     setMegaMenuOpen((open) => !open);
   };
 
+  useEffect(() => {
+    if (!mobileOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      event.preventDefault();
+      handleMobileMenuClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleMobileMenuClose, mobileOpen]);
+
   const handleAccessibilityClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (megaMenuOpen) {
-      setMegaMenuOpen(false);
+      handleMegaMenuClose();
     }
 
     if (multitoolOpen) {
@@ -257,6 +288,8 @@ export function Header() {
       right: window.innerWidth - rect.right,
     });
   };
+
+  const controlPanelUrl = process.env.NEXT_PUBLIC_CONTROL_PANEL_URL?.trim();
 
   return (
     <motion.nav
@@ -294,8 +327,9 @@ export function Header() {
       <div className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 md:gap-8">
         <Link
           href="/"
+          prefetch={false}
           data-testid="logo-link"
-          className={`group flex items-center transition-all duration-300 ${
+          className={`group flex items-center transition-[gap] duration-300 ${
             compactHeader ? 'gap-0 md:min-w-[24px]' : 'gap-3'
           }`}
         >
@@ -305,7 +339,7 @@ export function Header() {
             size={compactHeader ? 18 : 24}
           />
           <div
-            className={`flex flex-col items-start overflow-hidden transition-all duration-300 ${
+            className={`flex flex-col items-start overflow-hidden transition-[max-width,opacity] duration-300 ${
               compactHeader ? 'max-w-0 opacity-0' : 'max-w-[160px] opacity-100'
             }`}
           >
@@ -332,18 +366,20 @@ export function Header() {
           {navGoalsEnabled && (
             <Link
               href={resolveLegacyPagePath('conditions') ?? '/conditions'}
-              className="group flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 transition-all duration-300 hover:text-gray-900 md:text-xs futuristic-font"
+              prefetch={false}
+              className="group flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 transition-colors duration-300 hover:text-gray-900 md:text-xs futuristic-font"
             >
               {batch3NavigationContent.goalsLabel}
             </Link>
           )}
 
           <button
-            onMouseEnter={() => loadMegaMenu()}
+            onMouseEnter={primeMegaMenu}
             onClick={handleExploreToggle}
-            aria-haspopup="true"
+            aria-haspopup="dialog"
             aria-expanded={megaMenuOpen}
-            className={`group flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] transition-all duration-300 md:text-xs futuristic-font ${
+            aria-controls={megaMenuOpen ? 'site-mega-menu' : undefined}
+            className={`group flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] transition-colors duration-300 md:text-xs futuristic-font ${
               megaMenuOpen
                 ? 'text-cyan-500 font-bold'
                 : 'text-gray-500 hover:text-gray-900'
@@ -375,18 +411,20 @@ export function Header() {
           />
         </div>
 
-        <MegaMenu
-          isOpen={megaMenuOpen}
-          onClose={() => setMegaMenuOpen(false)}
-          onNavigate={(page, techId) => {
-            setMegaMenuOpen(false);
-            if (techId) {
-              navigateWithScroll(router, `/product/${techId.toLowerCase()}`);
-              return;
-            }
-            navigate(page);
-          }}
-        />
+        {megaMenuPrimed ? (
+          <MegaMenu
+            isOpen={megaMenuOpen}
+            onClose={handleMegaMenuClose}
+            onNavigate={(page, techId) => {
+              handleMegaMenuClose();
+              if (techId) {
+                navigateWithScroll(router, `/product/${techId.toLowerCase()}`);
+                return;
+              }
+              navigate(page);
+            }}
+          />
+        ) : null}
 
         <div
           className={`hidden items-center md:ml-auto md:flex ${
@@ -409,7 +447,9 @@ export function Header() {
                     : 'text-gray-600 hover:bg-slate-100'
                 }`}
                 aria-label="Open accessibility tools"
+                aria-haspopup="dialog"
                 aria-expanded={multitoolOpen}
+                aria-controls={multitoolOpen ? 'multitool-accessibility-tools' : undefined}
               >
                 <Accessibility size={20} />
               </button>
@@ -463,24 +503,77 @@ export function Header() {
                 Basket
               </span>
             </div>
+
+            <div
+              className={`flex items-center text-center ${
+                compactHeader ? 'w-auto flex-row gap-0' : 'w-14 flex-col gap-1'
+              }`}
+            >
+              <Link
+                href="/nexus"
+                prefetch={false}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                aria-label="Open Nexus workspace"
+              >
+                <Hexagon size={20} className="text-gray-600" />
+              </Link>
+              <span
+                className={`text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${
+                  compactHeader ? 'hidden' : ''
+                }`}
+              >
+                Nexus
+              </span>
+            </div>
+
+            {controlPanelUrl && (
+              <div
+                className={`flex items-center text-center ${
+                  compactHeader ? 'w-auto flex-row gap-0' : 'w-14 flex-col gap-1'
+                }`}
+              >
+                <Link
+                  href={controlPanelUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                  aria-label="Open control panel"
+                >
+                  <SlidersHorizontal size={20} className="text-gray-600" />
+                </Link>
+                <span
+                  className={`text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500 ${
+                    compactHeader ? 'hidden' : ''
+                  }`}
+                >
+                  Panel
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <Link
-            href={resolveLegacyPagePath('store') ?? '/store'}
-            onClick={() => setMobileOpen(false)}
-            className="rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-700 transition-colors hover:bg-slate-100"
-          >
-            Store
-          </Link>
-          <GlobalSearch onNavigate={navigate} />
+          {!mobileOpen && (
+            <>
+              <Link
+                href={resolveLegacyPagePath('store') ?? '/store'}
+                prefetch={false}
+                onClick={() => setMobileOpen(false)}
+                className="rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-700 transition-colors hover:bg-slate-100"
+              >
+                Store
+              </Link>
+              <GlobalSearch onNavigate={navigate} />
+            </>
+          )}
           <button
             onClick={() => setMobileOpen((open) => !open)}
             className="min-h-11 min-w-11 rounded-lg transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-haspopup="dialog"
             aria-expanded={mobileOpen}
-            aria-controls="mobile-nav-panel"
+            aria-controls={mobileOpen ? 'mobile-nav-panel' : undefined}
           >
             {mobileOpen ? <X /> : <Menu />}
           </button>
@@ -490,8 +583,13 @@ export function Header() {
       <AnimatePresence>
         {mobileOpen && (
           <div
+            ref={mobilePanelRef}
             id="mobile-nav-panel"
-            className="absolute top-full left-0 flex h-screen w-full flex-col space-y-8 border-b border-gray-100 bg-white p-8 md:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-nav-title"
+            tabIndex={-1}
+            className="fixed inset-x-0 bottom-0 top-[var(--route-header-height,0px)] z-[55] flex w-full flex-col overflow-y-auto overscroll-contain border-b border-gray-100 bg-white p-8 md:hidden"
             style={{
               backgroundColor: '#ffffff',
               opacity: 1,
@@ -499,6 +597,24 @@ export function Header() {
               WebkitBackdropFilter: 'none',
             }}
           >
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <h2
+                id="mobile-nav-title"
+                className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600"
+              >
+                Navigation
+              </h2>
+              <button
+                id="mobile-nav-close"
+                type="button"
+                onClick={handleMobileMenuClose}
+                className="min-h-11 min-w-11 rounded-lg text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2"
+                aria-label="Close navigation menu"
+              >
+                <X />
+              </button>
+            </div>
+
             {headerTrustEnabled && (
               <div className="space-y-2">
                 {trustMarkers.slice(0, 2).map((marker) => (
@@ -516,39 +632,45 @@ export function Header() {
               label="Concept"
               target="home"
               currentPage={currentPage}
-              onClick={() => setMobileOpen(false)}
+              onClick={handleMobileMenuClose}
             />
             {navGoalsEnabled && (
               <NavLink
                 label="Goals"
                 target="conditions"
                 currentPage={currentPage}
-                onClick={() => setMobileOpen(false)}
+                onClick={handleMobileMenuClose}
               />
             )}
             <NavLink
               label="Store"
               target="store"
               currentPage={currentPage}
-              onClick={() => setMobileOpen(false)}
+              onClick={handleMobileMenuClose}
+            />
+            <NavLink
+              label="Nexus"
+              target="nexus"
+              currentPage={currentPage}
+              onClick={handleMobileMenuClose}
             />
             <NavLink
               label="Ecosystem"
               target="tech"
               currentPage={currentPage}
-              onClick={() => setMobileOpen(false)}
+              onClick={handleMobileMenuClose}
             />
             <NavLink
               label="Wellness Planner"
               target="wellness-planner"
               currentPage={currentPage}
-              onClick={() => setMobileOpen(false)}
+              onClick={handleMobileMenuClose}
             />
             <NavLink
               label="Contact"
               target="contact"
               currentPage={currentPage}
-              onClick={() => setMobileOpen(false)}
+              onClick={handleMobileMenuClose}
             />
 
             {navGoalsEnabled && (
@@ -557,7 +679,8 @@ export function Header() {
                   <Link
                     key={goal.path}
                     href={resolveLegacyPagePath(goal.path) ?? '/conditions'}
-                    onClick={() => setMobileOpen(false)}
+                    prefetch={false}
+                    onClick={handleMobileMenuClose}
                     className="block text-left text-xs uppercase tracking-[0.15em] text-slate-500 hover:text-slate-900"
                   >
                     {goal.label}

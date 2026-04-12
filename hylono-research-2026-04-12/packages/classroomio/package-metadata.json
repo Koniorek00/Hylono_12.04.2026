@@ -1,0 +1,97 @@
+{
+  "name": "ClassroomIO",
+  "slug": "classroomio",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "ClassroomIO",
+  "version": "Release state UNVERIFIED (secondary trackers suggest v0.3.2)",
+  "version_status": "UNVERIFIED",
+  "license": "Review current repo license before bundling",
+  "license_status": "UNVERIFIED",
+  "what": "Open-source classroom/LMS-style platform for courses, classes, and teaching workflows.",
+  "solves": "Hosted classrooms/courses if Hylono wants structured educational programming.",
+  "users": "Educators and teams building teaching workflows.",
+  "fit": "Interesting only if Hylono plans a structured course/classroom product. Otherwise unnecessary and less mature than surrounding options.",
+  "runtime": "Node monorepo with API/dashboard/docs and local infra dependencies such as Docker and Supabase CLI.",
+  "components": "API, dashboard, docs, and supporting local infrastructure/dev tooling.",
+  "deploy": "Self-hosting appears possible, but maturity and release/version clarity are weak compared with other tools in this stack.",
+  "deps": "Node 22+, Docker, Supabase-related tooling, and further architecture validation.",
+  "datastores": "Likely relational/backend services via Supabase stack; verify before implementation.",
+  "auth": "Likely app-level auth through the platform; verify current state.",
+  "apis": "Repo components suggest API/dashboard split, but production surfaces need validation.",
+  "complexity": "Medium to High",
+  "security": "Course/community user data and classroom interactions require standard controls.",
+  "setup_path": "Do not prioritize without a firm educational-product requirement and fresh verification.",
+  "env": "Node, Docker, Supabase/local env config, app secrets, and deployment-specific settings.",
+  "persistence": "Depends on backend choice; verify architecture first.",
+  "operations": "Project maturity and deployment support are the main concerns.",
+  "failure_points": "Implementing a less mature classroom product when simpler content/community/video tools may suffice.",
+  "integration": "Could matter only if Hylono launches formal course/classroom offerings.",
+  "verify": "Primary unresolved items: current release state, license, production readiness, and actual product need.",
+  "risk": "High maturity and ambiguity risk.",
+  "gdpr": "User/classroom data would require standard handling.",
+  "recommendation": "VERIFY FRESHNESS BEFORE ANY USE / LIKELY LATER",
+  "priority": 51,
+  "overlap": "Could overlap with Jitsi + BookStack + Discourse/Docusaurus + payment/booking flows for simpler education use cases.",
+  "codex_read_first": "Read the maturity and overlap notes first.",
+  "codex_best_path": "Do not implement unless Hylono commits to a real classroom product and the project is revalidated.",
+  "codex_never_assume": "Never trust stale or secondary version data for ClassroomIO.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/classroomio/classroomio",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "UNVERIFIED",
+      "version": "UNVERIFIED",
+      "notes": "Primary code source; freshness needs re-check.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/classroomio/classroomio/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "UNVERIFIED",
+      "version": "no official releases page data confirmed",
+      "notes": "Version uncertainty.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host blog [POTENTIALLY OUTDATED]",
+      "url": "https://classroomio.com/blog/self-hosted-open-source-lms",
+      "kind": "secondary guide",
+      "status": "indexed-only",
+      "license": "blog",
+      "version": "older",
+      "notes": "Use only as secondary context.",
+      "outdated": true
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/classroomio/classroomio",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "UNVERIFIED",
+      "why": "Primary code source."
+    },
+    {
+      "url": "https://github.com/classroomio/classroomio/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "UNVERIFIED",
+      "why": "Used to assess release maturity."
+    },
+    {
+      "url": "https://classroomio.com/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current site",
+      "why": "Product context."
+    }
+  ]
+}

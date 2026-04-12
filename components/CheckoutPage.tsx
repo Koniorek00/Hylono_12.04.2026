@@ -13,9 +13,10 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
     const [step, setStep] = useState<Step>('shipping');
     const [orderComplete, setOrderComplete] = useState(false);
     const [orderId, setOrderId] = useState<string | null>(null);
+    const [orderOutcomeMessage, setOrderOutcomeMessage] = useState('');
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [intendedUseAttestation, setIntendedUseAttestation] = useState(false);
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'card' | 'bank_transfer' | 'financing'>('card');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'card' | 'bank_transfer' | 'financing'>('bank_transfer');
 
     const checkoutTrustEnabled = useFeatureFlag('feature_checkout_trust');
 
@@ -29,6 +30,15 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
         postalCode: '',
         country: 'Poland',
     });
+
+    const isShippingValid =
+        shipping.firstName.trim().length > 0 &&
+        shipping.lastName.trim().length > 0 &&
+        shipping.email.trim().includes('@') &&
+        shipping.address.trim().length > 0 &&
+        shipping.city.trim().length > 0 &&
+        shipping.postalCode.trim().length > 0 &&
+        shipping.country.trim().length > 0;
 
     const steps: { key: Step; label: string; icon: React.ReactNode }[] = [
         { key: 'shipping', label: checkoutContent.steps.shipping, icon: <Truck size={18} /> },
@@ -44,6 +54,9 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
     useEffect(() => {
         if (checkoutActionState.success) {
             setOrderId(checkoutActionState.orderId ?? null);
+            setOrderOutcomeMessage(
+                checkoutActionState.message || `Order ${checkoutActionState.orderId ?? ''} received.`
+            );
             try {
                 if (checkoutActionState.orderId) {
                     sessionStorage.setItem('hylono_last_order_ref', checkoutActionState.orderId);
@@ -75,7 +88,7 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                     </motion.div>
                     <h1 className="text-3xl font-bold text-slate-900 mb-4">{checkoutContent.success.title}</h1>
                     <p className="text-slate-600 mb-8">
-                        {checkoutContent.success.messagePrefix} {shipping.email}
+                        {orderOutcomeMessage || `${checkoutContent.success.messagePrefix} ${shipping.email}`}
                     </p>
                     {orderId && <p className="text-sm text-slate-400 mb-8">{checkoutContent.success.orderPrefix} {orderId}</p>}
                     <button
@@ -200,10 +213,16 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                     </div>
                                     <button
                                         onClick={() => setStep('payment')}
-                                        className="w-full mt-6 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors min-h-11"
+                                        disabled={!isShippingValid}
+                                        className="w-full mt-6 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors min-h-11 disabled:opacity-60 disabled:cursor-not-allowed"
                                     >
                                         {checkoutContent.shipping.continueToPayment}
                                     </button>
+                                    {!isShippingValid && (
+                                        <p className="mt-3 text-sm text-slate-500">
+                                            Complete the shipping fields before continuing to payment.
+                                        </p>
+                                    )}
                                 </motion.div>
                             )}
 
@@ -219,11 +238,11 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                         <CreditCard size={20} /> {checkoutContent.payment.title}
                                     </h2>
                                     <div className="space-y-4">
-                                        <label className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-cyan-500 min-h-11">
-                                            <input type="radio" name="payment" value="card" checked={selectedPaymentMethod === 'card'} onChange={() => setSelectedPaymentMethod('card')} className="accent-cyan-500" />
+                                        <label className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl min-h-11 opacity-60">
+                                            <input type="radio" name="payment" value="card" checked={selectedPaymentMethod === 'card'} onChange={() => setSelectedPaymentMethod('card')} className="accent-cyan-500" disabled />
                                             <div className="flex-1">
                                                 <span className="font-medium">{checkoutContent.payment.cardTitle}</span>
-                                                <p className="text-xs text-slate-400">{checkoutContent.payment.cardDescription}</p>
+                                                <p className="text-xs text-slate-400">Temporarily unavailable in this checkout. Choose bank transfer or financing.</p>
                                             </div>
                                         </label>
                                         <label className="flex items-center gap-4 p-4 border border-slate-200 rounded-xl cursor-pointer hover:border-cyan-500 min-h-11">
@@ -285,6 +304,14 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
                                             </p>
                                             <p className="text-sm text-slate-600">
                                                 {shipping.address}, {shipping.city} {shipping.postalCode}
+                                            </p>
+                                        </div>
+                                        <div className="p-4 bg-slate-50 rounded-xl">
+                                            <p className="text-xs text-slate-400 mb-1">Payment route</p>
+                                            <p className="font-medium">
+                                                {selectedPaymentMethod === 'bank_transfer'
+                                                    ? checkoutContent.payment.bankTransferTitle
+                                                    : checkoutContent.payment.financingTitle}
                                             </p>
                                         </div>
                                     </div>
@@ -406,4 +433,3 @@ export const CheckoutPage: React.FC<{ onNavigate: (page: string) => void }> = ({
         </div>
     );
 };
-

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
 const CUTOUT_IMAGE = '/images/testing/portable-generator-cutout.png';
 const SOURCE_IMAGE = '/images/testing/portable-generator-source.png';
@@ -334,10 +335,13 @@ export default function Product3DAssetLab() {
               </p>
             </div>
             <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white">
-              <img
+              <Image
                 alt="Original supplied product image used to derive the test asset"
                 className="h-auto max-h-[18rem] w-full bg-slate-50 object-contain"
                 src={SOURCE_IMAGE}
+                width={1200}
+                height={1200}
+                sizes="(max-width: 1024px) 100vw, 28rem"
               />
             </div>
           </div>

@@ -1,0 +1,97 @@
+{
+  "name": "Chatwoot",
+  "slug": "chatwoot",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "Chatwoot customer support platform",
+  "version": "v4.12.1",
+  "version_status": "CONFIRMED",
+  "license": "MIT / enterprise cloud exists",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source customer support platform for live chat, inboxes, agents, and messaging channels.",
+  "solves": "Customer support inboxes, website chat, conversation assignment, and support workflows.",
+  "users": "Support and success teams.",
+  "fit": "Good fit if Hylono wants first-party support chat and unified inboxes. Stronger than building chat/support from scratch into the site.",
+  "runtime": "Rails/Postgres/Redis-style application with websockets, workers, and channel integrations.",
+  "components": "Web app, inboxes, agent UI, PostgreSQL, Redis, workers, and channel adapters.",
+  "deploy": "Mature self-host docs exist. Production needs email/channel integrations, storage, and support operations.",
+  "deps": "PostgreSQL, Redis, storage, mail/chat channel credentials, and background jobs.",
+  "datastores": "PostgreSQL and Redis plus uploads storage.",
+  "auth": "Agent/user auth and channel/customer identity within conversations.",
+  "apis": "REST APIs, web widget, webhooks, and channel integrations.",
+  "complexity": "Medium",
+  "security": "Support conversations can contain PII and sensitive service details. Access control and retention matter.",
+  "setup_path": "Good later-phase support tooling candidate. Start only when support volume justifies a dedicated platform.",
+  "env": "DB/Redis settings, app secrets, storage, mail, channel creds, base URL, and worker config.",
+  "persistence": "Back up DB and uploads; conversation history retention needs policy.",
+  "operations": "Agent workflow, channel integrations, and response/SLA ownership matter.",
+  "failure_points": "Adding support tooling before support process is defined, or duplicating CRM/support ownership badly.",
+  "integration": "Can integrate with Next.js site chat widget, Twenty CRM, n8n, Novu, and support analytics.",
+  "verify": "Decide whether support chat/inbox is strategic now or later.",
+  "risk": "Moderate, but useful when customer support scales.",
+  "gdpr": "Support transcripts are personal data; retention/access/export matter.",
+  "recommendation": "LATER / GOOD SUPPORT PLATFORM",
+  "priority": 28.5,
+  "overlap": "Can overlap with CRM notes and email inbox workflows, but fills a clear support role.",
+  "codex_read_first": "Read current support-channel strategy before implementing.",
+  "codex_best_path": "Use Chatwoot when support operations need a dedicated inbox/workflow platform.",
+  "codex_never_assume": "Never deploy chat just because it looks modern; verify support staffing and SLAs first.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://www.chatwoot.com/docs/self-hosted",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v4.12.1",
+      "notes": "Primary self-host docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/chatwoot/chatwoot",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v4.12.1",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker deploy docs",
+      "url": "https://www.chatwoot.com/docs/self-hosted/deployment/docker",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Deployment path.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/chatwoot/chatwoot/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.12.1",
+      "why": "Version source."
+    },
+    {
+      "url": "https://www.chatwoot.com/docs/self-hosted",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/chatwoot/chatwoot",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.12.1",
+      "why": "Code source."
+    }
+  ]
+}

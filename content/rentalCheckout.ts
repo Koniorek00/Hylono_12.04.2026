@@ -1,7 +1,7 @@
 export const rentalCheckoutContent = {
-  title: 'Rental — summary',
+  title: 'Rental summary',
   terms: [
-    'Minimum period: 3 months',
+    'Minimum period: {selectedPlan.minPeriod}',
     'Service and support: included',
     'Buy with a discount: 70% of payments credited toward purchase price',
     'Returns: we arrange courier pickup',
@@ -9,7 +9,7 @@ export const rentalCheckoutContent = {
   termsAcceptance: 'I accept the rental program terms.',
   intendedUse:
     "I confirm that I have reviewed the product's intended use and proper usage information.",
-  paymentButtonPrefix: 'Activate rental — pay',
+  paymentButtonPrefix: 'Submit rental request',
   depositNote:
-    'Deposit returned within 14 days of device inspection after rental ends.',
+    'Deposit and first invoice are confirmed after operator review. The deposit is returned within 14 days of device inspection after rental ends.',
 } as const;

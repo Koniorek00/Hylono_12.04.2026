@@ -5,7 +5,7 @@ import { env } from '@/lib/env';
 import { ORGANIZATION_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
-import { PrivacyClient } from './PrivacyClient';
+import { PrivacyPolicyPage } from '@/components/legal/PolicyPages';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
@@ -43,7 +43,7 @@ export default function PrivacyPageRoute() {
           ])}
         />
       </Suspense>
-      <PrivacyClient />
+      <PrivacyPolicyPage />
     </>
   );
 }

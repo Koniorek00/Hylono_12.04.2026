@@ -1,0 +1,97 @@
+{
+  "name": "Prometheus",
+  "slug": "prometheus",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Prometheus monitoring system",
+  "version": "v3.11.1",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0",
+  "license_status": "CONFIRMED",
+  "what": "Metrics collection, storage, alerting, and query platform for infrastructure and application observability.",
+  "solves": "Infrastructure/app metrics, alerting rules, and time-series visibility across self-hosted services.",
+  "users": "Ops and engineering teams running services that need real observability.",
+  "fit": "Strong fit. Hylono\u2019s stack is large enough that a real metrics layer is justified, especially if self-hosted apps grow.",
+  "runtime": "Single binary/server with TSDB, scrape configs, service discovery, and alert rules.",
+  "components": "Prometheus server, exporters, alerting rules, and usually Alertmanager/Grafana around it.",
+  "deploy": "Straightforward container/Kubernetes deployment. Design scrape targets and retention deliberately.",
+  "deps": "Persistent storage, exporters, service discovery config, and alert routing.",
+  "datastores": "Prometheus local TSDB plus remote-write options if needed.",
+  "auth": "Usually protected behind network/reverse proxy; core Prometheus auth is limited.",
+  "apis": "PromQL, HTTP APIs, scrape endpoints, federation, and remote write/read.",
+  "complexity": "Medium",
+  "security": "Metrics can expose internal topology and sensitive labels; protect endpoints and sanitize labels.",
+  "setup_path": "Deploy alongside Grafana and Alertmanager when more than lightweight uptime checks are needed.",
+  "env": "Scrape configs, retention, storage path, alert configs, and exporter endpoints.",
+  "persistence": "Back up configuration; TSDB backups depend on retention needs and remote-write strategy.",
+  "operations": "Target discovery, alert tuning, storage sizing, and metrics cardinality control matter.",
+  "failure_points": "Unbounded cardinality, poor alert hygiene, and exposing metrics publicly.",
+  "integration": "Backbone for monitoring databases, Kong, app services, n8n, Novu, and infrastructure.",
+  "verify": "Decide whether a simple initial stack is Prometheus + Grafana + exporters + Uptime Kuma, and which services are tier-0.",
+  "risk": "Low to moderate; essential as the stack grows.",
+  "gdpr": "Metrics should avoid personal data labels.",
+  "recommendation": "DEPLOY IN OBSERVABILITY WAVE",
+  "priority": 17,
+  "overlap": "Complements Uptime Kuma rather than replacing it.",
+  "codex_read_first": "Read the service inventory and identify exporters/metrics endpoints first.",
+  "codex_best_path": "Roll out Prometheus with a small curated target set and pair it with Grafana.",
+  "codex_never_assume": "Never scrape everything indiscriminately or allow high-cardinality labels to explode costs.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://prometheus.io/docs/introduction/overview/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v3.11.1",
+      "notes": "Primary docs and architecture intro.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/prometheus/prometheus",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v3.11.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image",
+      "url": "https://hub.docker.com/r/prom/prometheus",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v3.11.1",
+      "notes": "Common deployment artifact.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/prometheus/prometheus/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.11.1",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://prometheus.io/docs/introduction/overview/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.11.1",
+      "why": "Primary architecture source."
+    },
+    {
+      "url": "https://github.com/prometheus/prometheus",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.11.1",
+      "why": "Code source."
+    }
+  ]
+}

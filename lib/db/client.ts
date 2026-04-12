@@ -66,6 +66,7 @@ const bootstrapCoreTables = async (db: HylonoDatabase): Promise<void> => {
       phone text,
       company text,
       inquiry_type text NOT NULL,
+      submission_hash text,
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `);
@@ -83,6 +84,7 @@ const bootstrapCoreTables = async (db: HylonoDatabase): Promise<void> => {
       tech_interest text,
       notes text,
       booking_type text NOT NULL,
+      submission_hash text,
       created_at timestamptz NOT NULL DEFAULT now()
     )
   `);
@@ -105,13 +107,18 @@ const bootstrapCoreTables = async (db: HylonoDatabase): Promise<void> => {
       order_id text NOT NULL UNIQUE,
       payment_method text NOT NULL,
       email text NOT NULL,
+      request_fingerprint text,
       shipping jsonb NOT NULL,
       items jsonb NOT NULL,
       total_cents integer NOT NULL,
       currency text NOT NULL DEFAULT 'pln',
       status text NOT NULL,
       stripe_payment_intent_id text,
-      created_at timestamptz NOT NULL DEFAULT now()
+      stripe_client_secret text,
+      last_error_message text,
+      paid_at timestamptz,
+      created_at timestamptz NOT NULL DEFAULT now(),
+      updated_at timestamptz NOT NULL DEFAULT now()
     )
   `);
 
@@ -125,13 +132,89 @@ const bootstrapCoreTables = async (db: HylonoDatabase): Promise<void> => {
       term_months integer NOT NULL,
       status text NOT NULL,
       total_monthly_cents integer NOT NULL,
+      submission_hash text,
       created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `);
+
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+      id text PRIMARY KEY,
+      event_type text NOT NULL,
+      stripe_payment_intent_id text,
+      order_id text,
+      processed_at timestamptz NOT NULL DEFAULT now()
     )
   `);
 
   await db.execute(sql`
     ALTER TABLE IF EXISTS rental_applications
     ADD COLUMN IF NOT EXISTS contact jsonb
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS contact_inquiries
+    ADD COLUMN IF NOT EXISTS submission_hash text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS booking_requests
+    ADD COLUMN IF NOT EXISTS submission_hash text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS checkout_orders
+    ADD COLUMN IF NOT EXISTS request_fingerprint text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS checkout_orders
+    ADD COLUMN IF NOT EXISTS stripe_client_secret text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS checkout_orders
+    ADD COLUMN IF NOT EXISTS last_error_message text
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS checkout_orders
+    ADD COLUMN IF NOT EXISTS paid_at timestamptz
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS checkout_orders
+    ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE IF EXISTS rental_applications
+    ADD COLUMN IF NOT EXISTS submission_hash text
+  `);
+
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS contact_inquiries_submission_hash_idx
+    ON contact_inquiries (submission_hash)
+  `);
+
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS booking_requests_submission_hash_idx
+    ON booking_requests (submission_hash)
+  `);
+
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS checkout_orders_request_fingerprint_idx
+    ON checkout_orders (request_fingerprint)
+  `);
+
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS rental_applications_submission_hash_idx
+    ON rental_applications (submission_hash)
+  `);
+
+  await db.execute(sql`
+    CREATE INDEX IF NOT EXISTS stripe_webhook_events_payment_intent_idx
+    ON stripe_webhook_events (stripe_payment_intent_id)
   `);
 };
 

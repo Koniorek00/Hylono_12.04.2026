@@ -1,0 +1,97 @@
+{
+  "name": "Wazuh",
+  "slug": "wazuh",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "Wazuh security platform",
+  "version": "v4.14.4",
+  "version_status": "CONFIRMED",
+  "license": "GPL-2.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source security platform / SIEM/XDR-style stack for log analysis, endpoint monitoring, integrity checks, and compliance use cases.",
+  "solves": "Security monitoring, alerting, endpoint telemetry, and central security visibility.",
+  "users": "Security and infrastructure teams operating many hosts/services.",
+  "fit": "Useful later if Hylono\u2019s self-hosted footprint grows enough to justify centralized security operations. Not a first-wave requirement.",
+  "runtime": "Manager/indexer/dashboard/agent architecture with significant operational footprint.",
+  "components": "Agents, manager, indexer, dashboard, rules, and security analytics pipelines.",
+  "deploy": "Self-hostable but operationally heavy. Best introduced when there are enough systems to secure centrally.",
+  "deps": "Compute/storage, agent management, network design, rules tuning, and security operations ownership.",
+  "datastores": "Indexer/search cluster and associated metadata.",
+  "auth": "Dashboard/admin auth and agent trust relationships.",
+  "apis": "Security APIs, agent communication, alerting, and dashboards.",
+  "complexity": "High",
+  "security": "Security tooling itself becomes critical infrastructure; access and update hygiene matter.",
+  "setup_path": "Defer until the platform footprint and security maturity justify centralized SIEM/EDR-style tooling.",
+  "env": "Cluster/indexer settings, certificates, agent enrollment, dashboard auth, and storage sizing.",
+  "persistence": "Security logs and indexes require retention policy and storage planning.",
+  "operations": "Rule tuning, false positives, agent lifecycle, and incident workflows dominate.",
+  "failure_points": "Deploying SIEM tooling before there is a team/process to operate it.",
+  "integration": "Could later cover hosts running databases, gateways, app clusters, and critical services.",
+  "verify": "Decide when Hylono\u2019s infra/security maturity is ready for central security operations.",
+  "risk": "High ops burden if premature.",
+  "gdpr": "Security logs can contain personal/system identifiers; retention/access matter.",
+  "recommendation": "LATER / SECURITY-MATURITY DEPENDENT",
+  "priority": 50,
+  "overlap": "Some overlap with cloud-native security monitoring, but broader self-host visibility if adopted.",
+  "codex_read_first": "Read the security-operations maturity notes before recommending Wazuh.",
+  "codex_best_path": "Defer until there is enough infrastructure and ownership to justify it.",
+  "codex_never_assume": "Never deploy SIEM/EDR-style platforms without people/process to run them.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://documentation.wazuh.com/current/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "GPL-2.0",
+      "version": "v4.14.4",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/wazuh/wazuh",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "GPL-2.0",
+      "version": "v4.14.4",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/wazuh/wazuh/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "GPL-2.0",
+      "version": "v4.14.4",
+      "notes": "Version source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/wazuh/wazuh/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.14.4",
+      "why": "Version source."
+    },
+    {
+      "url": "https://documentation.wazuh.com/current/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.14.4",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/wazuh/wazuh",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.14.4",
+      "why": "Code source."
+    }
+  ]
+}

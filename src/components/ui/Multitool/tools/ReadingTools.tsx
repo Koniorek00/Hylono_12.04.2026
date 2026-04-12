@@ -63,7 +63,7 @@ export const ReadingTools: React.FC<ReadingToolsProps> = ({ className = '' }) =>
                 className={`
                   min-h-[44px] rounded-lg
                   flex items-center justify-center
-                  text-sm font-semibold transition-all duration-200
+                  text-sm font-semibold transition-colors duration-200
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
                   ${textSize === size
                     ? 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
@@ -94,7 +94,7 @@ export const ReadingTools: React.FC<ReadingToolsProps> = ({ className = '' }) =>
                 className={`
                   w-full min-h-[44px] rounded-lg px-3
                   flex items-center justify-between
-                  text-sm transition-all duration-200
+                  text-sm transition-colors duration-200
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
                   ${readingFont === font
                     ? 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200'
@@ -125,7 +125,7 @@ export const ReadingTools: React.FC<ReadingToolsProps> = ({ className = '' }) =>
             className={`
               w-full min-h-[44px] rounded-lg px-3
               flex items-center justify-between
-              text-sm transition-all duration-200
+              text-sm transition-colors duration-200
               focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
               ${highContrast
                 ? 'bg-slate-900 text-white'
@@ -163,7 +163,7 @@ export const ReadingTools: React.FC<ReadingToolsProps> = ({ className = '' }) =>
               flex items-center justify-center gap-2
               text-xs text-slate-500 bg-slate-50
               hover:bg-slate-100 hover:text-slate-600
-              transition-all duration-200
+              transition-colors duration-200
               focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
             `}
             aria-label="Reset accessibility settings to default"

@@ -1,0 +1,97 @@
+{
+  "name": "Apache Answer",
+  "slug": "apache-answer",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Apache Answer Q&A platform",
+  "version": "v2.0.0",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source Q&A platform for knowledge sharing, support answers, and Stack Overflow-style interactions.",
+  "solves": "Structured question/answer knowledge exchange with lighter scope than a full forum.",
+  "users": "Support communities, technical communities, and teams that want Q&A more than discussion.",
+  "fit": "Conditional. Better than Discourse only if Hylono wants a narrow, structured Q&A/help surface instead of a broader community forum.",
+  "runtime": "Go/Node-style web platform (verify exact runtime components) with DB/cache/storage and plugin/support features.",
+  "components": "Q&A app, admin UI, database, storage, and optional integrations/plugins.",
+  "deploy": "Docker quick-start exists; production still needs DB, storage, auth decisions, and moderation processes.",
+  "deps": "Database, storage, mail/auth, reverse proxy, and backup plan.",
+  "datastores": "Relational database and storage.",
+  "auth": "Local auth plus possible external provider integrations; verify current options.",
+  "apis": "Q&A platform APIs and admin/plugin surfaces.",
+  "complexity": "Medium",
+  "security": "Public question content, user accounts, moderation, and spam controls require attention.",
+  "setup_path": "Use only if the product need is specifically Q&A/help, not general community.",
+  "env": "DB settings, storage, mail, auth secrets, and base URL.",
+  "persistence": "Back up database and uploads/storage.",
+  "operations": "Moderation, spam handling, upgrade cadence, and taxonomy/content curation matter.",
+  "failure_points": "Choosing a Q&A platform when Hylono really needs docs or community discussions instead.",
+  "integration": "Possible link from site support/help surface and SSO via ZITADEL if supported.",
+  "verify": "Choose between Discourse and Apache Answer explicitly; do not run both casually.",
+  "risk": "Moderate overlap risk.",
+  "gdpr": "User account and content data require standard privacy handling.",
+  "recommendation": "USE ONLY FOR FOCUSED Q&A",
+  "priority": 34,
+  "overlap": "Narrower alternative to Discourse; likely redundant if BookStack/Docusaurus plus Discourse already exist.",
+  "codex_read_first": "Read the overlap map and product-surface decision notes first.",
+  "codex_best_path": "Only implement if Hylono wants a support Q&A surface and not a forum.",
+  "codex_never_assume": "Never assume Q&A, docs, and community forums are interchangeable.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/apache/answer",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v2.0.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Quick start docs",
+      "url": "https://answer.apache.org/docs/installation",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v2.0.0",
+      "notes": "Install guidance.",
+      "outdated": false
+    },
+    {
+      "name": "Docker quick start",
+      "url": "https://answer.apache.org/docs/installation/docker",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v2.0.0",
+      "notes": "Useful for initial deployment.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/apache/answer/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.0.0",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://answer.apache.org/docs/installation",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary setup source."
+    },
+    {
+      "url": "https://github.com/apache/answer",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.0.0",
+      "why": "Code and license source."
+    }
+  ]
+}

@@ -1,15 +1,33 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { resetRateLimitStoreForTests } from '../../app/api/_shared/rate-limit';
 
 const mockInsertValues = vi.fn(async () => undefined);
+const mockSelectWhere = vi.fn(async () => []);
+const mockSelectFrom = vi.fn(() => ({
+  where: mockSelectWhere,
+}));
+const mockUpdateWhere = vi.fn(async () => undefined);
+const mockUpdateSet = vi.fn(() => ({
+  where: mockUpdateWhere,
+}));
 const mockDb = {
   insert: vi.fn(() => ({
     values: mockInsertValues,
+  })),
+  select: vi.fn(() => ({
+    from: mockSelectFrom,
+  })),
+  update: vi.fn(() => ({
+    set: mockUpdateSet,
   })),
 };
 
 const mockDispatchIntakeEventToN8n = vi.fn(async () => undefined);
 const mockSyncAndNotifySubscriberViaNovu = vi.fn(async () => undefined);
 const mockSyncPersonAndFollowUpToTwenty = vi.fn(async () => undefined);
+const mockAuth = vi.fn<() => Promise<{ user: { email: string } } | null>>(
+  async () => null
+);
 
 vi.mock('@/lib/db/client', () => ({
   isDatabaseConfigured: () => true,
@@ -37,6 +55,10 @@ vi.mock('@/lib/integrations/twenty', () => ({
   syncPersonAndFollowUpToTwenty: mockSyncPersonAndFollowUpToTwenty,
 }));
 
+vi.mock('@/lib/auth', () => ({
+  auth: mockAuth,
+}));
+
 const { POST: postBooking } = await import('../../app/api/booking/route');
 const { POST: postCheckout } = await import('../../app/api/checkout/route');
 const { POST: postContact } = await import('../../app/api/contact/route');
@@ -53,7 +75,10 @@ const createJsonRequest = (path: string, body: unknown): Request =>
 
 describe('Phase 2 Twenty follow-ups', () => {
   beforeEach(() => {
+    resetRateLimitStoreForTests();
     vi.clearAllMocks();
+    mockAuth.mockReset();
+    mockSelectWhere.mockResolvedValue([]);
   });
 
   it('creates a company-aware contact follow-up task', async () => {
@@ -151,7 +176,7 @@ describe('Phase 2 Twenty follow-ups', () => {
         city: 'Warsaw',
         postalCode: '00-001',
         country: 'Poland',
-        termMonths: 12,
+        termMonths: 6,
         items: [
           {
             techId: 'tech-hbot',

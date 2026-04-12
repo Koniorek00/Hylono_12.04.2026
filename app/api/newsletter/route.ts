@@ -12,6 +12,8 @@ import { newsletterSubscriptionsTable } from '@/lib/db/schema';
 import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
 import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
 import { syncPersonToTwenty } from '@/lib/integrations/twenty';
+import { fetchWithTimeout } from '../_shared/http';
+import { consumeRateLimit, createRateLimitResponse } from '../_shared/rate-limit';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface NewsletterRequest {
@@ -37,8 +39,22 @@ const newsletterSchema = z.object({
     source: z.string().trim().max(100).optional().default('unknown'),
 }) satisfies z.ZodType<NewsletterRequest>;
 
+const NEWSLETTER_RATE_LIMIT = {
+    bucket: 'newsletter',
+    limit: 8,
+    windowMs: 10 * 60 * 1000,
+} as const;
+
 export async function POST(request: Request): Promise<Response> {
     try {
+        const rateLimitState = consumeRateLimit(request, NEWSLETTER_RATE_LIMIT);
+        if (!rateLimitState.allowed) {
+            return createRateLimitResponse(
+                rateLimitState,
+                'Too many newsletter requests. Please wait a few minutes and try again.'
+            );
+        }
+
         const rawBody = await readJsonBody(request);
         const parsed = newsletterSchema.safeParse(rawBody);
 
@@ -70,25 +86,27 @@ export async function POST(request: Request): Promise<Response> {
         await ensureDatabaseReady();
         const db = getDb();
 
-        try {
-            await db.insert(newsletterSubscriptionsTable).values({
+        const persistedAt = new Date();
+
+        await db
+            .insert(newsletterSubscriptionsTable)
+            .values({
                 id: crypto.randomUUID(),
                 email: sanitizedEmail,
                 firstName: sanitizedFirstName,
                 source,
                 providerSynced: false,
-            });
-        } catch {
-            await db
-                .update(newsletterSubscriptionsTable)
-                .set({
+                updatedAt: persistedAt,
+            })
+            .onConflictDoUpdate({
+                target: newsletterSubscriptionsTable.email,
+                set: {
                     firstName: sanitizedFirstName,
                     source,
                     providerSynced: false,
-                    updatedAt: new Date(),
-                })
-                .where(eq(newsletterSubscriptionsTable.email, sanitizedEmail));
-        }
+                    updatedAt: persistedAt,
+                },
+            });
 
         const resendApiKey = env.RESEND_API_KEY;
         const resendAudienceId = env.RESEND_AUDIENCE_ID;
@@ -102,35 +120,44 @@ export async function POST(request: Request): Promise<Response> {
                 unsubscribed: false,
             };
 
-            const audienceResponse = await fetch(
-                `https://api.resend.com/audiences/${resendAudienceId}/contacts`,
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${resendApiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(audiencePayload),
-                }
-            );
+            try {
+                const audienceResponse = await fetchWithTimeout(
+                    `https://api.resend.com/audiences/${resendAudienceId}/contacts`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${resendApiKey}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(audiencePayload),
+                    }
+                );
 
-            if (!audienceResponse.ok && audienceResponse.status !== 409) {
-                const audienceErrorText = await audienceResponse.text();
+                if (!audienceResponse.ok && audienceResponse.status !== 409) {
+                    const audienceErrorText = await audienceResponse.text();
+                    console.error('[newsletter] Resend audience upsert failed', {
+                        source,
+                        status: audienceResponse.status,
+                        body: audienceErrorText,
+                    });
+                } else {
+                    providerSynced = true;
+                }
+            } catch (error) {
                 console.error('[newsletter] Resend audience upsert failed', {
                     source,
-                    status: audienceResponse.status,
-                    body: audienceErrorText,
+                    error,
                 });
-            } else {
-                providerSynced = true;
             }
         }
+
+        const updatedAt = new Date();
 
         await db
             .update(newsletterSubscriptionsTable)
             .set({
                 providerSynced,
-                updatedAt: new Date(),
+                updatedAt,
             })
             .where(eq(newsletterSubscriptionsTable.email, sanitizedEmail));
 
@@ -170,9 +197,14 @@ export async function POST(request: Request): Promise<Response> {
         // Non-PII operational log (keep for observability until provider integration is wired)
         console.info(`[newsletter] Subscription accepted: source=${source}`);
 
+        const responseStatus = providerSynced ? 200 : 202;
+        const responseMessage = providerSynced
+            ? 'You are subscribed to Hylono updates.'
+            : 'Your subscription request is saved, but email delivery sync is temporarily delayed.';
+
         return Response.json(
-            { success: true, message: 'Thank you for subscribing! Check your inbox to confirm.' } satisfies NewsletterResponse,
-            { status: 200 }
+            { success: true, message: responseMessage } satisfies NewsletterResponse,
+            { status: responseStatus }
         );
     } catch (error) {
         console.error('[newsletter] Error processing subscription:', error);

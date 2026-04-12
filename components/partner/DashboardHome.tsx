@@ -78,7 +78,7 @@ const QUICK_ACTIONS: QuickActionProps[] = [
         icon: Users,
         label: 'Add Client',
         description: 'Register a new client in Nexus',
-        href: '/nexus/clients',
+        href: '/nexus/clients?action=new',
         iconBg: 'bg-cyan-50',
         iconColor: 'text-cyan-600',
     },
@@ -94,7 +94,7 @@ const QUICK_ACTIONS: QuickActionProps[] = [
         icon: Palette,
         label: 'Create Campaign',
         description: 'Open marketing studio',
-        href: '/nexus/studio',
+        href: '/nexus/studio?action=new',
         iconBg: 'bg-purple-50',
         iconColor: 'text-purple-600',
     },
@@ -189,7 +189,7 @@ export const DashboardHome: React.FC = () => {
                     <p className="text-sm text-slate-400 mt-0.5">{today}</p>
                 </div>
                 <Link
-                    href="/nexus/clients"
+                    href="/nexus/clients?action=new"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
                 >
                     <Plus className="w-4 h-4" />
@@ -273,7 +273,7 @@ export const DashboardHome: React.FC = () => {
                 >
                     <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                         <h2 className="text-sm font-semibold text-slate-900">Fleet Status</h2>
-                        <Link href="/nexus/fleet" className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
+                        <Link href="/nexus/fleet?device=d3" className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
                             Manage <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                     </div>
@@ -281,7 +281,7 @@ export const DashboardHome: React.FC = () => {
                         {FLEET_ROWS.map((device) => (
                             <Link
                                 key={device.id}
-                                href="/nexus/fleet"
+                                href={`/nexus/fleet?device=${device.id}`}
                                 className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors group"
                             >
                                 <div className="flex-1 min-w-0">
@@ -303,7 +303,7 @@ export const DashboardHome: React.FC = () => {
                     {FLEET_ROWS.some(d => d.status === 'maintenance') && (
                         <div className="px-5 py-3 bg-amber-50 border-t border-amber-100 flex items-center gap-2 text-xs text-amber-700">
                             <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                            <span>Core PEMF Mat has an open service ticket. <Link href="/nexus/fleet" className="font-bold underline hover:no-underline">View details</Link></span>
+                            <span>Core PEMF Mat has an open service ticket. <Link href="/nexus/fleet?device=d3" className="font-bold underline hover:no-underline">View details</Link></span>
                         </div>
                     )}
                 </motion.div>

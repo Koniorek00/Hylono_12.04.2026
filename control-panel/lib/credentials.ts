@@ -149,8 +149,8 @@ export function getFirstLoginEntries(): FirstLoginEntry[] {
       usernameLabel: "Username",
       usernameValue: "root@zitadel.localhost",
       passwordLabel: "Password",
-      passwordValue: "RootPassword1!",
-      notes: "Local Zitadel now runs with the self-hosted login v2 flow and a seeded root admin. This is still an operator-level IAM service, but you do not need a separate bootstrap step anymore.",
+      passwordValue: env.ZITADEL_BOOTSTRAP_PASSWORD || "Check .env",
+      notes: "Local Zitadel now runs with the self-hosted login v2 flow and a seeded root admin. The bootstrap password is read from .env instead of being hardcoded in compose.",
     },
     {
       id: "novu",

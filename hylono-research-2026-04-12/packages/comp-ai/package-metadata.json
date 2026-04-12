@@ -1,0 +1,97 @@
+{
+  "name": "Comp AI",
+  "slug": "comp-ai",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Comp AI compliance operations platform",
+  "version": "v1.72.2 observed",
+  "version_status": "PARTLY VERIFIED from current repo comparisons",
+  "license": "AGPL-3.0 core with commercial /ee",
+  "license_status": "CONFIRMED",
+  "what": "Open-core compliance operations platform for policies, controls, evidence, and governance workflows.",
+  "solves": "Compliance program management, evidence collection, control mapping, and operational governance workflows.",
+  "users": "Security/compliance teams running structured control frameworks.",
+  "fit": "Useful only if Hylono is actively building a formal compliance program. It is not an early operational necessity for the product stack itself.",
+  "runtime": "Web platform with database, multiple app components, and evidence/control workflows.",
+  "components": "Policy/control management, evidence workflows, user/admin surfaces, and integrations.",
+  "deploy": "Self-host docs exist in repo; production requires careful access control and governance ownership.",
+  "deps": "Database, storage, auth, mail, and process owners for controls/evidence.",
+  "datastores": "Relational database plus evidence/document storage.",
+  "auth": "Local users and likely SSO options in enterprise contexts.",
+  "apis": "App surfaces and integrations for evidence/control workflows.",
+  "complexity": "Medium to High",
+  "security": "Compliance tooling handles sensitive internal evidence and control data. Access controls and auditability matter.",
+  "setup_path": "Do not prioritize until a formal compliance program has owners, frameworks, and evidence processes.",
+  "env": "DB settings, app secrets, storage/auth/mail config, and service-specific env files.",
+  "persistence": "Back up DB and evidence storage.",
+  "operations": "Framework upkeep, evidence lifecycle, and integration maintenance matter more than deployment.",
+  "failure_points": "Deploying compliance software before the organization is ready to operate a real compliance program.",
+  "integration": "Could pair with Fides, Retraced, Wazuh, Infisical, and internal docs if governance becomes a strategic workstream.",
+  "verify": "Confirm whether Hylono is actively pursuing frameworks that justify dedicated compliance operations tooling.",
+  "risk": "Moderate to high process mismatch risk.",
+  "gdpr": "Mostly internal governance data, but may contain sensitive evidence and access data.",
+  "recommendation": "LATER / ONLY IF FORMAL COMPLIANCE PROGRAM IS ACTIVE",
+  "priority": 40,
+  "overlap": "Partial overlap with Fides and internal docs/evidence systems, but different focus.",
+  "codex_read_first": "Read the compliance strategy notes before recommending Comp AI.",
+  "codex_best_path": "Only implement when there are named owners, frameworks, and evidence workflows to support.",
+  "codex_never_assume": "Never assume software creates a compliance program by itself.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/comp-ai/comp-ai",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0 core/commercial ee",
+      "version": "v1.72.2 observed",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-hosting doc",
+      "url": "https://github.com/comp-ai/comp-ai/blob/main/SELF_HOSTING.md",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "current",
+      "notes": "Primary deployment reference.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/comp-ai/comp-ai/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "see repo",
+      "version": "v1.72.2 observed",
+      "notes": "Version reference.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/comp-ai/comp-ai",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.72.2 observed",
+      "why": "Code and license source."
+    },
+    {
+      "url": "https://github.com/comp-ai/comp-ai/blob/main/SELF_HOSTING.md",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Self-host guidance."
+    },
+    {
+      "url": "https://github.com/comp-ai/comp-ai/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.72.2 observed",
+      "why": "Version reference used in research."
+    }
+  ]
+}

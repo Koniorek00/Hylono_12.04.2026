@@ -9,6 +9,7 @@ import {
   createWebPageSchema,
   SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
+import { getProductTopicalLinks } from '@/content/topical-graph';
 import { TECH_DETAILS } from '@/constants';
 import { BLOG_POSTS } from '@/constants/content';
 import { toBlogSlug } from '@/lib/blog';
@@ -27,6 +28,7 @@ import { ProductClient } from './ProductClient';
 type Params = Promise<{ tech: string }>;
 
 // [DECISION: product route is catalog-style semi-dynamic content and should rely on cache components/runtime caching; reverse if product data becomes per-user personalized.]
+// Rendering strategy: server-rendered product metadata and schema with a client detail layer for interactive comparison, financing, and configuration.
 
 const resolveProductRoute = (rawTech: string) => {
   const normalizedTech = rawTech.toLowerCase();
@@ -60,12 +62,20 @@ const PRODUCT_OG_IMAGES: Record<string, string> = {
   hbot: '/images/chambers/oxyhelp-chambers-hero.jpg',
 };
 
+const getProductSeoDescription = (productName: string): string =>
+  `Compare ${productName} pricing, rental options, technical specifications, delivery policies, and protocol guidance.`;
+
+const resolvePriceCurrency = (priceLabel: string): string => {
+  if (/\bPLN\b/i.test(priceLabel)) return 'PLN';
+  if (/\bEUR\b/i.test(priceLabel)) return 'EUR';
+  if (/\$|USD/i.test(priceLabel)) return 'USD';
+  return 'EUR';
+};
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { tech: rawTech } = await params;
   const { canonicalSlug, techData } = resolveProductRoute(rawTech);
-  const productSummary =
-    techData.descriptionStandard ||
-    `Compare ${techData.name} pricing, rental options, specifications, and setup guidance.`;
+  const productSummary = getProductSeoDescription(`Hylono ${techData.name}`);
 
   return createPageMetadata({
     title: `${techData.name} | Pricing, Rental Plans, Specs and Evidence`,
@@ -84,15 +94,16 @@ export default async function ProductPageRoute({ params }: { params: Params }) {
   const { tech: rawTech } = await params;
   const { canonicalSlug, techData } = resolveProductRoute(rawTech);
   const productName = `Hylono ${techData.name}`;
-  const productDescription =
-    techData.descriptionStandard ||
-    `Explore Hylono ${techData.name} technology details, practical usage guidance, and evidence-informed routines designed to support wellbeing goals.`;
+  const productDescription = getProductSeoDescription(productName);
   const PRODUCT_IMAGES: Record<string, string> = {
     hbot: '/images/chambers/oxyhelp-chambers-hero.jpg',
   };
+  const topicalGraphLinks = getProductTopicalLinks(canonicalSlug).map(
+    (link) => `${SITE_URL}${link.href}`
+  );
   const similarProductSlugs = getAllTechRouteSlugs().filter((s) => s !== canonicalSlug);
   const priceStr = techData.price;
-  const priceCurrency = priceStr.includes('$') ? 'USD' : priceStr.includes('€') ? 'EUR' : 'EUR';
+  const priceCurrency = resolvePriceCurrency(priceStr);
   const priceValue = Number(priceStr.replace(/[^0-9.]/g, '')) || undefined;
   const productSchema = {
     ...createProductSchema({
@@ -196,12 +207,7 @@ export default async function ProductPageRoute({ params }: { params: Params }) {
       '@type': 'SpeakableSpecification',
       cssSelector: ['#product-hero'],
     },
-    relatedLink: [
-      `${SITE_URL}/rental`,
-      `${SITE_URL}/protocols`,
-      `${SITE_URL}/research`,
-      `${SITE_URL}/conditions`,
-    ],
+    relatedLink: topicalGraphLinks,
   };
   const breadcrumbSchema = createBreadcrumbSchema([
     { name: 'Home', path: '/' },

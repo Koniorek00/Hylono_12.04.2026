@@ -84,7 +84,7 @@ const FAQS: FAQ[] = [
   },
   {
     q: "How do I back up the stack?",
-    a: "Run bash scripts/backup.sh. That script writes timestamped backup artifacts under /backups/hylono/YYYY-MM-DD/.",
+    a: "Run bash scripts/backup.sh. The script now writes a timestamped backup bundle with PostgreSQL, Redis, optional MongoDB archive support, MinIO data, Uptime Kuma data, and a config snapshot under /backups/hylono/.",
   },
   {
     q: "Can I run only some services instead of everything?",
@@ -92,7 +92,7 @@ const FAQS: FAQ[] = [
   },
   {
     q: "Are Phase 1B and later runnable from this repo?",
-    a: "Not yet. They are catalogued in the manifest and visible in the stack explorer, but the compose files included in this checkout currently cover only infrastructure and Phase 1A.",
+    a: "The default launcher still focuses on infrastructure plus the verified Phase 1A runtime. Kong and Prometheus now ship as part of the local control plane, but the broader Phase 1B, Phase 1C, and business-app Phase 2 catalog still needs service-specific rollout work before it becomes part of the default local path.",
   },
   {
     q: "Are all Phase 1A services runnable from this repo now?",

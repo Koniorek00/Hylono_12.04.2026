@@ -16,7 +16,6 @@ src/
 │   ├── layout/             # Header/Footer/GlobalOverlays primitives
 │   ├── providers/          # Providers wrapper used by app layout
 │   ├── ui/                 # Canonical shared UI layer (preferred for new UI work)
-│   └── hero-4.6t/          # Landing sections and composition blocks
 ├── lib/
 │   ├── analytics.ts        # Analytics integration surface
 │   ├── stripe.ts           # Payment integration helpers

@@ -1,0 +1,97 @@
+{
+  "name": "Mautic",
+  "slug": "mautic",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "Mautic marketing automation platform",
+  "version": "7.0.1",
+  "version_status": "CONFIRMED",
+  "license": "GPL-3.0",
+  "license_status": "CONFIRMED",
+  "what": "Marketing automation platform for campaigns, segments, email journeys, forms, and lead nurturing.",
+  "solves": "Advanced lifecycle marketing automation beyond simple newsletters or transactional notifications.",
+  "users": "Marketing teams running complex nurture campaigns and multi-step journeys.",
+  "fit": "Useful only if Hylono wants serious marketing automation. Otherwise Listmonk + Novu + n8n likely cover current needs with less overhead.",
+  "runtime": "PHP application with DB, queues/cron, mail, and campaign/segment logic.",
+  "components": "Campaign builder, contacts/segments, forms/emails, DB, cron/jobs, and integrations.",
+  "deploy": "Self-host is possible but operationally heavier than Listmonk.",
+  "deps": "Database, mail, cron/queue, storage, and marketing-process ownership.",
+  "datastores": "Relational database.",
+  "auth": "Admin users and API access.",
+  "apis": "Marketing APIs, forms, webhooks, and campaign automations.",
+  "complexity": "Medium to High",
+  "security": "Marketing contacts, tracking, and consent handling require strong process governance.",
+  "setup_path": "Only adopt if advanced nurture journeys become a real growth need.",
+  "env": "DB settings, mail, app secrets, cron, storage, and tracking config.",
+  "persistence": "Back up DB and templates/assets.",
+  "operations": "Deliverability, campaign QA, consent management, and cron reliability matter.",
+  "failure_points": "Overkill compared to simpler newsletter/transactional stack.",
+  "integration": "Can integrate with site forms, CRM, n8n, and analytics if lifecycle marketing becomes strategic.",
+  "verify": "Decide whether advanced marketing automation is really needed beyond Listmonk/Novu/n8n.",
+  "risk": "Moderate overlap/complexity risk.",
+  "gdpr": "Marketing consent and contact data handling are central.",
+  "recommendation": "LATER / ONLY IF ADVANCED MARKETING AUTOMATION IS NEEDED",
+  "priority": 38.5,
+  "overlap": "Heavily overlaps with Listmonk, Dittofeed, and some n8n/Novu workflows.",
+  "codex_read_first": "Read the overlap map with Listmonk/Novu before planning Mautic.",
+  "codex_best_path": "Use only when a real nurture-marketing program requires it.",
+  "codex_never_assume": "Never adopt a marketing automation suite before the team/process is ready to operate it.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.mautic.org/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "GPL-3.0",
+      "version": "7.0.1",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/mautic/mautic",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "GPL-3.0",
+      "version": "7.0.1",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker docs",
+      "url": "https://docs.mautic.org/en/7.0/getting_started/how_to_install_mautic.html",
+      "kind": "install docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "7.0.1",
+      "notes": "Install guidance.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/mautic/mautic/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.0.1",
+      "why": "Version source."
+    },
+    {
+      "url": "https://docs.mautic.org/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.0.1",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/mautic/mautic",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.0.1",
+      "why": "Code source."
+    }
+  ]
+}

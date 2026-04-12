@@ -1,0 +1,97 @@
+{
+  "name": "ZITADEL",
+  "slug": "zitadel",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "ZITADEL identity and access management platform",
+  "version": "v4.12.3",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / verify current distribution terms if enterprise features are considered",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Identity and access management platform with SSO, MFA, passkeys, OIDC, SAML, SCIM, and organization/project models.",
+  "solves": "Centralized authentication, SSO, machine identity, tenant/org identity management, and standards-based auth brokering across applications.",
+  "users": "Engineering and platform teams that want a self-hostable identity provider rather than stitching auth separately into every internal tool.",
+  "fit": "Excellent fit. Hylono already runs Auth.js on the site, and ZITADEL is the strongest self-hosted candidate in this stack for cross-app SSO, machine identities, and externalized identity governance.",
+  "runtime": "Go-based IAM platform with database, admin console, auth endpoints, and standards-based identity protocols.",
+  "components": "Identity service, console, database, TLS endpoints, email/SMS/provider integrations, and optional Helm/Kubernetes deployment artifacts.",
+  "deploy": "Official Docker Compose exists for evaluation, but official docs recommend Kubernetes/Helm for production-scale self-hosting.",
+  "deps": "Database, TLS/reverse proxy, mail/SMS providers, secrets management, backup/restore, and identity-provider configuration.",
+  "datastores": "Relational database plus config/secrets and optional external providers.",
+  "auth": "It is the auth layer: OIDC, OAuth2, SAML, SCIM, MFA, passkeys, service users, and organization/project-scoped controls.",
+  "apis": "OIDC/OAuth2 endpoints, management APIs, SCIM, SAML, and admin/automation interfaces.",
+  "complexity": "High",
+  "security": "This is a tier-0 identity system. Key management, domain/TLS correctness, email/SMS trust chains, and upgrade discipline are critical.",
+  "setup_path": "Use official self-host docs; start with evaluation on Docker only if needed, but target production architecture around the official Helm/Kubernetes path.",
+  "env": "DB settings, external domain, TLS, machine keys, SMTP, SMS/IDP configs, org/project setup, and backup strategy.",
+  "persistence": "Back up the database and any relevant keys/config; identity recovery planning matters.",
+  "operations": "Version upgrades, OIDC client management, key rotation, domain verification, email deliverability, and incident response preparedness.",
+  "failure_points": "Treating identity as a side project, underestimating migration from existing Auth.js/NextAuth flows, and misconfiguring redirect URIs or external domains.",
+  "integration": "High-value integration with Next.js/Auth.js as an external IdP, internal tool SSO (Twenty, Appsmith, Metabase, BookStack, etc.), Kong/OIDC, and machine-to-machine auth patterns.",
+  "verify": "Decide whether Hylono wants ZITADEL to become the central IdP now, or whether Auth.js remains primary for the site while ZITADEL covers internal tools first.",
+  "risk": "High consequence but high leverage. Worth doing carefully and early if cross-app SSO is a priority.",
+  "gdpr": "Identity data is personal data. EU hosting, auditability, retention, and breach response are central.",
+  "recommendation": "FOUNDATIONAL EARLY CANDIDATE",
+  "priority": 4,
+  "overlap": "Could overlap with app-local auth systems and portions of Auth.js. Recommended as the primary self-hosted IdP rather than many disconnected auth stacks.",
+  "codex_read_first": "Read official self-host docs, Auth.js provider strategy, and the current Hylono auth architecture before proposing migration or brokering.",
+  "codex_best_path": "Introduce ZITADEL first as the IdP for internal tools and selected admin surfaces, then decide whether the public site should federate through it.",
+  "codex_never_assume": "Never assume identity migration is low-risk. Never assume every app supports the same standards or claims mapping without testing.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://zitadel.com/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v4.12.3",
+      "notes": "Primary product and self-host docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/zitadel/zitadel",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current repo",
+      "version": "v4.12.3",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official Helm chart",
+      "url": "https://github.com/zitadel/zitadel-charts",
+      "kind": "helm charts",
+      "status": "indexed-only",
+      "license": "review current repo",
+      "version": "current",
+      "notes": "Recommended production deployment path.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/zitadel/zitadel/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.12.3",
+      "why": "Confirms current version researched."
+    },
+    {
+      "url": "https://zitadel.com/docs/self-hosting/deploy/overview",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports self-hosting and deployment recommendations."
+    },
+    {
+      "url": "https://github.com/zitadel/zitadel",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.12.3",
+      "why": "Primary code and protocol source."
+    }
+  ]
+}

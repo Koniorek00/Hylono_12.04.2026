@@ -11,7 +11,11 @@ export const shouldHideBreadcrumbs = (pathname: string): boolean => {
   }
 
   const rootSegment = pathname.split('/').filter(Boolean)[0] ?? '';
-  return rootSegment === 'partner' || rootSegment === 'meridian' || shouldUseAppShellRoute(pathname);
+  return (
+    rootSegment === 'partners' ||
+    rootSegment === 'meridian' ||
+    shouldUseAppShellRoute(pathname)
+  );
 };
 
 export const shouldShowBreadcrumbPageNavigator = (pathname: string): boolean => {

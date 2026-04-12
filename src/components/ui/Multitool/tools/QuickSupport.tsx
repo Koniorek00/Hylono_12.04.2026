@@ -100,7 +100,7 @@ export const QuickSupport: React.FC<QuickSupportProps> = ({
             className={`
               w-full min-h-[44px] rounded-lg px-3
               flex items-center gap-3
-              text-sm transition-all duration-200
+              text-sm transition-colors duration-200
               bg-slate-50 text-slate-600
               hover:bg-slate-100 hover:text-slate-800
               focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500

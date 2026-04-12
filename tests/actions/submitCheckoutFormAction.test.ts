@@ -1,12 +1,34 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST as checkoutPost } from '../../app/api/checkout/route';
 
 process.env.DATABASE_URL ??= 'https://unit-test.invalid';
 
-const mockInsertValues = vi.fn(async () => undefined);
+const checkoutOrdersStore: Array<Record<string, unknown>> = [];
+
+const mockInsertValues = vi.fn(async (payload: Record<string, unknown>) => {
+  checkoutOrdersStore.push({
+    createdAt: payload.createdAt ?? new Date(),
+    updatedAt: payload.updatedAt ?? new Date(),
+    ...payload,
+  });
+});
+const mockSelectWhere = vi.fn(async () => checkoutOrdersStore);
+const mockSelectFrom = vi.fn(() => ({
+  where: mockSelectWhere,
+}));
+const mockUpdateWhere = vi.fn(async () => undefined);
+const mockUpdateSet = vi.fn(() => ({
+  where: mockUpdateWhere,
+}));
 const mockDb = {
   insert: vi.fn(() => ({
     values: mockInsertValues,
+  })),
+  select: vi.fn(() => ({
+    from: mockSelectFrom,
+  })),
+  update: vi.fn(() => ({
+    set: mockUpdateSet,
   })),
 };
 
@@ -46,6 +68,13 @@ const createRequest = (
 };
 
 describe('checkout API trusted pricing behavior', () => {
+  beforeEach(() => {
+    checkoutOrdersStore.length = 0;
+    mockInsertValues.mockClear();
+    mockSelectWhere.mockClear();
+    mockUpdateWhere.mockClear();
+  });
+
   it('rejects malformed JSON payloads', async () => {
     const request = new Request('http://localhost:3000/api/checkout', {
       method: 'POST',
@@ -102,5 +131,33 @@ describe('checkout API trusted pricing behavior', () => {
     expect(response.status).toBe(503);
     expect(result.success).toBe(false);
     expect(result.message).toContain('Card payments are temporarily unavailable');
+    expect(checkoutOrdersStore[0]?.status).toBe('pending_card_configuration');
+  });
+
+  it('deduplicates repeated offline checkout submissions', async () => {
+    const requestBody = {
+      items: [{ id: 'tech-hbot', quantity: 1 }],
+      shipping: createValidShipping(),
+      paymentMethod: 'financing',
+    };
+
+    const firstResponse = await checkoutPost(createRequest(requestBody));
+    const firstResult = (await firstResponse.json()) as {
+      orderId?: string;
+      success: boolean;
+    };
+
+    const secondResponse = await checkoutPost(createRequest(requestBody));
+    const secondResult = (await secondResponse.json()) as {
+      orderId?: string;
+      success: boolean;
+    };
+
+    expect(firstResponse.status).toBe(200);
+    expect(secondResponse.status).toBe(200);
+    expect(firstResult.success).toBe(true);
+    expect(secondResult.success).toBe(true);
+    expect(secondResult.orderId).toBe(firstResult.orderId);
+    expect(mockInsertValues).toHaveBeenCalledTimes(1);
   });
 });

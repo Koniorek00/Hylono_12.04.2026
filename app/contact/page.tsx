@@ -2,12 +2,16 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
-import { ORGANIZATION_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
+import StructuredData from '@/src/components/StructuredData';
+import {
+  ORGANIZATION_ID,
+  createBreadcrumbSchema,
+  createWebPageSchema,
+  SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
+import { ContactClient } from './ContactClient';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
-import StructuredData from '@/src/components/StructuredData';
-import { ContactClient } from './ContactClient';
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Contact Hylono | Support, Rentals, and Product Guidance',

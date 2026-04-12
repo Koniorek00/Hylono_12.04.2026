@@ -1,0 +1,97 @@
+{
+  "name": "Mosquitto",
+  "slug": "mosquitto",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "Eclipse Mosquitto MQTT broker",
+  "version": "v2.1.2",
+  "version_status": "CONFIRMED",
+  "license": "EPL/EDL",
+  "license_status": "CONFIRMED",
+  "what": "Lightweight MQTT broker for device messaging and pub/sub communication.",
+  "solves": "MQTT transport for IoT devices, local brokers, event buses, and low-overhead message routing.",
+  "users": "IoT, OT, and integration teams.",
+  "fit": "Useful only if Hylono\u2019s device or telemetry roadmap requires MQTT. Not needed for ordinary web/business workflows.",
+  "runtime": "Single broker service with ACLs, bridges, persistence, and TLS.",
+  "components": "Broker, config, persistence store, ACLs/auth, and optional bridges.",
+  "deploy": "Easy to self-host; governance comes from what devices/flows depend on it.",
+  "deps": "Persistent storage if durable sessions/messages matter, TLS certs, auth, and client governance.",
+  "datastores": "Broker persistence files if enabled.",
+  "auth": "Passwords, ACLs, certificates, and plugin-based auth patterns.",
+  "apis": "MQTT protocol and broker admin/config surfaces.",
+  "complexity": "Low to Medium",
+  "security": "Broker exposure is risky. Use TLS, ACLs, and network isolation.",
+  "setup_path": "Deploy only as part of a confirmed MQTT/device architecture, likely with Node-RED/ThingsBoard/InfluxDB.",
+  "env": "Listener ports, persistence, ACLs, TLS certs, bridge config, and auth files.",
+  "persistence": "Back up config and persistence store if using durable state.",
+  "operations": "Client ACLs, connection monitoring, TLS, and broker uptime matter.",
+  "failure_points": "Introducing MQTT infrastructure without an actual MQTT use case.",
+  "integration": "Best used with device/telemetry tooling, not core business apps.",
+  "verify": "Confirm actual MQTT/device needs first.",
+  "risk": "Low infrastructure risk, high unnecessary-complexity risk if premature.",
+  "gdpr": "Depends on device payloads.",
+  "recommendation": "DEFER UNTIL MQTT IS NEEDED",
+  "priority": 44,
+  "overlap": "Part of the IoT stack; not an overlap with n8n/HTTP systems.",
+  "codex_read_first": "Read the IoT notes before considering Mosquitto.",
+  "codex_best_path": "Add only when a real MQTT topology is defined.",
+  "codex_never_assume": "Never deploy brokers without clear client and ACL design.",
+  "assets": [
+    {
+      "name": "Official site/docs",
+      "url": "https://mosquitto.org/documentation/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "EPL/EDL",
+      "version": "v2.1.2",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/eclipse-mosquitto/mosquitto",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "EPL/EDL",
+      "version": "v2.1.2",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image",
+      "url": "https://hub.docker.com/_/eclipse-mosquitto",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "EPL/EDL",
+      "version": "v2.1.2",
+      "notes": "Common deployment artifact.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/eclipse-mosquitto/mosquitto/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.1.2",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://mosquitto.org/documentation/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.1.2",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/eclipse-mosquitto/mosquitto",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.1.2",
+      "why": "Code source."
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "name": "Gorse",
+  "slug": "gorse",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "Gorse recommendation engine",
+  "version": "v0.5.5",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source recommendation engine for personalized recommendations and ranking.",
+  "solves": "Recommendations such as related products/content/protocols based on behavior and metadata.",
+  "users": "Product and data teams building recommendation features.",
+  "fit": "Interesting later if Hylono wants personalization for content, products, or protocols. Not needed early.",
+  "runtime": "Go services with cache/storage dependencies and recommendation APIs.",
+  "components": "Master, worker, server, data store, cache, and recommendation models.",
+  "deploy": "Self-host is feasible but adds data and relevance-tuning burden.",
+  "deps": "Datastore, cache, event data, and recommendation-quality evaluation.",
+  "datastores": "Databases/caches for feedback, items, and recommendation state.",
+  "auth": "API/service auth patterns; verify current deployment model.",
+  "apis": "Recommendation APIs and data import APIs.",
+  "complexity": "Medium",
+  "security": "Main risk is data quality and recommendation misuse rather than infrastructure exposure.",
+  "setup_path": "Only add once Hylono has meaningful interaction data and a clear recommendation use case.",
+  "env": "DB/cache settings, model/training config, service URLs, and API keys.",
+  "persistence": "Back up metadata/state as needed; much value depends on event data pipelines.",
+  "operations": "Data freshness, recommendation quality, and model tuning matter.",
+  "failure_points": "Trying to personalize too early with weak data.",
+  "integration": "Could later connect to product/content views and Next.js personalization APIs.",
+  "verify": "Confirm whether recommendations are a real growth/product lever yet.",
+  "risk": "Moderate low-priority complexity.",
+  "gdpr": "Behavioral data for recommendations requires transparency and minimization.",
+  "recommendation": "LATE / DATA-MATURITY DEPENDENT",
+  "priority": 48,
+  "overlap": "Could overlap with simpler heuristic recommendations in app code.",
+  "codex_read_first": "Read data-maturity notes before considering Gorse.",
+  "codex_best_path": "Defer until there is enough behavioral data to justify it.",
+  "codex_never_assume": "Never add ML-style personalization before proving simpler ranking cannot solve the need.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://gorse.io/docs/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v0.5.5",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/gorse-io/gorse",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v0.5.5",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker compose example",
+      "url": "https://github.com/gorse-io/gorse/tree/master/docker",
+      "kind": "deployment assets",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "current",
+      "notes": "Useful if adopted.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/gorse-io/gorse/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.5.5",
+      "why": "Version source."
+    },
+    {
+      "url": "https://gorse.io/docs/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.5.5",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/gorse-io/gorse",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.5.5",
+      "why": "Code source."
+    }
+  ]
+}

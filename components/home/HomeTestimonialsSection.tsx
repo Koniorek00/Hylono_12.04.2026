@@ -1,89 +1,96 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 import { motion } from 'motion/react';
-import { Quote } from 'lucide-react';
+import { BookOpen, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
 import { ScrollReveal, StaggerContainer, StaggerItem } from '../shared/ScrollReveal';
-import { MedicalDisclaimer } from '../shared/MedicalDisclaimer';
 
-interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-  tech: string;
-  tag: string;
+interface DecisionSupportCard {
+  title: string;
+  description: string;
+  cta: string;
+  href: string;
+  Icon: typeof BookOpen;
 }
 
-const TESTIMONIALS: Testimonial[] = [
+const DECISION_SUPPORT_CARDS: DecisionSupportCard[] = [
   {
-    quote:
-      "The guided HBOT protocol felt immediately different from anything I'd tried before. The structured approach — timing, breathing, recovery intervals — made the experience feel genuinely purposeful. Worth every minute.",
-    name: 'Marcus T.',
-    role: 'Software Architect',
-    tech: 'HBOT Protocol',
-    tag: 'Cognitive Support',
+    title: 'Review the evidence before you commit',
+    description:
+      'Open the research hub to see study context, limitations, and the product routes connected to each topic.',
+    cta: 'Open research',
+    href: '/research',
+    Icon: BookOpen,
   },
   {
-    quote:
-      "I was skeptical about combining PEMF with hydrogen therapy, but the Hylono protocol stack made it easy to follow. The sleep quality improvement I noticed over several weeks was the most noticeable change in my routine.",
-    name: 'Sarah K.',
-    role: 'Entrepreneur',
-    tech: 'PEMF + H₂ Stack',
-    tag: 'Sleep Optimization',
+    title: 'Start with rental when you want lower risk',
+    description:
+      'Compare monthly plans, onboarding expectations, and the return-or-buy-later path before taking on the full purchase price.',
+    cta: 'See rental plans',
+    href: '/rental',
+    Icon: Truck,
   },
   {
-    quote:
-      "As a clinic director, I need technology I can trust with my clients. Hylono's full ecosystem gave us a credible, evidence-based platform to build our wellness protocols around. The quality is exceptional.",
-    name: 'Dr. P. N.',
-    role: 'Clinic Director',
-    tech: 'Clinical Ecosystem',
-    tag: 'Professional Use',
+    title: 'Verify the policy pages that protect the order',
+    description:
+      'Check shipping, returns, warranty, and support pages from the same flow you use to compare products.',
+    cta: 'Review policies',
+    href: '/returns',
+    Icon: ShieldCheck,
+  },
+  {
+    title: 'Talk to a real person when the choice is unclear',
+    description:
+      'Use contact when you need help with fit, delivery planning, financing questions, or a clinic / B2B request.',
+    cta: 'Contact Hylono',
+    href: '/contact',
+    Icon: MessageCircle,
   },
 ];
 
 export const HomeTestimonialsSection: React.FC = () => {
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <ScrollReveal direction="up" className="text-center mb-16">
-          <span className="text-xs font-bold uppercase tracking-widest text-gray-400">User Experiences</span>
-          <h2 className="text-3xl md:text-5xl font-bold mt-4 futuristic-font text-gray-900">Protocols in Practice</h2>
-          <p className="text-slate-500 mt-4 max-w-xl mx-auto">
-            How our users integrate Hylono technology into their daily lives. Individual results vary — these products are designed to support general wellbeing.
+    <section className="border-y border-slate-100 bg-white py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <ScrollReveal direction="up" className="mx-auto max-w-3xl text-center">
+          <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+            Decision Support
+          </span>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-5xl futuristic-font">
+            What Helps People Move Forward
+          </h2>
+          <p className="mt-4 text-slate-500">
+            Instead of anonymous testimonials, Hylono keeps the next step visible: evidence when
+            claims are discussed, policy pages when money is involved, and direct contact when you
+            want a recommendation.
           </p>
         </ScrollReveal>
 
-        <StaggerContainer className="grid md:grid-cols-3 gap-8" staggerDelay={0.12}>
-          {TESTIMONIALS.map((testimonial) => (
-            <StaggerItem key={testimonial.name}>
+        <StaggerContainer className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4" staggerDelay={0.1}>
+          {DECISION_SUPPORT_CARDS.map((card) => (
+            <StaggerItem key={card.title}>
               <motion.div
-                className="bg-slate-50 rounded-3xl p-8 border border-slate-100 transition-all group h-full flex flex-col justify-between hover:shadow-2xl"
                 whileHover={{ y: -4 }}
+                className="flex h-full flex-col rounded-3xl border border-slate-100 bg-slate-50 p-7 transition-all hover:shadow-xl"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <Quote className="text-cyan-500/30" size={32} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full">
-                      {testimonial.tag}
-                    </span>
-                  </div>
-                  <p className="text-slate-600 mb-6 leading-relaxed italic">&quot;{testimonial.quote}&quot;</p>
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-cyan-600 shadow-sm">
+                  <card.Icon size={22} />
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold shrink-0">
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-900">{testimonial.name}</div>
-                    <div className="text-sm text-slate-500">{testimonial.role}</div>
-                    <div className="text-xs text-cyan-600 font-medium">{testimonial.tech}</div>
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold text-slate-900">{card.title}</h3>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-600">
+                  {card.description}
+                </p>
+                <Link
+                  href={card.href}
+                  className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-cyan-700 transition-colors hover:text-cyan-800"
+                >
+                  {card.cta}
+                </Link>
               </motion.div>
             </StaggerItem>
           ))}
         </StaggerContainer>
-        <MedicalDisclaimer type="testimonial" compact className="text-center mt-8 block" />
       </div>
     </section>
   );

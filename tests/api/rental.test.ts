@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { resetRateLimitStoreForTests } from '../../app/api/_shared/rate-limit';
 
 const mockDb = {
   insert: vi.fn(),
@@ -11,6 +12,9 @@ const mockSelectWhere = vi.fn();
 const mockDispatchIntakeEventToN8n = vi.fn(async () => undefined);
 const mockSyncAndNotifySubscriberViaNovu = vi.fn(async () => undefined);
 const mockSyncPersonAndFollowUpToTwenty = vi.fn(async () => undefined);
+const mockAuth = vi.fn<() => Promise<{ user: { email: string } } | null>>(
+  async () => null
+);
 
 mockDb.insert.mockReturnValue({ values: mockInsertValues });
 mockDb.select.mockReturnValue({
@@ -34,6 +38,10 @@ vi.mock('@/lib/integrations/novu', () => ({
 
 vi.mock('@/lib/integrations/twenty', () => ({
   syncPersonAndFollowUpToTwenty: mockSyncPersonAndFollowUpToTwenty,
+}));
+
+vi.mock('@/lib/auth', () => ({
+  auth: mockAuth,
 }));
 
 const rentalStoreByUser = new Map<
@@ -98,6 +106,8 @@ const createPostRequest = (body: unknown): Request =>
 describe('rental API', () => {
   beforeEach(() => {
     rentalStoreByUser.clear();
+    resetRateLimitStoreForTests();
+    mockAuth.mockReset();
     mockInsertValues.mockClear();
     mockSelectWhere.mockClear();
     mockDispatchIntakeEventToN8n.mockClear();
@@ -120,7 +130,7 @@ describe('rental API', () => {
   it('creates and retrieves rental applications with contact details', async () => {
     const email = `user-${Date.now().toString(36)}@hylono.example`;
     const createRequest = createPostRequest({
-      termMonths: 12,
+      termMonths: 6,
       userId: email,
       fullName: 'Hylono Operator',
       email,
@@ -161,7 +171,8 @@ describe('rental API', () => {
     expect(createResult.rental?.userId).toBe(email);
     expect(createResult.rental?.contact.fullName).toBe('Hylono Operator');
     expect(createResult.rental?.contact.email).toBe(email);
-    expect(createResult.rental?.items[0]?.techId).toBe('tech-hbot');
+    expect(createResult.rental?.items[0]?.techId).toBe('hbot-st1700');
+    expect(createResult.rental?.items[0]?.monthlyPrice).toBe(1099);
 
     expect(mockDispatchIntakeEventToN8n).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -195,6 +206,12 @@ describe('rental API', () => {
       })
     );
 
+    mockAuth.mockResolvedValue({
+      user: {
+        email,
+      },
+    });
+
     const listResponse = await getRental(
       new Request(`http://localhost:3000/api/rental?email=${encodeURIComponent(email)}`, {
         method: 'GET',
@@ -222,6 +239,7 @@ describe('rental API', () => {
       city: 'Berlin',
       postalCode: '10115',
       country: 'Germany',
+      termMonths: 6,
       items: [
         {
           techId: '  TECH HBOT <>  ',
@@ -246,7 +264,14 @@ describe('rental API', () => {
     expect(createResult.success).toBe(true);
     expect(createResult.rental?.userId).toBe('user.name+tag@example.com');
     expect(createResult.rental?.contact.email).toBe('user.name+tag@example.com');
-    expect(createResult.rental?.items[0]?.techId).toBe('tech-hbot');
+    expect(createResult.rental?.items[0]?.techId).toBe('hbot-st1700');
+    expect(createResult.rental?.items[0]?.monthlyPrice).toBe(1099);
+
+    mockAuth.mockResolvedValue({
+      user: {
+        email: 'user.name+tag@example.com',
+      },
+    });
 
     const listResponse = await getRental(
       new Request(
@@ -268,7 +293,9 @@ describe('rental API', () => {
     );
   });
 
-  it('returns 400 for listing without user id', async () => {
+  it('returns 401 for unauthenticated rental lookups', async () => {
+    mockAuth.mockResolvedValue(null);
+
     const response = await getRental(
       new Request('http://localhost:3000/api/rental', { method: 'GET' })
     );
@@ -277,7 +304,29 @@ describe('rental API', () => {
       rentals: unknown[];
     };
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(401);
+    expect(result.success).toBe(false);
+    expect(Array.isArray(result.rentals)).toBe(true);
+  });
+
+  it('returns 403 when a session tries to read another account', async () => {
+    mockAuth.mockResolvedValue({
+      user: {
+        email: 'allowed@hylono.example',
+      },
+    });
+
+    const response = await getRental(
+      new Request('http://localhost:3000/api/rental?email=blocked@hylono.example', {
+        method: 'GET',
+      })
+    );
+    const result = (await response.json()) as {
+      success: boolean;
+      rentals: unknown[];
+    };
+
+    expect(response.status).toBe(403);
     expect(result.success).toBe(false);
     expect(Array.isArray(result.rentals)).toBe(true);
   });

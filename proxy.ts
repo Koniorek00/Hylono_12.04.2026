@@ -1,8 +1,11 @@
 import arcjet, { detectBot, shield, type ArcjetBotCategory } from '@arcjet/next';
 import * as nosecone from '@nosecone/next';
+import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
 import { getBlogPostBySlug } from './lib/blog';
+import { buildLoginRedirectPath, LOGIN_PATH } from './lib/auth-redirect';
 import { conditionGoalBySlug } from './content/conditions';
+import { hydrogenPremiumPageBySlug } from './content/hydrogen-premium-2026';
 import { protocolBySlug } from './content/protocols';
 import {
     getTechRouteSlug,
@@ -12,6 +15,11 @@ import {
 import { readRuntimeEnv } from './lib/env';
 
 const AUTH_PROTECTED_PREFIXES = ['/dashboard', '/account', '/partner', '/nexus'] as const;
+const AUTH_SENSITIVE_PREFIXES = [LOGIN_PATH, ...AUTH_PROTECTED_PREFIXES] as const;
+const AUTH_SESSION_COOKIE_PREFIXES = [
+    'authjs.session-token',
+    '__Secure-authjs.session-token',
+] as const;
 const BOT_ALLOW_LIST: ArcjetBotCategory[] = ['CATEGORY:SEARCH_ENGINE'];
 const CSP_CONNECT_SOURCES = [
     'https://eu.i.posthog.com',
@@ -27,6 +35,8 @@ const NEXT_STREAMING_INLINE_MAP_SCRIPT_HASH =
     "'sha256-rimaae54utIpqXy4SfzTCYOBzW44nNmADdqfIGg1pkE='";
 
 const ARCJET_KEY = readRuntimeEnv('ARCJET_KEY');
+const AUTH_SECRET =
+    readRuntimeEnv('AUTH_SECRET') ?? readRuntimeEnv('NEXTAUTH_SECRET');
 const ARCJET_MODE = ARCJET_KEY ? 'LIVE' : 'DRY_RUN';
 
 const arcjetClient = ARCJET_KEY
@@ -66,6 +76,11 @@ const isProtectedPath = (pathname: string): boolean =>
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
     );
 
+const isAuthSensitivePath = (pathname: string): boolean =>
+    AUTH_SENSITIVE_PREFIXES.some(
+        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    );
+
 type SeoRouteResolution =
     | { kind: 'ok' }
     | { kind: 'redirect'; location: URL }
@@ -97,6 +112,10 @@ const createSeoRouteResolver = (request: NextRequest): SeoRouteResolution => {
                 kind: 'redirect',
                 location: withSameOriginPath(`/product/${legacyRedirect}`),
             };
+        }
+
+        if (normalizedProductSlug in hydrogenPremiumPageBySlug) {
+            return { kind: 'ok' };
         }
 
         const techType = getTechTypeFromRouteSlug(normalizedProductSlug);
@@ -266,18 +285,68 @@ const resolveSecurityHeaders = async (
 };
 
 const hasSessionCookie = (request: NextRequest): boolean =>
-    request.cookies.has('next-auth.session-token') ||
-    request.cookies.has('__Secure-next-auth.session-token') ||
-    Boolean(request.cookies.get('hylono_session')?.value) ||
-    Boolean(request.cookies.get('session')?.value);
+    request.cookies
+        .getAll()
+        .some(({ name }) =>
+            AUTH_SESSION_COOKIE_PREFIXES.some(
+                (prefix) => name === prefix || name.startsWith(`${prefix}.`)
+            )
+        );
 
-const shouldBypassProtectedRouteAuth = (request: NextRequest): boolean =>
-    isLocalHostname(request.nextUrl.hostname) && process.env.VERCEL !== '1';
+const hasValidatedSession = async (request: NextRequest): Promise<boolean> => {
+    if (!hasSessionCookie(request)) {
+        return false;
+    }
+
+    if (!AUTH_SECRET) {
+        return true;
+    }
+
+    const token = await getToken({
+        req: request,
+        secret: AUTH_SECRET,
+        secureCookie: request.nextUrl.protocol === 'https:',
+    });
+
+    return Boolean(token);
+};
+
+const appendVaryHeader = (response: NextResponse, headerValue: string): void => {
+    const existingValue = response.headers.get('vary');
+
+    if (!existingValue) {
+        response.headers.set('vary', headerValue);
+        return;
+    }
+
+    const normalizedExistingValues = existingValue
+        .split(',')
+        .map((value) => value.trim().toLowerCase());
+
+    if (!normalizedExistingValues.includes(headerValue.toLowerCase())) {
+        response.headers.set('vary', `${existingValue}, ${headerValue}`);
+    }
+};
+
+const applyAuthBoundaryHeaders = (
+    response: NextResponse,
+    pathname: string
+): NextResponse => {
+    if (!isAuthSensitivePath(pathname)) {
+        return response;
+    }
+
+    response.headers.set('cache-control', 'private, no-store, max-age=0');
+    appendVaryHeader(response, 'Cookie');
+
+    return response;
+};
 
 const withNoseconeHeaders = (
     response: NextResponse,
     securityHeaders: SecurityHeaders,
-    nonce: string
+    nonce: string,
+    pathname: string
 ): NextResponse => {
     for (const [header, value] of securityHeaders.responseHeaders) {
         response.headers.set(header, value);
@@ -285,7 +354,7 @@ const withNoseconeHeaders = (
 
     response.headers.set('x-nonce', nonce);
 
-    return response;
+    return applyAuthBoundaryHeaders(response, pathname);
 };
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
@@ -299,7 +368,12 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     if (arcjetClient) {
         const decision = await arcjetClient.protect(request);
         if (decision.isDenied()) {
-            return withNoseconeHeaders(new NextResponse('Forbidden', { status: 403 }), securityHeaders, nonce);
+            return withNoseconeHeaders(
+                new NextResponse('Forbidden', { status: 403 }),
+                securityHeaders,
+                nonce,
+                pathname
+            );
         }
     }
 
@@ -308,7 +382,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         return withNoseconeHeaders(
             NextResponse.redirect(seoRouteResolution.location, { status: 308 }),
             securityHeaders,
-            nonce
+            nonce,
+            pathname
         );
     }
 
@@ -316,21 +391,21 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         return withNoseconeHeaders(
             NextResponse.rewrite(seoRouteResolution.location, { status: 404 }),
             securityHeaders,
-            nonce
+            nonce,
+            pathname
         );
     }
 
-    // 2) Auth route protection (cookie-based proxy check)
-    if (
-        isProtectedPath(pathname) &&
-        !shouldBypassProtectedRouteAuth(request) &&
-        !hasSessionCookie(request)
-    ) {
-        const loginUrl = new URL('/login', request.url);
+    // 2) Protected-route gate backed by the real Auth.js session token when a secret is available.
+    if (isProtectedPath(pathname) && !(await hasValidatedSession(request))) {
         const nextPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-        loginUrl.searchParams.set('auth', 'required');
-        loginUrl.searchParams.set('next', nextPath);
-        return withNoseconeHeaders(NextResponse.redirect(loginUrl), securityHeaders, nonce);
+        const loginUrl = new URL(buildLoginRedirectPath(nextPath), request.url);
+        return withNoseconeHeaders(
+            NextResponse.redirect(loginUrl),
+            securityHeaders,
+            nonce,
+            pathname
+        );
     }
 
     // 3) GDPR tracking gate cookies (default denied unless explicit cookie consent indicates granted)
@@ -372,7 +447,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         maxAge: 60 * 60 * 24 * 180,
     });
 
-    return withNoseconeHeaders(response, securityHeaders, nonce);
+    return withNoseconeHeaders(response, securityHeaders, nonce, pathname);
 }
 
 export const config = {

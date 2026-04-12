@@ -4,6 +4,7 @@
  * Validates input and creates a booking record.
  */
 
+import { and, eq, gte } from 'drizzle-orm';
 import { z } from 'zod';
 import { env } from '@/lib/env';
 import { bookingRequestsTable } from '@/lib/db/schema';
@@ -11,6 +12,12 @@ import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/clien
 import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
 import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
 import { syncPersonAndFollowUpToTwenty } from '@/lib/integrations/twenty';
+import {
+  buildRequestFingerprint,
+  recentSubmissionThreshold,
+} from '../_shared/fingerprints';
+import { fetchWithTimeout } from '../_shared/http';
+import { consumeRateLimit, createRateLimitResponse } from '../_shared/rate-limit';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface BookingRequest {
@@ -75,8 +82,22 @@ const bookingSchema = z.object({
     bookingType: z.enum(['consultation', 'demo', 'rental-inquiry', 'b2b']).optional().default('consultation'),
 }) satisfies z.ZodType<BookingRequest>;
 
+const BOOKING_RATE_LIMIT = {
+    bucket: 'booking',
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+} as const;
+
 export async function POST(request: Request): Promise<Response> {
     try {
+        const rateLimitState = consumeRateLimit(request, BOOKING_RATE_LIMIT);
+        if (!rateLimitState.allowed) {
+            return createRateLimitResponse(
+                rateLimitState,
+                'Too many booking requests. Please wait a few minutes and try again.'
+            );
+        }
+
         const rawBody = await readJsonBody(request);
         const parsed = bookingSchema.safeParse(rawBody);
 
@@ -143,6 +164,37 @@ export async function POST(request: Request): Promise<Response> {
 
         await ensureDatabaseReady();
         const db = getDb();
+        const submissionHash = buildRequestFingerprint({
+            bookingType: sanitized.bookingType,
+            email: sanitized.email,
+            notes: sanitized.notes ?? null,
+            preferredDate: sanitized.preferredDate ?? null,
+            preferredTime: sanitized.preferredTime ?? null,
+            techInterest: sanitized.techInterest ?? null,
+        });
+        const duplicateAfter = recentSubmissionThreshold();
+        const recentDuplicate = (await db
+            .select()
+            .from(bookingRequestsTable)
+            .where(
+                and(
+                    eq(bookingRequestsTable.submissionHash, submissionHash),
+                    gte(bookingRequestsTable.createdAt, duplicateAfter)
+                )
+            ))
+            .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
+
+        if (recentDuplicate) {
+            return Response.json(
+                {
+                    success: true,
+                    message: `We already received this booking request. Reference: ${recentDuplicate.bookingRef}.`,
+                    bookingRef: recentDuplicate.bookingRef,
+                } satisfies BookingResponse,
+                { status: 200 }
+            );
+        }
+
         await db.insert(bookingRequestsTable).values({
             id: crypto.randomUUID(),
             bookingRef,
@@ -155,6 +207,7 @@ export async function POST(request: Request): Promise<Response> {
             techInterest: sanitized.techInterest,
             notes: sanitized.notes,
             bookingType: sanitized.bookingType,
+            submissionHash,
         });
 
         await Promise.allSettled([
@@ -247,21 +300,37 @@ export async function POST(request: Request): Promise<Response> {
             text: bookingSummary,
         };
 
-        const resendResponse = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${resendApiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(emailPayload),
-        });
+        try {
+            const resendResponse = await fetchWithTimeout('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${resendApiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(emailPayload),
+            });
 
-        if (!resendResponse.ok) {
-            const resendErrorText = await resendResponse.text();
+            if (!resendResponse.ok) {
+                const resendErrorText = await resendResponse.text();
+                console.error('[booking] Resend send failed', {
+                    bookingRef,
+                    status: resendResponse.status,
+                    body: resendErrorText,
+                });
+
+                return Response.json(
+                    {
+                        success: true,
+                        message: `Booking request received! Reference: ${bookingRef}. We'll confirm your slot within 24 hours.`,
+                        bookingRef,
+                    } satisfies BookingResponse,
+                    { status: 202 }
+                );
+            }
+        } catch (error) {
             console.error('[booking] Resend send failed', {
                 bookingRef,
-                status: resendResponse.status,
-                body: resendErrorText,
+                error,
             });
 
             return Response.json(

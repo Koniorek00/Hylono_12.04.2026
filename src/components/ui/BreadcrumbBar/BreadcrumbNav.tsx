@@ -100,6 +100,7 @@ export const BreadcrumbNav: React.FC<BreadcrumbNavProps> = ({
                 ) : (
                   <Link
                     href={href}
+                    prefetch={false}
                     className={commonClasses}
                     {...(isHome && showHomeIcon ? { 'aria-label': item.label } : {})}
                   >

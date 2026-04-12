@@ -13,7 +13,29 @@ export const metadata: Metadata = createPageMetadata({
   forceNoIndex: true,
 });
 
-export default async function NexusClientsPageRoute() {
+type NexusClientsPageSearchParams = Promise<{
+  action?: string | string[];
+  patient?: string | string[];
+}>;
+
+const getFirstParamValue = (value?: string | string[]) =>
+  Array.isArray(value) ? value[0] : value;
+
+export default async function NexusClientsPageRoute({
+  searchParams,
+}: {
+  searchParams: NexusClientsPageSearchParams;
+}) {
   await connection();
-  return <Nexus />;
+  const resolvedSearchParams = await searchParams;
+  const initialSelectedClientId = getFirstParamValue(resolvedSearchParams.patient);
+  const initialRegistrationOpen =
+    getFirstParamValue(resolvedSearchParams.action) === 'new';
+
+  return (
+    <Nexus
+      initialSelectedClientId={initialSelectedClientId}
+      initialRegistrationOpen={initialRegistrationOpen}
+    />
+  );
 }

@@ -4,6 +4,7 @@
  * Validates input, sanitizes fields, and sends notification email.
  */
 
+import { and, eq, gte } from 'drizzle-orm';
 import { z } from 'zod';
 import { env } from '@/lib/env';
 import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
@@ -11,6 +12,12 @@ import { contactInquiriesTable } from '@/lib/db/schema';
 import { dispatchIntakeEventToN8n } from '@/lib/integrations/n8n';
 import { syncAndNotifySubscriberViaNovu } from '@/lib/integrations/novu';
 import { syncPersonAndFollowUpToTwenty } from '@/lib/integrations/twenty';
+import {
+  buildRequestFingerprint,
+  recentSubmissionThreshold,
+} from '../_shared/fingerprints';
+import { fetchWithTimeout } from '../_shared/http';
+import { consumeRateLimit, createRateLimitResponse } from '../_shared/rate-limit';
 import { readJsonBody, sanitizeText, validationErrorResponse } from '../_shared/validation';
 
 interface ContactRequest {
@@ -71,8 +78,22 @@ const contactSchema = z.object({
     inquiryType: z.enum(['general', 'rental', 'b2b', 'support', 'press']).optional().default('general'),
 }) satisfies z.ZodType<ContactRequest>;
 
+const CONTACT_RATE_LIMIT = {
+    bucket: 'contact',
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+} as const;
+
 export async function POST(request: Request): Promise<Response> {
     try {
+        const rateLimitState = consumeRateLimit(request, CONTACT_RATE_LIMIT);
+        if (!rateLimitState.allowed) {
+            return createRateLimitResponse(
+                rateLimitState,
+                'Too many contact requests. Please wait a few minutes and try again.'
+            );
+        }
+
         const rawBody = await readJsonBody(request);
         const parsed = contactSchema.safeParse(rawBody);
 
@@ -125,6 +146,35 @@ export async function POST(request: Request): Promise<Response> {
 
         await ensureDatabaseReady();
         const db = getDb();
+        const submissionHash = buildRequestFingerprint({
+            email: sanitized.email,
+            inquiryType: sanitized.inquiryType,
+            message: sanitized.message,
+            subject: sanitized.subject,
+        });
+        const duplicateAfter = recentSubmissionThreshold();
+        const recentDuplicate = (await db
+            .select()
+            .from(contactInquiriesTable)
+            .where(
+                and(
+                    eq(contactInquiriesTable.submissionHash, submissionHash),
+                    gte(contactInquiriesTable.createdAt, duplicateAfter)
+                )
+            ))
+            .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
+
+        if (recentDuplicate) {
+            return Response.json(
+                {
+                    success: true,
+                    message: `We already received this request. Reference: ${recentDuplicate.ticketId}.`,
+                    ticketId: recentDuplicate.ticketId,
+                } satisfies ContactResponse,
+                { status: 200 }
+            );
+        }
+
         await db.insert(contactInquiriesTable).values({
             id: crypto.randomUUID(),
             ticketId,
@@ -135,6 +185,7 @@ export async function POST(request: Request): Promise<Response> {
             phone: sanitized.phone,
             company: sanitized.company,
             inquiryType: sanitized.inquiryType,
+            submissionHash,
         });
 
         await Promise.allSettled([
@@ -221,21 +272,37 @@ export async function POST(request: Request): Promise<Response> {
             text: outboundMessage,
         };
 
-        const resendResponse = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${resendApiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(emailPayload),
-        });
+        try {
+            const resendResponse = await fetchWithTimeout('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${resendApiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(emailPayload),
+            });
 
-        if (!resendResponse.ok) {
-            const resendErrorText = await resendResponse.text();
+            if (!resendResponse.ok) {
+                const resendErrorText = await resendResponse.text();
+                console.error('[contact] Resend send failed', {
+                    ticketId,
+                    status: resendResponse.status,
+                    body: resendErrorText,
+                });
+
+                return Response.json(
+                    {
+                        success: true,
+                        message: `Thank you, ${sanitized.name}. Your request has been recorded under ${ticketId}; our team will follow up soon.`,
+                        ticketId,
+                    } satisfies ContactResponse,
+                    { status: 202 }
+                );
+            }
+        } catch (error) {
             console.error('[contact] Resend send failed', {
                 ticketId,
-                status: resendResponse.status,
-                body: resendErrorText,
+                error,
             });
 
             return Response.json(

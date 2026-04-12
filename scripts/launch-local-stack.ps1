@@ -55,8 +55,10 @@ $siteBuildSources = @(
 $serviceChecks = @(
   @{ Name = "Uptime Kuma"; Url = "http://localhost:3002" },
   @{ Name = "MinIO Console"; Url = "http://localhost:9001" },
+  @{ Name = "Prometheus"; Url = "http://localhost:9090/-/ready" },
   @{ Name = "n8n"; Url = "http://localhost:5678" },
   @{ Name = "Medusa"; Url = "http://localhost:8100/app/login" },
+  @{ Name = "Kong Gateway"; Url = "http://localhost:8000/medusa/health" },
   @{ Name = "Lago"; Url = "http://localhost:8102" },
   @{ Name = "Snipe-IT"; Url = "http://localhost:8104/login" },
   @{ Name = "Cal.com"; Url = "http://localhost:8106" },

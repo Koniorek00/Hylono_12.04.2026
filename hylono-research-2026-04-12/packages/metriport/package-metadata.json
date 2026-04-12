@@ -1,0 +1,97 @@
+{
+  "name": "Metriport",
+  "slug": "metriport",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "Metriport healthcare interoperability API",
+  "version": "v5.84.0 [POTENTIALLY OUTDATED]",
+  "version_status": "PARTLY VERIFIED / stale release cadence",
+  "license": "MIT / verify current repo terms",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source healthcare interoperability API for patient data exchange, FHIR/C-CDA/PDF normalization, and U.S. health data connectivity.",
+  "solves": "Connecting to U.S. healthcare records and normalizing patient data from HIEs/providers.",
+  "users": "Healthcare software teams needing interoperability with U.S. healthcare systems.",
+  "fit": "Poor fit for Hylono\u2019s current EU wellness stack. Strategic mismatch unless the company enters regulated healthcare interoperability, especially in the U.S.",
+  "runtime": "Healthcare integration platform with API services, data normalization, and provider/network connectors.",
+  "components": "API layer, healthcare connectors, data normalization pipelines, and auth/integration management.",
+  "deploy": "Self-hosting is possible but domain-specific and compliance-heavy.",
+  "deps": "Healthcare connectivity, auth, secure storage, and domain expertise.",
+  "datastores": "Healthcare data stores and integration metadata.",
+  "auth": "API auth and healthcare-integration credential handling.",
+  "apis": "FHIR/C-CDA/PDF-related APIs and provider connectivity endpoints.",
+  "complexity": "High",
+  "security": "Potential PHI and regulated-health data. Very high governance burden.",
+  "setup_path": "Keep off roadmap unless business strategy changes materially toward regulated healthcare interoperability.",
+  "env": "Healthcare integration credentials, storage, auth, and service settings.",
+  "persistence": "Sensitive health data demands strong backup/encryption controls if ever used.",
+  "operations": "Connector maintenance and compliance would dominate.",
+  "failure_points": "Confusing health-adjacent wellness operations with healthcare interoperability needs.",
+  "integration": "Minimal current value.",
+  "verify": "Confirm whether any U.S./clinical interoperability requirement exists. It likely does not.",
+  "risk": "Very high strategic mismatch.",
+  "gdpr": "Would imply health-data handling and possibly cross-border transfer issues.",
+  "recommendation": "EXCLUDE FOR NOW",
+  "priority": 53,
+  "overlap": "Not meaningfully relevant unless entering healthcare interoperability.",
+  "codex_read_first": "Read the business-fit and compliance notes; this is likely out of scope.",
+  "codex_best_path": "Do not implement unless healthcare interoperability becomes an explicit business program.",
+  "codex_never_assume": "Never equate health-adjacent brand positioning with a need for clinical interoperability software.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.metriport.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT or repo terms",
+      "version": "current docs",
+      "notes": "Primary product docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/metriport/metriport",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify current repo",
+      "version": "v5.84.0 observed",
+      "notes": "Code source; cadence seems older.",
+      "outdated": true
+    },
+    {
+      "name": "Official site",
+      "url": "https://metriport.com/",
+      "kind": "official site",
+      "status": "indexed-only",
+      "license": "see site",
+      "version": "current",
+      "notes": "Product positioning.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/metriport/metriport/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.84.0 observed",
+      "why": "Release/cadence reference."
+    },
+    {
+      "url": "https://docs.metriport.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://metriport.com/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Product scope context."
+    }
+  ]
+}

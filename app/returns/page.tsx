@@ -7,12 +7,12 @@ import { env } from '@/lib/env';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 import StructuredData from '@/src/components/StructuredData';
-import { ReturnsClient } from './ReturnsClient';
+import { ReturnsPolicyPage } from '@/components/legal/PolicyPages';
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Hylono Returns & Refunds | Eligibility, Collections, and Refund Timelines',
+  title: 'Hylono Returns Policy | 30-Day Window and Refunds',
   description:
-    'Read Hylono return eligibility, collection flow, and refund processing timelines for device purchases across supported regions.',
+    'Read Hylono’s public 30-day returns policy, free-return status, refund promise, and the buyer support path for eligible direct purchases.',
   path: '/returns',
 });
 
@@ -44,9 +44,9 @@ export default function ReturnsPageRoute() {
           id="jsonld-returns-page"
           data={{
             ...createWebPageSchema({
-              name: 'Hylono Returns & Refunds',
+              name: 'Hylono Returns Policy',
               description:
-                'Read Hylono return eligibility, collection flow, and refund processing timelines for device purchases.',
+                'Read Hylono’s public 30-day returns policy, free-return status, refund promise, and the buyer support path for eligible direct purchases.',
               path: '/returns',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
@@ -64,11 +64,11 @@ export default function ReturnsPageRoute() {
           id="jsonld-returns-breadcrumb"
           data={createBreadcrumbSchema([
             { name: 'Home', path: '/' },
-            { name: 'Returns', path: '/returns' },
+            { name: 'Returns Policy', path: '/returns' },
           ])}
         />
       </Suspense>
-      <ReturnsClient />
+      <ReturnsPolicyPage />
     </>
   );
 }

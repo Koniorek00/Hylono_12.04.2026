@@ -1,0 +1,97 @@
+{
+  "name": "Presidio",
+  "slug": "presidio",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Microsoft Presidio",
+  "version": "2.2.362",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "PII detection and anonymization toolkit for text and structured data, with analyzers, recognizers, and anonymizers.",
+  "solves": "Detecting, redacting, or anonymizing personal data in logs, text fields, support transcripts, or AI/LLM pipelines.",
+  "users": "Engineering, privacy, and AI teams that need PII-aware data processing.",
+  "fit": "Good tactical fit if Hylono wants privacy-aware AI/search/logging pipelines, but it is a component/toolkit, not a standalone business app.",
+  "runtime": "Python services/libraries, optional REST services, recognizers, and NLP dependencies.",
+  "components": "Analyzer, anonymizer, recognizers, optional image/text pipelines, and REST services via Docker or Python.",
+  "deploy": "Often deployed as internal microservice or embedded library. Operational burden is moderate but narrower than full privacy platforms.",
+  "deps": "Python runtime, NLP models, containers if service-based, and integration to upstream text/data flows.",
+  "datastores": "None inherently; it processes data in-flight.",
+  "auth": "Depends on how Hylono wraps it (internal service auth, API gateway, etc.).",
+  "apis": "Python library APIs and REST service endpoints.",
+  "complexity": "Medium",
+  "security": "Useful for reducing privacy exposure, but should not be mistaken for complete governance or compliance tooling.",
+  "setup_path": "Use as an internal service/library only if there is a concrete PII-processing need (for example AI assistants, transcript processing, support tooling, or log redaction).",
+  "env": "Model/config settings, recognizer config, service port/base URL if containerized.",
+  "persistence": "Stateless by default unless Hylono adds storage around it.",
+  "operations": "Model quality tuning, false positive/negative review, and service versioning matter.",
+  "failure_points": "Assuming out-of-the-box recognizers fully match multilingual or domain-specific data.",
+  "integration": "Useful with AI pipelines, search, logs, chat/support tooling, and privacy-by-design data handling. Can sit behind Kong or be called from n8n/Next.js backends.",
+  "verify": "Identify real PII-processing workflows before deploying.",
+  "risk": "Low to moderate; mostly a usefulness question.",
+  "gdpr": "Helpful for GDPR minimization but not a complete compliance program.",
+  "recommendation": "USE AS A COMPONENT IF PII PIPELINES EXIST",
+  "priority": 28,
+  "overlap": "Fides and CookieConsent solve different layers; Presidio is for data detection/anonymization.",
+  "codex_read_first": "Read the actual PII-processing workflows before planning Presidio deployment.",
+  "codex_best_path": "Expose Presidio as an internal service or utility library where text redaction is needed.",
+  "codex_never_assume": "Never treat PII detection as perfectly accurate or as a substitute for governance.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/microsoft/presidio",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "2.2.362",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official docs",
+      "url": "https://microsoft.github.io/presidio/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT/docs",
+      "version": "2.2.362",
+      "notes": "Install and architecture docs.",
+      "outdated": false
+    },
+    {
+      "name": "Docker compose example",
+      "url": "https://github.com/microsoft/presidio/tree/main/docs/samples/deployments/docker-compose",
+      "kind": "deployment example",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "current",
+      "notes": "Useful starter pattern.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/microsoft/presidio/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.2.362",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://microsoft.github.io/presidio/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.2.362",
+      "why": "Primary install/architecture source."
+    },
+    {
+      "url": "https://github.com/microsoft/presidio",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.2.362",
+      "why": "Code and license source."
+    }
+  ]
+}

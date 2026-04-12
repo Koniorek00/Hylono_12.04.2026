@@ -108,6 +108,7 @@ interface PartnerStore {
     // Partner Identity
     profile: PartnerProfile;
     setProfile: (profile: Partial<PartnerProfile>) => void;
+    resetCampaign: () => void;
 
     // Wizard State
     currentStep: number;
@@ -147,51 +148,57 @@ interface PartnerStore {
     setShowVerifiedBadge: (show: boolean) => void;
 }
 
-export const usePartnerStore = create<PartnerStore>((set) => ({
-    profile: {
-        logoUrl: null,
-        brandColor: '#0ea5e9', // Default Cyan
-        secondaryColor: '#0f172a', // Default Slate
-        clinicName: '',
-        address: '',
-        website: '',
-        bookingUrl: '',
-        socialInstagram: '',
-        socialFacebook: '',
-    },
-    setProfile: (updates) => set((state) => ({ profile: { ...state.profile, ...updates } })),
+const INITIAL_PROFILE: PartnerProfile = {
+    logoUrl: null,
+    brandColor: '#0ea5e9', // Default Cyan
+    secondaryColor: '#0f172a', // Default Slate
+    clinicName: '',
+    address: '',
+    website: '',
+    bookingUrl: '',
+    socialInstagram: '',
+    socialFacebook: '',
+};
 
+const createInitialCampaignState = () => ({
+    profile: INITIAL_PROFILE,
     currentStep: 1,
-    setStep: (step) => set({ currentStep: step }),
-    nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
+    campaignGoal: 'promotion' as CampaignGoal,
+    format: 'social-square' as CampaignFormat,
+    modality: 'HBOT' as Modality,
+    theme: 'modern' as Theme,
+    layoutVariation: 0 as LayoutVariation,
+    selectedTemplateId: 't2',
+    customTitle: '',
+    customBody: '',
+    backgroundImage: null,
+    showQrCode: true,
+    showLogo: true,
+    showHeatmap: false,
+    showVerifiedBadge: true,
+});
+
+export const usePartnerStore = create<PartnerStore>((set) => ({
+    ...createInitialCampaignState(),
+    setProfile: (updates) => set((state) => ({ profile: { ...state.profile, ...updates } })),
+    resetCampaign: () => set(createInitialCampaignState()),
+
+    setStep: (step) => set({ currentStep: Math.min(3, Math.max(1, step)) }),
+    nextStep: () => set((state) => ({ currentStep: Math.min(3, state.currentStep + 1) })),
     prevStep: () => set((state) => ({ currentStep: Math.max(1, state.currentStep - 1) })),
 
-    campaignGoal: 'promotion',
     setCampaignGoal: (campaignGoal) => set({ campaignGoal }),
-    format: 'social-square',
     setFormat: (format) => set({ format }),
-    modality: 'HBOT',
     setModality: (modality) => set({ modality }),
-    theme: 'modern',
     setTheme: (theme) => set({ theme }),
-    layoutVariation: 0,
     setLayoutVariation: (layoutVariation) => set({ layoutVariation }),
 
-    selectedTemplateId: 't2',
-
-    customTitle: '',
     setCustomTitle: (text) => set({ customTitle: text }),
-    customBody: '',
     setCustomBody: (text) => set({ customBody: text }),
 
-    backgroundImage: null,
     setBackgroundImage: (url) => set({ backgroundImage: url }),
-    showQrCode: true,
     setShowQrCode: (show) => set({ showQrCode: show }),
-    showLogo: true,
     setShowLogo: (show) => set({ showLogo: show }),
-    showHeatmap: false,
     setShowHeatmap: (show) => set({ showHeatmap: show }),
-    showVerifiedBadge: true,
     setShowVerifiedBadge: (show) => set({ showVerifiedBadge: show }),
 }));

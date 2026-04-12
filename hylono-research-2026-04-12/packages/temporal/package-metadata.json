@@ -1,0 +1,97 @@
+{
+  "name": "Temporal",
+  "slug": "temporal",
+  "group": "Phase 1C",
+  "status_context": "UNKNOWN",
+  "researched_as": "Temporal workflow orchestration platform",
+  "version": "v1.30.3",
+  "version_status": "CONFIRMED",
+  "license": "MIT / mixed ecosystem licenses",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Durable workflow orchestration platform for long-running, retryable, stateful business processes in code.",
+  "solves": "Reliable orchestration of multi-step business processes that must survive retries, outages, and long waits.",
+  "users": "Engineering teams building complex, durable workflows in code.",
+  "fit": "Powerful but easy to over-adopt. Hylono should start with n8n and app-native workflows; Temporal becomes interesting only when business-critical long-running workflows outgrow those tools.",
+  "runtime": "Server cluster with history/matching/frontend services plus database and optional search.",
+  "components": "Temporal server services, persistence DB, task queues/workers in application code, and visibility/search components.",
+  "deploy": "Self-host Docker/Kubernetes exists, but this is serious platform infrastructure, not a casual utility.",
+  "deps": "PostgreSQL/MySQL/Cassandra depending on deployment, workers in code, monitoring, and durable queue thinking.",
+  "datastores": "Persistence DB plus visibility/search components depending on setup.",
+  "auth": "Service auth and application-level worker/client auth patterns.",
+  "apis": "SDKs for workflow code, gRPC APIs, worker/task queues, and admin tooling.",
+  "complexity": "High",
+  "security": "Workflow payloads can include sensitive business data. Access, retention, and namespace boundaries matter.",
+  "setup_path": "Do not adopt before exhausting simpler orchestration patterns.",
+  "env": "Persistence DB, service config, namespace/auth, worker endpoints, and monitoring.",
+  "persistence": "Back up persistence DB and treat workflow histories as durable state.",
+  "operations": "Server upgrades, SDK compatibility, namespace management, and worker reliability matter.",
+  "failure_points": "Using Temporal because it is powerful rather than because durable coded workflows are clearly needed.",
+  "integration": "Could eventually power long-running rental/service/billing workflows in code, but not before n8n/app code hits limits.",
+  "verify": "Identify actual workflows that require Temporal-grade durability and code orchestration.",
+  "risk": "High complexity; high payoff only for the right problems.",
+  "gdpr": "Workflow histories may store personal data; retention and minimization matter.",
+  "recommendation": "LATE / ONLY FOR TRUE DURABLE-WORKFLOW NEEDS",
+  "priority": 49,
+  "overlap": "Partial overlap with n8n and application job queues, but at a different sophistication level.",
+  "codex_read_first": "Read n8n limitations and workflow-complexity notes before proposing Temporal.",
+  "codex_best_path": "Defer until there is a clear set of long-running, failure-sensitive workflows that simpler tools cannot handle.",
+  "codex_never_assume": "Never treat Temporal as a default queue or cron replacement.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.temporal.io/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT ecosystem",
+      "version": "v1.30.3",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/temporalio/temporal",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v1.30.3",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Samples server repo",
+      "url": "https://github.com/temporalio/docker-compose",
+      "kind": "legacy docker assets [POTENTIALLY OUTDATED]",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "archived",
+      "notes": "Archived; use only as historical reference.",
+      "outdated": true
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/temporalio/temporal/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.30.3",
+      "why": "Version source."
+    },
+    {
+      "url": "https://docs.temporal.io/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/temporalio/temporal",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.30.3",
+      "why": "Code source."
+    }
+  ]
+}

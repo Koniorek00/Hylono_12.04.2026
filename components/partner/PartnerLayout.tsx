@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     LayoutDashboard,
     Palette,
     Wrench,
     Users,
+    GraduationCap,
     LogOut,
     Menu,
     FileText,
@@ -17,6 +19,7 @@ import {
     ChevronRight,
     X,
     Boxes,
+    ShoppingBag,
     LucideIcon,
 } from 'lucide-react';
 import { CommandPalette } from './CommandPalette';
@@ -37,6 +40,8 @@ const NAV_ITEMS: NavItem[] = [
     { icon: LayoutDashboard, label: 'Overview',   href: '/nexus' },
     { icon: Users,           label: 'Clients',    href: '/nexus/clients' },
     { icon: Wrench,          label: 'Fleet',      href: '/nexus/fleet' },
+    { icon: GraduationCap,   label: 'Academy',    href: '/nexus/academy' },
+    { icon: ShoppingBag,     label: 'Supplies',   href: '/nexus/supplies' },
     { icon: FileText,        label: 'Documents',  href: '/nexus/docs' },
     { icon: Palette,         label: 'Studio',     href: '/nexus/studio' },
     { icon: Boxes,           label: 'Team',       href: '/nexus/team' },
@@ -46,6 +51,9 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
     const pathname = usePathname() ?? '/nexus';
+    const handleSignOut = () => {
+        void signOut({ callbackUrl: '/login' });
+    };
 
     useEffect(() => {
         const onResize = () => {
@@ -196,7 +204,7 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                 <div className="p-3 border-t border-white/[0.06] shrink-0">
                     <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
                         <div className="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                            SC
+                            CW
                         </div>
                         <AnimatePresence>
                             {!collapsed && (
@@ -207,13 +215,15 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                                     exit={{ opacity: 0 }}
                                     className="flex-1 min-w-0"
                                 >
-                                    <p className="text-xs font-semibold text-white truncate">Dr. S. Chen</p>
-                                    <p className="text-[10px] text-slate-500 truncate">Aura Wellness Clinic</p>
+                                    <p className="text-xs font-semibold text-white truncate">Clinic Workspace</p>
+                                    <p className="text-[10px] text-slate-500 truncate">Authenticated session</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                         {!collapsed && (
                             <button
+                                type="button"
+                                onClick={handleSignOut}
                                 className="p-1 hover:bg-white/[0.05] rounded text-slate-600 hover:text-slate-300 transition-colors"
                                 aria-label="Sign out"
                             >
@@ -274,6 +284,16 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                                     );
                                 })}
                             </nav>
+                            <div className="border-t border-white/[0.06] p-3">
+                                <button
+                                    type="button"
+                                    onClick={handleSignOut}
+                                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-200"
+                                >
+                                    <LogOut className="h-[18px] w-[18px] shrink-0" />
+                                    <span className="text-sm font-medium">Sign out</span>
+                                </button>
+                            </div>
                         </motion.aside>
                     </>
                 )}
@@ -281,8 +301,9 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
 
             {/* ── MAIN AREA ────────────────────────────────────────────── */}
             <div
-                className="flex-1 flex flex-col min-w-0 transition-[margin] duration-200"
-                style={{ marginLeft: collapsed ? 72 : 240 }}
+                className={`flex-1 flex flex-col min-w-0 transition-[margin] duration-200 ${
+                    collapsed ? 'lg:ml-[72px]' : 'lg:ml-[240px]'
+                }`}
             >
                 {/* Topbar */}
                 <header className="h-14 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
@@ -330,7 +351,7 @@ export const PartnerLayout: React.FC<PartnerLayoutProps> = ({ children, title })
                         <NotificationCenter />
 
                         <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white text-xs font-bold ring-2 ring-slate-100">
-                            SC
+                            CW
                         </div>
                     </div>
                 </header>

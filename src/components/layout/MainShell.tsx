@@ -14,10 +14,18 @@ interface MainShellProps {
 export function MainShell({ children }: MainShellProps) {
   const pathname = usePathname() ?? '';
   if (shouldUseAppShellRoute(pathname)) {
-    return <main className="relative z-0">{children}</main>;
+    return (
+      <main id="main-content" tabIndex={-1} className="relative z-0">
+        {children}
+      </main>
+    );
   }
 
   const topOffsetClass = shouldHideBreadcrumbs(pathname) ? 'pt-[72px] md:pt-[104px]' : '';
 
-  return <main className={`relative z-0 ${topOffsetClass}`}>{children}</main>;
+  return (
+    <main id="main-content" tabIndex={-1} className={`relative z-0 ${topOffsetClass}`}>
+      {children}
+    </main>
+  );
 }

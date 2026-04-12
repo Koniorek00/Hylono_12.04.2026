@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { signIn as authSignIn, signOut as authSignOut, useSession } from 'next-auth/react';
+import { signIn as authSignIn, signOut as authSignOut } from 'next-auth/react';
 import { User, Mail, Lock, Eye, EyeOff, X, UserCircle, Package, Settings, LogOut, ArrowRight, Check, AlertCircle, Loader2, Github, Globe, Sun, Zap, CheckCircle, RotateCcw } from 'lucide-react';
 import { TechType } from '../types';
 import { useFocusTrap } from '../hooks/useFocusTrap';
@@ -71,15 +71,33 @@ interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSignupSuccess?: () => void;
+    redirectTo?: string;
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignupSuccess }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({
+    isOpen,
+    onClose,
+    onSignupSuccess,
+    redirectTo,
+}) => {
     const signIn = async ({ email, password }: { email: string; password: string }) => {
-        const result = await authSignIn('credentials', { email, password, redirect: false });
+        const result = await authSignIn('credentials', {
+            email,
+            password,
+            redirect: false,
+            ...(redirectTo ? { redirectTo } : {}),
+        });
         if (result?.error) {
-            return { error: { message: result.error } };
+            return {
+                error: {
+                    message:
+                        result.code === 'rate_limited'
+                            ? 'Too many sign-in attempts. Please wait a few minutes and try again.'
+                            : 'Invalid email or password.',
+                },
+            };
         }
-        return { error: null };
+        return { error: null, url: result?.url ?? null };
     };
 
     const signUp = async (_credentials: { email: string; password: string; name?: string }) => {
@@ -133,11 +151,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
                 onClose();
                 if (onSignupSuccess) onSignupSuccess();
             } else if (view === 'signin') {
-                const { error } = await signIn({
+                const { error, url } = await signIn({
                     email: formData.email,
                     password: formData.password
                 });
                 if (error) throw error;
+                if (url && redirectTo) {
+                    window.location.assign(url);
+                    return;
+                }
                 onClose();
             } else if (view === 'forgot') {
                 const { error } = await resetPassword(formData.email);
@@ -362,10 +384,16 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignu
 };
 
 // --- Account Dashboard Component ---
-export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType, mode?: string) => void; ownedTech?: TechType[] }> = ({ onNavigate, ownedTech = [] }) => {
-    const { data: session, status } = useSession();
-    const user = session?.user;
-    const isPreviewMode = status !== 'loading' && !user;
+export const AccountPage: React.FC<{
+    onNavigate: (page: string, tech?: TechType, mode?: string) => void;
+    ownedTech?: TechType[];
+    sessionUser?: {
+        email?: string | null;
+        name?: string | null;
+    } | null;
+}> = ({ onNavigate, ownedTech = [], sessionUser = null }) => {
+    const user = sessionUser;
+    const isPreviewMode = !user?.email;
     const displayName = user?.name ?? user?.email ?? 'Guest Preview';
     const signOut = () => {
         void authSignOut({ callbackUrl: '/' });
@@ -397,14 +425,6 @@ export const AccountPage: React.FC<{ onNavigate: (page: string, tech?: TechType,
         { id: 'circadian', label: 'Circadian Settings', icon: Sun },
         { id: 'settings', label: 'General', icon: Settings },
     ];
-
-    if (status === 'loading') {
-        return (
-            <div className="min-h-screen flex items-center justify-center pt-32 pb-24">
-                <Loader2 className="animate-spin text-slate-400" size={32} />
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-slate-50 pt-32 pb-24">

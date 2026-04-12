@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PartnerLayout } from './PartnerLayout';
 import {
     Activity,
@@ -41,6 +42,21 @@ interface Device {
 }
 
 const getTodayDate = (): string => new Date().toISOString().split('T')[0] ?? '';
+
+const findDefaultMaintenanceDeviceId = (
+    devices: Device[],
+): string | null => devices.find((device) => device.status === 'maintenance')?.id ?? devices[0]?.id ?? null;
+
+const resolveDeviceId = (
+    devices: Device[],
+    candidateId?: string | null,
+): string | null => {
+    if (!candidateId) {
+        return null;
+    }
+
+    return devices.some((device) => device.id === candidateId) ? candidateId : null;
+};
 
 const INITIAL_DEVICES: Device[] = [
     {
@@ -100,14 +116,19 @@ const DeviceModal: React.FC<{
     device: Device;
     onClose: () => void;
     onAddLog: (deviceId: string, log: Omit<ServiceLog, 'id'>) => void;
-}> = ({ device, onClose, onAddLog }) => {
-    const [isAddingLog, setIsAddingLog] = useState(false);
+    initialLogFormOpen?: boolean;
+}> = ({ device, onClose, onAddLog, initialLogFormOpen = false }) => {
+    const [isAddingLog, setIsAddingLog] = useState(initialLogFormOpen);
     const [newLog, setNewLog] = useState<Omit<ServiceLog, 'id'>>({
         date: getTodayDate(),
         type: 'routine',
         description: '',
         technician: ''
     });
+
+    useEffect(() => {
+        setIsAddingLog(initialLogFormOpen);
+    }, [device.id, initialLogFormOpen]);
 
     const handleSubmitLog = (e: React.FormEvent) => {
         e.preventDefault();
@@ -279,11 +300,77 @@ onChange={(e) => setNewLog({ ...newLog, type: e.target.value as 'routine' | 'rep
     );
 };
 
-export const FleetHealth: React.FC = () => {
+interface FleetHealthProps {
+    initialSelectedDeviceId?: string;
+    initialLogAction?: boolean;
+}
+
+export const FleetHealth: React.FC<FleetHealthProps> = ({
+    initialSelectedDeviceId,
+    initialLogAction = false,
+}) => {
+    const router = useRouter();
+    const pathname = usePathname() ?? '/nexus/fleet';
+    const searchParams = useSearchParams();
     const [devices, setDevices] = useState<Device[]>(INITIAL_DEVICES);
-    const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+    const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(() => {
+        const routeSelectedDeviceId = resolveDeviceId(INITIAL_DEVICES, initialSelectedDeviceId);
+        return initialLogAction
+            ? routeSelectedDeviceId ?? findDefaultMaintenanceDeviceId(INITIAL_DEVICES)
+            : routeSelectedDeviceId;
+    });
+    const [isLogActionActive, setIsLogActionActive] = useState(initialLogAction);
+    const lastSyncedRouteState = useRef<string | null>(null);
 
     const selectedDevice = devices.find(d => d.id === selectedDeviceId) || null;
+
+    useEffect(() => {
+        const routeStateKey = `${initialSelectedDeviceId ?? ''}:${initialLogAction ? 'log' : 'view'}`;
+        if (lastSyncedRouteState.current === routeStateKey) {
+            return;
+        }
+
+        lastSyncedRouteState.current = routeStateKey;
+        const routeSelectedDeviceId = resolveDeviceId(INITIAL_DEVICES, initialSelectedDeviceId);
+
+        setSelectedDeviceId(
+            initialLogAction
+                ? routeSelectedDeviceId ?? findDefaultMaintenanceDeviceId(INITIAL_DEVICES)
+                : routeSelectedDeviceId,
+        );
+        setIsLogActionActive(initialLogAction);
+    }, [initialLogAction, initialSelectedDeviceId]);
+
+    const syncRouteState = useCallback((nextSelectedDeviceId: string | null, nextLogAction: boolean) => {
+        const params = new URLSearchParams(searchParams?.toString() ?? '');
+
+        if (nextSelectedDeviceId) {
+            params.set('device', nextSelectedDeviceId);
+        } else {
+            params.delete('device');
+        }
+
+        if (nextLogAction) {
+            params.set('action', 'log');
+        } else {
+            params.delete('action');
+        }
+
+        const nextQuery = params.toString();
+        router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    }, [pathname, router, searchParams]);
+
+    const handleCloseSelectedDevice = useCallback(() => {
+        setSelectedDeviceId(null);
+        setIsLogActionActive(false);
+        syncRouteState(null, false);
+    }, [syncRouteState]);
+
+    const handleSelectDevice = useCallback((deviceId: string) => {
+        setSelectedDeviceId(deviceId);
+        setIsLogActionActive(false);
+        syncRouteState(deviceId, false);
+    }, [syncRouteState]);
 
     const handleAddLog = (deviceId: string, log: Omit<ServiceLog, 'id'>) => {
         const newLog: ServiceLog = {
@@ -302,6 +389,8 @@ export const FleetHealth: React.FC = () => {
                 return device;
             })
         );
+        setIsLogActionActive(false);
+        syncRouteState(deviceId, false);
     };
 
     return (
@@ -310,8 +399,9 @@ export const FleetHealth: React.FC = () => {
                 {selectedDevice && (
                     <DeviceModal
                         device={selectedDevice}
-                        onClose={() => setSelectedDeviceId(null)}
+                        onClose={handleCloseSelectedDevice}
                         onAddLog={handleAddLog}
+                        initialLogFormOpen={isLogActionActive}
                     />
                 )}
             </AnimatePresence>
@@ -363,7 +453,7 @@ export const FleetHealth: React.FC = () => {
                             <div
                                 key={device.id}
                                 className="p-4 md:p-6 flex items-center gap-4 md:gap-6 hover:bg-slate-50 transition-colors cursor-pointer group"
-                                onClick={() => setSelectedDeviceId(device.id)}
+                                onClick={() => handleSelectDevice(device.id)}
                             >
                                 {/* Thumbnail */}
                                 <div className={`w-12 h-12 md:w-16 md:h-16 rounded-lg ${device.image} flex items-center justify-center text-slate-600 font-bold text-xs shrink-0`}>

@@ -1,0 +1,60 @@
+order,name,slug,group,status_context,researched_as,version,version_status,license,recommendation,priority,risk,complexity
+1,PostgreSQL 16,postgresql-16,Infrastructure,RUNNING,PostgreSQL 16 major line,16.13,CONFIRMED,PostgreSQL License,DEPLOY/HARDEN NOW,1,High,Medium
+2,Redis 7,redis-7,Infrastructure,RUNNING,Redis 7 major line,7.4.8,CONFIRMED,RSALv2 / SSPLv1 for 7.4.x–7.8.x; BSDv3 for older 7.2.x and earlier; Redis 8 adds AGPLv3 option,KEEP FOR EXISTING USE; REQUIRE LICENSE REVIEW BEFORE EXPANSION,2,Medium,Medium
+3,MongoDB 7,mongodb-7,Infrastructure,RUNNING,MongoDB 7 major line,7.0.x (7.0.31 observed in secondary release tracking),CONFIRMED line / point release partly UNVERIFIED,SSPL,KEEP FOR REQUIRED APPS ONLY,3,Medium,Medium
+4,MinIO,minio,Infrastructure,UNKNOWN,MinIO object storage,Community repo archived; AIStor docs active,CONFIRMED strategic change / exact CE status requires human review,Historically AGPLv3 for community code; current AIStor materials emphasize commercial licensing,DO NOT EXPAND UNTIL PRODUCT/LICENSE DIRECTION IS DECIDED,18,High,Medium to High
+5,Uptime Kuma,uptime-kuma,Infrastructure,UNKNOWN,Uptime Kuma,2.2.1,CONFIRMED,MIT,DEPLOY EARLY,10,Low to Medium,Low
+6,Twenty CRM,twenty-crm,Phase 1A,RUNNING,Twenty open-source CRM,v1.21.0,CONFIRMED,Mostly GPL-3.0 (verify repo licensing scope before bundling code),KEEP AND DEEPEN INTEGRATION EARLY,5,Medium,Medium
+7,Novu,novu,Phase 1A,RUNNING,Novu notification infrastructure platform,Platform v3.13.0 observed; JS SDK v3.14.0 also current,CONFIRMED,MIT core with commercial/open-core enterprise layers,KEEP AND HARDEN EARLY,6,Medium,Medium
+8,Medusa,medusa,Phase 1A,STOPPED,Medusa commerce engine,v2.13.6,CONFIRMED,MIT,LATER / CONDITIONAL,14,Medium,Medium to High
+9,Lago,lago,Phase 1A,STOPPED,Lago billing and metering platform,v1.45.1,CONFIRMED,AGPL-3.0 / open-core style review recommended,LATER / CONDITIONAL,16,High,High
+10,Snipe-IT,snipe-it,Phase 1A,STOPPED,Snipe-IT asset management,v8.4.1,CONFIRMED,AGPL-3.0,OPTIONAL / INTERNAL ONLY,22,Medium,Medium
+11,Leihs,leihs,Phase 1A,STOPPED,Leihs equipment lending and inventory system,7.13.0,CONFIRMED,AGPL-3.0 (verify current repo before bundling code),PRIORITY CANDIDATE FOR RENTAL OPERATIONS,12,Medium,Medium to High
+12,Cal.com,cal-com,Phase 1A,STOPPED,Cal.com scheduling platform,v6.2.0,CONFIRMED,AGPL-3.0 / commercial options,EARLY HIGH-VALUE CANDIDATE,9,Medium,Medium
+13,Documenso,documenso,Phase 1A,STOPPED,Documenso e-signature platform,v2.8.0,CONFIRMED,Open core / verify current repo and enterprise split before bundling code,EARLY / CONDITIONAL WITH LEGAL REVIEW,11,Medium,Medium
+14,ZITADEL,zitadel,Phase 1A,STOPPED,ZITADEL identity and access management platform,v4.12.3,CONFIRMED,Apache-2.0 / verify current distribution terms if enterprise features are considered,FOUNDATIONAL EARLY CANDIDATE,4,High,High
+15,n8n,n8n,Phase 1A,STOPPED,n8n workflow automation platform,2.15.1 stable (2.16.0 prerelease observed),CONFIRMED,Sustainable Use License / fair-code style; review before bundling or redistribution,CORE EARLY AUTOMATION LAYER,7,Medium,Medium
+16,Invoice Ninja,invoice-ninja,Phase 2,UNKNOWN,Invoice Ninja invoicing and payments platform,v5.13.10,CONFIRMED,Elastic License / source-available mix; verify current terms before bundling,PRIMARY INVOICING CANDIDATE IF NEEDED,20,Medium,Medium
+17,Akaunting,akaunting,Phase 2,UNKNOWN,Akaunting accounting platform,3.1.21 observed,CONFIRMED enough for research / release cadence should be rechecked at implementation,Business Source License (BSL),LIKELY EXCLUDE / ONLY IF ACCOUNTING GAP EXISTS,33,Medium,Medium to High
+18,CMMS,cmms,Phase 2,UNKNOWN,Atlas CMMS / Grashjs CMMS [INFERRED],v1.4.0,CONFIRMED for Atlas CMMS target / app identity is INFERRED,AGPL-3.0 and commercial,CONDITIONAL / GOOD FOR SERVICE OPERATIONS,24,Medium,Medium
+19,Fleetbase,fleetbase,Phase 2,UNKNOWN,Fleetbase logistics and fleet operations platform,v0.7.29,CONFIRMED,AGPL-3.0,LATER / ONLY IF FLEET OPERATIONS BECOME REAL,35,High,High
+20,Ditto,ditto,Phase 2,UNKNOWN,Dittofeed [INFERRED],Current self-host docs available; exact stable version UNVERIFIED,INFERRED identity / version UNVERIFIED,Review current repo license before bundling,LIKELY REDUNDANT / VERIFY IDENTITY FIRST,38,High,Medium to High
+21,Node-RED,node-red,Phase 2,UNKNOWN,Node-RED flow-based programming platform,4.1.8,CONFIRMED,Apache-2.0,LATER / IOT-SPECIFIC,29,Medium,Low to Medium
+22,DocuSeal,docuseal,Phase 2,UNKNOWN,DocuSeal e-signature platform,2.4.3,CONFIRMED,AGPL-3.0,SECONDARY TO DOCUMENSO,27,Medium,Medium
+23,RefRef,refref,Phase 2,UNKNOWN,Amical RefRef referral platform,No stable releases; current repo active with alpha/breaking-change warnings,CONFIRMED project state / exact stable version MISSING,AGPL-3.0,LATER / EXPERIMENTAL,41,High,Medium
+24,Listmonk,listmonk,Phase 2,UNKNOWN,Listmonk newsletter and mailing-list manager,v6.1.0,CONFIRMED,AGPL-3.0,GOOD LIGHTWEIGHT MARKETING CANDIDATE,26,Medium,Low to Medium
+25,Discourse,discourse,Phase 2,UNKNOWN,Discourse community forum platform,Current monthly channel / exact point release verify at implementation,CONFIRMED channel / point release not pinned,GPL-2.0+,CHOOSE ONLY IF COMMUNITY IS STRATEGIC,31,Medium,Medium to High
+26,Apache Answer,apache-answer,Phase 2,UNKNOWN,Apache Answer Q&A platform,v2.0.0,CONFIRMED,Apache-2.0,USE ONLY FOR FOCUSED Q&A,34,Medium,Medium
+27,BigBlueButton,bigbluebutton,Phase 2,UNKNOWN,BigBlueButton web conferencing and classroom platform,v3.0.23,CONFIRMED,LGPL / mixed component licenses; verify deployment bundle terms if redistributing,LATE / ONLY IF CLASSROOM FEATURES ARE REQUIRED,42,High,High
+28,BookStack,bookstack,Phase 2,UNKNOWN,BookStack wiki and documentation platform,v25.12.9,CONFIRMED,MIT,STRONG INTERNAL DOCS CANDIDATE,23,Low to Medium,Low to Medium
+29,Docusaurus,docusaurus,Phase 2,UNKNOWN,Docusaurus static documentation site generator,v3.10.0,CONFIRMED,MIT,OPTIONAL / ONLY IF SEPARATE DOCS PROPERTY IS WANTED,37,Medium,Low
+30,Outline,outline,Phase 2,UNKNOWN,Outline collaborative knowledge base,v1.6.1,CONFIRMED,BSL-style / source-available with change date; review carefully,SECONDARY TO BOOKSTACK,32,Medium,Medium
+31,Medplum,medplum,Phase 2,UNKNOWN,Medplum healthcare developer platform,v5.1.6,CONFIRMED,Apache-2.0 / verify hosted-service terms separately if relevant,DEFER UNLESS EXPLICIT HEALTHCARE DATA PROGRAM EXISTS,45,High,High
+32,Fasten Health,fasten-health,Phase 2,UNKNOWN,Fasten Health personal/family health record app,v1.1.3 observed [POTENTIALLY OUTDATED],PARTLY VERIFIED / older cadence,AGPL-3.0 (verify current repo before bundling),EXCLUDE FOR NOW,52,High,Medium
+33,Presidio,presidio,Phase 2,UNKNOWN,Microsoft Presidio,2.2.362,CONFIRMED,MIT,USE AS A COMPONENT IF PII PIPELINES EXIST,28,Medium,Medium
+34,Infisical,infisical,Phase 2,UNKNOWN,Infisical secrets management platform,v0.159.9,CONFIRMED,Open source core / enterprise features review required,FOUNDATIONAL EARLY PLATFORM CANDIDATE,8,Medium,Medium
+35,Comp AI,comp-ai,Phase 2,UNKNOWN,Comp AI compliance operations platform,v1.72.2 observed,PARTLY VERIFIED from current repo comparisons,AGPL-3.0 core with commercial /ee,LATER / ONLY IF FORMAL COMPLIANCE PROGRAM IS ACTIVE,40,Medium,Medium to High
+36,PostHog,posthog,Phase 2,ALREADY IN STACK,PostHog product analytics platform,Current self-host docs reviewed; exact monorepo server version intentionally left UNVERIFIED,CONFIRMED product state / exact version UNVERIFIED,MIT / open-core mix depending on components; verify current packaging as needed,KEEP CURRENT USE; AVOID SELF-HOST REPLATFORM UNLESS REQUIRED,13,Medium,High
+37,Retraced,retraced,Phase 2,UNKNOWN,Retraced audit logging platform,v1.13.1 [POTENTIALLY OUTDATED],PARTLY VERIFIED / low recent cadence,Apache-2.0,LATER / CONDITIONAL,43,Medium,Medium
+38,Fides,fides,Phase 2,UNKNOWN,Fides privacy and data governance platform,v2.78.2,CONFIRMED,Apache-2.0 / verify enterprise/commercial layers if used,LATER / PRIVACY-PROGRAM DEPENDENT,36,Medium,High
+39,CookieConsent,cookieconsent,Phase 2,UNKNOWN,Orest Bida CookieConsent,v3.1.0,CONFIRMED,MIT,GOOD LIGHTWEIGHT CONSENT OPTION,19,Low to Medium,Low
+40,Kong,kong,Phase 2,UNKNOWN,Kong Gateway,3.14.0.1,CONFIRMED,Apache-2.0 for open-source gateway / enterprise layers available,FOUNDATIONAL EARLY PLATFORM CANDIDATE,9.5,Medium,Medium to High
+41,Prometheus,prometheus,Phase 2,UNKNOWN,Prometheus monitoring system,v3.11.1,CONFIRMED,Apache-2.0,DEPLOY IN OBSERVABILITY WAVE,17,Medium,Medium
+42,Metabase,metabase,Phase 2,UNKNOWN,Metabase analytics and BI platform,v0.59.5,CONFIRMED,AGPL-3.0 / enterprise layers available,HIGH-VALUE INTERNAL ANALYTICS TOOL,21,Medium,Medium
+43,Appsmith,appsmith,Phase 2,UNKNOWN,Appsmith internal tools platform,v1.98,CONFIRMED,Apache-2.0 / enterprise extensions exist,HIGH-VALUE INTERNAL TOOLING CANDIDATE,22,Medium,Medium
+44,ThingsBoard,thingsboard,Phase 1B,UNKNOWN,ThingsBoard IoT platform,v4.3.1.1,CONFIRMED,Apache-2.0 / enterprise editions exist,LATER / ONLY IF IOT STRATEGY IS REAL,39,High,High
+45,Mosquitto,mosquitto,Phase 1B,UNKNOWN,Eclipse Mosquitto MQTT broker,v2.1.2,CONFIRMED,EPL/EDL,DEFER UNTIL MQTT IS NEEDED,44,High,Low to Medium
+46,InfluxDB,influxdb,Phase 1B,UNKNOWN,InfluxDB 3 Core,3.9.0 Core,CONFIRMED,MIT/Apache mix depending on components; verify current packaging,LATER / IF TIME-SERIES NEEDS BECOME REAL,46,Medium,Medium
+47,Grafana,grafana,Phase 1B,UNKNOWN,Grafana,12.4.2,CONFIRMED,AGPL-3.0 / enterprise offerings available,DEPLOY WITH OBSERVABILITY STACK,17.5,Medium,Medium
+48,Meilisearch,meilisearch,Phase 1B,UNKNOWN,Meilisearch,v1.38.2,CONFIRMED,MIT,LATER / HIGH-UTILITY IF SEARCH BECOMES IMPORTANT,25,Medium,Low to Medium
+49,Dify,dify,Phase 1B,UNKNOWN,Dify LLM app platform,v1.13.3,CONFIRMED,Apache-2.0 / commercial cloud offerings also exist,LATER / USE-CASE DRIVEN,47,High,High
+50,Strapi,strapi,Phase 1B,UNKNOWN,Strapi headless CMS,v5.42.0,CONFIRMED,Open-source core with commercial tiers; verify current licensing for enterprise features,ONLY IF CONTENT OPS OUTGROW CURRENT APPROACH,30,Medium,Medium
+51,Jitsi,jitsi,Phase 1B,UNKNOWN,Jitsi Meet / docker-jitsi-meet,stable-10888,CONFIRMED,Apache-2.0 / mixed component licenses across ecosystem,PRIMARY SELF-HOST VIDEO CANDIDATE IF NEEDED,27.5,Medium,Medium to High
+52,Chatwoot,chatwoot,Phase 1C,UNKNOWN,Chatwoot customer support platform,v4.12.1,CONFIRMED,MIT / enterprise cloud exists,LATER / GOOD SUPPORT PLATFORM,28.5,Medium,Medium
+53,Mautic,mautic,Phase 1C,UNKNOWN,Mautic marketing automation platform,7.0.1,CONFIRMED,GPL-3.0,LATER / ONLY IF ADVANCED MARKETING AUTOMATION IS NEEDED,38.5,Medium,Medium to High
+54,Formbricks,formbricks,Phase 1C,UNKNOWN,Formbricks survey and experience management platform,v4.8.7,CONFIRMED,AGPL-3.0 / commercial options,GOOD LATER FEEDBACK TOOL,29.5,Medium,Low to Medium
+55,Gorse,gorse,Phase 1C,UNKNOWN,Gorse recommendation engine,v0.5.5,CONFIRMED,Apache-2.0,LATE / DATA-MATURITY DEPENDENT,48,Medium,Medium
+56,Temporal,temporal,Phase 1C,UNKNOWN,Temporal workflow orchestration platform,v1.30.3,CONFIRMED,MIT / mixed ecosystem licenses,LATE / ONLY FOR TRUE DURABLE-WORKFLOW NEEDS,49,High,High
+57,ClassroomIO,classroomio,Phase 1C,UNKNOWN,ClassroomIO,Release state UNVERIFIED (secondary trackers suggest v0.3.2),UNVERIFIED,Review current repo license before bundling,VERIFY FRESHNESS BEFORE ANY USE / LIKELY LATER,51,High,Medium to High
+58,Metriport,metriport,Phase 1C,UNKNOWN,Metriport healthcare interoperability API,v5.84.0 [POTENTIALLY OUTDATED],PARTLY VERIFIED / stale release cadence,MIT / verify current repo terms,EXCLUDE FOR NOW,53,High,High
+59,Wazuh,wazuh,Phase 1C,UNKNOWN,Wazuh security platform,v4.14.4,CONFIRMED,GPL-2.0,LATER / SECURITY-MATURITY DEPENDENT,50,High,High

@@ -1,0 +1,97 @@
+{
+  "name": "Discourse",
+  "slug": "discourse",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Discourse community forum platform",
+  "version": "Current monthly channel / exact point release verify at implementation",
+  "version_status": "CONFIRMED channel / point release not pinned",
+  "license": "GPL-2.0+",
+  "license_status": "CONFIRMED",
+  "what": "Mature community forum platform for discussions, knowledge threads, moderation, trust systems, and email-driven participation.",
+  "solves": "Community support, customer discussion, announcements, and long-lived conversation spaces.",
+  "users": "Communities, support teams, developer ecosystems, and membership organizations.",
+  "fit": "Good fit if Hylono wants a real community, practitioner discussion, or peer support forum. It is broader and more community-capable than Apache Answer.",
+  "runtime": "Rails/Ember application stack with PostgreSQL, Redis, Sidekiq jobs, and mail integration.",
+  "components": "Web app, PostgreSQL, Redis, Sidekiq, uploads/storage, mail ingress/egress, and plugin ecosystem.",
+  "deploy": "Official self-hosting is Docker-on-Linux oriented; production requires mail, storage, backups, and moderation operations.",
+  "deps": "PostgreSQL, Redis, Docker/Linux host, mail delivery, storage, CDN/reverse proxy if scaled.",
+  "datastores": "PostgreSQL and Redis plus uploads storage.",
+  "auth": "Local accounts, SSO/OIDC options, moderation roles, and trust levels.",
+  "apis": "REST API, webhooks, plugins, SSO, email ingestion, and admin surfaces.",
+  "complexity": "Medium to High",
+  "security": "Public communities need strong moderation, email security, plugin discipline, and abuse/spam controls.",
+  "setup_path": "Use official Docker install path only if Hylono genuinely wants a forum/community surface.",
+  "env": "Hostnames, SMTP, storage/uploads, Redis/PostgreSQL, SSO config, and admin/moderation settings.",
+  "persistence": "Back up PostgreSQL, Redis (as needed), and uploads; preserve moderation and content retention policies.",
+  "operations": "Moderation, spam prevention, upgrade cadence, plugin compatibility, and email deliverability are ongoing responsibilities.",
+  "failure_points": "Launching a forum without community operations capacity, or using a full forum where a lighter Q&A/knowledge base would suffice.",
+  "integration": "Can integrate with ZITADEL/OIDC, site identity links, Novu/Listmonk announcements, and knowledge workflows.",
+  "verify": "Confirm whether Hylono wants ongoing community discussion or just structured Q&A/help.",
+  "risk": "Moderate product/ops risk; community tooling needs human stewardship.",
+  "gdpr": "User accounts and posts are personal data. Retention/moderation/export processes matter.",
+  "recommendation": "CHOOSE ONLY IF COMMUNITY IS STRATEGIC",
+  "priority": 31,
+  "overlap": "Choose Discourse over Apache Answer if broader community/forum capability matters.",
+  "codex_read_first": "Read the overlap map with Apache Answer, BookStack, and Docusaurus first.",
+  "codex_best_path": "Use Discourse only if Hylono commits to community moderation and discussion as a strategic surface.",
+  "codex_never_assume": "Never assume a forum will self-sustain without moderation and editorial effort.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/discourse/discourse",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "GPL-2.0+",
+      "version": "current monthly channel",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official install docs",
+      "url": "https://meta.discourse.org/t/discourse-official-install-guide/23657",
+      "kind": "official install guide",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Canonical self-host install path.",
+      "outdated": false
+    },
+    {
+      "name": "Docker launcher repo",
+      "url": "https://github.com/discourse/discourse_docker",
+      "kind": "deployment repo",
+      "status": "indexed-only",
+      "license": "MIT/GPL components",
+      "version": "current",
+      "notes": "Official deployment tooling.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/discourse/discourse",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current monthly channel",
+      "why": "Primary code source and release channel anchor."
+    },
+    {
+      "url": "https://meta.discourse.org/t/discourse-official-install-guide/23657",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Canonical self-host install guide."
+    },
+    {
+      "url": "https://meta.discourse.org/c/releases/62",
+      "type": "official release channel",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "monthly / ESR",
+      "why": "Supports release-channel interpretation."
+    }
+  ]
+}

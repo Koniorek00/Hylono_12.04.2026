@@ -1,0 +1,97 @@
+{
+  "name": "Uptime Kuma",
+  "slug": "uptime-kuma",
+  "group": "Infrastructure",
+  "status_context": "UNKNOWN",
+  "researched_as": "Uptime Kuma",
+  "version": "2.2.1",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "Self-hosted uptime monitoring and status page tool for HTTP, TCP, ping, and application health endpoints.",
+  "solves": "Basic uptime checks, certificate expiry alerts, and operator-facing status visibility without standing up a heavier observability stack first.",
+  "users": "Ops and engineering teams that need lightweight service monitoring and status pages.",
+  "fit": "Good fit as a low-friction operational layer for early rollout, especially while the stack is still expanding and formal observability is being layered in.",
+  "runtime": "Node.js application with local/attached storage and outbound notification integrations.",
+  "components": "Web UI, monitor definitions, notification channels, persistent storage, and optional public status page.",
+  "deploy": "Docker is the normal path; single-node deployment is common.",
+  "deps": "Persistent volume, outbound notification channel, reverse proxy, and backup of monitor configuration.",
+  "datastores": "Internal application storage (SQLite or configured database depending on deployment mode).",
+  "auth": "Local users; protect with reverse proxy/TLS and strong credentials.",
+  "apis": "HTTP checks, notifications, status page URLs, and import/export features.",
+  "complexity": "Low",
+  "security": "Keep the admin UI private, patch regularly, and avoid exposing internal-only endpoints publicly through status pages.",
+  "setup_path": "Deploy via official container, reverse-proxy behind TLS, configure notifications, and import monitors for all tier-0 services.",
+  "env": "Port, base URL, reverse-proxy headers, persistence path, and notification credentials.",
+  "persistence": "Back up monitor config and internal database/volume.",
+  "operations": "Add monitors as new apps go live, test notifications, and patch on release cadence.",
+  "failure_points": "Treating it as a full observability platform, forgetting backups, or exposing sensitive internal target details on public status pages.",
+  "integration": "Useful immediately for public site, APIs, Kong, auth endpoints, key app front doors, and certificate checks.",
+  "verify": "Decide whether Hylono wants a public status page or strictly internal monitoring.",
+  "risk": "Low. Lightweight and easy to replace if observability matures.",
+  "gdpr": "Minimal direct data risk unless notifications or public pages expose user data.",
+  "recommendation": "DEPLOY EARLY",
+  "priority": 10,
+  "overlap": "Overlaps slightly with Prometheus/Grafana alerting but provides faster operator value for basic uptime checks.",
+  "codex_read_first": "Read the deployment docs and decide which endpoints should be monitored privately versus exposed on a status page.",
+  "codex_best_path": "Use it as the first visibility layer while Prometheus/Grafana mature underneath.",
+  "codex_never_assume": "Never assume Uptime Kuma replaces metrics, traces, logs, or security monitoring.",
+  "assets": [
+    {
+      "name": "Official website",
+      "url": "https://uptime.kuma.pet/",
+      "kind": "official site",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "2.2.1",
+      "notes": "Landing page and docs hub.",
+      "outdated": false
+    },
+    {
+      "name": "GitHub repo",
+      "url": "https://github.com/louislam/uptime-kuma",
+      "kind": "official repository",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "2.2.1",
+      "notes": "Primary code and release source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image",
+      "url": "https://hub.docker.com/r/louislam/uptime-kuma",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "2.2.1",
+      "notes": "Primary deployment artifact.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/louislam/uptime-kuma/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.2.1",
+      "why": "Confirms latest release researched."
+    },
+    {
+      "url": "https://github.com/louislam/uptime-kuma",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "2.2.1",
+      "why": "Primary implementation source."
+    },
+    {
+      "url": "https://uptime.kuma.pet/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Docs and project positioning."
+    }
+  ]
+}

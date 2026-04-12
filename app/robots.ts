@@ -20,21 +20,8 @@ export default function robots(): MetadataRoute.Robots {
           '/onboarding',
           '/rental/checkout',
           '/wishlist',
-          // Intentionally noindex routes — disallow to preserve crawl budget
-          '/search',
-          '/wellness-planner',
-          '/locator',
-          '/affiliate',
-          '/rewards',
-          '/learning',
-          '/meridian',
-          '/firesafe',
-          '/hho-car-kit',
-          '/partners',
-          '/careers',
         ],
       },
-      // Explicitly allow major AI search crawlers with api/admin disallow
       {
         userAgent: [
           'OAI-SearchBot',

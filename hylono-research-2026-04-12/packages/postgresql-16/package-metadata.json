@@ -1,0 +1,97 @@
+{
+  "name": "PostgreSQL 16",
+  "slug": "postgresql-16",
+  "group": "Infrastructure",
+  "status_context": "RUNNING",
+  "researched_as": "PostgreSQL 16 major line",
+  "version": "16.13",
+  "version_status": "CONFIRMED",
+  "license": "PostgreSQL License",
+  "license_status": "CONFIRMED",
+  "what": "Open-source relational database and the canonical SQL backbone for many self-hosted web applications.",
+  "solves": "System of record for transactional data, identity data, billing metadata, scheduling records, CRM sync state, and analytics-friendly event tables.",
+  "users": "Engineering teams, product teams, and operators who need ACID semantics, mature tooling, and strong ecosystem support.",
+  "fit": "Excellent fit. It already aligns with Next.js + Drizzle + Auth.js, and many candidate Hylono apps either require PostgreSQL directly or can use it as their preferred production datastore.",
+  "runtime": "Single binary database server with WAL, background maintenance, replication options, and a large extension ecosystem.",
+  "components": "Server process, storage volume, WAL archive/backups, optional connection pooler, metrics exporter, and optional replicas.",
+  "deploy": "Managed service for site data or dedicated self-hosted instances for app groups that need local control, extension freedom, or network isolation.",
+  "deps": "Fast persistent storage, reliable backups, monitoring, connection pooling for higher concurrency, and disciplined schema migration workflows.",
+  "datastores": "PostgreSQL is the datastore.",
+  "auth": "Native database roles, password or certificate auth, TLS, network controls, and application-scoped credentials.",
+  "apis": "SQL over standard drivers, admin tooling, logical replication, backups/restores, and exporter endpoints for monitoring.",
+  "complexity": "Medium",
+  "security": "Tier-0 data service. Encrypt in transit, restrict network exposure, separate app credentials, test restores, and treat backup handling as a compliance control.",
+  "setup_path": "Use official PostgreSQL 16 packages or containers; enable TLS, backups, autovacuum visibility, connection pooling, and metrics before broad app consolidation.",
+  "env": "POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, storage sizing, WAL retention, backup target credentials, and pooler settings.",
+  "persistence": "Base backups plus WAL archiving; test restore regularly; keep schema migration discipline per app.",
+  "operations": "Quarterly minor patching, vacuum/bloat review, replication monitoring, slow query visibility, and capacity checks for connection spikes.",
+  "failure_points": "Connection exhaustion, slow disks, missing WAL retention, poor backup testing, and shared-cluster blast radius from noisy neighbors.",
+  "integration": "Backbone for the Hylono Next.js app and a strong fit for ZITADEL, Kong, Cal.com, Medusa, Lago, Metabase, Appsmith, and other app databases.",
+  "verify": "Decide whether Hylono will centralize multiple app schemas on shared PostgreSQL clusters or isolate high-risk apps into separate instances.",
+  "risk": "Low technical risk but high blast radius. Treat as a core platform dependency and isolate backups, monitoring, and access control accordingly.",
+  "gdpr": "Will almost certainly hold customer and business data. EU residency, backup geography, encryption, and retention policies matter.",
+  "recommendation": "DEPLOY/HARDEN NOW",
+  "priority": 1,
+  "overlap": "None. This is a canonical foundational service.",
+  "codex_read_first": "Read the release notes, current operational runbooks, and the per-app dependency map before consolidating more workloads onto PostgreSQL.",
+  "codex_best_path": "Keep the public site on Neon/Postgres if that is already stable; add separate PostgreSQL instances or databases for self-hosted apps that do not belong in the main site database.",
+  "codex_never_assume": "Never assume one shared PostgreSQL cluster is acceptable for every app. Verify extension needs, upgrade windows, backup RPO/RTO, and tenant isolation.",
+  "assets": [
+    {
+      "name": "Official release notes",
+      "url": "https://www.postgresql.org/docs/release/16.13/",
+      "kind": "official release notes",
+      "status": "indexed-only",
+      "license": "PostgreSQL docs",
+      "version": "16.13",
+      "notes": "Confirms current 16.x point release researched.",
+      "outdated": false
+    },
+    {
+      "name": "Docker official image",
+      "url": "https://hub.docker.com/_/postgres",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "PostgreSQL License",
+      "version": "16.x",
+      "notes": "Pragmatic container baseline for self-hosting and local validation.",
+      "outdated": false
+    },
+    {
+      "name": "Prometheus exporter",
+      "url": "https://github.com/prometheus-community/postgres_exporter",
+      "kind": "monitoring blueprint",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "current",
+      "notes": "Useful for production monitoring.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.postgresql.org/docs/release/16.13/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "16.13",
+      "why": "Confirms current PostgreSQL 16 point release researched."
+    },
+    {
+      "url": "https://www.postgresql.org/about/news/postgresql-1613-1517-1422-1325-and-1229-released-3066/",
+      "type": "official release announcement",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "16.13",
+      "why": "Confirms release date and maintenance status."
+    },
+    {
+      "url": "https://www.postgresql.org/support/versioning/",
+      "type": "official policy",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "n/a",
+      "why": "Supports maintenance and upgrade guidance."
+    }
+  ]
+}

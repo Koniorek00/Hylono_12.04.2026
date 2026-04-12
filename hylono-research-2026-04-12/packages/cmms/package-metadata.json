@@ -1,0 +1,97 @@
+{
+  "name": "CMMS",
+  "slug": "cmms",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Atlas CMMS / Grashjs CMMS [INFERRED]",
+  "version": "v1.4.0",
+  "version_status": "CONFIRMED for Atlas CMMS target / app identity is INFERRED",
+  "license": "AGPL-3.0 and commercial",
+  "license_status": "CONFIRMED for Atlas CMMS target",
+  "what": "Computerized maintenance management system for assets, preventive maintenance, work orders, and service records.",
+  "solves": "Maintenance planning, asset service schedules, inspections, spare parts, and technician workflows.",
+  "users": "Operations, facilities, service, and maintenance teams.",
+  "fit": "Useful if Hylono manages serviceable devices, refurbishment cycles, and field maintenance across rental inventory. Stronger fit as an operations tool than as a customer-facing system.",
+  "runtime": "Web application with maintenance workflows, database, user roles, and operational dashboards.",
+  "components": "Work orders, assets, schedules, inspections, parts, reports, and admin/users.",
+  "deploy": "Self-host via official docs or repo guidance; production needs database, mail, backups, and operations ownership.",
+  "deps": "Database, mail, storage, scheduler/background jobs, and operational process definition.",
+  "datastores": "Relational database.",
+  "auth": "Local users/roles; verify current SSO options if required.",
+  "apis": "APIs and integrations should be validated against current Atlas CMMS docs before implementation assumptions.",
+  "complexity": "Medium",
+  "security": "Operational asset data is not the highest compliance burden, but service histories and assigned personnel data still require access control.",
+  "setup_path": "Treat app identity as inferred and re-verify before implementation. If Atlas CMMS is correct, start from official docs and self-host guidance.",
+  "env": "DB settings, app URL, mail, storage, scheduler config, and secrets.",
+  "persistence": "Back up maintenance DB and any documents/images linked to work orders.",
+  "operations": "Preventive-maintenance cadence, data hygiene for asset/service histories, and workflow ownership matter more than raw infrastructure complexity.",
+  "failure_points": "Using a CMMS before asset/service taxonomy is defined, or overlapping it badly with Leihs/Snipe-IT/Fleetbase.",
+  "integration": "Useful alongside Leihs for rental fleet maintenance, with n8n for service alerts and Novu for operational notifications.",
+  "verify": "Primary unresolved item: confirm that 'CMMS' in your inventory really means Atlas CMMS / Grashjs.",
+  "risk": "Moderate due to identity ambiguity and process-design dependency.",
+  "gdpr": "Mainly operational data, but technician/user assignments can still be personal data.",
+  "recommendation": "CONDITIONAL / GOOD FOR SERVICE OPERATIONS",
+  "priority": 24,
+  "overlap": "Overlaps partly with Leihs asset records and Fleetbase operations, but is strongest specifically for maintenance.",
+  "codex_read_first": "Verify the intended CMMS product identity before doing implementation work.",
+  "codex_best_path": "If Atlas CMMS is correct, position it as maintenance back office only, integrated to rental/service events rather than exposed publicly.",
+  "codex_never_assume": "Never assume the target product name. Never assume asset-rental, maintenance, and fleet logistics belong in one system.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/Grashjs/grash",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0/commercial",
+      "version": "v1.4.0",
+      "notes": "Atlas CMMS primary code source if identity is correct.",
+      "outdated": false
+    },
+    {
+      "name": "Official docs",
+      "url": "https://docs.atlascmms.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Self-host/user guidance if Atlas CMMS is the intended app.",
+      "outdated": false
+    },
+    {
+      "name": "Official site",
+      "url": "https://www.atlascmms.com/",
+      "kind": "official site",
+      "status": "indexed-only",
+      "license": "commercial/open-source mix",
+      "version": "current",
+      "notes": "Product identification source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/Grashjs/grash/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.4.0",
+      "why": "Used for current version research of Atlas CMMS."
+    },
+    {
+      "url": "https://github.com/Grashjs/grash",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.4.0",
+      "why": "Primary code and license source for inferred target."
+    },
+    {
+      "url": "https://docs.atlascmms.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports deployment and feature analysis for the inferred target."
+    }
+  ]
+}

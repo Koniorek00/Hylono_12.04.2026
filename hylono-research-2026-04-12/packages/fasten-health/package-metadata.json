@@ -1,0 +1,97 @@
+{
+  "name": "Fasten Health",
+  "slug": "fasten-health",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Fasten Health personal/family health record app",
+  "version": "v1.1.3 observed [POTENTIALLY OUTDATED]",
+  "version_status": "PARTLY VERIFIED / older cadence",
+  "license": "AGPL-3.0 (verify current repo before bundling)",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Self-hosted personal and family health record aggregator for individuals, not an enterprise healthcare platform.",
+  "solves": "Consumer-controlled aggregation of personal medical records and healthcare documents.",
+  "users": "Individuals/families, not businesses building customer operations.",
+  "fit": "Poor fit for Hylono\u2019s current stack. It is a personal health record app rather than an operational platform for a premium wellness company.",
+  "runtime": "Self-hosted consumer app with healthcare account connectors and record storage.",
+  "components": "Web app, data import/connectors, storage, auth, and personal-record management.",
+  "deploy": "Self-hostable, but strategic value for Hylono is low unless the business moves into patient-controlled records.",
+  "deps": "Storage, auth, healthcare connectors, and data persistence.",
+  "datastores": "App database/storage for records.",
+  "auth": "End-user account model.",
+  "apis": "Consumer-focused import/connectivity surfaces; not a strong business integration target here.",
+  "complexity": "Medium",
+  "security": "Health records are highly sensitive. Not appropriate to introduce casually in a health-adjacent business stack.",
+  "setup_path": "Do not prioritize; keep outside the roadmap unless product direction changes dramatically.",
+  "env": "App settings, storage, connector credentials where relevant.",
+  "persistence": "Sensitive health records would require strong backup/encryption controls if ever used.",
+  "operations": "Connector maintenance and sensitive-data governance are the main issues.",
+  "failure_points": "Confusing a personal-record product with a business operations platform.",
+  "integration": "Minimal current value to Hylono.",
+  "verify": "Confirm whether any product vision actually requires customer-controlled health-record aggregation.",
+  "risk": "High strategic mismatch.",
+  "gdpr": "Would involve special-category health data if used.",
+  "recommendation": "EXCLUDE FOR NOW",
+  "priority": 52,
+  "overlap": "Not meaningfully overlapping with current Hylono operational needs.",
+  "codex_read_first": "Read the business-fit notes; this is likely out of scope.",
+  "codex_best_path": "Do not implement unless the business model changes toward patient-record handling.",
+  "codex_never_assume": "Never adopt a health-record system just because the company is health-adjacent.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/fastenhealth/fasten-onprem",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify current repo",
+      "version": "v1.1.3 observed",
+      "notes": "Primary code source.",
+      "outdated": true
+    },
+    {
+      "name": "Official site",
+      "url": "https://www.fastenhealth.com/",
+      "kind": "official site",
+      "status": "indexed-only",
+      "license": "see project terms",
+      "version": "current site",
+      "notes": "Project positioning.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/fastenhealth/fasten-onprem/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "see project terms",
+      "version": "v1.1.3 observed",
+      "notes": "Signals older cadence.",
+      "outdated": true
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/fastenhealth/fasten-onprem/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.1.3 observed",
+      "why": "Used to assess version/cadence; potentially outdated."
+    },
+    {
+      "url": "https://github.com/fastenhealth/fasten-onprem",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.1.x",
+      "why": "Code source."
+    },
+    {
+      "url": "https://www.fastenhealth.com/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Clarifies product orientation."
+    }
+  ]
+}

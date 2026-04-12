@@ -52,12 +52,41 @@ export const RentalLandingPage: React.FC<RentalLandingPageProps> = ({ onNavigate
           <p id="rental-hero-description" className="mt-3 text-sm text-slate-600">
             {rentalLandingContent.hero.subtitle} From EUR {lowestRentalPrice}/mo.
           </p>
-          <a
-            href="#available-rental-devices"
-            className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
-          >
-            {rentalLandingContent.hero.cta}
-          </a>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a
+              href="#available-rental-devices"
+              className="inline-flex min-h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              {rentalLandingContent.hero.cta}
+            </a>
+            <Link
+              href="/contact?intent=rental"
+              className="inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              {rentalLandingContent.hero.secondaryCta}
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {rentalLandingContent.hero.supportingPoints.map((point) => (
+              <div
+                key={point}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600"
+              >
+                {point}
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm font-medium text-slate-600">
+            <Link href="/shipping" className="underline decoration-slate-300 underline-offset-4 hover:text-slate-900">
+              Shipping
+            </Link>
+            <Link href="/returns" className="underline decoration-slate-300 underline-offset-4 hover:text-slate-900">
+              Returns
+            </Link>
+            <Link href="/warranty" className="underline decoration-slate-300 underline-offset-4 hover:text-slate-900">
+              Warranty
+            </Link>
+          </div>
         </section>
 
         <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
@@ -80,6 +109,9 @@ export const RentalLandingPage: React.FC<RentalLandingPageProps> = ({ onNavigate
           className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 md:p-8"
         >
           <h2 className="text-xl font-bold text-slate-900">Available devices</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'device matches' : 'devices match'} your current filters.
+          </p>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <label className="text-sm">
@@ -143,6 +175,21 @@ export const RentalLandingPage: React.FC<RentalLandingPageProps> = ({ onNavigate
               );
             })}
           </div>
+
+          {filteredProducts.length === 0 && (
+            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm text-slate-600">
+                No devices match the current combination. Broaden the filters or talk to an advisor
+                if you want help finding the closest fit.
+              </p>
+              <Link
+                href="/contact?intent=rental"
+                className="mt-3 inline-flex min-h-11 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                Talk to an advisor
+              </Link>
+            </div>
+          )}
         </section>
 
         <section className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-6 md:p-8">

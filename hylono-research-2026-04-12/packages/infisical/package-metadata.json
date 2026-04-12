@@ -1,0 +1,97 @@
+{
+  "name": "Infisical",
+  "slug": "infisical",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Infisical secrets management platform",
+  "version": "v0.159.9",
+  "version_status": "CONFIRMED",
+  "license": "Open source core / enterprise features review required",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Secrets management platform for application secrets, machine identity, secret sync, and environment configuration.",
+  "solves": "Centralizing secrets outside scattered .env files, improving rotation, access control, and auditability across many self-hosted apps.",
+  "users": "Engineering and platform teams operating multiple services and environments.",
+  "fit": "Excellent fit. Hylono\u2019s stack is large enough that a real secrets layer is more valuable than ad hoc environment files.",
+  "runtime": "Web/API platform with encrypted secret storage, auth, access controls, and SDK/CLI/agent integrations.",
+  "components": "Control plane/UI, database, encryption/key management, CLI/SDK, secret sync/injection, and policy/audit layers.",
+  "deploy": "Self-host docs are mature; production requires reliable DB, key management, backup, and role design.",
+  "deps": "Database, encryption keys/KMS strategy, SSO/auth, backup plan, and agent/injection method choices.",
+  "datastores": "Database for metadata and encrypted secrets.",
+  "auth": "Local users, SSO/OIDC/SAML depending on plan/setup, machine identities, and scoped access policies.",
+  "apis": "CLI/SDK/API, secret sync/injection, dynamic access patterns, and audit logs.",
+  "complexity": "Medium",
+  "security": "High leverage and high consequence. Root keys, bootstrap process, admin access, and backup recovery must be handled carefully.",
+  "setup_path": "Prioritize early if the stack grows. Start with core app/environment secrets, then onboard dependent services in phases.",
+  "env": "Bootstrap admin, DB settings, encryption keys, base URL, auth provider config, and secret-sync targets.",
+  "persistence": "Back up database and key material; test disaster recovery because secrets loss or compromise is severe.",
+  "operations": "Access review, key rotation, secrets rotation, audit review, and onboarding discipline matter more than raw install complexity.",
+  "failure_points": "Migrating too many apps at once, mishandling root keys, or assuming every app can ingest secrets the same way.",
+  "integration": "Strong fit with Next.js, n8n, Novu, Kong, databases, and all self-hosted app deployments. Pair well with ZITADEL for SSO.",
+  "verify": "Decide whether Hylono wants Infisical as the single secrets control plane, and how it coexists with current deployment tooling.",
+  "risk": "Moderate but worth it; benefits compound as the stack grows.",
+  "gdpr": "Mostly credential data, but secrets platform security affects every system that holds personal data.",
+  "recommendation": "FOUNDATIONAL EARLY PLATFORM CANDIDATE",
+  "priority": 8,
+  "overlap": "Could overlap with managed cloud secret stores, but strongest value comes from multi-app self-hosted consistency.",
+  "codex_read_first": "Read current env/secret handling across the Hylono stack before planning migration.",
+  "codex_best_path": "Introduce Infisical early for shared infrastructure and integration services, then gradually move app secrets under policy control.",
+  "codex_never_assume": "Never migrate secrets without a rollback plan and bootstrap key handling procedure.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://infisical.com/docs/self-hosting/overview",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v0.159.9",
+      "notes": "Primary self-host source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/Infisical/infisical",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current repo/enterprise split",
+      "version": "v0.159.9",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Helm chart",
+      "url": "https://github.com/Infisical/infisical-helm-charts",
+      "kind": "helm charts",
+      "status": "indexed-only",
+      "license": "review repo",
+      "version": "current",
+      "notes": "Useful for Kubernetes deployment.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/Infisical/infisical/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.159.9",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://infisical.com/docs/self-hosting/overview",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary self-hosting source."
+    },
+    {
+      "url": "https://github.com/Infisical/infisical",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.159.9",
+      "why": "Code and architecture source."
+    }
+  ]
+}

@@ -16,6 +16,7 @@ const DEFAULT_PAGE_ALIASES: Record<string, string> = {
   advisors: '/contact',
   builder: '/wellness-planner',
   product: '/store',
+  support: '/help',
   videos: '/learning',
   referral: '/rewards',
   financing: '/checkout',

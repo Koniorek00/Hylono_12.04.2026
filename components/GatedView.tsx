@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Lock, ShieldAlert, ArrowRight, UserPlus } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 
 interface GatedViewProps {
     children: React.ReactNode;
     title: string;
     description: string;
+    isAuthenticated: boolean;
     onRequestLogin?: () => void;
 }
 
@@ -14,19 +14,10 @@ export const GatedView: React.FC<GatedViewProps> = ({
     children,
     title,
     description,
+    isAuthenticated,
     onRequestLogin,
 }) => {
-    const { data: session, status } = useSession();
-
-    if (status === 'loading') {
-        return (
-            <div className="min-h-[70vh] flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-slate-200 border-t-cyan-500 rounded-full animate-spin" />
-            </div>
-        );
-    }
-
-    if (session) {
+    if (isAuthenticated) {
         return <>{children}</>;
     }
 
@@ -71,4 +62,3 @@ export const GatedView: React.FC<GatedViewProps> = ({
         </div>
     );
 };
-

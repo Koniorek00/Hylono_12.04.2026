@@ -5,16 +5,48 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $stackDir = (Resolve-Path (Join-Path $scriptDir "..")).Path
 $envFile = Join-Path $stackDir ".env"
 $exampleFile = Join-Path $stackDir ".env.example"
+$generatedValues = @{}
 
-function New-HexSecret {
+function New-UniqueHexSecret {
   param(
     [Parameter(Mandatory = $true)]
-    [int]$Bytes
+    [int]$HexChars
   )
 
-  $buffer = [byte[]]::new($Bytes)
-  [System.Security.Cryptography.RandomNumberGenerator]::Fill($buffer)
-  return -join ($buffer | ForEach-Object { $_.ToString("x2") })
+  if ($HexChars -lt 2) {
+    throw "HexChars must be at least 2."
+  }
+
+  $bytes = [int][Math]::Ceiling($HexChars / 2)
+
+  while ($true) {
+    $buffer = [byte[]]::new($bytes)
+    [System.Security.Cryptography.RandomNumberGenerator]::Fill($buffer)
+    $candidate = (-join ($buffer | ForEach-Object { $_.ToString("x2") })).Substring(0, $HexChars)
+
+    if (-not $generatedValues.ContainsKey($candidate)) {
+      $generatedValues[$candidate] = $true
+      return $candidate
+    }
+  }
+}
+
+function New-RsaPrivateKeyBase64 {
+  $rsa = [System.Security.Cryptography.RSA]::Create(2048)
+  try {
+    $pem = $rsa.ExportPkcs8PrivateKeyPem()
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($pem)
+    $candidate = [Convert]::ToBase64String($bytes)
+
+    if (-not $generatedValues.ContainsKey($candidate)) {
+      $generatedValues[$candidate] = $true
+      return $candidate
+    }
+
+    return New-RsaPrivateKeyBase64
+  } finally {
+    $rsa.Dispose()
+  }
 }
 
 if (Test-Path $envFile) {
@@ -29,12 +61,17 @@ if (-not (Test-Path $exampleFile)) {
 $content = foreach ($line in Get-Content -Path $exampleFile) {
   $updated = $line
 
-  if ($updated.Contains("CHANGE_ME_64")) {
-    $updated = $updated.Replace("CHANGE_ME_64", (New-HexSecret -Bytes 32))
+  if ($updated -match "^([A-Z0-9_]+)=CHANGE_ME_(\d+)$") {
+    $key = $Matches[1]
+    $hexChars = [int]$Matches[2]
+    "$key=$(New-UniqueHexSecret -HexChars $hexChars)"
+    continue
   }
 
-  if ($updated.Contains("CHANGE_ME_32")) {
-    $updated = $updated.Replace("CHANGE_ME_32", (New-HexSecret -Bytes 16))
+  if ($updated -match "^([A-Z0-9_]+)=CHANGE_ME_BASE64_RSA$") {
+    $key = $Matches[1]
+    "$key=$(New-RsaPrivateKeyBase64)"
+    continue
   }
 
   $updated

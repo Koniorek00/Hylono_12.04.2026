@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { auth } from '@/lib/auth';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { AccountClient } from './AccountClient';
 
@@ -11,6 +12,8 @@ export const metadata: Metadata = createPageMetadata({
   forceNoIndex: true,
 });
 
-export default function AccountPageRoute() {
-  return <AccountClient />;
+export default async function AccountPageRoute() {
+  const session = await auth();
+
+  return <AccountClient sessionUser={session?.user ?? null} />;
 }

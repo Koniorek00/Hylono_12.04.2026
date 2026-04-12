@@ -59,7 +59,7 @@ export const FocusMode: React.FC<FocusModeProps> = ({
             className={`
               w-full min-h-[44px] rounded-lg px-3
               flex items-center justify-between
-              text-sm transition-all duration-200
+              text-sm transition-colors duration-200
               focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
               ${focusMode
                 ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'

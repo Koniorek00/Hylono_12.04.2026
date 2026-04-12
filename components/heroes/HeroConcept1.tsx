@@ -148,7 +148,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
         {/* Overline */}
         <motion.div
           className="flex items-center justify-center gap-4 mb-10"
-          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
         >
@@ -164,7 +163,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
           id="home-hero-headline"
           className="text-[13vmin] md:text-[11vmin] font-thin tracking-[0.25em] text-slate-900 leading-none mb-4"
           style={{ fontFamily: '"Syncopate", "Outfit", sans-serif' }}
-          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
         >
@@ -174,7 +172,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
         {/* Divider with rule */}
         <motion.div
           className="flex items-center justify-center gap-6 my-8"
-          initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
@@ -186,7 +183,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
         {/* Tagline — split layout */}
         <motion.div
           className="mb-10"
-          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
@@ -221,7 +217,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
         {/* Trust indicators */}
         <motion.div
           className="flex flex-wrap items-center justify-center gap-8 mb-10"
-          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.7 }}
         >
@@ -236,7 +231,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
         {/* CTA buttons */}
         <motion.div
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.9 }}
         >
@@ -270,7 +264,6 @@ export const HeroConcept1: React.FC<HeroConcept1Props> = ({ onLaunchBuilder, onN
       {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3"
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
       >

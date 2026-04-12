@@ -136,7 +136,7 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
               }
             `}
             aria-expanded={isDropdownOpen}
-            aria-haspopup="menu"
+            aria-controls={isDropdownOpen ? 'breadcrumb-bar-page-sections' : undefined}
             aria-label="Page sections navigation"
           >
             <List size={14} aria-hidden="true" />
@@ -155,6 +155,7 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
             {isDropdownOpen && (
               <motion.div
                 ref={dropdownRef}
+                id="breadcrumb-bar-page-sections"
                 variants={reduced ? undefined : dropdownVariants}
                 initial="hidden"
                 animate="visible"
@@ -167,7 +168,6 @@ export const BreadcrumbBar: React.FC<BreadcrumbBarProps> = ({
                   rounded-xl shadow-xl shadow-slate-900/15
                   overflow-hidden
                 `}
-                role="menu"
                 aria-label="Page sections"
               >
                 <PageNavigatorDropdown

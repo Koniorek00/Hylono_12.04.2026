@@ -1,0 +1,74 @@
+_format_version: "3.0"
+_transform: true
+
+plugins:
+  - name: prometheus
+  - name: correlation-id
+    config:
+      echo_downstream: true
+      generator: uuid#counter
+      header_name: X-Request-ID
+
+services:
+  - name: medusa
+    url: http://hylono-medusa:9000
+    routes:
+      - name: medusa-route
+        paths: ["/medusa"]
+        strip_path: true
+
+  - name: lago
+    url: http://hylono-lago-front:80
+    routes:
+      - name: lago-route
+        paths: ["/lago"]
+        strip_path: true
+
+  - name: snipe-it
+    url: http://hylono-snipe-it:80
+    routes:
+      - name: snipe-it-route
+        paths: ["/assets"]
+        strip_path: true
+
+  - name: calcom
+    url: http://hylono-calcom:3000
+    routes:
+      - name: calcom-route
+        paths: ["/cal"]
+        strip_path: true
+
+  - name: twenty
+    url: http://hylono-twenty:3000
+    routes:
+      - name: twenty-route
+        paths: ["/crm"]
+        strip_path: true
+
+  - name: documenso
+    url: http://hylono-documenso:3000
+    routes:
+      - name: documenso-route
+        paths: ["/documenso"]
+        strip_path: true
+
+  - name: zitadel
+    url: http://hylono-zitadel-proxy:80
+    routes:
+      - name: zitadel-route
+        paths: ["/auth"]
+        strip_path: true
+
+  - name: novu
+    url: http://hylono-novu-dashboard:4000
+    routes:
+      - name: novu-route
+        paths: ["/novu"]
+        strip_path: true
+
+  - name: n8n
+    url: http://hylono-n8n:5678
+    routes:
+      - name: n8n-route
+        paths: ["/automation"]
+        strip_path: true

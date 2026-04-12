@@ -39,10 +39,10 @@ export const checkoutContent = {
     processing: 'Processing…',
   },
   success: {
-    title: 'Order Confirmed!',
-    messagePrefix: "Thank you for your order. We've sent a confirmation email to",
+    title: 'Order request received',
+    messagePrefix: 'Thank you. Your order request is recorded for',
     orderPrefix: 'Order',
-    cta: 'View confirmation details',
+    cta: 'Go to account',
   },
   errors: {
     attestRequired: 'Please confirm intended use before placing your order.',

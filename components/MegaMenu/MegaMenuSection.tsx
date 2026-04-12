@@ -31,12 +31,9 @@ export const TechHoloCard = React.memo(({ context, title, subtitle, icon, active
 
     const commonProps = {
         onMouseEnter: () => onHover(context),
-        role: "menuitem" as const,
-        tabIndex: 0,
-        onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } },
         className: "group relative p-4 rounded-2xl cursor-pointer border whitespace-nowrap",
         style: {
-            transition: 'all 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+            transition: 'border-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1), background-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
             borderColor: isActive ? colors.activeBorder : 'rgba(255,255,255,0.08)',
         } as React.CSSProperties
     };
@@ -47,7 +44,7 @@ export const TechHoloCard = React.memo(({ context, title, subtitle, icon, active
                 <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105"
                     style={{
-                        transition: 'all 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+                        transition: 'transform 200ms cubic-bezier(0.25, 0.1, 0.25, 1), background-color 200ms cubic-bezier(0.25, 0.1, 0.25, 1), color 200ms cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1)',
                         backgroundColor: colors.iconDefaultBg,
                         color: colors.iconDefaultText,
                         boxShadow: isActive ? `inset 0 0 20px ${colors.iconDefaultText}40` : 'none',
@@ -98,9 +95,9 @@ export const TechHoloCard = React.memo(({ context, title, subtitle, icon, active
     }
 
     return (
-        <div onClick={onClick} {...commonProps}>
+        <button type="button" onClick={onClick} {...commonProps}>
             {content}
-        </div>
+        </button>
     );
 });
 TechHoloCard.displayName = 'TechHoloCard';
@@ -119,8 +116,7 @@ export const GlassLink = React.memo(({ icon, title, sub, onClick, onHover, dimme
 }) => {
     const commonProps = {
         onMouseEnter: onHover,
-        role: "menuitem" as const,
-        className: `w-full flex items-center gap-4 p-3.5 rounded-xl transition-all group text-left border 
+        className: `w-full flex items-center gap-4 rounded-xl border p-3.5 text-left transition-[background-color,border-color,opacity,filter] duration-200 group 
             ${dimmed
                 ? 'opacity-40 grayscale border-transparent bg-transparent'
                 : 'bg-white/[0.03] border-white/5 hover:border-white/20 hover:bg-white/[0.08] opacity-100'
@@ -137,7 +133,7 @@ export const GlassLink = React.memo(({ icon, title, sub, onClick, onHover, dimme
                     onClick={onClick}
                     {...commonProps}
                 >
-                    <div className={`p-2.5 rounded-lg transition-all bg-white/5
+                    <div className={`rounded-lg bg-white/5 p-2.5 transition-[background-color,color,box-shadow] duration-200
                         ${dimmed ? 'text-slate-500' : `${color} ${bg}`}
                     `}>
                         {icon}
@@ -157,7 +153,7 @@ export const GlassLink = React.memo(({ icon, title, sub, onClick, onHover, dimme
                 onClick={onClick}
                 {...commonProps}
             >
-                <div className={`p-2.5 rounded-lg transition-all bg-white/5
+                <div className={`rounded-lg bg-white/5 p-2.5 transition-[background-color,color,box-shadow] duration-200
                     ${dimmed ? 'text-slate-500' : `${color} ${bg}`}
                 `}>
                     {icon}
@@ -174,10 +170,11 @@ export const GlassLink = React.memo(({ icon, title, sub, onClick, onHover, dimme
     // Fallback to button for non-navigation actions
     return (
         <button
+            type="button"
             onClick={onClick}
             {...commonProps}
         >
-            <div className={`p-2.5 rounded-lg transition-all bg-white/5
+            <div className={`rounded-lg bg-white/5 p-2.5 transition-[background-color,color,box-shadow] duration-200
                 ${dimmed ? 'text-slate-500' : `${color} ${bg}`}
             `}>
                 {icon}
@@ -201,8 +198,7 @@ export const SimpleLink = React.memo(({ label, onClick, onHover, href }: {
 }) => {
     const commonProps = {
         onMouseEnter: onHover,
-        role: "menuitem" as const,
-        className: "block text-sm font-medium text-slate-500 hover:text-white transition-all text-left uppercase tracking-widest hover:translate-x-2 duration-300 py-1 futuristic-font"
+        className: "block py-1 text-left text-sm font-medium uppercase tracking-widest text-slate-500 transition-[color,transform] duration-300 hover:translate-x-2 hover:text-white futuristic-font"
     };
 
     // Internal routes use Next.js Link. External/hash/mailto/tel keep anchor semantics.
@@ -223,7 +219,7 @@ export const SimpleLink = React.memo(({ label, onClick, onHover, href }: {
     }
 
     return (
-        <button onClick={onClick} {...commonProps}>
+        <button type="button" onClick={onClick} {...commonProps}>
             {label}
         </button>
     );

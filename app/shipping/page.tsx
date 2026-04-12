@@ -5,14 +5,14 @@ import { createPageMetadata } from '@/lib/seo-metadata';
 import { ORGANIZATION_ID, WEBSITE_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
-import { ShippingClient } from './ShippingClient';
+import { ShippingPolicyPage } from '@/components/legal/PolicyPages';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Hylono Shipping Information | Delivery Timelines, Regions, and Logistics',
+  title: 'Hylono Shipping Policy | EU Delivery Timelines and Coverage',
   description:
-    'View Hylono shipping timelines, delivery methods, and logistics policies for your region before ordering or arranging a rental.',
+    'View Hylono shipping coverage, EU delivery timelines, and the public support routes tied to delivery, returns, and warranty questions.',
   path: '/shipping',
 });
 
@@ -68,9 +68,9 @@ export default function ShippingPageRoute() {
           id="jsonld-shipping-page"
           data={{
             ...createWebPageSchema({
-              name: 'Hylono Shipping Information',
+              name: 'Hylono Shipping Policy',
               description:
-                'View Hylono shipping timelines, delivery methods, and logistics policies for your region.',
+                'View Hylono shipping coverage, EU delivery timelines, and the public support routes tied to delivery, returns, and warranty questions.',
               path: '/shipping',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
@@ -88,11 +88,11 @@ export default function ShippingPageRoute() {
           id="jsonld-shipping-breadcrumb"
           data={createBreadcrumbSchema([
             { name: 'Home', path: '/' },
-            { name: 'Shipping', path: '/shipping' },
+            { name: 'Shipping Policy', path: '/shipping' },
           ])}
         />
       </Suspense>
-      <ShippingClient />
+      <ShippingPolicyPage />
     </>
   );
 }

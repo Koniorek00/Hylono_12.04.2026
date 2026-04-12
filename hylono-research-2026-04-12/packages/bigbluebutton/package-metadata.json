@@ -1,0 +1,97 @@
+{
+  "name": "BigBlueButton",
+  "slug": "bigbluebutton",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "BigBlueButton web conferencing and classroom platform",
+  "version": "v3.0.23",
+  "version_status": "CONFIRMED",
+  "license": "LGPL / mixed component licenses; verify deployment bundle terms if redistributing",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source virtual classroom and web conferencing platform with breakout rooms, whiteboards, recordings, polls, and LMS integrations.",
+  "solves": "Structured online classes, webinars, and teaching sessions beyond simple meetings.",
+  "users": "Education, training, and webinar operators who need classroom-grade features.",
+  "fit": "Potentially useful for protocol classes or guided sessions, but operationally heavy. Jitsi is likely the simpler default unless classroom-specific features are truly required.",
+  "runtime": "Multi-service stack on dedicated Ubuntu with media services, TURN/STUN, recordings, and web application components.",
+  "components": "Web app, SFU/media services, recording stack, Redis/DB/services, TURN/STUN, and optional integrations.",
+  "deploy": "Officially prefers a clean dedicated Ubuntu server. This is not a casual sidecar deployment.",
+  "deps": "Dedicated compute, bandwidth, TURN/STUN, storage for recordings, TLS, and careful capacity planning.",
+  "datastores": "Application services with DB/storage and recording artifacts.",
+  "auth": "Meeting/user roles and integrations with external systems/LMS/auth depending on deployment.",
+  "apis": "Meeting APIs, recordings, integrations, and web conferencing endpoints.",
+  "complexity": "High",
+  "security": "Media, recordings, guest access, and public meeting surfaces require strong operational discipline.",
+  "setup_path": "Only adopt if Hylono needs formal classroom features. Use official install docs on dedicated infrastructure.",
+  "env": "Domain, TLS, TURN/STUN, recording storage, external auth/integration config, and capacity settings.",
+  "persistence": "Back up configs and recordings as required; recordings can be storage-heavy and privacy-sensitive.",
+  "operations": "Capacity planning, upgrades, TURN/STUN, recording management, and live-ops support are significant.",
+  "failure_points": "Underestimating media ops and using BBB when lighter meeting tooling would suffice.",
+  "integration": "Could support education/training programs or internal sessions, but it is not an early-stack priority.",
+  "verify": "Confirm whether Hylono really needs classroom-grade features rather than simple video meetings.",
+  "risk": "High ops burden.",
+  "gdpr": "Recordings and participant data are privacy-sensitive. Retention and consent are critical.",
+  "recommendation": "LATE / ONLY IF CLASSROOM FEATURES ARE REQUIRED",
+  "priority": 42,
+  "overlap": "Jitsi is the lighter alternative for general meetings.",
+  "codex_read_first": "Read Jitsi and BBB together before making any video-platform recommendation.",
+  "codex_best_path": "Prefer Jitsi for basic meetings; choose BBB only for formal training/classroom requirements.",
+  "codex_never_assume": "Never assume conferencing equals classroom infrastructure.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.bigbluebutton.org/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v3.0.23",
+      "notes": "Canonical install/admin docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/bigbluebutton/bigbluebutton",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify mixed project licenses",
+      "version": "v3.0.23",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Install docs",
+      "url": "https://docs.bigbluebutton.org/administration/install",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v3.0.23",
+      "notes": "Dedicated-server install guidance.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/bigbluebutton/bigbluebutton/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.0.23",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://docs.bigbluebutton.org/administration/install",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.0.x",
+      "why": "Primary deployment guidance."
+    },
+    {
+      "url": "https://github.com/bigbluebutton/bigbluebutton",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v3.0.23",
+      "why": "Code source."
+    }
+  ]
+}

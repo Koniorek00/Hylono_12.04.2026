@@ -22,17 +22,6 @@
 | LoginPageRoute | app/login/page.tsx | Server | Login route server entry delegating to dedicated login client composition. | 2026-03-03 |
 | LoginClient | app/login/LoginClient.tsx | Client | Login route interactive leaf rendering auth modal and close navigation behavior. | 2026-03-03 |
 | StructuredData | src/components/StructuredData.tsx | Server | Structured data rendering helper for SEO metadata blocks. | 2026-03-02 |
-| AccessSection | src/components/hero-4.6t/AccessSection.tsx | Server | Hero variant section covering access/rental messaging. | 2026-03-02 |
-| CTASection | src/components/hero-4.6t/CTASection.tsx | Server | Hero variant CTA section. | 2026-03-02 |
-| EcosystemSection | src/components/hero-4.6t/EcosystemSection.tsx | Server | Hero variant ecosystem explanation section. | 2026-03-02 |
-| Footer | src/components/hero-4.6t/Footer.tsx | Server | Hero variant footer composition block. | 2026-03-02 |
-| HeroSection | src/components/hero-4.6t/HeroSection.tsx | Server | Hero variant headline/intro section. | 2026-03-02 |
-| Layout | src/components/hero-4.6t/Layout.tsx | Server | Hero variant layout wrapper. | 2026-03-02 |
-| Navbar | src/components/hero-4.6t/Navbar.tsx | Server | Hero variant navigation shell. | 2026-03-02 |
-| ProblemSection | src/components/hero-4.6t/ProblemSection.tsx | Server | Hero variant problem framing section. | 2026-03-02 |
-| TrustSection | src/components/hero-4.6t/TrustSection.tsx | Server | Hero variant trust signal section. | 2026-03-02 |
-| VersionSelector | src/components/hero-4.6t/VersionSelector.tsx | Server | Hero variant selector component. | 2026-03-02 |
-| VisionSection | src/components/hero-4.6t/VisionSection.tsx | Server | Hero variant vision statement section. | 2026-03-02 |
 | Footer | src/components/layout/Footer.tsx | Client | Global site footer component. | 2026-03-03 |
 | GlobalOverlays | src/components/layout/GlobalOverlays.tsx | Client | Global overlay container (modals/toasts/cookie shell). | 2026-03-03 |
 | Header | src/components/layout/Header.tsx | Client | Global site header component. | 2026-03-03 |

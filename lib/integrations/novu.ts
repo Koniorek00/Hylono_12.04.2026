@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { fetchWithTimeout } from '@/app/api/_shared/http';
 import { env } from '@/lib/env';
 
 const DEFAULT_NOVU_API_BASE_URL = 'http://localhost:18110';
@@ -103,7 +104,7 @@ export async function syncSubscriberToNovu(
   };
 
   try {
-    const response = await fetch(`${getNovuBaseUrl()}/v2/subscribers`, {
+    const response = await fetchWithTimeout(`${getNovuBaseUrl()}/v2/subscribers`, {
       method: 'POST',
       headers: {
         Authorization: `ApiKey ${env.NOVU_API_SECRET}`,
@@ -159,7 +160,7 @@ export async function triggerNovuWorkflow(
   };
 
   try {
-    const response = await fetch(`${getNovuBaseUrl()}/v1/events/trigger`, {
+    const response = await fetchWithTimeout(`${getNovuBaseUrl()}/v1/events/trigger`, {
       method: 'POST',
       headers: {
         Authorization: `ApiKey ${env.NOVU_API_SECRET}`,

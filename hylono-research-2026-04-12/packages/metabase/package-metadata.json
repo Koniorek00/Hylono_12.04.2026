@@ -1,0 +1,97 @@
+{
+  "name": "Metabase",
+  "slug": "metabase",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Metabase analytics and BI platform",
+  "version": "v0.59.5",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0 / enterprise layers available",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Business intelligence and dashboarding platform for querying databases, building charts, and sharing internal analytics.",
+  "solves": "Self-service reporting for operations, sales, bookings, rentals, finance, and product analytics outside product-embedded dashboards.",
+  "users": "Operators, analysts, finance, and business teams who need database-backed dashboards.",
+  "fit": "Strong fit for internal business analytics across Hylono\u2019s growing operational systems.",
+  "runtime": "Java application with metadata DB and connections to source databases/warehouses.",
+  "components": "Web app, metadata DB, source DB connectors, dashboard/query layer, and sharing/permissions.",
+  "deploy": "Self-host is mature; production needs metadata DB, SSO decisions, and data-source governance.",
+  "deps": "Application runtime, metadata DB, source DB connectivity, reverse proxy, and optional SSO.",
+  "datastores": "Own metadata DB plus connected source DBs (Postgres, etc.).",
+  "auth": "Local auth and SSO options depending on edition/setup.",
+  "apis": "REST APIs, embedding options, SQL/native query tools, and dashboard sharing.",
+  "complexity": "Medium",
+  "security": "Direct database access and shared dashboards require careful permissions and row/table exposure decisions.",
+  "setup_path": "Deploy after key operational data sources stabilize; expose curated dashboards rather than raw DB access everywhere.",
+  "env": "MB_DB settings, source DB credentials, app URL, mail, auth config, and embedding settings.",
+  "persistence": "Back up metadata DB and version key dashboard definitions as needed.",
+  "operations": "Upgrade metadata DB carefully, manage source permissions, and avoid uncontrolled analyst-level DB access.",
+  "failure_points": "Connecting it to production databases with overly broad privileges, or using it to paper over poor source-of-truth design.",
+  "integration": "Excellent for reporting on CRM, bookings, billing, rental operations, and operational KPIs. Pair with Twenty, Lago, Postgres, and other app DBs.",
+  "verify": "Decide which source systems become analytics sources and whether derived reporting DBs are needed later.",
+  "risk": "Moderate; high value if permissions are managed well.",
+  "gdpr": "Dashboards may expose identifiable data; role-based access and minimization matter.",
+  "recommendation": "HIGH-VALUE INTERNAL ANALYTICS TOOL",
+  "priority": 21,
+  "overlap": "Some overlap with PostHog for product analytics, but Metabase is broader business reporting.",
+  "codex_read_first": "Read the source-of-truth map before connecting Metabase to everything.",
+  "codex_best_path": "Start with a small curated set of operational dashboards over trusted Postgres sources.",
+  "codex_never_assume": "Never grant Metabase unrestricted production DB access by default.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://www.metabase.com/docs/latest/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v0.59.5",
+      "notes": "Primary install/admin docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/metabase/metabase",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "v0.59.5",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image docs",
+      "url": "https://www.metabase.com/docs/latest/installation-and-operation/running-metabase-on-docker",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Useful deployment path.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/metabase/metabase/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.59.5",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://www.metabase.com/docs/latest/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.59.5",
+      "why": "Primary install/admin source."
+    },
+    {
+      "url": "https://github.com/metabase/metabase",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v0.59.5",
+      "why": "Code source."
+    }
+  ]
+}

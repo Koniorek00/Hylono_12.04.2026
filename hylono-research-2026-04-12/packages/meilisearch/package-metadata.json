@@ -1,0 +1,97 @@
+{
+  "name": "Meilisearch",
+  "slug": "meilisearch",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "Meilisearch",
+  "version": "v1.38.2",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "Fast, developer-friendly full-text search engine for application search and filtering.",
+  "solves": "Site search, knowledge search, product search, and internal-search UX with typo tolerance and ranking controls.",
+  "users": "Web and product teams needing search without Elasticsearch-level complexity.",
+  "fit": "Good fit if Hylono needs strong search across content, products, protocols, or docs.",
+  "runtime": "Rust service with index storage, REST API, and API keys.",
+  "components": "Search engine, indexes, API keys, optional sync/indexing pipelines, and front-end clients.",
+  "deploy": "Operationally light compared with Elasticsearch-class systems.",
+  "deps": "Persistent storage, indexing pipeline, API key governance, and monitoring.",
+  "datastores": "Internal Meilisearch indexes.",
+  "auth": "Master/search/private API keys and tenant tokens.",
+  "apis": "REST search/index APIs and SDKs.",
+  "complexity": "Low to Medium",
+  "security": "Protect master keys and avoid indexing sensitive internal data into public search endpoints.",
+  "setup_path": "Good later addition if current site search becomes a real product need.",
+  "env": "Master key, storage path, env mode, dump/snapshot config, and network settings.",
+  "persistence": "Use dumps/snapshots and backups of index data or rebuild pipelines.",
+  "operations": "Reindexing strategy, ranking tuning, and index freshness matter.",
+  "failure_points": "Indexing the wrong data, stale indexes, or exposing privileged search datasets.",
+  "integration": "Strong fit for Next.js content/product search and possibly BookStack/Docusaurus search.",
+  "verify": "Clarify which searchable surfaces matter first: site content, products, docs, or internal ops.",
+  "risk": "Low to moderate.",
+  "gdpr": "Search indexes can duplicate personal data if not curated.",
+  "recommendation": "LATER / HIGH-UTILITY IF SEARCH BECOMES IMPORTANT",
+  "priority": 25,
+  "overlap": "Could replace built-in/site-local search implementations.",
+  "codex_read_first": "Read actual search requirements and content architecture before implementing.",
+  "codex_best_path": "Add Meilisearch when there is a clear search surface worth indexing.",
+  "codex_never_assume": "Never index sensitive datasets into a public-facing search service.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://www.meilisearch.com/docs",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v1.38.2",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/meilisearch/meilisearch",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v1.38.2",
+      "notes": "Code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image",
+      "url": "https://hub.docker.com/r/getmeili/meilisearch",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v1.38.2",
+      "notes": "Deployment artifact.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/meilisearch/meilisearch/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.38.2",
+      "why": "Version source."
+    },
+    {
+      "url": "https://www.meilisearch.com/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.38.2",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/meilisearch/meilisearch",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.38.2",
+      "why": "Code source."
+    }
+  ]
+}

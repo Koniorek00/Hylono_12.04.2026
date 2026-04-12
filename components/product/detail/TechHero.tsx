@@ -144,6 +144,7 @@ export const TechHero: React.FC<TechHeroProps> = ({
                 {/* Back Button */}
                 <Link
                     href="/store"
+                    prefetch={false}
                     className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors mb-12 group"
                 >
                     <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
@@ -405,6 +406,7 @@ export const TechHero: React.FC<TechHeroProps> = ({
                         <div className="flex flex-col sm:flex-row gap-3 mb-8">
                             <Link
                                 href="/store"
+                                prefetch={false}
                                 className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-900/20 active:scale-[0.98]"
                             >
                                 <ShoppingBag size={16} /> 
@@ -413,6 +415,7 @@ export const TechHero: React.FC<TechHeroProps> = ({
                             </Link>
                             <Link
                                 href={`/contact?tech=${data.id.toLowerCase()}`}
+                                prefetch={false}
                                 className="flex-1 px-8 py-4 bg-white text-slate-900 border-2 border-slate-200 rounded-xl font-bold text-xs uppercase tracking-widest hover:border-slate-400 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                             >
                                 <Calendar size={16} /> Book Demo
@@ -421,15 +424,15 @@ export const TechHero: React.FC<TechHeroProps> = ({
 
                         {/* Trust Line */}
                         <div className="grid grid-cols-3 gap-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                            <Link href="/warranty" className="flex items-center gap-2 hover:text-slate-600 transition-colors">
+                            <Link href="/warranty" prefetch={false} className="flex items-center gap-2 hover:text-slate-600 transition-colors">
                                 <Shield size={14} className="text-emerald-500" />
                                 <span>Warranty Policy</span>
                             </Link>
-                            <Link href="/returns" className="flex items-center gap-2 hover:text-slate-600 transition-colors">
+                            <Link href="/returns" prefetch={false} className="flex items-center gap-2 hover:text-slate-600 transition-colors">
                                 <CheckCircle size={14} className="text-emerald-500" />
                                 <span>Returns Policy</span>
                             </Link>
-                            <Link href={`/contact?tech=${data.id.toLowerCase()}`} className="flex items-center gap-2 hover:text-slate-600 transition-colors">
+                            <Link href={`/contact?tech=${data.id.toLowerCase()}`} prefetch={false} className="flex items-center gap-2 hover:text-slate-600 transition-colors">
                                 <Phone size={14} className="text-emerald-500" />
                                 <span>Contact Support</span>
                             </Link>

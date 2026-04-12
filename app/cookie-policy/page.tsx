@@ -5,14 +5,14 @@ import { env } from '@/lib/env';
 import { ORGANIZATION_ID, createBreadcrumbSchema, createWebPageSchema, SCHEMA_DATE_MODIFIED,
 } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
-import { CookiePolicyClient } from './CookiePolicyClient';
+import { CookiePolicyPage } from '@/components/legal/PolicyPages';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Hylono Cookie Policy | Consent, Analytics, and Preference Controls',
   description:
-    'Understand how Hylono uses essential and analytics cookies, and how to control your cookie preferences.',
+    'Understand the browser storage Hylono verifies today, how optional analytics consent works, and how to reopen Cookie Settings at any time.',
   path: '/cookie-policy',
 });
 
@@ -27,7 +27,7 @@ export default function CookiePolicyPageRoute() {
             ...createWebPageSchema({
               name: 'Hylono Cookie Policy',
               description:
-                'Understand how Hylono uses essential and analytics cookies, and how to control your cookie preferences.',
+                'Understand the browser storage Hylono verifies today, how optional analytics consent works, and how to reopen Cookie Settings at any time.',
               path: '/cookie-policy',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
@@ -44,7 +44,7 @@ export default function CookiePolicyPageRoute() {
           ])}
         />
       </Suspense>
-      <CookiePolicyClient />
+      <CookiePolicyPage />
     </>
   );
 }

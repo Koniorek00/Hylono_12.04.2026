@@ -1,0 +1,97 @@
+{
+  "name": "ThingsBoard",
+  "slug": "thingsboard",
+  "group": "Phase 1B",
+  "status_context": "UNKNOWN",
+  "researched_as": "ThingsBoard IoT platform",
+  "version": "v4.3.1.1",
+  "version_status": "CONFIRMED",
+  "license": "Apache-2.0 / enterprise editions exist",
+  "license_status": "PARTLY VERIFIED",
+  "what": "IoT platform for device connectivity, telemetry ingestion, rules, dashboards, and device management.",
+  "solves": "Managing connected devices, telemetry, alarms, dashboards, and device-side integrations.",
+  "users": "IoT and operations teams running connected devices or sensors.",
+  "fit": "Potentially valuable if Hylono expands into device telemetry or connected equipment operations. Not necessary for a protocol-first business unless device connectivity becomes core.",
+  "runtime": "Java/microservice-style platform with DB, message broker options, telemetry ingestion, and dashboards.",
+  "components": "Transport/connectivity layer, rule engine, dashboards, device registry, and storage integrations.",
+  "deploy": "Self-hosting is mature but operationally meaningful. Production architecture should match actual device scale.",
+  "deps": "Databases, brokers/queues, storage, and device/MQTT connectivity.",
+  "datastores": "PostgreSQL/Cassandra/Timeseries integrations depending on setup; verify chosen architecture carefully.",
+  "auth": "Users, tenants, customers, and device credentials/tokens.",
+  "apis": "MQTT/HTTP/CoAP device APIs, REST APIs, dashboards, and rule-chain integrations.",
+  "complexity": "High",
+  "security": "Connected devices and telemetry can create large attack surface and sensitive operational data exposure.",
+  "setup_path": "Only implement when Hylono has real connected-device requirements beyond simple monitoring.",
+  "env": "DB/broker settings, transport config, auth/device credential settings, and cluster sizing.",
+  "persistence": "Depends on telemetry/storage design; backups must include config and metadata.",
+  "operations": "Device lifecycle, telemetry volume, rule-chain correctness, and multi-tenant data separation matter.",
+  "failure_points": "Deploying a full IoT platform before confirming device telemetry is a strategic requirement.",
+  "integration": "Strong only if Hylono products/devices become connected and need dashboards/alerts.",
+  "verify": "Confirm whether connected-device telemetry is a near-term roadmap item.",
+  "risk": "High complexity with uncertain immediate value.",
+  "gdpr": "Telemetry and customer-device linkage can become personal data.",
+  "recommendation": "LATER / ONLY IF IOT STRATEGY IS REAL",
+  "priority": 39,
+  "overlap": "Could overlap with Node-RED + Mosquitto + InfluxDB/Grafana depending on sophistication.",
+  "codex_read_first": "Read the IoT strategy and overlap map before touching ThingsBoard.",
+  "codex_best_path": "Defer until device telemetry is real and architectural requirements are clear.",
+  "codex_never_assume": "Never deploy an IoT platform just because device-adjacent business exists.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://thingsboard.io/docs/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v4.3.1.1",
+      "notes": "Primary docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/thingsboard/thingsboard",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v4.3.1.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Install docs",
+      "url": "https://thingsboard.io/docs/user-guide/install/installation-options/",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Install options.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/thingsboard/thingsboard/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.3.1.1",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://thingsboard.io/docs/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary docs source."
+    },
+    {
+      "url": "https://github.com/thingsboard/thingsboard",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v4.3.1.1",
+      "why": "Code source."
+    }
+  ]
+}

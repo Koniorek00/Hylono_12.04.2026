@@ -4,7 +4,7 @@ import CareersPageRoute, { metadata as careersMetadata } from '@/app/careers/pag
 import robots from '@/app/robots';
 import sitemap from '@/app/sitemap';
 import { CareersClient } from '@/app/careers/CareersClient';
-import { createOrganizationSchema } from '@/lib/seo-schema';
+import { createOrganizationSchema, createWebSiteSchema } from '@/lib/seo-schema';
 
 describe('schema cleanup', () => {
   it('omits unsupported organization facts from the organization schema', () => {
@@ -18,6 +18,12 @@ describe('schema cleanup', () => {
     expect(schema).not.toHaveProperty('slogan');
     expect(schema).not.toHaveProperty('knowsAbout');
     expect(schema).not.toHaveProperty('paymentAccepted');
+  });
+
+  it('keeps the website schema free of retired sitelinks-search markup', () => {
+    const schema = createWebSiteSchema();
+
+    expect(schema).not.toHaveProperty('potentialAction');
   });
 
   it('keeps the careers route as a thin client wrapper without speculative job schema', () => {
@@ -43,7 +49,9 @@ describe('schema cleanup', () => {
     );
 
     expect(generalRule).toBeDefined();
-    expect(Array.isArray(generalRule?.disallow) ? generalRule.disallow : []).toContain('/careers');
+    expect(Array.isArray(generalRule?.disallow) ? generalRule.disallow : []).not.toContain(
+      '/careers'
+    );
     expect(createOrganizationSchema().subjectOf).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({

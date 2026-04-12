@@ -6,8 +6,15 @@ import { products } from '../content/products';
 import { protocols } from '../content/protocols';
 import { goals } from '../content/goals';
 import { goalSearchTerms, synonymGroups } from '../config/searchSynonyms';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
-import { getRecentSearches, addRecentSearch, clearRecentSearches, POPULAR_SEARCHES, getAutocompleteSuggestions, getRecentPages, RecentPage } from '../utils/searchStorage';
+import {
+  addRecentSearch,
+  getAutocompleteSuggestions,
+  getRecentPages,
+  getRecentSearches,
+  type RecentPage,
+} from '../utils/searchStorage';
 
 interface GlobalSearchProps {
   onNavigate: (page: string) => void;
@@ -194,7 +201,7 @@ const FilterTagBar: React.FC<FilterTagBarProps> = ({ activeFilter, onFilterChang
               className={`
                 inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] min-w-[44px]
                 rounded-full border text-sm font-semibold 
-                transition-all duration-150 ease-in-out
+                transition-[color,background-color,border-color,box-shadow] duration-150 ease-in-out
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500
                 ${isActive ? filterTagStyles[tag.value].active : filterTagStyles[tag.value].inactive}
               `}
@@ -226,8 +233,14 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
   const [activeFilter, setActiveFilter] = useState<SearchFilterTag>('all');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [recentPages, setRecentPages] = useState<RecentPage[]>([]);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isCompactResults, setIsCompactResults] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchDialogRef = useFocusTrap<HTMLDivElement>({
+    active: isOpen,
+    initialFocus: '#global-search-input',
+    clickOutsideDeactivates: false,
+    escapeDeactivates: false,
+  });
 
   useEffect(() => {
     setRecentSearches(getRecentSearches());
@@ -235,15 +248,39 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
   }, []);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    if (!isOpen) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const syncCompactResults = (matches: boolean) => setIsCompactResults(matches);
+    const handleChange = (event: MediaQueryListEvent) => syncCompactResults(event.matches);
+
+    syncCompactResults(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
     inputRef.current?.focus();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
   // Reset filter when search closes
@@ -434,9 +471,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
     if (activeFilter === 'all') {
       // Return mixed results prioritized by relevance
       return {
-        products: groupedResults.products.slice(0, isMobile ? 3 : 4),
-        protocols: groupedResults.protocols.slice(0, isMobile ? 2 : 3),
-        goals: groupedResults.goals.slice(0, isMobile ? 2 : 3),
+        products: groupedResults.products.slice(0, isCompactResults ? 3 : 4),
+        protocols: groupedResults.protocols.slice(0, isCompactResults ? 2 : 3),
+        goals: groupedResults.goals.slice(0, isCompactResults ? 2 : 3),
         showProducts: groupedResults.products.length > 0,
         showProtocols: groupedResults.protocols.length > 0,
         showGoals: groupedResults.goals.length > 0,
@@ -446,7 +483,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
     // Return only results matching the active filter
     if (activeFilter === 'product') {
       return {
-        products: groupedResults.products.slice(0, isMobile ? 6 : 10),
+        products: groupedResults.products.slice(0, isCompactResults ? 6 : 10),
         protocols: [],
         goals: [],
         showProducts: true,
@@ -457,7 +494,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
     if (activeFilter === 'protocol') {
       return {
         products: [],
-        protocols: groupedResults.protocols.slice(0, isMobile ? 6 : 10),
+        protocols: groupedResults.protocols.slice(0, isCompactResults ? 6 : 10),
         goals: [],
         showProducts: false,
         showProtocols: true,
@@ -468,7 +505,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
       return {
         products: [],
         protocols: [],
-        goals: groupedResults.goals.slice(0, isMobile ? 6 : 10),
+        goals: groupedResults.goals.slice(0, isCompactResults ? 6 : 10),
         showProducts: false,
         showProtocols: false,
         showGoals: true,
@@ -483,7 +520,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
       showProtocols: false,
       showGoals: false,
     };
-  }, [activeFilter, groupedResults, isMobile]);
+  }, [activeFilter, groupedResults, isCompactResults]);
 
   const legacyResults = useMemo(() => scoredResults.slice(0, 8).map((entry) => entry.item), [scoredResults]);
 
@@ -514,9 +551,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-500 text-sm"
         aria-label="Open global search"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? 'global-search-dialog' : undefined}
       >
         <Search size={16} />
-        <span className="hidden lg:inline">Search...</span>
+        <span className="hidden lg:inline">Search…</span>
       </button>
 
       <AnimatePresence>
@@ -531,6 +571,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
             />
 
             <motion.div
+              ref={searchDialogRef}
+              id="global-search-dialog"
               initial={{ opacity: 0, y: -12, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -12, scale: 0.97 }}
@@ -539,15 +581,17 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
               role="dialog"
               aria-modal="true"
               aria-label="Global search"
+              tabIndex={-1}
             >
               <div className="flex items-center gap-3 p-4 border-b border-slate-100">
                 <Search size={18} className="text-slate-400" />
                 <input
+                  id="global-search-input"
                   ref={inputRef}
                   type="text"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search products, protocols, goals..."
+                  placeholder="Search products, protocols, goals…"
                   className="flex-1 text-base outline-none placeholder-slate-400"
                   aria-label="Search input"
                 />
@@ -572,7 +616,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
                 />
               )}
 
-              <div className="max-h-[60vh] overflow-y-auto p-3">
+              <div className="max-h-[60vh] overflow-y-auto overscroll-contain p-3">
                 {query.trim() ? (
                   searchEnhancedEnabled ? (
                     <div className="space-y-4">

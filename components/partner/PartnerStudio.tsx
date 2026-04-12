@@ -1,19 +1,21 @@
 'use client';
 
-import React, { useMemo, useRef, useState, useCallback, memo } from 'react';
+import React, { useMemo, useRef, useState, useCallback, memo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
 import {
-    ChevronRight, ChevronLeft, Upload, Layout, Type, Download, Palette, Info,
+    ChevronRight, ChevronLeft, Upload, Download, Palette,
     AlertTriangle, CheckCircle, Share2, Megaphone, GraduationCap, Calendar,
     Smartphone, FileText, Image as ImageIcon, Wand2, Activity, Zap, Droplets,
-    Sun, Sparkles, Box, LayoutTemplate, Copy, Share, Shuffle, ArrowRight, Brain
+    Sun, Sparkles, Box, LayoutTemplate, Copy, Share, Brain
 } from 'lucide-react';
 import { usePartnerStore, COPY_LIBRARY } from '../../hooks/usePartnerStore';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { A4PosterTemplate, SocialSquareTemplate, SocialStoryTemplate } from './PDFTemplates';
 import { validateCompliance } from '../../utils/compliance';
 import { disclaimers } from '../../content/disclaimers';
+import { PartnerLayout } from './PartnerLayout';
 
 // --- Static Data (moved outside components to prevent recreation) ---
 
@@ -49,7 +51,7 @@ const STOCK_IMAGES = [
 const FALLBACK_COPY = {
     title: 'Your Wellness Journey',
     body: 'Explore technology-supported wellness routines built for consistency, comfort, and measurable progress. Book a consultation to find the right setup.',
-    caption: 'Ready to optimize your routine? 🌟 Explore evidence-informed wellness technology designed to support recovery, focus, and daily performance.\n\nBook a consultation today 👇',
+    caption: 'Ready to optimize your routine? Explore evidence-informed wellness technology designed to support recovery, focus, and daily performance.\n\nBook a consultation today.',
     hashtags: '#Wellness #HealthOptimization #Biohacking #SelfCare'
 };
 
@@ -605,7 +607,7 @@ const StepEditor: React.FC = memo(() => {
                         />
                     </div>
                     <p className="text-[9px] text-slate-500 mt-2">
-                        🚀 {showQrCode ? "QR Code detected (High Conversion)." : "Missing QR Code."} {showVerifiedBadge ? "Trust Badge active." : "Add Trust Badge for +20% impact."}
+                        Conversion: {showQrCode ? "QR code detected." : "Add a QR code for a stronger booking handoff."} {showVerifiedBadge ? "Trust badge active." : "Add the trust badge for a stronger credibility signal."}
                     </p>
                 </div>
 
@@ -776,8 +778,25 @@ const StepDownload: React.FC = memo(() => {
 
 // --- Main Layout ---
 
-export const PartnerStudio: React.FC = () => {
-    const { currentStep, nextStep, prevStep, setStep } = usePartnerStore();
+interface PartnerStudioProps {
+    startFresh?: boolean;
+}
+
+export const PartnerStudio: React.FC<PartnerStudioProps> = ({
+    startFresh = false,
+}) => {
+    const router = useRouter();
+    const pathname = usePathname() ?? '/nexus/studio';
+    const { currentStep, nextStep, prevStep, setStep, resetCampaign } = usePartnerStore();
+
+    useEffect(() => {
+        if (!startFresh) {
+            return;
+        }
+
+        resetCampaign();
+        router.replace(pathname, { scroll: false });
+    }, [pathname, resetCampaign, router, startFresh]);
 
     const renderStep = () => {
         switch (currentStep) {
@@ -795,15 +814,22 @@ export const PartnerStudio: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-4">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col lg:flex-row gap-8">
+        <PartnerLayout title="Studio">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-2xl font-bold text-slate-900">Marketing Studio</h1>
+                    <p className="max-w-3xl text-sm text-slate-500">
+                        Build clinic-ready social posts and print assets inside Nexus, then export branded PDFs with booking-ready QR codes and wellness-safe copy.
+                    </p>
+                </div>
+
+                <div className="flex flex-col gap-8 lg:flex-row">
 
                     {/* Sidebar / Wizard Nav */}
                     <div className="w-full lg:w-1/4 space-y-2">
                         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                            <h1 className="text-xl font-bold text-slate-900 mb-1">Partner Studio</h1>
-                            <p className="text-xs text-slate-400 mb-6 uppercase tracking-wider">Campaign Creator v3.0</p>
+                            <h2 className="text-xl font-bold text-slate-900 mb-1">Studio Workflow</h2>
+                            <p className="text-xs text-slate-400 mb-6 uppercase tracking-wider">Campaign Creator</p>
 
                             <nav className="space-y-1">
                                 {navSteps.map((step) => (
@@ -866,7 +892,7 @@ export const PartnerStudio: React.FC = () => {
                                     </button>
                                 ) : (
                                     <button
-                                        onClick={() => setStep(1)}
+                                        onClick={resetCampaign}
                                         className="px-6 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-white transition-colors"
                                     >
                                         Create Another
@@ -878,6 +904,6 @@ export const PartnerStudio: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </PartnerLayout>
     );
 };

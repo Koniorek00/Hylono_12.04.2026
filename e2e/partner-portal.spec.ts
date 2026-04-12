@@ -96,6 +96,7 @@ test.describe('Partner Portal', () => {
         '/nexus/academy',
         '/nexus/studio',
         '/nexus/fleet',
+        '/nexus/team',
         '/nexus/supplies',
     ];
 

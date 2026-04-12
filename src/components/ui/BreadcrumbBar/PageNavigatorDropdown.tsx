@@ -197,7 +197,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
               onClick={() => handleSectionClick(section.id)}
               className={`
                 px-2 py-1 rounded text-xs font-medium
-                transition-all duration-200
+                transition-[color,background-color,box-shadow] duration-200
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
                 ${activeSectionId === section.id
                   ? 'bg-cyan-500 text-white'
@@ -227,11 +227,11 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
             </div>
           </div>
         ) : hasSections ? (
-          <ul role="menu" className="space-y-0.5">
+          <ul className="space-y-0.5" role="menu" aria-label="Page sections">
             {sections.map((section, index) => {
               const isActive = activeSectionId === section.id;
               const displayTitle = section.title.length > 35
-                ? `${section.title.substring(0, 33)}...`
+                ? `${section.title.substring(0, 33)}…`
                 : section.title;
               const sectionIcon = getSectionIcon(section.type);
 
@@ -242,14 +242,13 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
                   initial={reduced ? false : 'hidden'}
                   animate="visible"
                   variants={itemVariants}
-                  role="menuitem"
                 >
                   <button
                     onClick={() => handleSectionClick(section.id)}
                     className={`
                       w-full text-left px-3 py-2
                       min-h-[44px] flex items-center gap-2
-                      text-sm transition-all duration-200
+                      text-sm transition-[color,background-color,box-shadow] duration-200
                       rounded-lg mx-1
                       focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
                       ${isActive
@@ -312,14 +311,14 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
             window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
             onSectionClick?.();
           }}
+          role="menuitem"
           className="w-full min-h-[44px] rounded-lg
             flex items-center justify-center gap-2
             text-xs text-slate-600 bg-slate-50
             hover:bg-cyan-50 hover:text-cyan-700
-            transition-all duration-200
+            transition-[color,background-color,box-shadow] duration-200
             focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500
             font-medium"
-          role="menuitem"
         >
           <ArrowUp size={14} aria-hidden="true" />
           <span>Back to top</span>
@@ -330,3 +329,4 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
 };
 
 export default PageNavigatorDropdown;
+

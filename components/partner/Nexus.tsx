@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PartnerLayout } from './PartnerLayout';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -58,6 +59,21 @@ interface Client {
     notes: ClientNote[];
     joinedDate: string;
     totalSessions: number;
+}
+
+interface NexusProps {
+    initialRegistrationOpen?: boolean;
+    initialSelectedClientId?: string;
+}
+
+interface NewClientFormState {
+    name: string;
+    email: string;
+    phone: string;
+    dob: string;
+    protocol: string;
+    risk: RiskLevel;
+    nextSession: string;
 }
 
 // ─────────────────────────────────────────────────────────
@@ -154,6 +170,32 @@ const CLIENTS: Client[] = [
 
 type DetailTab = 'overview' | 'sessions' | 'notes';
 
+const DEFAULT_NEW_CLIENT_FORM: NewClientFormState = {
+    name: '',
+    email: '',
+    phone: '',
+    dob: '',
+    protocol: '',
+    risk: 'stable',
+    nextSession: '',
+};
+
+const resolveClientId = (clients: Client[], value?: string | null) => {
+    if (!value) {
+        return null;
+    }
+
+    return clients.some((client) => client.id === value) ? value : null;
+};
+
+const toInitials = (name: string) =>
+    name
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join('');
+
 // ─────────────────────────────────────────────────────────
 // SUB-COMPONENTS
 // ─────────────────────────────────────────────────────────
@@ -197,6 +239,193 @@ const OutcomeDot: React.FC<{ outcome: Session['outcome'] }> = ({ outcome }) => {
     if (outcome === 'good')    return <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 mt-1.5" />;
     if (outcome === 'poor')    return <span className="w-2 h-2 rounded-full bg-red-400 shrink-0 mt-1.5" />;
     return <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0 mt-1.5" />;
+};
+
+const CreateClientModal: React.FC<{
+    open: boolean;
+    onClose: () => void;
+    onCreate: (form: NewClientFormState) => void;
+}> = ({ open, onClose, onCreate }) => {
+    const [form, setForm] = useState<NewClientFormState>(DEFAULT_NEW_CLIENT_FORM);
+
+    useEffect(() => {
+        if (open) {
+            setForm(DEFAULT_NEW_CLIENT_FORM);
+        }
+    }, [open]);
+
+    const updateField = useCallback((field: keyof NewClientFormState, value: NewClientFormState[keyof NewClientFormState]) => {
+        setForm((current) => ({ ...current, [field]: value }));
+    }, []);
+
+    const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        onCreate({
+            ...form,
+            name: form.name.trim(),
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            dob: form.dob.trim(),
+            protocol: form.protocol.trim(),
+            nextSession: form.nextSession.trim(),
+        });
+    }, [form, onCreate]);
+
+    return (
+        <AnimatePresence>
+            {open && (
+                <>
+                    <motion.button
+                        type="button"
+                        aria-label="Close registration modal"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-sm"
+                    />
+                    <motion.div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Register client"
+                        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.98 }}
+                        transition={{ duration: 0.18 }}
+                        className="fixed inset-x-4 top-6 z-50 mx-auto w-auto max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-2xl lg:top-12"
+                    >
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-600">
+                                    Intake
+                                </p>
+                                <h2 className="mt-2 text-xl font-bold text-slate-900">
+                                    Register Client
+                                </h2>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    Capture the essentials now. Session logs and notes can be added after registration.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                                aria-label="Close registration modal"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-5 px-6 py-6">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <label className="block">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Full name
+                                    </span>
+                                    <input
+                                        required
+                                        value={form.name}
+                                        onChange={(event) => updateField('name', event.target.value)}
+                                        placeholder="Jordan Avery"
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Email
+                                    </span>
+                                    <input
+                                        required
+                                        type="email"
+                                        value={form.email}
+                                        onChange={(event) => updateField('email', event.target.value)}
+                                        placeholder="jordan@clinicmail.com"
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Phone
+                                    </span>
+                                    <input
+                                        required
+                                        value={form.phone}
+                                        onChange={(event) => updateField('phone', event.target.value)}
+                                        placeholder="+48 555 120 980"
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Date of birth
+                                    </span>
+                                    <input
+                                        value={form.dob}
+                                        onChange={(event) => updateField('dob', event.target.value)}
+                                        placeholder="03 Nov 1975 (50y)"
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    />
+                                </label>
+                                <label className="block md:col-span-2">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Protocol
+                                    </span>
+                                    <input
+                                        required
+                                        value={form.protocol}
+                                        onChange={(event) => updateField('protocol', event.target.value)}
+                                        placeholder="Recovery Support"
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    />
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Risk tier
+                                    </span>
+                                    <select
+                                        value={form.risk}
+                                        onChange={(event) => updateField('risk', event.target.value as RiskLevel)}
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    >
+                                        <option value="stable">Stable</option>
+                                        <option value="monitor">Monitor</option>
+                                        <option value="high">High risk</option>
+                                    </select>
+                                </label>
+                                <label className="block">
+                                    <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                        Next session
+                                    </span>
+                                    <input
+                                        value={form.nextSession}
+                                        onChange={(event) => updateField('nextSession', event.target.value)}
+                                        placeholder="Awaiting first consult"
+                                        className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none transition-colors focus:border-cyan-400"
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                                >
+                                    Save Client
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
 };
 
 // ─────────────────────────────────────────────────────────
@@ -461,13 +690,121 @@ const ClientDetail: React.FC<{
 // MAIN NEXUS COMPONENT
 // ─────────────────────────────────────────────────────────
 
-export const Nexus: React.FC = () => {
+export const Nexus: React.FC<NexusProps> = ({
+    initialRegistrationOpen = false,
+    initialSelectedClientId,
+}) => {
+    const router = useRouter();
+    const pathname = usePathname() ?? '/nexus/clients';
+    const searchParams = useSearchParams();
+    const [clients, setClients] = useState<Client[]>(CLIENTS);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<FilterValue>('all');
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(() =>
+        resolveClientId(CLIENTS, initialSelectedClientId),
+    );
+    const [isRegistrationOpen, setIsRegistrationOpen] = useState(initialRegistrationOpen);
+    const lastSyncedSelectedClientId = useRef(initialSelectedClientId);
+
+    useEffect(() => {
+        if (lastSyncedSelectedClientId.current === initialSelectedClientId) {
+            return;
+        }
+
+        lastSyncedSelectedClientId.current = initialSelectedClientId;
+        setSelectedId(resolveClientId(clients, initialSelectedClientId));
+    }, [clients, initialSelectedClientId]);
+
+    useEffect(() => {
+        setIsRegistrationOpen(initialRegistrationOpen);
+    }, [initialRegistrationOpen]);
+
+    const syncRouteState = useCallback((nextSelectedId: string | null, nextRegistrationOpen: boolean) => {
+        const params = new URLSearchParams(searchParams?.toString() ?? '');
+
+        if (nextSelectedId) {
+            params.set('patient', nextSelectedId);
+        } else {
+            params.delete('patient');
+        }
+
+        if (nextRegistrationOpen) {
+            params.set('action', 'new');
+        } else {
+            params.delete('action');
+        }
+
+        const nextQuery = params.toString();
+        router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+    }, [pathname, router, searchParams]);
+
+    const handleCloseSelectedClient = useCallback(() => {
+        setSelectedId(null);
+        syncRouteState(null, false);
+    }, [syncRouteState]);
+
+    const handleSelectClient = useCallback((clientId: string) => {
+        setIsRegistrationOpen(false);
+        setSelectedId((currentId) => {
+            const nextSelectedId = currentId === clientId ? null : clientId;
+            syncRouteState(nextSelectedId, false);
+            return nextSelectedId;
+        });
+    }, [syncRouteState]);
+
+    const handleOpenRegistration = useCallback(() => {
+        setIsRegistrationOpen(true);
+        syncRouteState(selectedId, true);
+    }, [selectedId, syncRouteState]);
+
+    const handleCloseRegistration = useCallback(() => {
+        setIsRegistrationOpen(false);
+        syncRouteState(selectedId, false);
+    }, [selectedId, syncRouteState]);
+
+    const handleCreateClient = useCallback((form: NewClientFormState) => {
+        const now = new Date();
+        const nextClientId = `client-${Date.now()}`;
+        const dateLabel = now.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        });
+
+        const nextClient: Client = {
+            id: nextClientId,
+            name: form.name,
+            initials: toInitials(form.name),
+            dob: form.dob || 'DOB pending',
+            email: form.email,
+            phone: form.phone,
+            protocol: form.protocol,
+            adherence: 0,
+            risk: form.risk,
+            nextSession: form.nextSession || 'Awaiting first consult',
+            sessions: [],
+            notes: [
+                {
+                    id: `note-${Date.now()}`,
+                    author: 'Nexus Intake',
+                    date: dateLabel,
+                    text: 'Client registered in Nexus. Confirm intake details and book the first guided session.',
+                },
+            ],
+            joinedDate: now.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
+            totalSessions: 0,
+        };
+
+        setClients((currentClients) => [nextClient, ...currentClients]);
+        setFilter('all');
+        setSearch('');
+        setSelectedId(nextClientId);
+        setIsRegistrationOpen(false);
+        syncRouteState(nextClientId, false);
+    }, [syncRouteState]);
 
     const filtered = useMemo(() => {
-        let list = CLIENTS;
+        let list = clients;
         if (filter !== 'all') list = list.filter(c => c.risk === filter);
         if (search.trim()) {
             const q = search.toLowerCase();
@@ -478,19 +815,19 @@ export const Nexus: React.FC = () => {
             );
         }
         return list;
-    }, [search, filter]);
+    }, [clients, search, filter]);
 
     const selectedClient = useMemo(
-        () => CLIENTS.find(c => c.id === selectedId) ?? null,
-        [selectedId],
+        () => clients.find(c => c.id === selectedId) ?? null,
+        [clients, selectedId],
     );
 
     const counts = useMemo(() => ({
-        total:   CLIENTS.length,
-        stable:  CLIENTS.filter(c => c.risk === 'stable').length,
-        monitor: CLIENTS.filter(c => c.risk === 'monitor').length,
-        high:    CLIENTS.filter(c => c.risk === 'high').length,
-    }), []);
+        total:   clients.length,
+        stable:  clients.filter(c => c.risk === 'stable').length,
+        monitor: clients.filter(c => c.risk === 'monitor').length,
+        high:    clients.filter(c => c.risk === 'high').length,
+    }), [clients]);
 
     const FILTERS: { value: FilterValue; label: string; count: number }[] = [
         { value: 'all',     label: 'All',     count: counts.total },
@@ -541,7 +878,10 @@ export const Nexus: React.FC = () => {
 
                         {/* Spacer + Add button */}
                         <div className="flex-1" />
-                        <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg transition-colors shrink-0">
+                        <button
+                            onClick={handleOpenRegistration}
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg transition-colors shrink-0"
+                        >
                             <Plus className="w-4 h-4" /> Register Client
                         </button>
                     </div>
@@ -573,7 +913,7 @@ export const Nexus: React.FC = () => {
                                 return (
                                     <button
                                         key={client.id}
-                                        onClick={() => setSelectedId(isSelected ? null : client.id)}
+                                        onClick={() => handleSelectClient(client.id)}
                                         className={`w-full text-left flex items-center gap-4 px-4 md:px-6 py-3.5 transition-all ${
                                             isSelected
                                                 ? 'bg-cyan-50 border-l-2 border-cyan-500'
@@ -632,7 +972,7 @@ export const Nexus: React.FC = () => {
                             >
                                 <ClientDetail
                                     client={selectedClient}
-                                    onClose={() => setSelectedId(null)}
+                                    onClose={handleCloseSelectedClient}
                                 />
                             </motion.div>
                         )}
@@ -654,12 +994,17 @@ export const Nexus: React.FC = () => {
                             >
                                 <ClientDetail
                                     client={selectedClient}
-                                    onClose={() => setSelectedId(null)}
+                                    onClose={handleCloseSelectedClient}
                                 />
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
+                <CreateClientModal
+                    open={isRegistrationOpen}
+                    onClose={handleCloseRegistration}
+                    onCreate={handleCreateClient}
+                />
             </div>
         </PartnerLayout>
     );

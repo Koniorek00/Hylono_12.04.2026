@@ -1,0 +1,97 @@
+{
+  "name": "Akaunting",
+  "slug": "akaunting",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Akaunting accounting platform",
+  "version": "3.1.21 observed",
+  "version_status": "CONFIRMED enough for research / release cadence should be rechecked at implementation",
+  "license": "Business Source License (BSL)",
+  "license_status": "CONFIRMED",
+  "what": "Open-source-style accounting platform covering bookkeeping, invoicing, expenses, banking, and app/extensions ecosystem.",
+  "solves": "General small-business accounting under self-host control, broader than pure invoicing.",
+  "users": "Small businesses seeking a self-hostable accounting app.",
+  "fit": "Lower fit than Invoice Ninja for Hylono\u2019s near-term stack. It is broader accounting software and more likely to overlap with existing finance tooling rather than directly serving product integration needs.",
+  "runtime": "PHP/Laravel-style accounting web app with modules, DB, mail, and finance workflows.",
+  "components": "Web UI/API, database, accounting modules, extensions, import/export, and document generation.",
+  "deploy": "Standard web-app self-host patterns; use only if Hylono truly wants an accounting system rather than invoicing adjunct.",
+  "deps": "Database, mailer, storage, cron/jobs, finance process ownership.",
+  "datastores": "Relational database.",
+  "auth": "Local user roles; verify SSO options if needed.",
+  "apis": "Accounting/invoice/bank-related app surfaces; deeper API suitability should be tested against current version.",
+  "complexity": "Medium to High",
+  "security": "Financial and accounting records create governance obligations beyond ordinary app data.",
+  "setup_path": "Do not deploy speculatively. First confirm that an accounting platform belongs in scope and that BSL licensing is acceptable.",
+  "env": "App URL, DB settings, app key, mail, storage, cron, and extension config.",
+  "persistence": "Back up DB and generated financial documents; preserve chart-of-accounts and fiscal settings carefully.",
+  "operations": "Version, extension, and fiscal-rule changes require finance stakeholder oversight.",
+  "failure_points": "Using it where invoicing-only tooling or external accounting software would be better, and introducing license friction late.",
+  "integration": "Could integrate with Stripe, Invoice Ninja, n8n, and reporting, but is not a strong first integration target for the public Hylono stack.",
+  "verify": "Confirm whether Hylono already has accounting software. If yes, Akaunting is probably redundant.",
+  "risk": "Moderate with high redundancy risk.",
+  "gdpr": "Contains customer and financial records.",
+  "recommendation": "LIKELY EXCLUDE / ONLY IF ACCOUNTING GAP EXISTS",
+  "priority": 33,
+  "overlap": "Substantial overlap with Invoice Ninja and external accounting suites.",
+  "codex_read_first": "Read the overlap map before doing any Akaunting work.",
+  "codex_best_path": "Do not implement unless a real accounting-system gap is confirmed.",
+  "codex_never_assume": "Never assume a self-hosted accounting system is worth the operational burden when invoicing needs can be met elsewhere.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/akaunting/akaunting",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "BSL",
+      "version": "3.1.21",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official site",
+      "url": "https://akaunting.com/",
+      "kind": "official site",
+      "status": "indexed-only",
+      "license": "BSL",
+      "version": "current",
+      "notes": "Product positioning and docs entry point.",
+      "outdated": false
+    },
+    {
+      "name": "Releases",
+      "url": "https://github.com/akaunting/akaunting/releases",
+      "kind": "official releases",
+      "status": "indexed-only",
+      "license": "BSL",
+      "version": "3.1.21",
+      "notes": "Version source.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/akaunting/akaunting/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.1.21 observed",
+      "why": "Version reference used in research."
+    },
+    {
+      "url": "https://github.com/akaunting/akaunting",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "3.1.21",
+      "why": "Code and license source."
+    },
+    {
+      "url": "https://akaunting.com/",
+      "type": "official site",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Product scope and docs entry point."
+    }
+  ]
+}

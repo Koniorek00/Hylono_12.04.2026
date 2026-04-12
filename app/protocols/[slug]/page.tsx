@@ -67,6 +67,8 @@ export default async function ProtocolDetailPageRoute({
     notFound();
   }
 
+  const reviewOwnerName = protocol.reviewer?.name ?? 'Hylono Research Review';
+
   const breadcrumbSchema = createBreadcrumbSchema([
     { name: 'Home', path: '/' },
     { name: 'Protocols', path: '/protocols' },
@@ -140,15 +142,12 @@ export default async function ProtocolDetailPageRoute({
     ...(protocol.contraindications.length > 0
       ? { contraindication: protocol.contraindications.join('; ') }
       : {}),
-    ...(protocol.reviewer
-      ? {
-          author: {
-            '@type': 'Person',
-            name: protocol.reviewer.name,
-            description: protocol.reviewer.credentials,
-          },
-        }
-      : {}),
+    author: {
+      '@type': 'Organization',
+      '@id': ORGANIZATION_ID(),
+      name: reviewOwnerName,
+      url: `${SITE_URL}/about`,
+    },
     speakable: {
       '@type': 'SpeakableSpecification',
       cssSelector: ['#protocol-intro'],
@@ -193,6 +192,7 @@ export default async function ProtocolDetailPageRoute({
                   year: ev.year,
                   authors: ev.authors,
                 })),
+              reviewedByName: reviewOwnerName,
               speakableSelectors: ['#protocol-intro'],
               dateModified: SCHEMA_DATE_MODIFIED,
               lastReviewed: SCHEMA_DATE_MODIFIED,
@@ -253,62 +253,10 @@ export default async function ProtocolDetailPageRoute({
               `${SITE_URL}/research`,
               ...protocol.relatedProtocolSlugs.map((s) => `${SITE_URL}/protocols/${s}`),
             ],
-            ...(protocol.reviewer
-              ? {
-                  reviewedBy: {
-                    '@type': 'Person',
-                    name: protocol.reviewer.name,
-                    description: protocol.reviewer.credentials,
-                  },
-                }
-              : {}),
           }}
         />
         <StructuredData id="jsonld-protocol-breadcrumb" data={breadcrumbSchema} />
         <StructuredData id="jsonld-protocol-howto" data={howToSchema} />
-        <StructuredData
-          id="jsonld-protocol-course"
-          data={{
-            '@context': 'https://schema.org',
-            '@type': 'Course',
-            '@id': `${SITE_URL}/protocols/${slug}#course`,
-            name: protocol.title,
-            description: protocol.shortDescription,
-            url: `${SITE_URL}/protocols/${slug}`,
-            inLanguage: 'en',
-            provider: { '@id': ORGANIZATION_ID() },
-            image: {
-              '@type': 'ImageObject',
-              url: `${SITE_URL}/og-image.svg`,
-              width: 1200,
-              height: 630,
-              name: protocol.title,
-            },
-            educationalLevel: protocol.difficulty,
-            timeRequired: `P${Math.max(protocol.durationWeeks, 1)}W`,
-            teaches: protocol.goal,
-            about: {
-              '@type': 'MedicalCondition',
-              '@id': `${SITE_URL}/conditions/${protocol.goalTag}#condition`,
-              name: protocol.goal,
-            },
-            audience: {
-              '@type': 'EducationalAudience',
-              educationalRole: 'student',
-              audienceType: protocol.targetAudience,
-            },
-            hasCourseInstance: {
-              '@type': 'CourseInstance',
-              name: protocol.title,
-              courseMode: 'online',
-              courseWorkload: protocol.timePerDay,
-              duration: `P${Math.max(protocol.durationWeeks, 1)}W`,
-              url: `${SITE_URL}/protocols/${slug}`,
-              instructor: { '@id': ORGANIZATION_ID() },
-            },
-            isPartOf: { '@id': `${SITE_URL}/protocols` },
-          }}
-        />
       </Suspense>
       <ProtocolDetailClient slug={slug} />
     </>

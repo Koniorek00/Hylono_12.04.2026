@@ -1,0 +1,97 @@
+{
+  "name": "Invoice Ninja",
+  "slug": "invoice-ninja",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Invoice Ninja invoicing and payments platform",
+  "version": "v5.13.10",
+  "version_status": "CONFIRMED",
+  "license": "Elastic License / source-available mix; verify current terms before bundling",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source-first invoicing, quotes, payments, client portal, and expense tracking platform.",
+  "solves": "Client-facing invoices, quotes, payment links, reminders, and light business-finance workflows without implementing a custom invoicing layer.",
+  "users": "Small businesses, agencies, and operators who need invoicing and collections without a full ERP.",
+  "fit": "Good fit if Hylono needs polished invoices/quotes outside pure Stripe receipts. Stronger direct fit than Akaunting for client-facing invoicing and quote workflows.",
+  "runtime": "Laravel/PHP application with database, mail, payment integrations, background jobs, and client portal.",
+  "components": "Web app/API, relational database, mailer, payment connectors, cron/jobs, and PDF/document generation.",
+  "deploy": "Docker and self-host docs are mature. Production needs mail, backups, payment/webhook testing, and PDF/document storage planning.",
+  "deps": "Database, PHP runtime, mailer, payment provider credentials, cron, and storage.",
+  "datastores": "Relational database plus generated invoice/document storage.",
+  "auth": "Local auth, client portal users, API tokens, and payment-provider credentials.",
+  "apis": "REST API, webhooks, client portal, payment integrations, and invoice/quote generation.",
+  "complexity": "Medium",
+  "security": "Financial documents and customer details require standard finance-app hardening and role separation.",
+  "setup_path": "Use official self-host docs and test Stripe/payment integration thoroughly before production.",
+  "env": "APP_URL, DB settings, mailer, app key, payment provider secrets, queue/cron, and storage paths.",
+  "persistence": "Back up DB and generated documents; validate invoice numbering and legal template retention.",
+  "operations": "Upgrade cautiously around tax/PDF/payment changes; test reminder schedules and webhook flows.",
+  "failure_points": "Confusing Stripe as source of truth vs Invoice Ninja as source of truth, and duplicating invoice ownership across tools.",
+  "integration": "Good fit for quotes, pro forma invoices, recurring invoices, and finance portal workflows. Can integrate with Stripe, n8n, CRM, and Metabase.",
+  "verify": "Decide whether Hylono needs separate invoicing/quote workflows beyond Stripe and whether Invoice Ninja or Lago should own invoices if both exist.",
+  "risk": "Moderate. Useful but finance scope must be explicit.",
+  "gdpr": "Contains customer and financial data; treat as a finance system.",
+  "recommendation": "PRIMARY INVOICING CANDIDATE IF NEEDED",
+  "priority": 20,
+  "overlap": "Preferred over Akaunting for focused invoicing/quotes/payments in this stack.",
+  "codex_read_first": "Read current Stripe invoicing/payment flows before proposing Invoice Ninja.",
+  "codex_best_path": "Use Invoice Ninja only for explicit quote/invoice workflows that are not already cleanly solved in Stripe.",
+  "codex_never_assume": "Never assume finance is comfortable with a second invoice source of truth without reconciliation rules.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/invoiceninja/invoiceninja",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify current repo license",
+      "version": "v5.13.10",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official docs",
+      "url": "https://invoiceninja.github.io/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v5",
+      "notes": "Self-host and product docs.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image",
+      "url": "https://hub.docker.com/r/invoiceninja/invoiceninja",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "see project terms",
+      "version": "v5.13.10",
+      "notes": "Main deployment artifact.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/invoiceninja/invoiceninja/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.13.10",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://invoiceninja.github.io/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5",
+      "why": "Primary self-host/product source."
+    },
+    {
+      "url": "https://github.com/invoiceninja/invoiceninja",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v5.13.10",
+      "why": "Code and license source."
+    }
+  ]
+}

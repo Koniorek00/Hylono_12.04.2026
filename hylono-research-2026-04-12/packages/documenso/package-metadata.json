@@ -1,0 +1,97 @@
+{
+  "name": "Documenso",
+  "slug": "documenso",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "Documenso e-signature platform",
+  "version": "v2.8.0",
+  "version_status": "CONFIRMED",
+  "license": "Open core / verify current repo and enterprise split before bundling code",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source-first e-signature platform for signing workflows, document templates, recipients, and audit trails.",
+  "solves": "Digital agreements, waivers, contracts, consents, and internal approvals with a self-hosted or controlled deployment model.",
+  "users": "Operations, legal, HR, and customer-facing teams that need signatures without depending entirely on closed SaaS.",
+  "fit": "High fit for waivers, rental agreements, acknowledgements, and premium service documents\u2014provided Hylono carefully defines what is commercial, legal, or health-adjacent.",
+  "runtime": "Web app with database, storage, mail, document processing, and signing/audit workflow layers.",
+  "components": "Frontend/API, database, file storage, mailer, signing workflow engine, and enterprise add-ons depending on use case.",
+  "deploy": "Official Docker and Docker Compose options are available; production requires external database, file storage, and mail configuration.",
+  "deps": "PostgreSQL or supported DB, object/file storage, mailer, TLS, and strong secret management.",
+  "datastores": "Relational database plus document/file storage.",
+  "auth": "Local auth and enterprise/SSO options depending on edition; verify if ZITADEL SSO is required.",
+  "apis": "Document/template APIs, signing workflows, webhooks, and embed options depending on edition/features.",
+  "complexity": "Medium",
+  "security": "Signed documents, audit trails, and potentially sensitive acknowledgements make this a high-trust system. Protect storage, links, identities, and retention policies carefully.",
+  "setup_path": "Start with the official Docker Compose path; validate document retention, audit logs, and legal sufficiency before production rollout.",
+  "env": "DB URL, NEXTAUTH/app secrets, storage credentials, mail config, app URLs, and enterprise license key if applicable.",
+  "persistence": "Back up database and document storage together; test integrity of audit records and signed artifacts.",
+  "operations": "Version upgrades, storage migration, email deliverability, and document retention/governance need explicit ownership.",
+  "failure_points": "Assuming 'open-source e-sign' automatically equals legal sufficiency for every workflow, or mixing signed-doc truth across multiple systems.",
+  "integration": "Strong fit with Next.js rental/booking flows, Stripe checkout follow-ups, Novu notifications, n8n orchestration, CRM events, and storage backends.",
+  "verify": "Classify each Hylono signing use case: marketing consent, rental agreement, waiver, acknowledgment, internal approval. Verify legal requirements per jurisdiction/use case.",
+  "risk": "Moderate to high because signature workflows carry legal/process consequences.",
+  "gdpr": "Documents may contain identity, addresses, signatures, and possibly health-adjacent acknowledgements. EU hosting and retention controls are important.",
+  "recommendation": "EARLY / CONDITIONAL WITH LEGAL REVIEW",
+  "priority": 11,
+  "overlap": "Overlaps with DocuSeal. Documenso is the stronger current candidate for Hylono if a more mature, EU-friendly signature workflow is desired.",
+  "codex_read_first": "Read self-host docs and define document classes and legal expectations before integrating anything into the site.",
+  "codex_best_path": "Use Documenso for clearly bounded document workflows first (for example rental agreements or acknowledgements), and keep signed artifacts in controlled storage.",
+  "codex_never_assume": "Never assume a signature workflow is legally or operationally sufficient without human validation of the exact document use case.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.documenso.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v2.8.0",
+      "notes": "Primary self-host and product docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/documenso/documenso",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "verify current repo license",
+      "version": "v2.8.0",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host docs",
+      "url": "https://docs.documenso.com/self-hosting",
+      "kind": "deployment docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "current",
+      "notes": "Deployment guidance.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/documenso/documenso/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.8.0",
+      "why": "Confirms current version researched."
+    },
+    {
+      "url": "https://docs.documenso.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary setup and feature source."
+    },
+    {
+      "url": "https://github.com/documenso/documenso",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.8.0",
+      "why": "Code and license source."
+    }
+  ]
+}

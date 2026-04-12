@@ -1,0 +1,97 @@
+{
+  "name": "Lago",
+  "slug": "lago",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "Lago billing and metering platform",
+  "version": "v1.45.1",
+  "version_status": "CONFIRMED",
+  "license": "AGPL-3.0 / open-core style review recommended",
+  "license_status": "PARTLY VERIFIED",
+  "what": "Open-source billing, metering, subscriptions, invoicing, and usage-based pricing platform.",
+  "solves": "Usage metering, recurring billing logic, invoices, credits, pricing plans, and finance-facing billing operations that are cumbersome to build from scratch.",
+  "users": "SaaS/product operators and finance/ops teams that need sophisticated billing beyond direct Stripe checkout.",
+  "fit": "Potentially useful if Hylono introduces memberships, device access plans, protocol subscriptions, or usage-based/rental billing complexity. For straightforward Stripe commerce it may be heavier than needed.",
+  "runtime": "Web/API application with billing engine, workers, database, and connectors.",
+  "components": "API/UI, billing engine, background jobs, PostgreSQL, message/queue layer depending on deployment, and external payment/invoicing integrations.",
+  "deploy": "Official Docker Compose and Helm paths exist. Production requires persistent database, background processing, mail/notifications, and finance-grade change control.",
+  "deps": "PostgreSQL, background workers/queues, email/notifications, webhooks, and payment provider integration.",
+  "datastores": "PostgreSQL primary datastore.",
+  "auth": "Built-in auth plus API keys and finance/admin roles.",
+  "apis": "REST APIs, webhooks, billing events, metering ingestion, invoice/subscription management.",
+  "complexity": "High",
+  "security": "Billing systems directly affect revenue and customer trust. Webhook integrity, tax/invoice correctness, and finance-process controls matter.",
+  "setup_path": "Start with official self-host docs and Docker Compose only after a billing domain model is agreed. Do not deploy speculatively.",
+  "env": "DB URL, app secrets, payment provider credentials, webhooks, mailer config, storage if needed, and background job settings.",
+  "persistence": "Back up the billing DB and preserve invoice artifacts. Test webhook replay and invoice regeneration assumptions carefully.",
+  "operations": "Version upgrades require billing regression checks, webhook validation, and finance-side acceptance criteria.",
+  "failure_points": "Overlapping responsibilities with Stripe, introducing invoice truth conflicts, and deploying metering before the business pricing model is stable.",
+  "integration": "Could connect to Stripe, Next.js checkout/rental APIs, n8n automation, Twenty CRM account data, Novu notifications, and Metabase finance reporting.",
+  "verify": "Define whether Hylono actually needs usage/subscription billing beyond current Stripe capabilities. Decide whether Lago or Invoice Ninja should own invoice generation if both are present.",
+  "risk": "High domain-model risk if introduced too early.",
+  "gdpr": "Contains customer billing data; treat as financial system of record if adopted.",
+  "recommendation": "LATER / CONDITIONAL",
+  "priority": 16,
+  "overlap": "Overlaps partly with Stripe Billing and Invoice Ninja/Akaunting depending on scope.",
+  "codex_read_first": "Read current Hylono pricing, rental, and checkout flows before proposing Lago implementation.",
+  "codex_best_path": "Use Lago only when subscription/usage billing is a confirmed requirement; isolate it as a dedicated billing service, not a casual add-on.",
+  "codex_never_assume": "Never assume finance will accept a new billing source of truth without reconciliation, tax, and invoice workflow validation.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.getlago.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v1.45.1",
+      "notes": "Primary setup source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/getlago/lago",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "review current repo license",
+      "version": "v1.45.1",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official Helm charts",
+      "url": "https://github.com/getlago/lago-helm-charts",
+      "kind": "helm charts",
+      "status": "indexed-only",
+      "license": "review repo",
+      "version": "current",
+      "notes": "Useful for Kubernetes deployment.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/getlago/lago/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.45.1",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://docs.getlago.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary setup and architecture source."
+    },
+    {
+      "url": "https://github.com/getlago/lago",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.45.1",
+      "why": "Code and licensing source."
+    }
+  ]
+}

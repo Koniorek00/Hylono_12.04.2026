@@ -4,6 +4,7 @@ import { TeamDashboard } from '@/components/partner/TeamDashboard';
 import { createPageMetadata } from '@/lib/seo-metadata';
 
 // [DECISION: nexus team is a private staff-management dashboard rendered server-first with a client leaf for interactive team controls.]
+// Rendering strategy: request-time server routing via `connection()` keeps the workspace session-aware while the interactive dashboard remains in a client leaf.
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Nexus Team',

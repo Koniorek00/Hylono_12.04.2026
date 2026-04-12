@@ -13,7 +13,24 @@ export const metadata: Metadata = createPageMetadata({
   forceNoIndex: true,
 });
 
-export default async function NexusStudioPageRoute() {
+type NexusStudioPageSearchParams = Promise<{
+  action?: string | string[];
+}>;
+
+const getFirstParamValue = (value?: string | string[]) =>
+  Array.isArray(value) ? value[0] : value;
+
+export default async function NexusStudioPageRoute({
+  searchParams,
+}: {
+  searchParams: NexusStudioPageSearchParams;
+}) {
   await connection();
-  return <PartnerStudio />;
+  const resolvedSearchParams = await searchParams;
+
+  return (
+    <PartnerStudio
+      startFresh={getFirstParamValue(resolvedSearchParams.action) === 'new'}
+    />
+  );
 }

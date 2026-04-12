@@ -6,7 +6,9 @@ import { useMultitoolStore } from '../../src/stores/multitoolStore';
 
 vi.mock('motion/react', async () => {
   const React = await import('react');
-  const omitMotionProps = (props: Record<string, unknown>) => {
+  type MotionPassthroughProps = React.HTMLAttributes<HTMLElement> & Record<string, unknown>;
+
+  const omitMotionProps = (props: MotionPassthroughProps) => {
     const {
       animate,
       custom,
@@ -42,7 +44,7 @@ vi.mock('motion/react', async () => {
       props,
       ref
     ) {
-      return React.createElement(tag, { ...omitMotionProps(props), ref }, props.children);
+      return React.createElement(tag, { ...omitMotionProps(props as MotionPassthroughProps), ref }, props.children);
     });
 
   return {

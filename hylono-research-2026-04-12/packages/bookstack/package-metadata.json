@@ -1,0 +1,97 @@
+{
+  "name": "BookStack",
+  "slug": "bookstack",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "BookStack wiki and documentation platform",
+  "version": "v25.12.9",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "Simple, structured wiki/documentation platform organized into shelves, books, chapters, and pages.",
+  "solves": "Internal SOPs, protocols, service runbooks, and operator documentation with a friendly non-technical UI.",
+  "users": "Operations, support, and documentation teams who need an opinionated but easy knowledge base.",
+  "fit": "Strong fit for internal Hylono protocols, device SOPs, and service documentation. Better fit than Outline for structured internal operations docs.",
+  "runtime": "PHP/Laravel application with relational database, file uploads, and optional auth integrations.",
+  "components": "Web app, DB, file storage, search, optional LDAP/OIDC/SAML, and editor/media handling.",
+  "deploy": "Simple Docker or standard web-stack deployments are common and operationally light.",
+  "deps": "Database, storage, reverse proxy/TLS, mail, and auth integration if needed.",
+  "datastores": "Relational database plus file uploads.",
+  "auth": "Local auth plus SAML/OIDC/LDAP options depending on setup.",
+  "apis": "REST API, content import/export, and auth integrations.",
+  "complexity": "Low to Medium",
+  "security": "Docs may contain sensitive internal procedures. Restrict access and review file upload/storage controls.",
+  "setup_path": "Deploy via Docker or official install scripts; make it internal-only and connect to SSO when identity is ready.",
+  "env": "APP_URL, DB settings, app key, mail, storage, and auth provider settings.",
+  "persistence": "Back up DB and uploads; content export can support disaster recovery.",
+  "operations": "Version upgrades and content governance are straightforward.",
+  "failure_points": "Using it for public docs when Docusaurus is better, or for complex collaborative docs where Outline might be preferred.",
+  "integration": "Great internal documentation hub for operational protocols referenced by support, sales, rentals, and service teams.",
+  "verify": "Confirm whether Hylono wants structured internal wiki more than collaborative team-doc editing.",
+  "risk": "Low.",
+  "gdpr": "Mostly internal content; personal data risk depends on what users write into pages.",
+  "recommendation": "STRONG INTERNAL DOCS CANDIDATE",
+  "priority": 23,
+  "overlap": "Preferred over Outline for structured internal SOPs; separate from Docusaurus public docs.",
+  "codex_read_first": "Read internal docs requirements and the overlap map with Outline/Docusaurus.",
+  "codex_best_path": "Use BookStack as the internal protocol and runbook wiki, behind SSO when available.",
+  "codex_never_assume": "Never conflate internal SOP docs with public product/docs site needs.",
+  "assets": [
+    {
+      "name": "Official site/docs",
+      "url": "https://www.bookstackapp.com/docs/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v25.12.9",
+      "notes": "Primary install/admin docs.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/BookStackApp/BookStack",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v25.12.9",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Docker image docs",
+      "url": "https://linuxserver.io/blog/how-to-install-bookstack",
+      "kind": "community deployment guide",
+      "status": "indexed-only",
+      "license": "guide",
+      "version": "current",
+      "notes": "Useful but secondary.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/BookStackApp/BookStack/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v25.12.9",
+      "why": "Confirms version researched."
+    },
+    {
+      "url": "https://www.bookstackapp.com/docs/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v25.12.9",
+      "why": "Primary install/admin source."
+    },
+    {
+      "url": "https://github.com/BookStackApp/BookStack",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v25.12.9",
+      "why": "Code and license source."
+    }
+  ]
+}

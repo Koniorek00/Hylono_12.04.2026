@@ -84,6 +84,7 @@ const contactSchema = z.object({
   userType: z.string().trim().optional(),
   serialNumber: z.string().trim().max(100).optional(),
   clinicName: z.string().trim().max(100).optional(),
+  patientCount: z.string().trim().max(50).optional(),
   interest: z.string().trim().max(100).optional(),
 });
 
@@ -270,6 +271,25 @@ const normalizeInquiryType = (
   return 'general';
 };
 
+const appendContactContext = (
+  message: string,
+  context: Array<[label: string, value: string | undefined]>
+): string => {
+  const normalizedContext = context
+    .map(([label, value]) => [label, value?.trim()] as const)
+    .filter(([, value]) => Boolean(value));
+
+  if (normalizedContext.length === 0) {
+    return message;
+  }
+
+  const detailLines = normalizedContext.map(
+    ([label, value]) => `${label}: ${value}`
+  );
+
+  return `${message}\n\nAdditional details:\n${detailLines.join('\n')}`;
+};
+
 function flattenFieldErrors(error: z.ZodError): Record<string, string[]> | undefined {
   const flattened = z.flattenError(error);
   const fieldErrors: Record<string, string[]> = {};
@@ -295,6 +315,7 @@ export async function submitContactFormAction(
     userType: formData.get('userType') || undefined,
     serialNumber: formData.get('serialNumber') || undefined,
     clinicName: formData.get('clinicName') || undefined,
+    patientCount: formData.get('patientCount') || undefined,
     interest: formData.get('interest') || undefined,
   });
 
@@ -310,7 +331,12 @@ export async function submitContactFormAction(
     name: parsed.data.name,
     email: parsed.data.email,
     subject: parsed.data.subject,
-    message: parsed.data.message,
+    message: appendContactContext(parsed.data.message, [
+      ['Serial number', parsed.data.serialNumber],
+      ['Clinic name', parsed.data.clinicName],
+      ['Monthly patients', parsed.data.patientCount],
+      ['Interest', parsed.data.interest],
+    ]),
     phone: undefined,
     company: parsed.data.clinicName,
     inquiryType: normalizeInquiryType(parsed.data.userType),
@@ -541,6 +567,15 @@ export async function submitCheckoutFormAction(
     return {
       success: false,
       message: 'Unable to process checkout for this cart.',
+    };
+  }
+
+  if (parsed.data.paymentMethod === 'card') {
+    return {
+      success: false,
+      message:
+        'Card payments are not available in this checkout yet. Please choose bank transfer or financing.',
+      statusCode: 503,
     };
   }
 

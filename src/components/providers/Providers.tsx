@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { SessionProvider } from 'next-auth/react';
 import { CartProvider } from '../../../components/Cart';
 import { WishlistProvider } from '../../../components/Wishlist';
 import { initPostHog } from '../../lib/analytics';
@@ -27,15 +25,6 @@ interface ProvidersProps {
   children: React.ReactNode;
 }
 
-const AUTH_SESSION_ROUTE_PREFIXES = [
-  '/account',
-  '/affiliate',
-  '/login',
-  '/nexus',
-  '/partners',
-  '/rewards',
-];
-
 function ProviderShell({ children }: ProvidersProps) {
   return (
     <CartProvider>
@@ -45,8 +34,6 @@ function ProviderShell({ children }: ProvidersProps) {
 }
 
 export function Providers({ children }: ProvidersProps) {
-  const pathname = usePathname();
-
   useEffect(() => {
     const deferAnalyticsInit = () => {
       const schedule =
@@ -102,17 +89,5 @@ export function Providers({ children }: ProvidersProps) {
     };
   }, []);
 
-  const requiresSessionProvider = AUTH_SESSION_ROUTE_PREFIXES.some((prefix) =>
-    pathname === prefix || pathname?.startsWith(`${prefix}/`)
-  );
-
-  if (!requiresSessionProvider) {
-    return <ProviderShell>{children}</ProviderShell>;
-  }
-
-  return (
-    <SessionProvider refetchOnWindowFocus={false}>
-      <ProviderShell>{children}</ProviderShell>
-    </SessionProvider>
-  );
+  return <ProviderShell>{children}</ProviderShell>;
 }

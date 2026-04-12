@@ -1,0 +1,97 @@
+{
+  "name": "Retraced",
+  "slug": "retraced",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Retraced audit logging platform",
+  "version": "v1.13.1 [POTENTIALLY OUTDATED]",
+  "version_status": "PARTLY VERIFIED / low recent cadence",
+  "license": "Apache-2.0",
+  "license_status": "CONFIRMED",
+  "what": "Developer-friendly audit logging service for recording and querying security- or compliance-relevant events.",
+  "solves": "Centralizing audit trails separate from application code, especially for customer-facing admin actions or compliance-sensitive workflows.",
+  "users": "Engineering and security teams that need structured audit logging.",
+  "fit": "Useful if Hylono wants centralized audit logs across internal/admin surfaces, but not a first-wave need unless compliance expectations rise.",
+  "runtime": "Service/API with storage backend and query/report surfaces.",
+  "components": "Audit ingestion API, storage, query UI/APIs, and deployment manifests including Kubernetes references.",
+  "deploy": "Can be self-hosted, but project cadence looks quieter than some alternatives. Maturity and maintenance should be revalidated before adoption.",
+  "deps": "Database/storage, API ingress, app instrumentation, and auth/access controls.",
+  "datastores": "Relational or attached storage depending on deployment.",
+  "auth": "Admin/service auth and API keys.",
+  "apis": "Audit log ingestion and query APIs.",
+  "complexity": "Medium",
+  "security": "Audit logs are sensitive and can themselves contain personal or security-relevant details.",
+  "setup_path": "Only prioritize if Hylono has a real audit-log centralization requirement beyond app-native audit features.",
+  "env": "Storage/DB config, service secrets, API auth, base URL, and retention settings.",
+  "persistence": "Audit log retention and tamper-resistance expectations should be decided up front.",
+  "operations": "Instrumentation coverage, retention, and access review matter most.",
+  "failure_points": "Adding a separate audit system without actually instrumenting the important actions.",
+  "integration": "Could receive audit events from Next.js admin paths, ZITADEL/Kong, Appsmith, and internal tools if central audit becomes important.",
+  "verify": "Revalidate project maintenance cadence before implementation.",
+  "risk": "Moderate maturity risk.",
+  "gdpr": "Audit logs can contain identifiers; retention and access must be controlled.",
+  "recommendation": "LATER / CONDITIONAL",
+  "priority": 43,
+  "overlap": "Partial overlap with app-native audit features and security platforms.",
+  "codex_read_first": "Read current audit requirements and verify project activity before proceeding.",
+  "codex_best_path": "Use only if centralized audit logging is a confirmed requirement and existing app logs are insufficient.",
+  "codex_never_assume": "Never assume central audit logging is valuable if critical actions are not instrumented consistently.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/retracedhq/retraced",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "v1.13.1",
+      "notes": "Primary code source; cadence should be reviewed.",
+      "outdated": true
+    },
+    {
+      "name": "Docs repo",
+      "url": "https://github.com/retracedhq/docs",
+      "kind": "docs repo",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "current",
+      "notes": "Documentation source.",
+      "outdated": false
+    },
+    {
+      "name": "Kubernetes assets",
+      "url": "https://github.com/retracedhq/retraced/tree/master/kustomize",
+      "kind": "k8s manifests",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "current repo",
+      "notes": "Useful if project is adopted.",
+      "outdated": true
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/retracedhq/retraced/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.13.1",
+      "why": "Version and cadence reference."
+    },
+    {
+      "url": "https://github.com/retracedhq/retraced",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v1.13.1",
+      "why": "Code and license source."
+    },
+    {
+      "url": "https://github.com/retracedhq/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Documentation source."
+    }
+  ]
+}

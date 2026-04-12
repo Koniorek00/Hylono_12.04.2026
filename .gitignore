@@ -68,6 +68,10 @@ output/
 !.codex/config.toml
 .codex-task-splitter/
 .semgrep/
+.gradle/
+local.properties
+*.apk
+*.aab
 
 # Local dev scripts / one-off tools
 comprehensive_audit.py

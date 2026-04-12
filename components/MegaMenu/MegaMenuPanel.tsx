@@ -118,7 +118,7 @@ const FilterTagBar: React.FC<FilterTagBarProps> = ({ activeFilter, onFilterChang
                             className={`
                                 inline-flex items-center gap-1 px-2.5 py-1 min-h-[32px]
                                 rounded-full border text-[11px] font-semibold 
-                                transition-all duration-150 ease-in-out
+                                transition-colors duration-150 ease-in-out
                                 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500
                                 ${isActive ? filterTagStyles[tag.value].active : filterTagStyles[tag.value].inactive}
                             `}
@@ -352,9 +352,9 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                         value={searchQuery}
                         onChange={onSearchChange}
                         onFocus={onSearchFocus}
-                        placeholder="Search Hylono Intelligence..."
+                        placeholder={'Search Hylono Intelligence\u2026'}
                         aria-label="Search"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-sm text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:bg-white/10 focus:border-cyan-500/50 transition-all placeholder:text-white/20"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder:text-white/20 transition-[background-color,border-color,box-shadow] focus:border-cyan-500/50 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                     />
                     {searchQuery.length > 0 && (
                         <button
@@ -416,7 +416,7 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                                                     const event = { target: { value: recent } } as React.ChangeEvent<HTMLInputElement>;
                                                     onSearchChange(event);
                                                 }}
-                                                className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-full text-[11px] font-semibold text-white/70 hover:text-white transition-all"
+                                                className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/70 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
                                             >
                                                 {recent}
                                             </button>
@@ -435,7 +435,7 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                                                 const event = { target: { value: term } } as React.ChangeEvent<HTMLInputElement>;
                                                 onSearchChange(event);
                                             }}
-                                            className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 hover:border-cyan-500/40 rounded-full text-[11px] font-semibold text-cyan-400/80 hover:text-cyan-300 transition-all"
+                                            className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-400/80 transition-colors hover:border-cyan-500/40 hover:bg-cyan-500/20 hover:text-cyan-300"
                                         >
                                             {term}
                                         </button>
@@ -476,13 +476,13 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                                                     <button
                                                         key={item.id}
                                                         onClick={() => onResultClick(item)}
-                                                        className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 group/res transition-all text-left"
+                                                        className="group/res flex w-full items-center justify-between rounded-xl p-3 text-left transition-colors hover:bg-white/5"
                                                     >
                                                         <div>
                                                             <div className="text-sm font-medium text-slate-200 group-hover/res:text-white transition-colors futuristic-font">{item.title}</div>
                                                             <div className="text-[11px] text-slate-500 leading-tight mt-0.5">{item.desc}</div>
                                                         </div>
-                                                        <ArrowRight size={14} className="text-slate-600 opacity-0 group-hover/res:opacity-100 group-hover/res:translate-x-1 transition-all" />
+                                                        <ArrowRight size={14} className="text-slate-600 opacity-0 transition-[opacity,transform] group-hover/res:translate-x-1 group-hover/res:opacity-100" />
                                                     </button>
                                                 ))}
                                             </div>
@@ -497,7 +497,7 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
                                     <div className="flex flex-col gap-2">
                                         <button
                                             onClick={() => onResultClick({ id: 0, title: 'Contact', category: '', desc: '', type: '' })}
-                                            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-lg transition-all"
+                                            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-xs font-semibold text-cyan-400 transition-colors hover:bg-cyan-500/20"
                                         >
                                             Contact us <ArrowRight size={12} />
                                         </button>
@@ -551,3 +551,5 @@ export const MegaMenuPanel: React.FC<MegaMenuPanelProps> = ({
         </div>
     );
 };
+
+

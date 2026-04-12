@@ -1,0 +1,97 @@
+{
+  "name": "RefRef",
+  "slug": "refref",
+  "group": "Phase 2",
+  "status_context": "UNKNOWN",
+  "researched_as": "Amical RefRef referral platform",
+  "version": "No stable releases; current repo active with alpha/breaking-change warnings",
+  "version_status": "CONFIRMED project state / exact stable version MISSING",
+  "license": "AGPL-3.0",
+  "license_status": "CONFIRMED",
+  "what": "Open-source referral platform for structured referral programs and community-driven acquisition flows.",
+  "solves": "Referral tracking, incentives, codes/links, and program analytics for partner or customer referral motion.",
+  "users": "Growth teams and communities running formal referral programs.",
+  "fit": "Potentially useful for Hylono partner/referral programs, but not a core infrastructure or customer-operations need on day one.",
+  "runtime": "Web application with database, referral logic, admin interfaces, and integrations.",
+  "components": "Program definitions, participants, referral tracking, rewards logic, and admin/reporting surfaces.",
+  "deploy": "Self-host docs exist, but the project signals alpha/breaking changes; production use requires caution.",
+  "deps": "Database, mail/notification tooling, tracking links/events, and reward process design.",
+  "datastores": "Relational DB and program data.",
+  "auth": "Local users/admins; verify current auth/SSO surfaces before assuming enterprise integration.",
+  "apis": "Referral-program APIs and web surfaces; verify maturity before integration.",
+  "complexity": "Medium",
+  "security": "Contains participant/contact and reward data. Program abuse prevention also matters.",
+  "setup_path": "Do not put into production without testing maturity and workflow completeness.",
+  "env": "DB settings, app URL, mail, secrets, and any reward/integration config.",
+  "persistence": "Back up program DB and audit referral events if used.",
+  "operations": "Program abuse handling, reward reconciliation, and upstream breaking changes are the main risks.",
+  "failure_points": "Assuming alpha software is ready for customer-facing programs without additional hardening.",
+  "integration": "Could tie to Hylono referral or ambassador programs later via Next.js, n8n, CRM, and notifications.",
+  "verify": "Confirm whether Hylono actually needs a referral platform and whether the project maturity is acceptable.",
+  "risk": "High maturity risk.",
+  "gdpr": "Participant and referral-contact data require standard privacy controls.",
+  "recommendation": "LATER / EXPERIMENTAL",
+  "priority": 41,
+  "overlap": "Could be replaced by lighter n8n + CRM + coupon tooling for early programs.",
+  "codex_read_first": "Read project maturity notes before considering implementation.",
+  "codex_best_path": "Treat as experimental unless a real referral program exists and product maturity is validated.",
+  "codex_never_assume": "Never assume alpha/open-source referral tooling is production-ready for customer trust-sensitive programs.",
+  "assets": [
+    {
+      "name": "Official repo",
+      "url": "https://github.com/amical-do/refref",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "current alpha",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Self-host docs",
+      "url": "https://github.com/amical-do/refref/tree/main/docs",
+      "kind": "docs in repo",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "current",
+      "notes": "Deployment and project docs live in repo.",
+      "outdated": false
+    },
+    {
+      "name": "Releases page",
+      "url": "https://github.com/amical-do/refref/releases",
+      "kind": "release state",
+      "status": "indexed-only",
+      "license": "AGPL-3.0",
+      "version": "no stable releases observed",
+      "notes": "Signals maturity risk.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/amical-do/refref",
+      "type": "official repo",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Primary code and license source."
+    },
+    {
+      "url": "https://github.com/amical-do/refref/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "no stable releases observed",
+      "why": "Used to assess maturity."
+    },
+    {
+      "url": "https://github.com/amical-do/refref/tree/main/docs",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Supports self-hosting analysis."
+    }
+  ]
+}

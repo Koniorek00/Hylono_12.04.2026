@@ -45,7 +45,8 @@
       "uiUrl": "http://localhost:9001",
       "healthEndpoint": "http://localhost:9000/minio/health/live",
       "accessNotes": "S3-compatible API listens on :9000. Browser console is on :9001.",
-      "docsUrl": "https://min.io/docs/"
+      "docsUrl": "https://min.io/docs/",
+      "notes": "Infrastructure compose enables built-in Prometheus metrics for the local control plane."
     },
     {
       "id": "mongo",
@@ -216,7 +217,7 @@
       "accessNotes": "Open the console UI in the browser. Local login v2 is proxied on the same port, and the seeded root admin can sign in immediately.",
       "docsUrl": "https://zitadel.com/docs",
       "role": "IAM",
-      "notes": "Runs with a local Traefik + zitadel-login sidecar so the management console and hosted login share localhost:8109."
+      "notes": "Runs with a local Traefik + zitadel-login sidecar so the management console and hosted login share localhost:8109. The bootstrap password now comes from .env instead of a hardcoded compose value."
     },
     {
       "id": "novu",
@@ -248,10 +249,11 @@
       "defaultPort": 5678,
       "accessMode": "web-ui",
       "uiUrl": "http://localhost:5678",
-      "healthEndpoint": "http://localhost:5678",
+      "healthEndpoint": "http://localhost:5678/healthz",
       "accessNotes": "Browser UI for automation workflows.",
       "docsUrl": "https://docs.n8n.io/",
-      "role": "Automation"
+      "role": "Automation",
+      "notes": "Local runtime now keeps persistent state in a named volume, exposes Prometheus metrics, and runs queue mode with a dedicated worker container."
     },
     {
       "id": "thingsboard",
@@ -717,9 +719,13 @@
       "domain": "platform",
       "phase": "2",
       "verdict": "RECOMMENDED",
-      "dockerImage": "kong:latest",
+      "dockerImage": "kong:3.8",
       "defaultPort": 8000,
-      "docsUrl": "https://docs.konghq.com/"
+      "accessMode": "api",
+      "healthEndpoint": "http://localhost:8001/status",
+      "docsUrl": "https://docs.konghq.com/",
+      "role": "Gateway",
+      "notes": "The local control plane now runs Kong in DB-less mode with declarative routes for the verified Phase 1A browser surfaces."
     },
     {
       "id": "prometheus",
@@ -728,9 +734,14 @@
       "domain": "platform",
       "phase": "2",
       "verdict": "RECOMMENDED",
-      "dockerImage": "prom/prometheus:latest",
+      "dockerImage": "prom/prometheus:v2.55.1",
       "defaultPort": 9090,
-      "docsUrl": "https://prometheus.io/docs/"
+      "accessMode": "web-ui",
+      "uiUrl": "http://localhost:9090",
+      "healthEndpoint": "http://localhost:9090/-/ready",
+      "docsUrl": "https://prometheus.io/docs/",
+      "role": "Metrics and alerting",
+      "notes": "The local control plane now scrapes Kong, MinIO, n8n, and blackbox probes for the routed service surfaces."
     },
     {
       "id": "metabase",

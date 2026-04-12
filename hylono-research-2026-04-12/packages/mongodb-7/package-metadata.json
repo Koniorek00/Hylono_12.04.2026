@@ -1,0 +1,97 @@
+{
+  "name": "MongoDB 7",
+  "slug": "mongodb-7",
+  "group": "Infrastructure",
+  "status_context": "RUNNING",
+  "researched_as": "MongoDB 7 major line",
+  "version": "7.0.x (7.0.31 observed in secondary release tracking)",
+  "version_status": "CONFIRMED line / point release partly UNVERIFIED",
+  "license": "SSPL",
+  "license_status": "CONFIRMED",
+  "what": "Document database for flexible JSON-like data models, high-ingest workloads, and applications that expect MongoDB specifically.",
+  "solves": "Schema-flexible application data, event capture, content documents, and vendor apps that are built around MongoDB.",
+  "users": "Engineering teams and packaged applications that prefer document-oriented models or require MongoDB for supportability.",
+  "fit": "Selective fit. Hylono\u2019s primary site stack is more naturally PostgreSQL-centric, but MongoDB remains relevant because Novu and some app ecosystems expect it.",
+  "runtime": "Single database server or replica set/sharded cluster with BSON document storage, indexes, background maintenance, and replication.",
+  "components": "mongod, optional mongos/shards, persistent storage, backups, metrics, and client libraries.",
+  "deploy": "Replica set for production durability; single node only for labs or low-risk internal services.",
+  "deps": "Fast storage, memory headroom, backups, monitoring, and version-compatible drivers.",
+  "datastores": "MongoDB is the datastore.",
+  "auth": "SCRAM/X.509, RBAC, TLS, network controls, and app-scoped users.",
+  "apis": "Mongo wire protocol, drivers, backup/restore tooling, metrics, and change streams in supported setups.",
+  "complexity": "Medium",
+  "security": "Treat as a production database: TLS, private networking, least-privilege users, and backup encryption.",
+  "setup_path": "Use official 7.0 production docs. Prefer replica sets for any meaningful workload. Plan backups, monitoring, and index review from day one.",
+  "env": "MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD, replica-set config, storage sizing, backup target credentials.",
+  "persistence": "Snapshot plus oplog-aware backup strategy; test restores; watch index growth.",
+  "operations": "Patch within the 7.0 line, review slow queries/indexes, monitor replication lag, and capacity-plan storage.",
+  "failure_points": "Undersized storage, replica misconfiguration, index sprawl, and using MongoDB where relational guarantees were actually needed.",
+  "integration": "Most relevant as a dependency for Novu or any app that is explicitly Mongo-first. It should not become the default datastore for the Hylono web platform.",
+  "verify": "Confirm which apps truly require MongoDB and whether those should run in isolated clusters instead of sharing with unrelated workloads.",
+  "risk": "Moderate. Operationally manageable, but it introduces another database family into the platform.",
+  "gdpr": "Any personal data stored here requires the same EU residency, encryption, and retention discipline as PostgreSQL.",
+  "recommendation": "KEEP FOR REQUIRED APPS ONLY",
+  "priority": 3,
+  "overlap": "Partial overlap with PostgreSQL for general application storage, but not a replacement for Mongo-dependent apps.",
+  "codex_read_first": "Read the app-specific dependency notes before assuming MongoDB belongs in a new design.",
+  "codex_best_path": "Use MongoDB only for apps that explicitly depend on it; avoid inventing new Hylono domain models on MongoDB unless there is a concrete reason.",
+  "codex_never_assume": "Never assume MongoDB should be the default because it is already running. Verify supportability and data-model trade-offs first.",
+  "assets": [
+    {
+      "name": "MongoDB 7.0 release notes",
+      "url": "https://www.mongodb.com/docs/manual/release-notes/7.0/",
+      "kind": "official release notes",
+      "status": "indexed-only",
+      "license": "MongoDB docs",
+      "version": "7.0",
+      "notes": "Primary version line reference.",
+      "outdated": false
+    },
+    {
+      "name": "Official Docker image",
+      "url": "https://hub.docker.com/_/mongo",
+      "kind": "container image",
+      "status": "indexed-only",
+      "license": "SSPL",
+      "version": "7.0",
+      "notes": "Container baseline for self-hosting.",
+      "outdated": false
+    },
+    {
+      "name": "MongoDB exporter",
+      "url": "https://github.com/percona/mongodb_exporter",
+      "kind": "monitoring blueprint",
+      "status": "indexed-only",
+      "license": "Apache-2.0",
+      "version": "current",
+      "notes": "Useful for Prometheus-based monitoring.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.mongodb.com/docs/manual/release-notes/7.0/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.0",
+      "why": "Primary release-note source for MongoDB 7 line."
+    },
+    {
+      "url": "https://www.mongodb.com/docs/manual/administration/production-notes/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.0",
+      "why": "Supports production deployment guidance."
+    },
+    {
+      "url": "https://github.com/mongodb/mongo/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "7.0.x",
+      "why": "Used to confirm current release family researched."
+    }
+  ]
+}

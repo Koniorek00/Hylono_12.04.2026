@@ -1,0 +1,97 @@
+{
+  "name": "Medusa",
+  "slug": "medusa",
+  "group": "Phase 1A",
+  "status_context": "STOPPED",
+  "researched_as": "Medusa commerce engine",
+  "version": "v2.13.6",
+  "version_status": "CONFIRMED",
+  "license": "MIT",
+  "license_status": "CONFIRMED",
+  "what": "Open-source commerce platform for carts, checkout, product catalog, orders, inventory, and admin workflows.",
+  "solves": "Headless commerce backend when Hylono needs richer ecommerce than a marketing-focused Next.js site with basic Stripe checkout.",
+  "users": "Commerce teams and engineering teams that want a self-hostable backend with custom storefronts and workflows.",
+  "fit": "Potentially strong, but conditional. Hylono already has Stripe and server-first Next.js. Medusa is only worth the complexity if product/catalog/order workflows outgrow the current custom site architecture.",
+  "runtime": "Node.js commerce engine with admin, APIs, database, workers/modules, and optional separate storefront.",
+  "components": "Backend server, admin dashboard, PostgreSQL, Redis (depending on modules/workers), file storage, and a separate Next.js storefront or custom frontend.",
+  "deploy": "Self-host backend separately from the public site; use the official Next.js starter as reference, not a reason to refactor the whole public marketing app into a commerce monolith.",
+  "deps": "PostgreSQL, optional Redis, storage provider, payment connectors (Stripe), search/indexing if scale grows, and admin/auth configuration.",
+  "datastores": "PostgreSQL primary; optional Redis and external storage/search integrations.",
+  "auth": "Admin/customer auth model plus API keys and provider integrations.",
+  "apis": "REST/GraphQL-style commerce APIs, webhooks/events, admin APIs, storefront SDKs, payment/shipping integrations.",
+  "complexity": "Medium to High",
+  "security": "Commerce systems hold customer/order/payment-adjacent data. Segment responsibilities, harden admin access, and verify tax/price/rental edge cases before rollout.",
+  "setup_path": "Use official backend install/self-host path plus the official Next.js starter only as a reference implementation. Keep Medusa isolated behind APIs until it proves necessary.",
+  "env": "DATABASE_URL, REDIS_URL if used, STRIPE keys, storage credentials, admin/auth secrets, base URLs, and worker config.",
+  "persistence": "Back up PostgreSQL and file storage; preserve migration discipline and admin config.",
+  "operations": "Track module compatibility, storefront/backend version alignment, payment webhook correctness, and admin access controls.",
+  "failure_points": "Prematurely replacing a working server-first site architecture, duplicating catalog/order logic, and underestimating migration work from custom Stripe flows.",
+  "integration": "Strong candidate if Hylono wants deeper catalog, bundles, inventory, and order workflows. Integrates with Stripe, PostHog, Novu, n8n, search, and internal analytics.",
+  "verify": "Confirm whether current checkout/rental flows truly require a full commerce backend. Also verify whether rentals fit Medusa cleanly or need custom domain logic outside classic ecommerce.",
+  "risk": "Moderate to high because commerce replatforming can sprawl.",
+  "gdpr": "Customer/order data and event logs require standard EU data controls; avoid unnecessary duplication between Medusa and the core site DB.",
+  "recommendation": "LATER / CONDITIONAL",
+  "priority": 14,
+  "overlap": "Overlaps with existing Stripe-powered custom flows; only adopt if Hylono needs a stronger commerce core.",
+  "codex_read_first": "Read the current site checkout/rental architecture and Medusa\u2019s official Next.js starter before proposing a replatform.",
+  "codex_best_path": "Prototype Medusa as a separate commerce service on a subdomain or internal environment. Prove catalog/order benefits before changing public-site architecture.",
+  "codex_never_assume": "Never assume Medusa should own the whole frontend. Never assume standard ecommerce models cover Hylono rental/protocol workflows without extension work.",
+  "assets": [
+    {
+      "name": "Official docs",
+      "url": "https://docs.medusajs.com/",
+      "kind": "official docs",
+      "status": "indexed-only",
+      "license": "docs",
+      "version": "v2.13.6",
+      "notes": "Primary setup and architecture source.",
+      "outdated": false
+    },
+    {
+      "name": "Official repo",
+      "url": "https://github.com/medusajs/medusa",
+      "kind": "source code",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "v2.13.6",
+      "notes": "Primary code source.",
+      "outdated": false
+    },
+    {
+      "name": "Official Next.js starter",
+      "url": "https://github.com/medusajs/nextjs-starter-medusa",
+      "kind": "starter repo",
+      "status": "indexed-only",
+      "license": "MIT",
+      "version": "current",
+      "notes": "Best reference for storefront integration patterns.",
+      "outdated": false
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.com/medusajs/medusa/releases",
+      "type": "official releases",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2.13.6",
+      "why": "Confirms current version researched."
+    },
+    {
+      "url": "https://docs.medusajs.com/",
+      "type": "official docs",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "v2",
+      "why": "Primary setup and architecture guidance."
+    },
+    {
+      "url": "https://github.com/medusajs/nextjs-starter-medusa",
+      "type": "official example",
+      "authority": "official",
+      "date": "2026-04-12",
+      "version": "current",
+      "why": "Shows the recommended headless storefront pattern."
+    }
+  ]
+}

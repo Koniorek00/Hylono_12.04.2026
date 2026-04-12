@@ -10,6 +10,7 @@ import {
 export const Newsletter: React.FC = () => {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [footerError, setFooterError] = useState<string | null>(null);
     const [actionState, formAction, pending] = useActionState<FormActionResult, FormData>(
         submitNewsletterFormAction,
         { success: false, message: '' }
@@ -26,8 +27,14 @@ export const Newsletter: React.FC = () => {
         if (actionState.success) {
             setSubmitted(true);
             setEmail('');
+            setFooterError(null);
+            return;
         }
-    }, [actionState.success]);
+
+        if (actionState.message) {
+            setFooterError(actionState.message);
+        }
+    }, [actionState.success, actionState.message]);
 
     if (submitted) {
         return (
@@ -37,41 +44,50 @@ export const Newsletter: React.FC = () => {
                 className="flex items-center gap-3 text-emerald-600"
             >
                 <Check size={20} />
-                <span className="text-sm font-medium">You're on the list!</span>
+                <span className="text-sm font-medium">{actionState.message || "You're on the list!"}</span>
             </motion.div>
         );
     }
 
     return (
-        <form action={formAction} className="flex gap-2">
-            <input type="hidden" name="source" value="footer" />
-            <div className="relative flex-1">
-                <label htmlFor="newsletter-email-footer" className="sr-only">Email address</label>
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} aria-hidden="true" />
-                <input
-                    id="newsletter-email-footer"
-                    type="email"
-                    name="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    aria-label="Email address for newsletter"
-                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:border-cyan-400 focus:outline-none text-base"
-                />
-            </div>
-            <button
-                type="submit"
-                disabled={pending}
-                className="px-6 py-4 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl font-bold text-sm transition-colors"
-            >
-                {pending ? 'Subscribing…' : 'Subscribe'}
-            </button>
-        </form>
+        <div>
+            <form action={formAction} className="flex gap-2">
+                <input type="hidden" name="source" value="footer" />
+                <div className="relative flex-1">
+                    <label htmlFor="newsletter-email-footer" className="sr-only">Email address</label>
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} aria-hidden="true" />
+                    <input
+                        id="newsletter-email-footer"
+                        type="email"
+                        name="email"
+                        required
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            setFooterError(null);
+                        }}
+                        placeholder="your@email.com"
+                        aria-label="Email address for newsletter"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:border-cyan-400 focus:outline-none text-base"
+                    />
+                </div>
+                <button
+                    type="submit"
+                    disabled={pending}
+                    className="px-6 py-4 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl font-bold text-sm transition-colors"
+                >
+                    {pending ? 'Subscribing...' : 'Subscribe'}
+                </button>
+            </form>
+            {footerError && (
+                <p role="alert" className="mt-3 text-sm text-amber-300">
+                    {footerError}
+                </p>
+            )}
+        </div>
     );
 };
 
-// Newsletter Section for Home page
 export const NewsletterSection: React.FC = () => {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
@@ -120,7 +136,7 @@ export const NewsletterSection: React.FC = () => {
                     >
                         <Check className="mx-auto mb-2" size={32} />
                         <p className="font-bold">Welcome to the inner circle!</p>
-                        <p className="text-sm opacity-80">Check your inbox for a confirmation email.</p>
+                        <p className="text-sm opacity-80">{actionState.message || 'Your subscription is recorded.'}</p>
                     </motion.div>
                 ) : (
                     <form action={formAction} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -142,7 +158,7 @@ export const NewsletterSection: React.FC = () => {
                             disabled={pending}
                             className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl font-bold uppercase tracking-widest text-xs transition-colors"
                         >
-                            {pending ? 'Subscribing…' : 'Subscribe'}
+                            {pending ? 'Subscribing...' : 'Subscribe'}
                         </button>
                     </form>
                 )}
@@ -160,4 +176,3 @@ export const NewsletterSection: React.FC = () => {
         </section>
     );
 };
-
