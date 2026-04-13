@@ -71,6 +71,17 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const backToTopButtonClassName =
+    'flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-slate-500 transition-[color,background-color,border-color,box-shadow] duration-200 hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-[11px] sm:font-medium sm:tracking-[0.15em] sm:uppercase';
+  const pageNavigatorButtonClassName = [
+    'flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5',
+    'text-[11px] font-medium tracking-[0.15em] uppercase',
+    'transition-[color,background-color,border-color,box-shadow] duration-200',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2',
+    isDropdownOpen
+      ? 'border-slate-900 bg-slate-900 text-white'
+      : 'text-slate-500 hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700',
+  ].join(' ');
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: 'Home', href: '/' },
@@ -159,14 +170,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
           <button
             type="button"
             onClick={handleScrollToTop}
-            className="
-              flex h-8 w-8 items-center justify-center rounded-lg border border-transparent
-              text-slate-500 transition-[color,background-color,border-color,box-shadow] duration-200
-              hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
-              sm:h-auto sm:w-auto sm:gap-1.5 sm:px-3 sm:py-1.5
-              sm:text-[11px] sm:font-medium sm:tracking-[0.15em] sm:uppercase
-            "
+            className={backToTopButtonClassName}
             aria-label="Back to top"
             title="Back to top"
           >
@@ -179,17 +183,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               ref={buttonRef}
               type="button"
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className={`
-                flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5
-                text-[11px] font-medium tracking-[0.15em] uppercase
-                transition-[color,background-color,border-color,box-shadow] duration-200
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
-                ${
-                  isDropdownOpen
-                    ? 'border-slate-900 bg-slate-900 text-white'
-                    : 'text-slate-500 hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700'
-                }
-              `}
+              className={pageNavigatorButtonClassName}
               aria-expanded={isDropdownOpen}
               aria-controls={isDropdownOpen ? 'breadcrumb-page-sections' : undefined}
               aria-label="Page sections navigation"

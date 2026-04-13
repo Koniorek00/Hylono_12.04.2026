@@ -14,7 +14,7 @@ const SECTIONS = [
             { label: 'Pulsed EMF (PEMF)', route: 'product/PEMF' }, { label: 'Red Light Therapy (RLT)', route: 'product/RLT' },
             { label: 'Hydrogen Inhalation (H2)', route: 'product/HYDROGEN' }, { label: 'Vagus Nerve Stimulation (VNS)', route: 'product/VNS' },
             { label: 'EWOT Training', route: 'product/EWOT' }, { label: 'Cryotherapy', route: 'product/CRYO' },
-            { label: 'Wellness Planner', route: 'builder' }, { label: 'Compare Products', route: 'compare' },
+            { label: 'Wellness Planner', route: 'wellness-planner' }, { label: 'Compare Products', route: 'compare' },
         ]
     },
     {

@@ -19,9 +19,10 @@ import {
   createCallbackRequestNote,
   upsertCallbackRequestNote,
 } from '@/lib/callback-request';
+import type { ContactIntentChoice, ContactPrefill } from '@/lib/contact-prefill';
 import { submitContactFormAction, type FormActionResult } from '../src/actions/formActions';
 
-type ContactIntent = 'owner' | 'clinic' | 'curious' | 'rental' | null;
+type ContactIntent = ContactIntentChoice | null;
 
 const CONTACT_INTENTS: Array<{
   id: Exclude<ContactIntent, null>;
@@ -72,7 +73,11 @@ const TOPIC_OPTIONS = [
   { value: 'delivery', label: 'Delivery, space, or installation planning' },
 ];
 
-export const ContactPage: React.FC = () => {
+interface ContactPageProps {
+  prefill?: ContactPrefill;
+}
+
+export const ContactPage: React.FC<ContactPageProps> = ({ prefill }) => {
   const [userType, setUserType] = useState<ContactIntent>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -126,6 +131,25 @@ export const ContactPage: React.FC = () => {
       setSubmitError(contactActionState.message);
     }
   }, [contactActionState]);
+
+  React.useEffect(() => {
+    if (!prefill) {
+      return;
+    }
+
+    const nextIntent = prefill.intent ?? null;
+    const fallbackSubject =
+      nextIntent && CONTACT_INTENTS.find((item) => item.id === nextIntent)?.subject;
+
+    setUserType((prev) => prev ?? nextIntent);
+    setFormData((prev) => ({
+      ...prev,
+      subject: prev.subject || prefill.subject || fallbackSubject || '',
+      message: prev.message || prefill.message || '',
+      interest: prev.interest || prefill.interest || '',
+      clinicName: prev.clinicName || prefill.clinicName || '',
+    }));
+  }, [prefill]);
 
   const handleSubmitValidation = (e: React.FormEvent<HTMLFormElement>) => {
     const storedToken = getCSRFToken();

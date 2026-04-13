@@ -45,4 +45,27 @@ describe('/locator route', () => {
       'locator-country-czech-republic'
     );
   });
+
+  it('shows directory verification guidance and preserves locator context in contact links', () => {
+    render(<LocatorPageRoute />);
+
+    expect(
+      screen.getByRole('heading', { name: 'How these listings work', level: 2 })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/last verified:/i)
+    ).toBeInTheDocument();
+
+    const introLinks = screen.getAllByRole('link', { name: 'Request partner introduction' });
+    expect(introLinks[0]).toHaveAttribute('href', expect.stringContaining('/contact?'));
+    expect(introLinks[0]).toHaveAttribute('href', expect.stringContaining('source=locator'));
+    expect(introLinks[0]).toHaveAttribute('href', expect.stringContaining('intent=curious'));
+
+    const rentalLinks = screen.getAllByRole('link', { name: 'Explore rental options' });
+    expect(rentalLinks[0]).toHaveAttribute('href', '/rental');
+    const partnerLinks = screen.getAllByRole('link', {
+      name: 'Request introduction for this partner',
+    });
+    expect(partnerLinks[0]).toHaveAttribute('href', expect.stringContaining('partnerName='));
+  });
 });

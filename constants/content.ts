@@ -1,13 +1,30 @@
-import { traceableClaim, TRACE } from '../utils/traceMetadata';
+export type BlogCategory = 'HBOT' | 'PEMF' | 'RLT' | 'Hydrogen' | 'Protocols';
+export type BlogConditionSlug = 'recovery' | 'sleep' | 'stress' | 'comfort' | 'vitality';
+
+export interface BlogSection {
+    heading: string;
+    paragraphs: string[];
+    bullets?: string[];
+}
 
 export interface BlogPost {
     id: number;
     title: string;
     excerpt: string;
-    category: "HBOT" | "PEMF" | "RLT" | "Hydrogen" | "Protocols";
+    category: BlogCategory;
     date: string;
     readTime: string;
     image: string;
+    articleType: 'Research note' | 'Planning guide' | 'Protocol guide';
+    answerSummary: string;
+    audience: string;
+    keyTakeaways: string[];
+    limitations: string[];
+    sections: BlogSection[];
+    evidenceIds: string[];
+    relatedConditionSlugs: BlogConditionSlug[];
+    relatedProtocolSlugs: string[];
+    relatedProductRoute: 'hbot' | 'pemf' | 'rlt' | 'hydrogen' | null;
     trace_id?: string;
 }
 
@@ -31,52 +48,282 @@ export interface ResearchStudy {
 export const BLOG_POSTS: BlogPost[] = [
     {
         id: 1,
-        title: "The Science Behind Hyperbaric Oxygen Therapy",
-        excerpt: traceableClaim("Discover how pressurized oxygen may support recovery and cognitive function at the cellular level.", TRACE.HBOT_OXYGEN_SATURATION),
-        category: "HBOT",
-        date: "Jan 15, 2026",
-        readTime: "8 min",
-        image: "from-cyan-400 to-blue-500",
-        trace_id: "HBOT-CLAIM-001"
+        title: 'The Science Behind Hyperbaric Oxygen Therapy',
+        excerpt:
+            'A Hylono research note on what mild hyperbaric oxygen is, where the strongest recovery-oriented signals currently sit, and which limits matter before you generalize the evidence.',
+        category: 'HBOT',
+        date: 'Jan 15, 2026',
+        readTime: '8 min',
+        image: 'from-cyan-400 to-blue-500',
+        articleType: 'Research note',
+        answerSummary:
+            'Read this first if you want a plain-language HBOT starting point before opening the cited studies, the product hub, or the recovery protocol route.',
+        audience: 'Active adults and visitors comparing recovery-oriented wellness modalities.',
+        keyTakeaways: [
+            'Hylono frames mild HBOT as a recovery-first wellness path, not as a universal claim page.',
+            'The linked evidence in this repo is real but narrow, so population and protocol fit still matter.',
+            'The best next step depends on whether your question is about evidence, equipment fit, or routine design.',
+        ],
+        limitations: [
+            'The strongest linked HBOT records in this repo focus on athletes, exercise soreness, and a specific post-mTBI study rather than every general-wellness use case.',
+            'Study design, pressure protocol, and population differences make it unsafe to flatten HBOT into one generic benefit statement.',
+        ],
+        sections: [
+            {
+                heading: 'What mild HBOT means in the Hylono context',
+                paragraphs: [
+                    'On Hylono, mild hyperbaric oxygen therapy is positioned as a guided wellness-technology option for people who want a structured recovery-first routine. The site does not present it as a universal answer or as a substitute for individualized professional advice.',
+                    'This article exists to help a visitor understand the question behind the category before they jump into a product page, a protocol page, or a cited study. It is meant to reduce overreach, not add hype.',
+                ],
+            },
+            {
+                heading: 'What the cited evidence here actually covers',
+                paragraphs: [
+                    'The canonical evidence currently linked in this repo is specific. It includes performance-oriented HBOT research in athletes, a meta-analysis on exercise-related soreness, and a randomized trial in a narrow post-mTBI population.',
+                    'That means the article can support education and planning, but it should not stretch those findings into broad promises. Population, protocol, and endpoint fit still matter when someone moves from reading to action.',
+                ],
+            },
+            {
+                heading: 'How to use this article without overreaching',
+                paragraphs: [
+                    "If your main question is 'what do the studies actually show?', the research hub is the stronger next stop because it keeps the source and the limitation together.",
+                    "If your main question is 'how would I use this in a repeatable weekly routine?', the recovery protocol page is usually the better continuation. If you are still comparing equipment categories, the HBOT product hub is the better path.",
+                ],
+                bullets: [
+                    'Use the research hub for the source studies and limitation summaries.',
+                    'Use the product hub for equipment context, support policy, and commercial fit.',
+                    'Use the recovery protocol route when the goal is already clear and the next question is implementation.',
+                ],
+            },
+        ],
+        evidenceIds: ['ev-hbot-001', 'ev-hbot-002', 'ev-hbot-003'],
+        relatedConditionSlugs: ['recovery', 'vitality'],
+        relatedProtocolSlugs: ['recovery-oxygen-foundation', 'vitality-dual-stack'],
+        relatedProductRoute: 'hbot',
+        trace_id: 'HBOT-CLAIM-001',
     },
     {
         id: 2,
-        title: "PEMF Therapy: Recharging Your Cellular Batteries",
-        excerpt: traceableClaim("Understanding how pulsed electromagnetic fields can restore cellular energy and reduce inflammation.", TRACE.PEMF_CELLULAR_CHARGE),
-        category: "PEMF",
-        date: "Jan 12, 2026",
-        readTime: "6 min",
-        image: "from-purple-400 to-pink-500",
-        trace_id: "PEMF-CLAIM-001"
+        title: 'PEMF Therapy: Recharging Your Cellular Batteries',
+        excerpt:
+            'An orientation guide to how Hylono frames PEMF in sleep, comfort, and stress-support routines, plus the questions to answer before treating it as a primary modality.',
+        category: 'PEMF',
+        date: 'Jan 12, 2026',
+        readTime: '6 min',
+        image: 'from-purple-400 to-pink-500',
+        articleType: 'Planning guide',
+        answerSummary:
+            'Use this article when you want a practical PEMF orientation before choosing a condition path, comparing the device category, or asking Hylono for planning help.',
+        audience: 'Visitors exploring calmer routines, comfort support, or sleep-focused wellness planning.',
+        keyTakeaways: [
+            'PEMF on this site is framed as a complementary planning option, not a universal first answer.',
+            'The strongest next move is usually goal-first: sleep, stress, or comfort before device-first.',
+            'This page should narrow questions, not replace the need for deeper evidence review or fit discussion.',
+        ],
+        limitations: [
+            'This article is an orientation guide and does not yet cite canonical PEMF evidence records from the main evidence library.',
+            'Because PEMF use cases vary by routine and goal, the condition pages are often more useful than a modality-only reading path.',
+        ],
+        sections: [
+            {
+                heading: 'How Hylono frames PEMF',
+                paragraphs: [
+                    'On this site, PEMF appears as a complementary modality for visitors building calmer routines, evening wind-down structure, or everyday comfort support. It is not framed as a one-size-fits-all answer.',
+                    'That makes this page an orientation guide. Its job is to tell a visitor where PEMF sits in the broader journey and what other pages to review before it becomes the center of a plan.',
+                ],
+            },
+            {
+                heading: 'Questions to answer before PEMF becomes the main path',
+                paragraphs: [
+                    'Start with the goal rather than the device. Sleep, stress, and comfort each create different expectations for timing, session consistency, and whether a single modality is enough.',
+                    'If the underlying question is still broad, the condition pages are usually the better first read because they compare PEMF against other modality options instead of keeping the decision isolated.',
+                ],
+            },
+            {
+                heading: 'What to do next',
+                paragraphs: [
+                    'Move to the PEMF hub when you are comparing the equipment category itself. Move to the condition guides when the decision is still goal-first. Move to contact when you need help narrowing the fit.',
+                    'A smaller, clearer decision now is more useful than turning a planning article into an oversized claim page.',
+                ],
+                bullets: [
+                    'Use sleep, stress, or comfort pages if you are still matching the modality to a goal.',
+                    'Use the PEMF product hub if you are already comparing category-level fit and support.',
+                    'Use contact when routine design depends on scheduling, tolerance, or stack questions.',
+                ],
+            },
+        ],
+        evidenceIds: [],
+        relatedConditionSlugs: ['sleep', 'stress', 'comfort'],
+        relatedProtocolSlugs: [],
+        relatedProductRoute: 'pemf',
+        trace_id: 'PEMF-CLAIM-001',
     },
     {
         id: 3,
-        title: "Red Light Therapy for Skin Regeneration",
-        excerpt: traceableClaim("How 660nm and 850nm wavelengths stimulate collagen production and support skin renewal.", TRACE.RLT_SKIN_VITALITY),
-        category: "RLT",
-        date: "Jan 10, 2026",
-        readTime: "5 min",
-        image: "from-red-400 to-orange-500",
-        trace_id: "RLT-CLAIM-001"
+        title: 'Red Light Therapy for Skin Regeneration',
+        excerpt:
+            'A practical guide to how Hylono uses red and near-infrared light topics in comfort, recovery, and skin-focused routines without stretching the evidence beyond the protocol.',
+        category: 'RLT',
+        date: 'Jan 10, 2026',
+        readTime: '5 min',
+        image: 'from-red-400 to-orange-500',
+        articleType: 'Planning guide',
+        answerSummary:
+            'Use this article when you need a simpler red-light starting point before comparing the product hub with broader condition or support paths.',
+        audience: 'Visitors exploring comfort, recovery, and skin-oriented routine planning.',
+        keyTakeaways: [
+            'Red-light content on Hylono is strongest when tied to a clear routine question, not a vague promise.',
+            'Comfort and recovery paths often provide better context than reading RLT in isolation.',
+            'This page is meant to help with fit and framing before a deeper product or support conversation.',
+        ],
+        limitations: [
+            'This article does not yet cite canonical RLT evidence records from the main evidence library.',
+            'Skin, comfort, and recovery questions do not collapse into one simple protocol, so visitors still need goal-specific routing.',
+        ],
+        sections: [
+            {
+                heading: 'Where red light fits in the site journey',
+                paragraphs: [
+                    'Hylono frames red and near-infrared light as a practical modality category that often appears inside comfort and recovery planning. The emphasis is on realistic use and route fit rather than cosmetic or performance hype.',
+                    'That framing matters because visitors often arrive with very different questions. Some want a local-support tool, while others are really trying to solve a broader recovery or daily-rhythm problem.',
+                ],
+            },
+            {
+                heading: 'Why a goal-first read is still useful',
+                paragraphs: [
+                    'If the real question is comfort, recovery rhythm, or daily tolerance, the condition pages are usually a better first stop than a modality-only article. They show how red light sits next to other options instead of forcing a single-device answer.',
+                    'The red-light hub becomes more useful once a visitor already knows the category is relevant and wants to compare equipment, support, and the broader commercial context.',
+                ],
+            },
+            {
+                heading: 'How to continue without guesswork',
+                paragraphs: [
+                    'Use this page to narrow the decision, not to finish it. The most helpful follow-up route depends on whether you are still choosing a goal, comparing the category, or asking for direct planning support.',
+                    'That keeps the article practical while staying inside the conservative evidence and support posture the rest of the site already uses.',
+                ],
+                bullets: [
+                    'Open comfort or recovery guidance if the goal is still the main unknown.',
+                    'Open the red-light hub if you are already comparing device fit and support.',
+                    'Use contact when you need help deciding whether red light belongs in a wider routine.',
+                ],
+            },
+        ],
+        evidenceIds: [],
+        relatedConditionSlugs: ['comfort', 'recovery'],
+        relatedProtocolSlugs: [],
+        relatedProductRoute: 'rlt',
+        trace_id: 'RLT-CLAIM-001',
     },
     {
         id: 4,
-        title: "Hydrogen Water: The Smallest Antioxidant",
-        excerpt: traceableClaim("Exploring the science of molecular hydrogen and its unique ability to neutralize harmful free radicals.", TRACE.HYDROGEN_ANTIOXIDANT),
-        category: "Hydrogen",
-        date: "Jan 8, 2026",
-        readTime: "7 min",
-        image: "from-sky-400 to-cyan-500",
-        trace_id: "H2-CLAIM-001"
+        title: 'Hydrogen Water: The Smallest Antioxidant',
+        excerpt:
+            'A Hylono research note on molecular hydrogen, the difference between planning language and stronger efficacy claims, and which cited fatigue and recovery signals are actually in scope.',
+        category: 'Hydrogen',
+        date: 'Jan 8, 2026',
+        readTime: '7 min',
+        image: 'from-sky-400 to-cyan-500',
+        articleType: 'Research note',
+        answerSummary:
+            'Start here if you want a plain-language hydrogen overview before opening the source studies or moving into the stress and vitality paths.',
+        audience: 'Visitors exploring daily-energy, fatigue, and lighter-weight routine options.',
+        keyTakeaways: [
+            'Hydrogen content on Hylono is framed conservatively and tied to a small cited evidence base.',
+            'The linked records focus on fatigue-related outcomes and narrow populations rather than every market claim.',
+            'The stronger next step is either the research hub, the hydrogen hub, or the H2 protocol route depending on the question.',
+        ],
+        limitations: [
+            'The canonical hydrogen evidence set in this repo is still small and includes both healthy-adult and highly specific patient populations.',
+            'Hydrogen articles should stay careful about the difference between broad marketing language and what the linked records can actually support.',
+        ],
+        sections: [
+            {
+                heading: 'How Hylono positions molecular hydrogen',
+                paragraphs: [
+                    'On Hylono, hydrogen is described as a conservative, evidence-informed option for fatigue, oxidative-load, and routine-building questions, especially when a visitor wants a lighter daily habit rather than a large hardware commitment.',
+                    'This article is here to make that positioning easier to understand before a visitor jumps into product details or reads source studies out of context.',
+                ],
+            },
+            {
+                heading: 'What the linked evidence can and cannot do',
+                paragraphs: [
+                    'The strongest linked records in this repo cover fatigue-related outcomes, aerobic-capacity questions, and one narrow patient population. That is enough to justify education and structured next steps, but not enough to justify sweeping outcome promises.',
+                    'For that reason, the research hub remains the stronger destination when the question is mostly about citation quality, study design, or scientific limits.',
+                ],
+            },
+            {
+                heading: 'How to keep the next step honest',
+                paragraphs: [
+                    'Move to the hydrogen hub if you are now comparing the category itself. Move to the stress or vitality routes if the main question is still goal-first. Move to the H2 protocol page if you already know you want a repeatable routine shape.',
+                    'That keeps the article practical and commercially useful without turning it into a larger claim page than the evidence can support.',
+                ],
+                bullets: [
+                    'Use the research hub for the source studies and limitation summaries.',
+                    'Use the hydrogen hub for category fit, support context, and planning details.',
+                    'Use the protocol route when you are already moving from reading into routine design.',
+                ],
+            },
+        ],
+        evidenceIds: ['ev-h2-001', 'ev-h2-002', 'ev-h2-003'],
+        relatedConditionSlugs: ['stress', 'vitality', 'recovery'],
+        relatedProtocolSlugs: ['stress-balance-h2-foundation', 'vitality-dual-stack'],
+        relatedProductRoute: 'hydrogen',
+        trace_id: 'H2-CLAIM-001',
     },
     {
         id: 5,
-        title: "The Superhuman Protocol: Combining PEMF, HBOT, and RLT",
-        excerpt: "Learn how stacking these three modalities creates synergistic benefits for peak performance.",
-        category: "Protocols",
-        date: "Jan 5, 2026",
-        readTime: "10 min",
-        image: "from-slate-600 to-slate-800"
+        title: 'The Superhuman Protocol: Combining PEMF, HBOT, and RLT',
+        excerpt:
+            'A planning guide for visitors comparing stacked home routines. It explains how Hylono separates evidence review, modality fit, and protocol design before someone combines multiple tools.',
+        category: 'Protocols',
+        date: 'Jan 5, 2026',
+        readTime: '10 min',
+        image: 'from-slate-600 to-slate-800',
+        articleType: 'Protocol guide',
+        answerSummary:
+            'Use this article if you are already comparing more than one modality and need a safer order of operations before building a stack.',
+        audience: 'Visitors moving from single-modality reading toward a broader home-routine plan.',
+        keyTakeaways: [
+            'A stack only becomes useful when the goal, baseline, and time commitment are already clear.',
+            'Evidence review, product fit, and protocol design should happen in that order instead of collapsing into one hype-heavy page.',
+            'The next best route is usually a condition page or protocol page, not a larger claim about combined outcomes.',
+        ],
+        limitations: [
+            'This article is a planning guide, not a full evidence review for every modality mentioned in the title.',
+            'A multi-modality routine can add noise if the goal, schedule, and primary modality are still unresolved.',
+        ],
+        sections: [
+            {
+                heading: 'Why stack articles need more discipline than hype',
+                paragraphs: [
+                    "The title points to a familiar multi-modality idea, but visitors still need a grounded way to separate marketing language from a practical home routine. Hylono's stronger pattern is protocol-first planning, not 'more devices means better results' rhetoric.",
+                    'That is why this article focuses on decision order and fit. It exists to slow the visitor down just enough to make the next route choice smarter.',
+                ],
+            },
+            {
+                heading: 'Start with the goal and baseline, not with the largest stack',
+                paragraphs: [
+                    'A stack only becomes useful when the user already knows what problem they are trying to solve, what time commitment they can sustain, and which primary modality should carry the most weight.',
+                    'Without that order of operations, a multi-device plan can create noise instead of clarity. In practice, the condition and protocol pages are usually the better place to narrow the first step.',
+                ],
+            },
+            {
+                heading: 'Use the protocol and condition pages to narrow the plan',
+                paragraphs: [
+                    'Hylono already has stronger route types for this decision than a single umbrella article. The condition pages help define the goal, while the protocol pages turn that goal into a repeatable weekly shape.',
+                    'Treat this article as a routing and planning surface. Once the main goal is clear, move quickly into the protocol library, the product hub, or direct support.',
+                ],
+                bullets: [
+                    'Use a condition page first if the goal is still broad or mixed.',
+                    'Use the protocol hub when you are ready to compare routine structure and time commitment.',
+                    'Use contact when the stack question depends on your specific schedule or tolerance.',
+                ],
+            },
+        ],
+        evidenceIds: [],
+        relatedConditionSlugs: ['recovery', 'stress', 'vitality'],
+        relatedProtocolSlugs: ['recovery-oxygen-foundation', 'vitality-dual-stack'],
+        relatedProductRoute: null,
     },
 ];
 

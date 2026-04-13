@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { MDR_COMPLIANCE_STATEMENT } from '@/content/disclaimers';
 import { siteEntity } from '@/content/site-entity';
-import { CookieConsent, CookieSettingsButton } from '@/components/CookieConsent';
+import { CookieSettingsButton } from '@/components/CookieConsent';
 
 type PolicyFact = {
   label: string;
@@ -230,7 +230,6 @@ function PolicyPageLayout({
           </div>
         </div>
       </div>
-      <CookieConsent />
     </div>
   );
 }

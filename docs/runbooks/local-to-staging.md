@@ -43,15 +43,36 @@ Use the same container architecture as local, but deploy on a server with:
 - staging-specific URLs for each browser-facing service
 - secrets stored outside the repo
 
+Default to the active first wave only:
+
+- main site
+- control panel
+- Uptime Kuma
+- Twenty CRM
+- Novu
+- n8n
+
+Treat these as conditional later additions, not day-one staging requirements:
+
+- Cal.com
+- Documenso
+- Zitadel
+- Medusa
+- Lago
+- Snipe-IT
+- Leihs
+
 ## Promotion Order
 
 1. Provision DNS and TLS.
 2. Copy `/.env.staging.example` to `.env.staging` and fill every placeholder.
-3. Start infrastructure first.
-4. Start the Phase 1A app layer.
-5. Apply the staging-only bootstrap data that is safe to publish.
-6. Run a full smoke check.
-7. Cut traffic only after the smoke passes.
+3. Verify image tags and service decisions before launch.
+4. Start infrastructure first.
+5. Start only the active first-wave app layer.
+6. Apply the staging-only bootstrap data that is safe to publish.
+7. Run a full smoke check.
+8. Run rollback rehearsal for the active first wave.
+9. Cut traffic only after the smoke passes.
 
 ## Baseline State To Keep
 
@@ -59,7 +80,7 @@ The staging baseline should include:
 
 - a working homepage and control surface
 - a seeded monitoring page
-- seeded CRM, billing, scheduling, and notification defaults
+- seeded CRM and notification defaults
 - no private test credentials that came from the local machine
 
 ## Rollback

@@ -254,10 +254,12 @@ export function getStagingHandoffSnapshot(): StagingHandoffSnapshot {
     launchOrder: [
       "Prepare DNS and TLS.",
       "Provision `.env.staging` from the example template and fill every placeholder.",
+      "Verify pinned image tags and service decisions before launch.",
       "Start infrastructure first.",
-      "Start the Phase 1A app layer.",
+      "Start only the active first-wave app layer.",
       "Apply safe staging-only bootstrap data.",
       "Run a full smoke check through the staging proxy.",
+      "Run rollback rehearsal for the active first wave.",
       "Cut traffic only after verification is green.",
     ],
     keepLocal: [
@@ -270,15 +272,16 @@ export function getStagingHandoffSnapshot(): StagingHandoffSnapshot {
       "Do not reuse local `.env` values unchanged.",
       "Do not reuse local operator passwords for public users.",
       "Keep database ports private.",
-      "Expose only the browser-facing URLs in the contract.",
+      "Expose only the active first-wave browser-facing URLs by default.",
       "Treat `n8n`, `Twenty`, and `Novu` as integration backbones, not end-user products.",
     ],
     acceptanceCriteria: [
-      "All public URLs resolve on the staging host.",
-      "Uptime Kuma reports the browser-facing URLs as healthy.",
+      "All active first-wave public URLs resolve on the staging host.",
+      "Uptime Kuma reports the active first-wave browser-facing URLs as healthy.",
       "`n8n` receives the intake webhooks.",
       "`Twenty` receives contacts and follow-ups.",
       "`Novu` syncs subscribers and triggers the published workflow.",
+      "Conditional surfaces are verified separately when they are intentionally enabled.",
     ],
   };
 }

@@ -150,6 +150,92 @@ function Invoke-PostgresSql {
   }
 }
 
+function Ensure-CalcomOperatorUser {
+  param(
+    [Parameter(Mandatory = $true)][string]$Email,
+    [Parameter(Mandatory = $true)][string]$FirstName,
+    [Parameter(Mandatory = $true)][string]$LastName,
+    [Parameter(Mandatory = $true)][string]$Username,
+    [Parameter(Mandatory = $true)][string]$TimeZone,
+    [Parameter(Mandatory = $true)][string]$PasswordHash
+  )
+
+  $existingId = Invoke-PostgresScalar -Database "calcom_db" -Sql @"
+select id
+from users
+where email = '$(Escape-SqlLiteral $Email)'
+order by id
+limit 1;
+"@
+
+  if ($existingId) {
+    Invoke-PostgresSql -Database "calcom_db" -Sql @"
+update users
+set username = '$(Escape-SqlLiteral $Username)',
+    name = '$(Escape-SqlLiteral "$FirstName $LastName")',
+    "timeZone" = '$(Escape-SqlLiteral $TimeZone)',
+    "emailVerified" = coalesce("emailVerified", now()),
+    verified = true,
+    "completedOnboarding" = true,
+    role = 'ADMIN'
+where id = $existingId;
+
+insert into "UserPassword" ("userId", hash)
+values ($existingId, '$(Escape-SqlLiteral $PasswordHash)')
+on conflict ("userId") do update
+set hash = excluded.hash;
+"@
+
+    return [int]$existingId
+  }
+
+  Invoke-PostgresSql -Database "calcom_db" -Sql @"
+insert into users (
+  username,
+  name,
+  email,
+  "timeZone",
+  "emailVerified",
+  verified,
+  "completedOnboarding",
+  role,
+  uuid
+)
+values (
+  '$(Escape-SqlLiteral $Username)',
+  '$(Escape-SqlLiteral "$FirstName $LastName")',
+  '$(Escape-SqlLiteral $Email)',
+  '$(Escape-SqlLiteral $TimeZone)',
+  now(),
+  true,
+  true,
+  'ADMIN',
+  gen_random_uuid()
+);
+"@
+
+  $userId = Invoke-PostgresScalar -Database "calcom_db" -Sql @"
+select id
+from users
+where email = '$(Escape-SqlLiteral $Email)'
+order by id
+limit 1;
+"@
+
+  if (-not $userId) {
+    throw "Failed to create the Cal.com operator user."
+  }
+
+  Invoke-PostgresSql -Database "calcom_db" -Sql @"
+insert into "UserPassword" ("userId", hash)
+values ($userId, '$(Escape-SqlLiteral $PasswordHash)')
+on conflict ("userId") do update
+set hash = excluded.hash;
+"@
+
+  return [int]$userId
+}
+
 function Get-AvailabilitySignature {
   param([Parameter(Mandatory = $true)][object]$AvailabilityWindow)
 
@@ -443,6 +529,10 @@ $resolvedOperatorEmail = if ($OperatorEmail) { $OperatorEmail } else { [string](
 $resolvedOperatorTimeZone = if ($OperatorTimeZone) { $OperatorTimeZone } else { [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "operator" -Default $null) -Name "timeZone" -Default "") }
 $defaultInterfaceLanguage = [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "operator" -Default $null) -Name "interfaceLanguage" -Default "en")
 $scheduleName = [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "schedule" -Default $null) -Name "name" -Default "Hylono Medtech Operator Availability")
+$operatorUsername = [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "operator" -Default $null) -Name "username" -Default "hylono")
+$operatorFirstName = [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "operator" -Default $null) -Name "firstName" -Default "Wiktor")
+$operatorLastName = [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "operator" -Default $null) -Name "lastName" -Default "Myszor")
+$operatorPasswordHash = [string](Get-PropertyValue -Object (Get-PropertyValue -Object $config -Name "operator" -Default $null) -Name "passwordHash" -Default '$2a$12$XhLESKS3cgY6MPG9gmQX..gaoMFzzb1RLsWI/HQylRBAWcgm07BDm')
 
 if (-not $resolvedOperatorEmail) {
   throw "Operator email is missing. Supply -OperatorEmail or set operator.email in the config file."
@@ -465,18 +555,13 @@ if ($eventTypeSeeds.Count -eq 0) {
 
 Write-Step "Checking Cal.com operator baseline"
 
-$userId = Invoke-PostgresScalar -Database "calcom_db" -Sql @"
-select id
-from users
-where email = '$(Escape-SqlLiteral $resolvedOperatorEmail)'
-order by id
-limit 1;
-"@
-
-if (-not $userId) {
-  Write-Warning "Cal.com operator user $resolvedOperatorEmail was not found. Complete the first user signup once, then rerun this script."
-  exit 0
-}
+$userId = Ensure-CalcomOperatorUser `
+  -Email $resolvedOperatorEmail `
+  -FirstName $operatorFirstName `
+  -LastName $operatorLastName `
+  -Username $operatorUsername `
+  -TimeZone $resolvedOperatorTimeZone `
+  -PasswordHash $operatorPasswordHash
 
 $username = Invoke-PostgresScalar -Database "calcom_db" -Sql @"
 select coalesce(username, '')

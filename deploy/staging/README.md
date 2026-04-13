@@ -23,6 +23,7 @@ Use one Linux host with:
 - a reverse proxy on `80/443`
 - the same service grouping already used locally
 - a staging-specific env file, not the local `.env`
+- the active first-wave stack first, with conditional business apps added only after separate decision logs
 
 ## Handoff Files
 

@@ -2,8 +2,8 @@ import arcjet, { detectBot, fixedWindow, shield } from '@arcjet/next';
 import NextAuth from 'next-auth';
 import { CredentialsSignin } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { scryptSync, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
+import { verifyConfiguredCredentials } from '@/lib/auth-credentials';
 import {
   DEFAULT_AUTH_SUCCESS_PATH,
   getSafeAuthRedirectUrl,
@@ -16,7 +16,6 @@ const credentialsSchema = z.object({
   password: z.string().min(1),
 });
 
-const PASSWORD_HASH_PREFIX = 'scrypt';
 const ARCJET_KEY = env.ARCJET_KEY;
 const ARCJET_MODE = ARCJET_KEY ? 'LIVE' : 'DRY_RUN';
 const SIGN_IN_RATE_LIMIT = {
@@ -106,36 +105,6 @@ const consumeSignInRateLimit = (
   };
 };
 
-const verifyScryptPassword = (
-  password: string,
-  encodedHash: string
-): boolean => {
-  const [prefix, salt, hashHex] = encodedHash.split('$');
-
-  if (
-    prefix !== PASSWORD_HASH_PREFIX ||
-    typeof salt !== 'string' ||
-    typeof hashHex !== 'string' ||
-    !salt ||
-    !hashHex
-  ) {
-    return false;
-  }
-
-  try {
-    const derived = scryptSync(password, salt, 64);
-    const expected = Buffer.from(hashHex, 'hex');
-
-    if (derived.length !== expected.length) {
-      return false;
-    }
-
-    return timingSafeEqual(derived, expected);
-  } catch {
-    return false;
-  }
-};
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
   secret: resolveAuthSecret({
@@ -157,16 +126,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const expectedEmail = env.AUTH_CREDENTIALS_EMAIL;
-        const expectedHash = env.AUTH_CREDENTIALS_PASSWORD_HASH;
+        const verification = verifyConfiguredCredentials(parsed.data);
 
-        if (!expectedEmail || !expectedHash) {
+        if (verification.status === 'not_configured') {
           console.warn('[auth] Credentials provider is disabled: missing auth env configuration.');
           return null;
         }
 
         const normalizedEmail = parsed.data.email.trim().toLowerCase();
-        const normalizedExpectedEmail = expectedEmail.trim().toLowerCase();
         const rateLimitState = consumeSignInRateLimit(request, normalizedEmail);
 
         if (!rateLimitState.allowed) {
@@ -189,23 +156,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
 
-        if (normalizedEmail !== normalizedExpectedEmail) {
-          return null;
-        }
-
-        const isValidPassword = verifyScryptPassword(
-          parsed.data.password,
-          expectedHash
-        );
-
-        if (!isValidPassword) {
+        if (verification.status !== 'success') {
           return null;
         }
 
         return {
-          id: normalizedExpectedEmail,
-          email: normalizedExpectedEmail,
-          name: 'Hylono User',
+          id: verification.email,
+          email: verification.email,
+          name: verification.name,
         };
       },
     }),

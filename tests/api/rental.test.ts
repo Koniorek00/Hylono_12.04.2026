@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetRateLimitStoreForTests } from '../../app/api/_shared/rate-limit';
+import { issueMobileAuthSession } from '@/lib/mobile-auth';
 
 const mockDb = {
   insert: vi.fn(),
@@ -329,5 +330,53 @@ describe('rental API', () => {
     expect(response.status).toBe(403);
     expect(result.success).toBe(false);
     expect(Array.isArray(result.rentals)).toBe(true);
+  });
+
+  it('allows bearer-authenticated rental lookups for the same account', async () => {
+    const email = 'mobile@hylono.example';
+    const createRequest = createPostRequest({
+      userId: email,
+      fullName: 'Mobile User',
+      email,
+      address: 'Main Street 1',
+      city: 'Warsaw',
+      postalCode: '00-001',
+      country: 'Poland',
+      termMonths: 3,
+      items: [
+        {
+          techId: 'TECH-HBOT',
+          quantity: 1,
+          monthlyPrice: 249.5,
+        },
+      ],
+    });
+
+    await postRental(createRequest);
+    mockAuth.mockResolvedValue(null);
+    const mobileSession = issueMobileAuthSession({
+      email,
+      name: 'Mobile User',
+    });
+
+    const response = await getRental(
+      new Request(
+        `http://localhost:3000/api/rental?email=${encodeURIComponent(email)}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${mobileSession?.accessToken ?? ''}`,
+          },
+        }
+      )
+    );
+    const result = (await response.json()) as {
+      success: boolean;
+      rentals: Array<{ contact: { email: string } | null }>;
+    };
+
+    expect(response.status).toBe(200);
+    expect(result.success).toBe(true);
+    expect(result.rentals[0]?.contact?.email).toBe(email);
   });
 });

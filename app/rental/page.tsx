@@ -30,18 +30,12 @@ export default function RentalPageRoute() {
     question: item.q,
     answer: item.a,
   }));
-  const RENTAL_MODALITY_TO_PRODUCT_SLUG: Record<string, string> = {
-    HBOT: 'hbot',
-    H2: 'hydrogen',
-    RLT: 'rlt',
-    PEMF: 'pemf',
-  };
   const rentalProductMentions = [
-    ...new Set(rentalProducts.map((p) => RENTAL_MODALITY_TO_PRODUCT_SLUG[p.modality]).filter(Boolean)),
-  ].map((slug) => ({
+    ...new Set(rentalProducts.map((product) => product.productPath)),
+  ].map((path) => ({
     '@type': 'Product',
-    '@id': `${SITE_URL}/product/${slug}#product`,
-    url: `${SITE_URL}/product/${slug}`,
+    '@id': `${SITE_URL}${path}#product`,
+    url: `${SITE_URL}${path}`,
   }));
   const lowestRentalPrice = rentalProducts.length
     ? Math.min(...rentalProducts.map((product) => product.rentalMonthly))
@@ -80,19 +74,22 @@ export default function RentalPageRoute() {
               path: '/rental',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
-            about: [
-              { '@type': 'Product', '@id': `${SITE_URL}/product/hbot#product`, name: 'Hylono HBOT', url: `${SITE_URL}/product/hbot` },
-              { '@type': 'Product', '@id': `${SITE_URL}/product/hydrogen#product`, name: 'Hylono Hydrogen', url: `${SITE_URL}/product/hydrogen` },
-              { '@type': 'Product', '@id': `${SITE_URL}/product/rlt#product`, name: 'Hylono PBM / Red Light', url: `${SITE_URL}/product/rlt` },
-              { '@type': 'Product', '@id': `${SITE_URL}/product/pemf#product`, name: 'Hylono PEMF + VNS', url: `${SITE_URL}/product/pemf` },
-            ],
+            about: rentalProducts.map((product) => ({
+              '@type': 'Product',
+              '@id': `${SITE_URL}${product.productPath}#product`,
+              name: product.title,
+              url: `${SITE_URL}${product.productPath}`,
+            })),
             ...(rentalProductMentions.length > 0 ? { mentions: rentalProductMentions } : {}),
             mainEntity: lowestRentalPrice > 0
               ? { '@id': `${SITE_URL}/rental#service` }
               : { '@id': `${SITE_URL}/rental#faq` },
             relatedLink: [
+              `${SITE_URL}/conditions`,
+              `${SITE_URL}/research`,
               `${SITE_URL}/store`,
               `${SITE_URL}/protocols`,
+              `${SITE_URL}/contact`,
               `${SITE_URL}/shipping`,
               `${SITE_URL}/returns`,
             ],

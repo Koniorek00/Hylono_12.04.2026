@@ -14,12 +14,18 @@ import com.hylono.mobile.BuildConfig
 import com.hylono.mobile.data.model.BookingDraft
 import com.hylono.mobile.data.model.ContactDraft
 import com.hylono.mobile.data.model.HylonoAppData
+import com.hylono.mobile.data.model.MobileAuthResult
+import com.hylono.mobile.data.model.MobileAuthSession
 import com.hylono.mobile.data.model.NewsletterDraft
 import com.hylono.mobile.data.model.RentalDraft
+import com.hylono.mobile.data.model.RentalHistoryRecord
+import com.hylono.mobile.data.model.RentalHistoryResult
 import com.hylono.mobile.data.model.SubmissionResult
 import com.hylono.mobile.data.repository.HylonoDraftStore
 import com.hylono.mobile.data.repository.HylonoRepository
+import com.hylono.mobile.data.repository.HylonoSessionStore
 import com.hylono.mobile.data.repository.HttpIntakeGateway
+import com.hylono.mobile.data.repository.HttpMobileAuthGateway
 import com.hylono.mobile.data.repository.SeedHylonoRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -34,6 +40,19 @@ data class SubmissionUiState(
     val retryAfterSeconds: Int? = null,
 )
 
+data class MobileSessionUiState(
+    val isRestoring: Boolean = true,
+    val isSubmitting: Boolean = false,
+    val session: MobileAuthSession? = null,
+    val feedback: SubmissionUiState = SubmissionUiState(),
+)
+
+data class RentalHistoryUiState(
+    val isLoading: Boolean = false,
+    val rentals: List<RentalHistoryRecord> = emptyList(),
+    val feedback: SubmissionUiState = SubmissionUiState(),
+)
+
 data class HylonoUiState(
     val data: HylonoAppData = HylonoAppData.EMPTY,
     val bookingDraft: BookingDraft = BookingDraft(),
@@ -44,11 +63,15 @@ data class HylonoUiState(
     val rentalFeedback: SubmissionUiState = SubmissionUiState(),
     val contactFeedback: SubmissionUiState = SubmissionUiState(),
     val newsletterFeedback: SubmissionUiState = SubmissionUiState(),
+    val mobileSession: MobileSessionUiState = MobileSessionUiState(),
+    val rentalHistory: RentalHistoryUiState = RentalHistoryUiState(),
 )
 
 class HylonoViewModel(
     private val repository: HylonoRepository,
     private val draftStore: HylonoDraftStore,
+    private val sessionStore: HylonoSessionStore,
+    private val mobileAuthGateway: HttpMobileAuthGateway,
 ) : ViewModel() {
     private val initialData = repository.loadData()
     private val defaultRentalProductId = initialData.products
@@ -71,6 +94,7 @@ class HylonoViewModel(
 
     init {
         loadPersistedDrafts()
+        restoreMobileSession()
     }
 
     fun clearBookingFeedback() {
@@ -87,6 +111,18 @@ class HylonoViewModel(
 
     fun clearNewsletterFeedback() {
         uiState = uiState.copy(newsletterFeedback = SubmissionUiState())
+    }
+
+    fun clearMobileSessionFeedback() {
+        uiState = uiState.copy(
+            mobileSession = uiState.mobileSession.copy(feedback = SubmissionUiState()),
+        )
+    }
+
+    fun clearRentalHistoryFeedback() {
+        uiState = uiState.copy(
+            rentalHistory = uiState.rentalHistory.copy(feedback = SubmissionUiState()),
+        )
     }
 
     fun updateBookingDraft(draft: BookingDraft) {
@@ -173,7 +209,7 @@ class HylonoViewModel(
 
         viewModelScope.launch {
             val result = repository.submitRental(sanitizedDraft)
-            applyRentalResult(result)
+            applyRentalResult(result, sanitizedDraft)
         }
     }
 
@@ -259,6 +295,104 @@ class HylonoViewModel(
         }
     }
 
+    fun signIn(email: String, password: String) {
+        validateMobileSignIn(email, password)?.let { error ->
+            uiState = uiState.copy(
+                mobileSession = uiState.mobileSession.copy(
+                    isSubmitting = false,
+                    feedback = SubmissionUiState(
+                        isError = true,
+                        message = error,
+                    ),
+                ),
+            )
+            return
+        }
+
+        uiState = uiState.copy(
+            mobileSession = uiState.mobileSession.copy(
+                isSubmitting = true,
+                feedback = SubmissionUiState(),
+            ),
+        )
+
+        viewModelScope.launch {
+            when (val result = mobileAuthGateway.signIn(email.trim(), password)) {
+                is MobileAuthResult.Success -> {
+                    persistSession(result.session)
+                    uiState = uiState.copy(
+                        mobileSession = MobileSessionUiState(
+                            isRestoring = false,
+                            isSubmitting = false,
+                            session = result.session,
+                            feedback = SubmissionUiState(
+                                message = result.message,
+                            ),
+                        ),
+                        rentalHistory = RentalHistoryUiState(),
+                    )
+                    loadRentalHistory(session = result.session, showLoading = true)
+                }
+
+                is MobileAuthResult.Error -> {
+                    uiState = uiState.copy(
+                        mobileSession = uiState.mobileSession.copy(
+                            isRestoring = false,
+                            isSubmitting = false,
+                            feedback = SubmissionUiState(
+                                isError = true,
+                                message = result.message,
+                                details = result.details,
+                                retryAfterSeconds = result.retryAfterSeconds,
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            runCatching { sessionStore.clearSession() }
+                .onFailure { error ->
+                    Log.w(TAG, "Could not clear stored mobile session.", error)
+                }
+
+            uiState = uiState.copy(
+                mobileSession = MobileSessionUiState(
+                    isRestoring = false,
+                    feedback = SubmissionUiState(
+                        message = "Secure rental session removed from this device.",
+                    ),
+                ),
+                rentalHistory = RentalHistoryUiState(),
+            )
+        }
+    }
+
+    fun refreshRentalHistory() {
+        viewModelScope.launch {
+            val session = resolveActiveSession(
+                emitFeedbackOnFailure = true,
+            )
+            if (session == null) {
+                uiState = uiState.copy(
+                    rentalHistory = uiState.rentalHistory.copy(
+                        isLoading = false,
+                        feedback = SubmissionUiState(
+                            isError = true,
+                            message = "Sign in to synchronize rental history.",
+                        ),
+                    ),
+                )
+                return@launch
+            }
+
+            loadRentalHistory(session = session, showLoading = true)
+        }
+    }
+
     private fun loadPersistedDrafts() {
         viewModelScope.launch {
             runCatching { draftStore.loadDrafts(defaultRentalProductId) }
@@ -273,6 +407,52 @@ class HylonoViewModel(
                 .onFailure { error ->
                     Log.w(TAG, "Could not restore saved drafts.", error)
                 }
+        }
+    }
+
+    private fun restoreMobileSession() {
+        viewModelScope.launch {
+            val storedSession = runCatching { sessionStore.loadSession() }
+                .onFailure { error ->
+                    Log.w(TAG, "Could not restore stored mobile session.", error)
+                }
+                .getOrNull()
+
+            if (storedSession == null) {
+                uiState = uiState.copy(
+                    mobileSession = uiState.mobileSession.copy(
+                        isRestoring = false,
+                        isSubmitting = false,
+                        session = null,
+                    ),
+                )
+                return@launch
+            }
+
+            val activeSession = resolveActiveSession(
+                existingSession = storedSession,
+                emitFeedbackOnFailure = true,
+            )
+            if (activeSession == null) {
+                uiState = uiState.copy(
+                    mobileSession = uiState.mobileSession.copy(
+                        isRestoring = false,
+                        isSubmitting = false,
+                        session = null,
+                    ),
+                    rentalHistory = RentalHistoryUiState(),
+                )
+                return@launch
+            }
+
+            uiState = uiState.copy(
+                mobileSession = uiState.mobileSession.copy(
+                    isRestoring = false,
+                    isSubmitting = false,
+                    session = activeSession,
+                ),
+            )
+            loadRentalHistory(session = activeSession, showLoading = false)
         }
     }
 
@@ -291,7 +471,10 @@ class HylonoViewModel(
         }
     }
 
-    private fun applyRentalResult(result: SubmissionResult) {
+    private fun applyRentalResult(
+        result: SubmissionResult,
+        submittedDraft: RentalDraft,
+    ) {
         val feedback = result.toUiState()
         if (result is SubmissionResult.Success) {
             rentalPersistJob?.cancel()
@@ -301,6 +484,7 @@ class HylonoViewModel(
                 rentalFeedback = feedback,
             )
             persistNow { draftStore.saveRentalDraft(clearedDraft, defaultRentalProductId) }
+            refreshRentalHistoryAfterSubmission(submittedDraft)
         } else {
             uiState = uiState.copy(rentalFeedback = feedback)
         }
@@ -334,6 +518,164 @@ class HylonoViewModel(
         } else {
             uiState = uiState.copy(newsletterFeedback = feedback)
         }
+    }
+
+    private fun refreshRentalHistoryAfterSubmission(submittedDraft: RentalDraft) {
+        val activeSession = uiState.mobileSession.session ?: return
+        if (!activeSession.userEmail.equals(submittedDraft.email.trim(), ignoreCase = true)) {
+            return
+        }
+
+        viewModelScope.launch {
+            val refreshedSession = resolveActiveSession(
+                existingSession = activeSession,
+                emitFeedbackOnFailure = false,
+            ) ?: return@launch
+
+            loadRentalHistory(
+                session = refreshedSession,
+                showLoading = false,
+            )
+        }
+    }
+
+    private suspend fun loadRentalHistory(
+        session: MobileAuthSession,
+        showLoading: Boolean,
+    ) {
+        if (showLoading) {
+            uiState = uiState.copy(
+                rentalHistory = uiState.rentalHistory.copy(
+                    isLoading = true,
+                    feedback = SubmissionUiState(),
+                ),
+            )
+        } else {
+            uiState = uiState.copy(
+                rentalHistory = uiState.rentalHistory.copy(isLoading = true),
+            )
+        }
+
+        when (val result = mobileAuthGateway.loadRentalHistory(session.accessToken)) {
+            is RentalHistoryResult.Success -> {
+                uiState = uiState.copy(
+                    rentalHistory = RentalHistoryUiState(
+                        isLoading = false,
+                        rentals = result.rentals,
+                    ),
+                )
+            }
+
+            is RentalHistoryResult.Error -> {
+                if (result.message.contains("Authentication", ignoreCase = true) ||
+                    result.message.contains("native app session", ignoreCase = true)
+                ) {
+                    clearStoredSession(
+                        message = "Secure session expired. Sign in again to refresh rental history.",
+                        emitFeedback = true,
+                    )
+                }
+
+                uiState = uiState.copy(
+                    rentalHistory = uiState.rentalHistory.copy(
+                        isLoading = false,
+                        feedback = SubmissionUiState(
+                            isError = true,
+                            message = result.message,
+                            details = result.details,
+                            retryAfterSeconds = result.retryAfterSeconds,
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+
+    private suspend fun resolveActiveSession(
+        existingSession: MobileAuthSession? = uiState.mobileSession.session,
+        emitFeedbackOnFailure: Boolean,
+    ): MobileAuthSession? {
+        val session = existingSession ?: runCatching { sessionStore.loadSession() }
+            .onFailure { error ->
+                Log.w(TAG, "Could not load stored mobile session.", error)
+            }
+            .getOrNull()
+            ?: return null
+
+        if (!session.requiresRefresh()) {
+            return session
+        }
+
+        if (session.isRefreshExpired()) {
+            clearStoredSession(
+                message = "Stored session expired. Sign in again to unlock rental history.",
+                emitFeedback = emitFeedbackOnFailure,
+            )
+            return null
+        }
+
+        return when (val result = mobileAuthGateway.refreshSession(session.refreshToken)) {
+            is MobileAuthResult.Success -> {
+                persistSession(result.session)
+                uiState = uiState.copy(
+                    mobileSession = uiState.mobileSession.copy(
+                        isRestoring = false,
+                        isSubmitting = false,
+                        session = result.session,
+                        feedback = if (emitFeedbackOnFailure) {
+                            SubmissionUiState(message = result.message)
+                        } else {
+                            uiState.mobileSession.feedback
+                        },
+                    ),
+                )
+                result.session
+            }
+
+            is MobileAuthResult.Error -> {
+                clearStoredSession(
+                    message = if (result.message.isNotBlank()) {
+                        result.message
+                    } else {
+                        "Could not refresh the secure session. Sign in again."
+                    },
+                    emitFeedback = emitFeedbackOnFailure,
+                )
+                null
+            }
+        }
+    }
+
+    private suspend fun persistSession(session: MobileAuthSession) {
+        runCatching { sessionStore.saveSession(session) }
+            .onFailure { error ->
+                Log.w(TAG, "Could not persist mobile session.", error)
+            }
+    }
+
+    private suspend fun clearStoredSession(
+        message: String,
+        emitFeedback: Boolean,
+    ) {
+        runCatching { sessionStore.clearSession() }
+            .onFailure { error ->
+                Log.w(TAG, "Could not clear stored mobile session.", error)
+            }
+
+        uiState = uiState.copy(
+            mobileSession = MobileSessionUiState(
+                isRestoring = false,
+                feedback = if (emitFeedback) {
+                    SubmissionUiState(
+                        isError = true,
+                        message = message,
+                    )
+                } else {
+                    SubmissionUiState()
+                },
+            ),
+            rentalHistory = RentalHistoryUiState(),
+        )
     }
 
     private fun sanitizeRentalDraft(draft: RentalDraft): RentalDraft {
@@ -418,6 +760,8 @@ class HylonoViewModel(
                         intakeGateway = HttpIntakeGateway(BuildConfig.API_BASE_URL),
                     ),
                     draftStore = HylonoDraftStore(application as Application),
+                    sessionStore = HylonoSessionStore(application),
+                    mobileAuthGateway = HttpMobileAuthGateway(BuildConfig.API_BASE_URL),
                 )
             }
         }

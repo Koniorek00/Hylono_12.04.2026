@@ -1,15 +1,15 @@
 export const rentalCheckoutContent = {
-  title: 'Rental summary',
+  title: 'Rental request summary',
   terms: [
     'Minimum period: {selectedPlan.minPeriod}',
     'Service and support: included',
-    'Buy with a discount: 70% of payments credited toward purchase price',
-    'Returns: we arrange courier pickup',
+    'Payment method and delivery timing are confirmed after operator review',
+    'Return, extension, and buy-later options depend on the selected agreement',
   ],
   termsAcceptance: 'I accept the rental program terms.',
   intendedUse:
     "I confirm that I have reviewed the product's intended use and proper usage information.",
   paymentButtonPrefix: 'Submit rental request',
   depositNote:
-    'Deposit and first invoice are confirmed after operator review. The deposit is returned within 14 days of device inspection after rental ends.',
+    'Deposit and first invoice are confirmed after operator review. Refund timing depends on post-rental inspection and the applicable agreement.',
 } as const;

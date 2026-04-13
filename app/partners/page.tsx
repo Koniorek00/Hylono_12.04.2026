@@ -10,7 +10,8 @@ export const metadata: Metadata = createPageMetadata({
   forceNoIndex: true,
 });
 
-// [DECISION: SSG because partner program overview is static business information.]
+// [DECISION: keep the partner route request-time because auth() makes the page user-state aware under Next.js 16 cache components without an explicit dynamic export, while the public partner overview still needs meaningful HTML for unauthenticated visitors.]
+// Rendering strategy: request-time server route that checks session state, then renders a public partner overview with authenticated follow-through handled in the client leaf.
 export default async function PartnersPageRoute() {
   const session = await auth();
 

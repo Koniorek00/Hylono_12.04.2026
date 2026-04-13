@@ -40,6 +40,8 @@ $manifest = Get-MedusaManifest
 $canonicalProductTitle = [string]$manifest.canonicalProduct.title
 $canonicalProductHandle = [string]$manifest.canonicalProduct.handle
 $canonicalProductStatus = [string]$manifest.canonicalProduct.status
+$operatorEmail = "admin@hylono.local"
+$operatorPassword = "Admin123!"
 
 $products = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from product;")
 $regions = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from region;")
@@ -74,11 +76,30 @@ order by created_at desc
 limit 1;
 "@
 
+$operatorUserExists = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql @"
+select count(*)
+from "user"
+where email = '$operatorEmail';
+"@)
+
+if ($operatorUserExists -eq 0) {
+  Write-Host "Medusa operator user is missing. Creating the local admin account..." -ForegroundColor Yellow
+  docker exec hylono-medusa sh -lc "cd /app && npx medusa user -e $operatorEmail -p $operatorPassword"
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to create the local Medusa admin user."
+  }
+}
+
 $productCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from product;")
 $regionCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from region;")
 $stockLocationCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from stock_location;")
 $publishableKeysAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from api_key where type = 'publishable';")
 $adminUsersAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql "select count(*) from ""user"";")
+$operatorUserExistsAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql @"
+select count(*)
+from "user"
+where email = '$operatorEmail';
+"@)
 $canonicalProductCountAfter = [int](Invoke-PostgresScalar -Database "medusa_db" -Sql @"
 select count(*)
 from product
@@ -111,14 +132,15 @@ $state = [ordered]@{
     publishableKeys = $publishableKeysAfter
     adminUsers = $adminUsersAfter
   }
+  operator = @{
+    email = $operatorEmail
+    password = $operatorPassword
+    exists = ($operatorUserExistsAfter -ge 1)
+  }
 }
 
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 $state | ConvertTo-Json -Depth 6 | Set-Content -Path $outputPath -Encoding UTF8
-
-if ($adminUsersAfter -eq 0) {
-  Write-Warning "No Medusa admin user exists yet. The catalog is seeded, but admin login still needs to be created separately."
-}
 
 if ($publishableKey) {
   Write-Host ("Publishable API key ready: {0}" -f $publishableKey) -ForegroundColor Green
@@ -126,5 +148,6 @@ if ($publishableKey) {
   Write-Warning "No Medusa publishable API key was found after the seed check."
 }
 
+Write-Host ("Operator login: {0}" -f $operatorEmail) -ForegroundColor Green
 Write-Host ("Canonical product: {0} ({1})" -f $canonicalProductTitle, $canonicalProductHandle) -ForegroundColor Green
 Write-Host ("Output state: {0}" -f $outputPath) -ForegroundColor Green

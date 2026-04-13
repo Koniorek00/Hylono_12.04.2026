@@ -1,3 +1,8 @@
+param(
+  [ValidateSet("active", "1a")]
+  [string]$Profile = "active"
+)
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
@@ -15,6 +20,7 @@ $seedUptimeKumaOperatorConfigScript = Join-Path $root "scripts\seed-uptime-kuma-
 $seedTwentyOperatorWorkspaceScript = Join-Path $root "scripts\seed-twenty-operator-workspace.ps1"
 $seedN8nPhase2WorkflowsScript = Join-Path $root "scripts\seed-n8n-phase2-workflows.ps1"
 $seedNovuOperatorBootstrapScript = Join-Path $root "scripts\seed-novu-operator-bootstrap.ps1"
+$seedActiveWaveOperatorBaselineScript = Join-Path $root "scripts\seed-active-wave-operator-baseline.ps1"
 $seedMedusaLocalCatalogScript = Join-Path $root "scripts\seed-medusa-local-catalog.ps1"
 $seedCalcomOperatorBaselineScript = Join-Path $root "scripts\seed-calcom-operator-baseline.ps1"
 $seedLagoLocalBillingScript = Join-Path $root "scripts\seed-lago-local-billing.ps1"
@@ -52,21 +58,34 @@ $siteBuildSources = @(
   $envLocalFile
 )
 
+$activePhase1Services = @(
+  "twenty",
+  "novu-api",
+  "novu-worker",
+  "novu-ws",
+  "novu-dashboard",
+  "n8n",
+  "n8n-worker"
+)
+
 $serviceChecks = @(
   @{ Name = "Uptime Kuma"; Url = "http://localhost:3002" },
   @{ Name = "MinIO Console"; Url = "http://localhost:9001" },
   @{ Name = "Prometheus"; Url = "http://localhost:9090/-/ready" },
   @{ Name = "n8n"; Url = "http://localhost:5678" },
-  @{ Name = "Medusa"; Url = "http://localhost:8100/app/login" },
   @{ Name = "Kong Gateway"; Url = "http://localhost:8000/medusa/health" },
+  @{ Name = "Twenty CRM"; Url = "http://localhost:8107" },
+  @{ Name = "Novu"; Url = "http://localhost:8110" },
+  @{ Name = "Control Panel"; Url = $controlPanelUrl }
+)
+
+$fullLabServiceChecks = @(
+  @{ Name = "Medusa"; Url = "http://localhost:8100/app/login" },
   @{ Name = "Lago"; Url = "http://localhost:8102" },
   @{ Name = "Snipe-IT"; Url = "http://localhost:8104/login" },
   @{ Name = "Cal.com"; Url = "http://localhost:8106" },
-  @{ Name = "Twenty CRM"; Url = "http://localhost:8107" },
   @{ Name = "Documenso"; Url = "http://localhost:8108" },
-  @{ Name = "Zitadel"; Url = "http://localhost:8109/ui/console?login_hint=root@zitadel.localhost" },
-  @{ Name = "Novu"; Url = "http://localhost:8110" },
-  @{ Name = "Control Panel"; Url = $controlPanelUrl }
+  @{ Name = "Zitadel"; Url = "http://localhost:8109/ui/console?login_hint=root@zitadel.localhost" }
 )
 
 function Write-Step {
@@ -350,6 +369,10 @@ function Sync-LocalEnvOverrides {
 }
 
 function Ensure-DocumensoSigningCertificate {
+  if ($Profile -ne "1a") {
+    return
+  }
+
   if (-not (Test-Path $documensoSigningCertificateScript)) {
     return
   }
@@ -362,6 +385,10 @@ function Ensure-DocumensoSigningCertificate {
 }
 
 function Ensure-DocumensoCertificateMount {
+  if ($Profile -ne "1a") {
+    return
+  }
+
   Write-Step "Ensuring Documenso certificate mount"
 
   if (-not (Test-Path (Join-Path $root "output\documenso-signing\certificate.p12") -PathType Leaf)) {
@@ -424,6 +451,14 @@ function Get-ContainerLogs {
   }
 
   return ($logs | Out-String)
+}
+
+function Get-SelectedServiceChecks {
+  if ($Profile -eq "1a") {
+    return $serviceChecks + $fullLabServiceChecks
+  }
+
+  return $serviceChecks
 }
 
 function Get-ContainerVolumeName {
@@ -592,12 +627,16 @@ function Invoke-ComposeUp {
     [Parameter(Mandatory = $true)][string]$Label,
     [int]$Attempts = 2,
     [int]$RetryDelaySec = 20,
-    [switch]$WaitForHealthy
+    [switch]$WaitForHealthy,
+    [string[]]$ServiceNames = @()
   )
 
   $args = @("compose", "-f", $ComposeFile, "--env-file", $envFile, "up", "-d")
   if ($WaitForHealthy) {
     $args += "--wait"
+  }
+  if ($ServiceNames.Count -gt 0) {
+    $args += $ServiceNames
   }
 
   for ($attempt = 1; $attempt -le $Attempts; $attempt++) {
@@ -757,7 +796,7 @@ function Ensure-Site3000 {
 function Wait-ServiceChecks {
   Write-Step "Waiting for local app URLs"
   $pending = @{}
-  foreach ($service in $serviceChecks) {
+  foreach ($service in (Get-SelectedServiceChecks)) {
     $pending[$service.Name] = $service.Url
   }
 
@@ -785,6 +824,10 @@ function Wait-ServiceChecks {
 }
 
 function Ensure-Phase1OperatorLogins {
+  if ($Profile -ne "1a") {
+    return
+  }
+
   if (-not (Test-Path $seedOperatorLoginsScript)) {
     return
   }
@@ -825,21 +868,33 @@ function Ensure-Phase2OperatorWorkspaces {
   Invoke-OptionalSeedScript -Label "Validating mail provider profile" -ScriptPath $validateMailProviderEnvScript
 }
 
+function Ensure-ActiveWaveOperatorWorkspaces {
+  Invoke-OptionalSeedScript -Label "Seeding active-wave operator baseline" -ScriptPath $seedActiveWaveOperatorBaselineScript
+}
+
 Set-Location $root
 Ensure-DockerReady
 Ensure-EnvFile
 Sync-LocalEnvOverrides
 Ensure-DocumensoSigningCertificate
 Invoke-ComposeUp -ComposeFile $infraCompose -Label "infrastructure" -WaitForHealthy
-Invoke-ComposeUp -ComposeFile $phase1Compose -Label "Phase 1A" -WaitForHealthy
+if ($Profile -eq "1a") {
+  Invoke-ComposeUp -ComposeFile $phase1Compose -Label "Phase 1A" -WaitForHealthy
+} else {
+  Invoke-ComposeUp -ComposeFile $phase1Compose -Label "active first wave" -WaitForHealthy -ServiceNames $activePhase1Services
+}
 Ensure-DocumensoCertificateMount
 Ensure-ControlPanel
 Wait-ServiceChecks
 Ensure-Phase1OperatorLogins
-Ensure-Phase2OperatorWorkspaces
+if ($Profile -eq "1a") {
+  Ensure-Phase2OperatorWorkspaces
+} else {
+  Ensure-ActiveWaveOperatorWorkspaces
+}
 Ensure-Site3000
 
 Write-Host ""
-Write-Host "Local stack is ready:" -ForegroundColor Green
+Write-Host "Local $Profile stack is ready:" -ForegroundColor Green
 Write-Host "  Site:           $siteUrl"
 Write-Host "  Control Panel:  $controlPanelUrl"

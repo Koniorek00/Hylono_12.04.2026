@@ -24,6 +24,10 @@ const commands = [
     args: ['scripts/check-marketing-token-drift.cjs'],
   },
   {
+    command: 'node',
+    args: ['scripts/check-stack-version-governance.cjs'],
+  },
+  {
     command: 'biome',
     args: ['check', '.'],
     usePnpmExec: true,

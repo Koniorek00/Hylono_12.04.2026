@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ViewMode, TechType, ChamberType } from '../types';
+import { ViewMode, TechType } from '../types';
 import { HbotVisual, PemfVisual, RltVisual, HydrogenVisual } from './Visualizations';
 import { ArrowLeft, ArrowRight, Play, CheckCircle, Shield, Zap, Brain, Activity, Wind, Sun, Droplets, Sparkles, ChevronDown, ChevronUp, Clock, AlertTriangle, Phone, Star, Quote, Moon, Sunrise, Building2, TrendingUp, Users, Pill, BarChart2, Target, FlaskConical, BookOpen, Video, ChevronRight, Flame, Thermometer, Radio, Mountain, Snowflake, Package, Headphones, Eye, Ear, Leaf, Heart, X } from 'lucide-react';
 import { SmartText } from './SmartText';
@@ -32,7 +32,6 @@ import { ResearchOverviewSection } from './product/detail/ResearchOverviewSectio
 import { TechDetailDeliverySection } from './product/detail/TechDetailDeliverySection';
 import { TechDetailTimelineSection } from './product/detail/TechDetailTimelineSection';
 import { RESULT_TIMELINES } from './product/detail/resultTimelines';
-import { HydrogenModelLibrary } from './product/hydrogen/HydrogenModelLibrary';
 
 function renderChamberDescription(text: string): React.ReactNode {
     return text.split('\n').map((line, i) => {
@@ -114,19 +113,6 @@ const CART_ITEM_GRADIENTS: Record<TechType, string> = {
 };
 
 const HBOT_DEFAULT_CHAMBER_SLUG = 'oxylife-i-90';
-const HBOT_TYPE_ORDER: ChamberType[] = ['monoplace', 'multiplace', 'soft'];
-const HBOT_TYPE_LABELS: Record<ChamberType, string> = {
-    monoplace: 'Monoplace',
-    multiplace: 'Multiplace',
-    soft: 'Soft Chamber',
-};
-
-const HBOT_TYPE_BADGE_CLASSES: Record<ChamberType, string> = {
-    monoplace: 'bg-blue-100 text-blue-700',
-    multiplace: 'bg-violet-100 text-violet-700',
-    soft: 'bg-teal-100 text-teal-700',
-};
-
 type PurchaseTrack = 'purchase' | 'rental';
 
 const TECH_TO_CONTENT_PRODUCT_ID: Partial<Record<TechType, string>> = {
@@ -185,7 +171,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
     const [loanTerm, setLoanTerm] = useState(24);
     const [showDelivery, setShowDelivery] = useState(false);
     const [selectedHbotChamberSlug, setSelectedHbotChamberSlug] = useState<string>(HBOT_DEFAULT_CHAMBER_SLUG);
-    const [expandedHbotTypes, setExpandedHbotTypes] = useState<ChamberType[]>(['monoplace']);
     const [activeTrack, setActiveTrack] = useState<PurchaseTrack>(
         modeParam?.toLowerCase() === 'rental' ? 'rental' : 'purchase'
     );
@@ -337,14 +322,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
 
     const resultTimeline = RESULT_TIMELINES[data.id];
 
-    const hbotChambersByType = useMemo(() => {
-        return {
-            monoplace: ALL_CHAMBERS.filter((c) => c.type === 'monoplace'),
-            multiplace: ALL_CHAMBERS.filter((c) => c.type === 'multiplace'),
-            soft: ALL_CHAMBERS.filter((c) => c.type === 'soft'),
-        } as Record<ChamberType, typeof ALL_CHAMBERS>;
-    }, []);
-
     const selectedHbotChamber = useMemo(() => {
         if (data.id !== TechType.HBOT) return null;
 
@@ -365,8 +342,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
         if (compareChamberIds.length === 0) return [];
         return ALL_CHAMBERS.filter((chamber) => compareChamberIds.includes(chamber.id));
     }, [compareChamberIds]);
-
-    const isChamberInCompare = (chamberId: string) => compareChamberIds.includes(chamberId);
 
     const toggleCompareChamber = (chamberId: string) => {
         setCompareChamberIds((prev) => {
@@ -420,14 +395,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
 
         setSelectedHbotChamberSlug(HBOT_DEFAULT_CHAMBER_SLUG);
     }, [data.id, searchParams]);
-
-    useEffect(() => {
-        if (!selectedHbotChamber) return;
-
-        setExpandedHbotTypes((prev) =>
-            prev.includes(selectedHbotChamber.type) ? prev : [...prev, selectedHbotChamber.type]
-        );
-    }, [selectedHbotChamber]);
 
     useEffect(() => {
         if (rentalPlans.length === 0) {
@@ -492,12 +459,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
         };
     }, [showFinancing, showMobileTrackDrawer]);
 
-    const toggleHbotType = (type: ChamberType) => {
-        setExpandedHbotTypes((prev) =>
-            prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-        );
-    };
-
     const selectHbotChamber = (slug: string) => {
         setSelectedHbotChamberSlug(slug);
 
@@ -528,7 +489,15 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
     return (
         <div className="min-h-screen bg-white">
             {/* === HERO SECTION === */}
-            <TechHero data={data} onBack={onBack} onNavigate={onNavigate} />
+            <TechHero
+                data={data}
+                onBack={onBack}
+                onNavigate={onNavigate}
+                selectedHbotChamberSlug={selectedHbotChamber?.slug}
+                onSelectHbotChamber={data.id === TechType.HBOT ? selectHbotChamber : undefined}
+                compareChamberIds={compareChamberIds}
+                onToggleCompareChamber={data.id === TechType.HBOT ? toggleCompareChamber : undefined}
+            />
 
             <FeatureGate flag="feature_pdp_dual_track">
                 <section className="py-12 bg-white border-b border-slate-100">
@@ -700,9 +669,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                     </div>
                 </div>
             </section>
-
-            {data.id === TechType.HYDROGEN && <HydrogenModelLibrary />}
-
             {/* === HBOT TOP MODEL SPOTLIGHT === */}
             {data.id === TechType.HBOT && selectedHbotChamber && (
                 <section className="py-12 bg-white border-b border-slate-100">
@@ -905,111 +871,6 @@ export const TechDetail: React.FC<TechDetailProps> = ({ techId, onBack, onJumpTo
                                     {guidanceUpdatedLabel ? `Updated ${guidanceUpdatedLabel}` : 'Evidence and policy links available on this route'}
                                 </p>
                             </div>
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* === HBOT CONFIGURATION SELECTOR (SSOT from chambers.ts) === */}
-            {data.id === TechType.HBOT && selectedHbotChamber && (
-                <section id="hbot-config" className="py-16 bg-slate-50 border-y border-slate-200">
-                    <div className="max-w-6xl mx-auto px-6">
-                        <div className="text-center mb-10">
-                            <span className="text-[10px] text-cyan-600 font-bold uppercase tracking-widest block mb-2">HBOT Models</span>
-                            <h2 className="text-3xl font-bold text-slate-900">Select Configuration</h2>
-                            <p className="text-slate-500 mt-3 text-sm max-w-2xl mx-auto">
-                                Model-specific content below updates from the same source used by chamber detail pages.
-                            </p>
-                        </div>
-
-                        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-                            {HBOT_TYPE_ORDER.map((type) => {
-                                const chambers = hbotChambersByType[type];
-                                if (!chambers || chambers.length === 0) return null;
-
-                                const isExpanded = expandedHbotTypes.includes(type);
-                                const isTypeSelected = selectedHbotChamber.type === type;
-
-                                return (
-                                    <div key={type} className="border-b border-slate-100 last:border-b-0">
-                                        <button
-                                            onClick={() => toggleHbotType(type)}
-                                            className={`w-full flex items-center justify-between px-6 py-4 transition-colors ${isTypeSelected ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${HBOT_TYPE_BADGE_CLASSES[type]}`}>
-                                                    {HBOT_TYPE_LABELS[type]}
-                                                </span>
-                                                <span className="text-xs text-slate-400">{chambers.length} model{chambers.length > 1 ? 's' : ''}</span>
-                                            </div>
-                                            {isExpanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
-                                        </button>
-
-                                        <AnimatePresence>
-                                            {isExpanded && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <div className="p-4 pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                        {chambers.map((chamber) => {
-                                                            const isSelected = chamber.slug === selectedHbotChamber.slug;
-                                                            return (
-                                                                <button
-                                                                    key={chamber.id}
-                                                                    onClick={() => selectHbotChamber(chamber.slug)}
-                                                                    className={`text-left p-4 rounded-2xl border transition-all ${isSelected ? 'border-slate-900 bg-slate-900 text-white shadow-md' : 'border-slate-200 bg-white hover:border-slate-300'}`}
-                                                                >
-                                                                    <div className="flex items-start justify-between gap-3">
-                                                                        <div>
-                                                                            <h3 className="font-bold text-sm">{chamber.fullName}</h3>
-                                                                            <p className={`text-xs mt-1 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                                                                                {chamber.tagline}
-                                                                            </p>
-                                                                        </div>
-                                                                        {chamber.brand === 'oxyhelp' && (
-                                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isSelected ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700'}`}>
-                                                                                EU
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-
-                                                                    <div className="mt-3 pt-3 border-t border-slate-200/70">
-                                                                        <span
-                                                                            role="button"
-                                                                            tabIndex={0}
-                                                                            onClick={(event) => {
-                                                                                event.stopPropagation();
-                                                                                toggleCompareChamber(chamber.id);
-                                                                            }}
-                                                                            onKeyDown={(event) => {
-                                                                                if (event.key === 'Enter' || event.key === ' ') {
-                                                                                    event.preventDefault();
-                                                                                    event.stopPropagation();
-                                                                                    toggleCompareChamber(chamber.id);
-                                                                                }
-                                                                            }}
-                                                                            aria-pressed={isChamberInCompare(chamber.id)}
-                                                                            className={`inline-flex min-h-11 items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${isChamberInCompare(chamber.id)
-                                                                                    ? 'bg-cyan-500 text-white border-cyan-500'
-                                                                                    : 'bg-transparent text-slate-600 border-slate-300 hover:border-cyan-300 hover:text-cyan-700'
-                                                                                }`}
-                                                                        >
-                                                                            {isChamberInCompare(chamber.id) ? 'In compare' : 'Compare'}
-                                                                        </span>
-                                                                    </div>
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </div>
-                                );
-                            })}
                         </div>
                     </div>
                 </section>

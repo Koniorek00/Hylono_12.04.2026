@@ -175,7 +175,7 @@ services:
       APP_URL: http://localhost:8104
 
   calcom:
-    image: calcom.docker.scarf.sh/calcom/cal.com:latest
+    image: calcom.docker.scarf.sh/calcom/cal.com:${CALCOM_IMAGE_TAG:-v6.2.0}
     container_name: hylono-calcom
     restart: unless-stopped
     networks: [hylono]
@@ -206,7 +206,7 @@ services:
       - ./calcom/replace-placeholder.cjs:/calcom/scripts/hylono-replace-placeholder.cjs:ro
 
   twenty:
-    image: twentycrm/twenty:latest
+    image: twentycrm/twenty:${TWENTY_IMAGE_TAG:-v1.21.0}
     container_name: hylono-twenty
     restart: unless-stopped
     networks: [hylono]
@@ -355,7 +355,7 @@ services:
         condition: service_healthy
 
   novu-api:
-    image: ghcr.io/novuhq/novu/api:3.14.0
+    image: ghcr.io/novuhq/novu/api:${NOVU_IMAGE_TAG:-3.14.0}
     container_name: hylono-novu-api
     restart: unless-stopped
     networks: [hylono]
@@ -402,7 +402,7 @@ services:
       start_period: 40s
 
   novu-worker:
-    image: ghcr.io/novuhq/novu/worker:3.14.0
+    image: ghcr.io/novuhq/novu/worker:${NOVU_IMAGE_TAG:-3.14.0}
     container_name: hylono-novu-worker
     restart: unless-stopped
     networks: [hylono]
@@ -423,7 +423,7 @@ services:
       start_period: 30s
 
   novu-ws:
-    image: ghcr.io/novuhq/novu/ws:3.14.0
+    image: ghcr.io/novuhq/novu/ws:${NOVU_IMAGE_TAG:-3.14.0}
     container_name: hylono-novu-ws
     restart: unless-stopped
     networks: [hylono]
@@ -441,7 +441,7 @@ services:
       start_period: 40s
 
   novu-dashboard:
-    image: ghcr.io/novuhq/novu/dashboard:3.14.0
+    image: ghcr.io/novuhq/novu/dashboard:${NOVU_IMAGE_TAG:-3.14.0}
     container_name: hylono-novu-dashboard
     restart: unless-stopped
     networks: [hylono]
@@ -461,7 +461,7 @@ services:
       - "127.0.0.1:8110:4000"
 
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:${N8N_IMAGE_TAG:-2.15.1}
     container_name: hylono-n8n
     restart: unless-stopped
     networks: [hylono]
@@ -502,7 +502,7 @@ services:
       start_period: 40s
 
   n8n-worker:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:${N8N_IMAGE_TAG:-2.15.1}
     container_name: hylono-n8n-worker
     restart: unless-stopped
     networks: [hylono]

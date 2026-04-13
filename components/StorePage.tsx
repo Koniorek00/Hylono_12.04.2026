@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -38,6 +40,8 @@ interface StorePageProps {
     onNavigate: (page: string) => void;
     onSelectTech: (tech: TechType) => void;
     onNavigateChambers?: () => void;
+    productHrefForTech?: (tech: TechType) => string;
+    plannerSummaryLines?: string[];
 }
 
 // Tech-specific icons for visual distinction
@@ -87,7 +91,13 @@ const modalityToTechMap: Record<string, TechType> = {
     VNS: TechType.VNS,
 };
 
-export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, onNavigateChambers }) => {
+export const StorePage: React.FC<StorePageProps> = ({
+    onNavigate,
+    onSelectTech,
+    onNavigateChambers,
+    productHrefForTech,
+    plannerSummaryLines = [],
+}) => {
     const { allTech } = useTech();
     const [mode, setMode] = useState<'RENT' | 'BUY'>('BUY');
     const [hoveredCard, setHoveredCard] = useState<TechType | null>(null);
@@ -203,10 +213,25 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
         onSelectTech(tech.id);
     }, [onSelectTech]);
 
+    const handleProductKeyDown = React.useCallback((event: React.KeyboardEvent<HTMLElement>, tech: TechData) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+
+        event.preventDefault();
+        handleProductClick(tech);
+    }, [handleProductClick]);
+
     const modeSummary =
         mode === 'RENT'
             ? 'Choose rental when you want to test space, routine fit, and long-term confidence before committing.'
             : 'Choose purchase when you are ready for full ownership, financing, and the complete technical comparison.';
+    const getProductHref = (tech: TechType): string =>
+        productHrefForTech?.(tech) ?? `/product/${tech.toLowerCase()}`;
+    const getRentalProductHref = (tech: TechType): string => {
+        const baseHref = getProductHref(tech);
+        return `${baseHref}${baseHref.includes('?') ? '&' : '?'}mode=rental`;
+    };
 
     return (
         <div className="min-h-screen pt-10 pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
@@ -226,6 +251,16 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                 <p id="store-hero-description" className="text-slate-400 max-w-2xl mx-auto text-sm leading-relaxed">
                     Compare device categories, pricing, rental access, and protocol fit before you move into specifications, research, and delivery planning.
                 </p>
+                {plannerSummaryLines.length > 0 && (
+                    <div className="mt-6 inline-flex max-w-3xl flex-wrap items-center justify-center gap-2 rounded-2xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-900">
+                        <span className="font-semibold">Planner context:</span>
+                        {plannerSummaryLines.map((line) => (
+                            <span key={line} className="rounded-full bg-white px-3 py-1 text-xs font-medium text-cyan-900">
+                                {line}
+                            </span>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <motion.div
@@ -360,7 +395,11 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                         onMouseEnter={() => setHoveredCard(tech.id)}
                                         onMouseLeave={() => setHoveredCard(null)}
                                         onClick={() => handleProductClick(tech)}
+                                        onKeyDown={(event) => handleProductKeyDown(event, tech)}
                                         data-testid="product-card"
+                                        role="link"
+                                        tabIndex={0}
+                                        aria-label={`Open ${tech.name} details`}
                                         className={`product-card group relative bg-white rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-500
                                     ${hoveredCard === tech.id ? 'shadow-2xl shadow-cyan-500/10 scale-[1.02]' : 'shadow-lg hover:shadow-xl'}
                                 `}
@@ -430,7 +469,7 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                                 <div className="flex flex-col gap-3 w-full sm:w-auto">
                                                     <div className="flex items-center gap-3 w-full sm:w-auto">
                                                         <Link
-                                                            href={`/product/${tech.id.toLowerCase()}`}
+                                                            href={getProductHref(tech.id)}
                                                             prefetch={false}
                                                             onClick={(event) => event.stopPropagation()}
                                                             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] group-hover:bg-cyan-500 transition-colors"
@@ -452,7 +491,7 @@ export const StorePage: React.FC<StorePageProps> = ({ onNavigate, onSelectTech, 
                                                     </div>
                                                     {tech.rentalPrice && (
                                                         <Link
-                                                            href={`/product/${tech.id.toLowerCase()}?mode=rental`}
+                                                            href={getRentalProductHref(tech.id)}
                                                             prefetch={false}
                                                             onClick={(event) => event.stopPropagation()}
                                                             className="inline-flex items-center justify-center text-xs font-semibold text-cyan-700 transition-colors hover:text-cyan-800"

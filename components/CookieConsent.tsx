@@ -123,10 +123,10 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ forceOpenSignal })
     });
     const customizeButtonRef = useRef<HTMLButtonElement>(null);
     const consentDialogRef = useFocusTrap<HTMLDivElement>({
-        active: isVisible,
+        active: isVisible && showSettings,
         initialFocus: showSettings
             ? '#cookie-consent-settings-close'
-            : '#cookie-consent-customize',
+            : false,
         clickOutsideDeactivates: false,
         escapeDeactivates: false,
     });
@@ -255,64 +255,73 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ forceOpenSignal })
                     initial={{ y: 100, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 100, opacity: 0 }}
-                    className="fixed bottom-0 left-0 right-0 z-50 p-4"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label="Cookie consent settings"
+                    className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:px-6 sm:pb-6"
+                    role={showSettings ? 'dialog' : 'region'}
+                    aria-modal={showSettings ? 'true' : undefined}
+                    aria-label={showSettings ? 'Cookie consent settings' : 'Cookie consent banner'}
                 >
                     <div
                         ref={consentDialogRef}
                         tabIndex={-1}
-                        className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl"
+                        className={`mx-auto w-full overflow-hidden border border-slate-200/80 bg-white/95 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur ${
+                            showSettings ? 'max-w-2xl rounded-[30px]' : 'max-w-4xl rounded-[32px]'
+                        }`}
                     >
                         {!showSettings ? (
-                            <div className="p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
-                                <div className="flex items-start gap-4 flex-1">
-                                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                                        <Cookie className="text-amber-600" size={24} />
+                            <div className="bg-gradient-to-r from-white via-white to-slate-50 p-5 sm:p-6 lg:p-7">
+                                <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                                    <div className="flex items-start gap-4 sm:gap-5">
+                                        <div
+                                            className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl border border-amber-200/80 bg-amber-50 shadow-sm"
+                                            aria-hidden="true"
+                                        >
+                                            <Cookie className="text-amber-600" size={24} />
+                                        </div>
+                                        <div className="max-w-2xl">
+                                            <h3 className="text-lg font-semibold tracking-tight text-slate-950">
+                                                We use cookies
+                                            </h3>
+                                            <p className="mt-2 text-sm leading-6 text-slate-600">
+                                                Essential storage keeps the site working. Optional analytics stay off
+                                                until you choose otherwise. Read our{' '}
+                                                <Link href="/cookie-policy" className="text-cyan-600 underline">
+                                                    Cookie Policy
+                                                </Link>{' '}
+                                                and{' '}
+                                                <Link href="/privacy" className="text-cyan-600 underline">
+                                                    Privacy Policy
+                                                </Link>{' '}
+                                                for details.
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-bold text-slate-900 mb-1">We use cookies</h3>
-                                        <p className="text-sm text-slate-500">
-                                            Essential storage keeps the site working. Optional analytics stay off
-                                            until you choose otherwise. Read our{' '}
-                                            <Link href="/cookie-policy" className="text-cyan-600 underline">
-                                                Cookie Policy
-                                            </Link>{' '}
-                                            and{' '}
-                                            <Link href="/privacy" className="text-cyan-600 underline">
-                                                Privacy Policy
-                                            </Link>{' '}
-                                            for details.
-                                        </p>
+                                    <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:justify-end">
+                                        <button
+                                            ref={customizeButtonRef}
+                                            id="cookie-consent-customize"
+                                            type="button"
+                                            onClick={() => setShowSettings(true)}
+                                            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                            aria-label="Open cookie preference settings"
+                                        >
+                                            <Settings size={16} aria-hidden="true" /> Customize
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleAcceptEssential}
+                                            className="min-h-11 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                                        >
+                                            Reject Optional Cookies
+                                            <span className="sr-only"> Essential Only</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleAcceptAll}
+                                            className="min-h-11 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800"
+                                        >
+                                            Accept All
+                                        </button>
                                     </div>
-                                </div>
-                                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                                    <button
-                                        ref={customizeButtonRef}
-                                        id="cookie-consent-customize"
-                                        type="button"
-                                        onClick={() => setShowSettings(true)}
-                                        className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center gap-2"
-                                        aria-label="Open cookie preference settings"
-                                    >
-                                        <Settings size={16} aria-hidden="true" /> Customize
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleAcceptEssential}
-                                        className="px-4 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-                                    >
-                                        Reject Optional Cookies
-                                        <span className="sr-only"> Essential Only</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleAcceptAll}
-                                        className="px-6 py-2 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium"
-                                    >
-                                        Accept All
-                                    </button>
                                 </div>
                             </div>
                         ) : (

@@ -59,7 +59,7 @@ const OPERATOR_COMMANDS = [
   {
     title: "Start the full local operator stack",
     code: ".\\start-dev.bat",
-    note: "Preferred single entry point. Starts Docker services, the control panel, the site on localhost:3000, and replays the local operator bootstrap seeds for Kuma, Medusa, Snipe-IT, Cal.com, Lago, Twenty, n8n, Novu, plus the mail-profile validation pass.",
+    note: "Preferred single entry point. Starts Docker services, the control panel, the site on localhost:3000, and replays the local operator bootstrap seeds for the active first wave: Kuma, Twenty, n8n, Novu, plus the mail-profile validation pass.",
   },
   {
     title: "Start infrastructure",
@@ -67,9 +67,14 @@ const OPERATOR_COMMANDS = [
     note: "Run from the repo root in PowerShell. Starts PostgreSQL, Redis, MinIO, MongoDB, and Uptime Kuma.",
   },
   {
-    title: "Start Phase 1A runtime",
+    title: "Start active first-wave runtime",
+    code: ".\\scripts\\setup.ps1 active",
+    note: "Run from the repo root in PowerShell. Starts only the current deploy-now app slice: Twenty, Novu, and n8n on top of infrastructure.",
+  },
+  {
+    title: "Start full Phase 1A lab runtime",
     code: ".\\scripts\\setup.ps1 1a",
-    note: "Run from the repo root in PowerShell. Starts the verified app layer on top of infrastructure.",
+    note: "Run from the repo root in PowerShell only when you intentionally need the broader local lab slice.",
   },
   {
     title: "Check infrastructure status",
@@ -82,9 +87,19 @@ const OPERATOR_COMMANDS = [
     note: "Shows whether the app containers are running and healthy.",
   },
   {
-    title: "Reapply the operator bootstrap",
+    title: "Check active first-wave status",
+    code: "docker compose -f docker/phase-1a/docker-compose.yml ps twenty novu-api novu-worker novu-ws novu-dashboard n8n n8n-worker",
+    note: "Focused status check for the apps that are currently meant to be configured and used.",
+  },
+  {
+    title: "Reapply the active first-wave bootstrap",
+    code: ".\\scripts\\seed-active-wave-operator-baseline.ps1",
+    note: "Use this to reconcile the currently supported operator layer without re-running the full launcher.",
+  },
+  {
+    title: "Reapply the full lab bootstrap",
     code: ".\\scripts\\seed-uptime-kuma-operator-config.ps1; .\\scripts\\seed-medusa-local-catalog.ps1; .\\scripts\\seed-snipeit-operator-baseline.ps1; .\\scripts\\seed-calcom-operator-baseline.ps1; .\\scripts\\seed-lago-local-billing.ps1; .\\scripts\\seed-twenty-operator-workspace.ps1; .\\scripts\\seed-n8n-phase2-workflows.ps1; .\\scripts\\seed-novu-operator-bootstrap.ps1; .\\scripts\\validate-mail-provider-env.ps1",
-    note: "Use this if you want to reconcile the local operator layer without re-running the full launcher.",
+    note: "Use this only when you intentionally want the broader Phase 1A lab reconciled too.",
   },
 ];
 
@@ -98,7 +113,7 @@ export default async function CredentialsPage() {
     (service) => service.phase === "infrastructure" && service.verdict === "ESSENTIAL"
   );
   const phase1BrowserServices = services.filter(
-    (service) => service.phase === "1a" && Boolean(service.uiUrl)
+    (service) => Boolean(service.uiUrl) && ["twenty", "novu", "n8n"].includes(service.id)
   );
   const [infrastructureHealth, phase1Health] = await Promise.all([
     Promise.all(infrastructureServices.map((service) => checkHealth(service))),
@@ -150,7 +165,7 @@ export default async function CredentialsPage() {
           <div className="mb-8 rounded-xl border border-emerald-900/40 bg-emerald-950/20 p-4 text-sm text-emerald-100/80">
             <p className="font-semibold text-emerald-300">Local stack already running</p>
             <p className="mt-1">
-              Infrastructure and Phase 1A browser apps are already up on this machine. You can skip
+              Infrastructure and the active first-wave browser apps are already up on this machine. You can skip
               the startup commands below and go straight to the first-login cards.
             </p>
           </div>
@@ -204,11 +219,11 @@ export default async function CredentialsPage() {
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
                   2. Start the app layer only if needed
                 </div>
-                <CopyCodeBlock code=".\\scripts\\setup.ps1 1a" />
+                <CopyCodeBlock code=".\\scripts\\setup.ps1 active" />
                 <div className="mt-2 text-xs text-gray-500">
                   {appLayerReady
                     ? "Already running right now. Skip this and continue directly to the browser modules below."
-                    : "Run from the repo root in PowerShell. Bash alternative: bash scripts/setup.sh 1a."}
+                    : "Run from the repo root in PowerShell. Bash alternative: bash scripts/setup.sh active."}
                 </div>
               </div>
 

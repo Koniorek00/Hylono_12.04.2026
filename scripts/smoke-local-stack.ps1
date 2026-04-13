@@ -234,7 +234,7 @@ if (-not $envMap["TWENTY_API_KEY"] -or -not $envMap["NOVU_API_SECRET"]) {
   exit 1
 }
 
-$twentyBaseUrl = if ($envMap["TWENTY_API_BASE_URL"]) { $envMap["TWENTY_API_BASE_URL"] } else { "http://localhost:8107" }
+$twentyBaseUrl = if ($envMap["TWENTY_API_BASE_URL"]) { $envMap["TWENTY_API_BASE_URL"] } else { "http://127.0.0.1:8107" }
 $novuBaseUrl = if ($envMap["NOVU_API_BASE_URL"]) { $envMap["NOVU_API_BASE_URL"] } else { "http://localhost:18110" }
 $novuWorkflowId = if ($envMap["NOVU_WORKFLOW_ID"]) { $envMap["NOVU_WORKFLOW_ID"] } else { "powiadomienia" }
 $medusaManifest = Get-MedusaCatalogManifest -Path (Join-Path $root "scripts\data\medusa-local-catalog.seed.json")

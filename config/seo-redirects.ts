@@ -22,4 +22,5 @@ export const seoRedirects = [
   { source: '/nexus/shop', destination: '/nexus/supplies', permanent: true },
   { source: '/support', destination: '/help', permanent: true },
   { source: '/guarantee', destination: '/returns', permanent: true },
+  { source: '/builder', destination: '/wellness-planner', permanent: true },
 ] as const;

@@ -14,8 +14,13 @@ import {
 } from './lib/product-routes';
 import { readRuntimeEnv } from './lib/env';
 
-const AUTH_PROTECTED_PREFIXES = ['/dashboard', '/account', '/partner', '/nexus'] as const;
-const AUTH_SENSITIVE_PREFIXES = [LOGIN_PATH, ...AUTH_PROTECTED_PREFIXES] as const;
+const AUTH_PROTECTED_EXACT_PATHS = ['/dashboard', '/account', '/partner'] as const;
+const AUTH_PROTECTED_NESTED_PREFIXES = [
+    '/dashboard',
+    '/account',
+    '/partner',
+] as const;
+const AUTH_SENSITIVE_EXACT_PATHS = [LOGIN_PATH, ...AUTH_PROTECTED_EXACT_PATHS] as const;
 const AUTH_SESSION_COOKIE_PREFIXES = [
     'authjs.session-token',
     '__Secure-authjs.session-token',
@@ -72,14 +77,12 @@ type ConsentRecord = {
 };
 
 const isProtectedPath = (pathname: string): boolean =>
-    AUTH_PROTECTED_PREFIXES.some(
-        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-    );
+    AUTH_PROTECTED_EXACT_PATHS.some((path) => pathname === path)
+    || AUTH_PROTECTED_NESTED_PREFIXES.some((prefix) => pathname.startsWith(`${prefix}/`));
 
 const isAuthSensitivePath = (pathname: string): boolean =>
-    AUTH_SENSITIVE_PREFIXES.some(
-        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-    );
+    AUTH_SENSITIVE_EXACT_PATHS.some((path) => pathname === path)
+    || AUTH_PROTECTED_NESTED_PREFIXES.some((prefix) => pathname.startsWith(`${prefix}/`));
 
 type SeoRouteResolution =
     | { kind: 'ok' }

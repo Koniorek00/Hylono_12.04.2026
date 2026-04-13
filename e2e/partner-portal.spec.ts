@@ -26,34 +26,21 @@ test.describe('Partner Portal', () => {
         await expect(cta).toBeVisible({ timeout: 10_000 });
     });
 
-    // ── Auth guard on protected routes ────────────────────────────────────────
+    // ── Public Nexus preview and protected child routes ──────────────────────
 
-    test('unauthenticated user visiting /nexus is redirected or sees auth gate', async ({ page }) => {
+    test('unauthenticated user visiting /nexus can access the public preview', async ({ page }) => {
         await page.goto('/nexus');
-        // Should either redirect to /login, /partner, remain on dashboard,
-        // or show a login/auth gate prompt.
-        const currentPath = new URL(page.url()).pathname;
-        const isRedirected = currentPath === '/login'
-            || currentPath === '/partner'
-            || currentPath === '/nexus';
-
-        // Check for either a redirect or an auth gate UI
-        const hasAuthGate = await page.getByText(/sign in|log in|login|access denied|unauthorized/i)
-            .first()
-            .isVisible()
-            .catch(() => false);
-
-        expect(isRedirected || hasAuthGate).toBeTruthy();
+        await expect(page).toHaveURL(/\/nexus$/);
+        await expect(
+            page.getByRole('heading', { name: /run clinic operations/i })
+        ).toBeVisible();
     });
 
-    test('unauthenticated user visiting /nexus/clients is redirected or sees auth gate', async ({ page }) => {
+    test('unauthenticated user visiting /nexus/clients can access the public preview', async ({ page }) => {
         await page.goto('/nexus/clients');
-        const hasAuthGate = await page.getByText(/sign in|log in|login|access denied|unauthorized/i)
-            .first()
-            .isVisible()
-            .catch(() => false);
-        const isOnPartnerRoute = page.url().includes('/partner') || page.url().includes('/login');
-        expect(hasAuthGate || isOnPartnerRoute).toBeTruthy();
+        await expect(page).toHaveURL(/\/nexus\/clients$/);
+        const bodyText = await page.locator('body').textContent();
+        expect(bodyText?.trim().length).toBeGreaterThan(20);
     });
 
     // ── Partner Hub navigation ────────────────────────────────────────────────

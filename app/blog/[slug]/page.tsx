@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
+import { BlogArticle } from '@/components/BlogArticle';
+import { conditionGoals } from '@/content/conditions';
+import { evidenceById } from '@/content/evidence';
 import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import {
+  ORGANIZATION_ID,
   createBlogPostingSchema,
   createBreadcrumbSchema,
   SCHEMA_DATE_MODIFIED,
@@ -19,7 +23,11 @@ import { siteOwnership } from '@/content/site-entity';
 import { BLOG_POSTS } from '@/constants/content';
 import { TECH_DETAILS } from '@/constants';
 import { getTechTypeFromRouteSlug } from '@/lib/product-routes';
-import { BlogArticleClient } from './BlogArticleClient';
+
+const CONDITION_LABELS = conditionGoals.reduce<Record<string, string>>((acc, goal) => {
+  acc[goal.slug] = goal.title;
+  return acc;
+}, {});
 
 const resolveBlogSlug = (rawSlug: string): string => {
   const canonicalSlug = rawSlug.toLowerCase();
@@ -50,7 +58,7 @@ export async function generateMetadata({
   }
 
   const baseMeta = createPageMetadata({
-    title: `${article.title} | Hylono Research Notes`,
+    title: `${article.title} | Hylono Blog`,
     description: article.excerpt,
     path: `/blog/${slug}`,
     ogType: 'article',
@@ -64,13 +72,14 @@ export async function generateMetadata({
       type: 'article',
       ...(datePublished ? { publishedTime: datePublished, modifiedTime: datePublished } : {}),
       section: article.category,
-      tags: [article.category],
+      tags: [article.category, ...article.relatedConditionSlugs],
       authors: [siteOwnership.editorial.team],
     } as Metadata['openGraph'],
   };
 }
 
 // [DECISION: ISR because article content is semi-dynamic and should refresh on a timed cadence.]
+// Rendering strategy: server-rendered article page with crawlable section content, visible review context, and internal next-step links.
 export default async function BlogArticlePageRoute({
   params,
 }: {
@@ -85,18 +94,10 @@ export default async function BlogArticlePageRoute({
   }
 
   const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
-  const BLOG_CATEGORY_TO_PRODUCT_ROUTE: Record<string, string | null> = {
-    HBOT: 'hbot',
-    PEMF: 'pemf',
-    RLT: 'rlt',
-    Hydrogen: 'hydrogen',
-    Protocols: null,
-  };
   const datePublished = getBlogPublishedIsoDate(article.date) ?? `${SCHEMA_DATE_MODIFIED}T00:00:00.000Z`;
   const readTimeMinutes = parseInt(article.readTime, 10);
-  // Estimate word count: average reading speed 200 WPM
   const estimatedWordCount = readTimeMinutes > 0 ? readTimeMinutes * 200 : undefined;
-  const blogProductRouteSlug = BLOG_CATEGORY_TO_PRODUCT_ROUTE[article.category] ?? null;
+  const blogProductRouteSlug = article.relatedProductRoute;
   const isTechArticle = blogProductRouteSlug != null;
   const blogProductTechType = blogProductRouteSlug ? getTechTypeFromRouteSlug(blogProductRouteSlug) : null;
   const productName = blogProductTechType
@@ -104,6 +105,24 @@ export default async function BlogArticlePageRoute({
     : blogProductRouteSlug
       ? `Hylono ${article.category}`
       : '';
+  const citationItems = article.evidenceIds
+    .map((id) => evidenceById[id])
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+  const citationSchemas = citationItems.map((citation) => ({
+    '@type': 'ScholarlyArticle',
+    '@id': citation.doi ? `https://doi.org/${citation.doi}` : citation.sourceUrl,
+    headline: citation.title,
+    url: citation.sourceUrl,
+    ...(citation.year ? { datePublished: citation.year.toString() } : {}),
+    ...(citation.authors ? { author: { '@type': 'Person', name: citation.authors } } : {}),
+    ...(citation.doi
+      ? { identifier: { '@type': 'PropertyValue', propertyID: 'doi', value: citation.doi } }
+      : {}),
+  }));
+  const aboutTerms = [
+    article.category,
+    ...article.relatedConditionSlugs.map((slug) => CONDITION_LABELS[slug] ?? slug),
+  ];
   const articleSchema = {
     ...createBlogPostingSchema({
       headline: article.title,
@@ -125,7 +144,7 @@ export default async function BlogArticlePageRoute({
           },
         }
       : {}),
-    keywords: [article.category, ...(productName ? [productName] : [])].join(', '),
+    keywords: [article.category, ...article.relatedConditionSlugs, ...(productName ? [productName] : [])].join(', '),
     ...(blogProductRouteSlug != null
       ? {
           mentions: {
@@ -137,6 +156,7 @@ export default async function BlogArticlePageRoute({
         }
       : {}),
     ...(readTimeMinutes > 0 ? { timeRequired: `PT${readTimeMinutes}M` } : {}),
+    ...(citationSchemas.length > 0 ? { citation: citationSchemas } : {}),
     isPartOf: { '@type': 'CollectionPage', '@id': `${SITE_URL}/blog`, url: `${SITE_URL}/blog` },
     speakable: {
       '@type': 'SpeakableSpecification',
@@ -144,23 +164,47 @@ export default async function BlogArticlePageRoute({
     },
   };
   const articlePath = `/blog/${slug}`;
+  const relatedLinks = [
+    `${SITE_URL}/blog`,
+    `${SITE_URL}/research`,
+    `${SITE_URL}/protocols`,
+    `${SITE_URL}/contact`,
+    ...article.relatedConditionSlugs.map((conditionSlug) => `${SITE_URL}/conditions/${conditionSlug}`),
+    ...(blogProductRouteSlug != null ? [`${SITE_URL}/product/${blogProductRouteSlug}`] : []),
+  ].filter((value, index, array) => array.indexOf(value) === index);
+  const aboutEntities = [
+    ...(blogProductRouteSlug != null
+      ? [{
+          '@type': 'Product',
+          '@id': `${SITE_URL}/product/${blogProductRouteSlug}#product`,
+          url: `${SITE_URL}/product/${blogProductRouteSlug}`,
+          name: productName,
+        }]
+      : []),
+    ...aboutTerms.map((term) => ({
+      '@type': 'DefinedTerm',
+      name: term,
+    })),
+  ];
   const webPageSchema = {
     ...createWebPageSchema({
       name: article.title,
       description: article.excerpt,
       path: articlePath,
-      dateModified: datePublished,
+      dateModified: SCHEMA_DATE_MODIFIED,
     }),
     datePublished,
     mainEntity: { '@id': `${SITE_URL}${articlePath}#article` },
+    about: aboutEntities,
+    ...(citationSchemas.length > 0 ? { citation: citationSchemas } : {}),
+    reviewedBy: {
+      '@type': 'Organization',
+      '@id': ORGANIZATION_ID(),
+      name: siteOwnership.research.team,
+      url: `${SITE_URL}/about`,
+    },
     ...(blogProductRouteSlug != null
       ? {
-          about: {
-            '@type': 'Product',
-            '@id': `${SITE_URL}/product/${blogProductRouteSlug}#product`,
-            url: `${SITE_URL}/product/${blogProductRouteSlug}`,
-            name: productName,
-          },
           mentions: {
             '@type': 'Product',
             '@id': `${SITE_URL}/product/${blogProductRouteSlug}#product`,
@@ -169,7 +213,8 @@ export default async function BlogArticlePageRoute({
           },
         }
       : {}),
-    relatedLink: [`${SITE_URL}/blog`, `${SITE_URL}/research`, `${SITE_URL}/protocols`],
+    relatedLink: relatedLinks,
+    lastReviewed: SCHEMA_DATE_MODIFIED,
     isPartOf: { '@id': `${SITE_URL}/blog` },
   };
   const breadcrumbSchema = createBreadcrumbSchema([
@@ -185,7 +230,7 @@ export default async function BlogArticlePageRoute({
         <StructuredData id="jsonld-blog-page" data={webPageSchema} />
         <StructuredData id="jsonld-blog-breadcrumb" data={breadcrumbSchema} />
       </Suspense>
-      <BlogArticleClient slug={slug} />
+      <BlogArticle article={article} />
     </>
   );
 }

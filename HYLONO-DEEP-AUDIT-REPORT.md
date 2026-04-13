@@ -3,10 +3,18 @@
 **Auditor:** VIBECODEX 5.4  
 **Standard:** 2024-2026 World-Class
 
+## 0.0) REMEDIATION UPDATE LOG - 2026-04-12
+- [DONE] `/partners` and `/rewards` now render public preview content for signed-out visitors instead of generic lock screens, and `/partners` includes a working B2B application form wired to `/api/contact`.
+- [DONE] Current TypeScript blockers in `components/RentalCheckoutPage.tsx`, `content/rental.ts`, and `lib/mobile-auth.ts` were cleared on 2026-04-12; local `tsc --noEmit` now passes again.
+- [VERIFIED OUTDATED] The `/research` build failure cited on 2026-04-11 no longer reproduces in the current `app/research/page.tsx`; the reported line-335 `content` access has already been refactored away.
+- [VERIFIED OUTDATED] `/account` already renders a preview dashboard without a session in the current `components/AuthComponents.tsx`; it is not blank anymore.
+- [VERIFIED OUTDATED] The `/contact` callback interaction is currently implemented by drafting the chosen slot into the form message and is covered by `tests/components/ContactPage.test.tsx`; it is not silently dropped.
+- [VERIFIED] Focused regression checks passed on 2026-04-12: `tests/components/PartnerPortal.test.tsx` and `tests/components/ContactPage.test.tsx`.
+
 ## 0) EXECUTIVE SUMMARY
 [CONFIRMED] Hylono is a European wellness-technology platform selling and renting oxygen, hydrogen, red-light, PEMF, and related systems, with an unusually strong SEO/content architecture for its size. [CONFIRMED] The crawl covered 125 public routes from the current project runtime, including 97 indexable routes, 25 noindex/disallowed routes, 23 canonical product-detail routes, 43 hydrogen alias routes, 5 condition pages, 3 protocol pages, and 5 blog posts. [CONFIRMED] Core indexable pages already ship strong metadata, canonical tags, JSON-LD coverage, and a real topical graph that connects `Condition -> Research -> Product -> Protocol -> Rental/Contact`.
 
-[CONFIRMED] The biggest gaps are not basic SEO gaps; they are conversion, trust, performance, accessibility, and operational hardening gaps. [CONFIRMED] The current production build fails on `app/research/page.tsx:335` because `content` is possibly undefined, 59 of 65 public page files are missing the explicit `Rendering strategy:` annotation required by the repo rules, core mobile Lighthouse performance is only 36-67 on the six highest-value pages, and key public/noindex surfaces such as `/partners` and `/rewards` render with zero visible main-copy. [CONFIRMED] Canonical product and condition pages are structurally rich, but they still lag category leaders on proof architecture, guided entry, risk reversal, richer comparison tooling, and accessible interaction quality.
+[CONFIRMED] The biggest gaps are not basic SEO gaps; they are conversion, trust, performance, accessibility, and operational hardening gaps. [UPDATED 2026-04-12] The 2026-04-11 snapshot overstated three issues that have since been rechecked: the reported `/research` build failure no longer reproduces, `/partners` and `/rewards` now render public preview copy, and `/account` already had a preview state. [CONFIRMED] Remaining high-value work is still concentrated in rendering-strategy coverage across public routes, mobile performance on core revenue pages, and stronger proof architecture on commercial surfaces.
 
 [INFERRED] The strategic opportunity is to keep the existing SEO skeleton and upgrade the experience layer into a high-trust, guided, world-class wellness commerce platform. [CONFIRMED] Competitors and adjacent leaders consistently win by combining three things Hylono only partially has today: explicit personalized entry, visible trust/risk reversal, and richer proof ecosystems spanning testimonials, experts, locations, reviews, data, and media. [VERIFY] If the top funnel, product proof layer, planner, and broken gated/noindex pages are rebuilt in that order, Hylono should be able to increase consult-start rate, assisted conversion, and branded trust materially without sacrificing current crawl/index architecture.
 
@@ -19,12 +27,12 @@
 [VERIFY] Unknown commercial variables: current traffic mix, assisted close rate, average order value, gross margin by device family, and lead-to-sale conversion benchmarks.
 
 ## 0.2) TOP FINDINGS
-1. [CONFIRMED] The production build is currently broken by a TypeScript error in [app/research/page.tsx](F:/ag projects/Hylono_MAIN - SEO BOOST/app/research/page.tsx:335), which blocks a clean production validation pass.
+1. [VERIFIED OUTDATED 2026-04-12] The previously reported production-build failure in [app/research/page.tsx](F:/ag projects/Hylono_MAIN - SEO BOOST/app/research/page.tsx:335) does not reproduce in the current file.
 2. [CONFIRMED] The experience layer is materially weaker than the SEO layer: metadata and schema are strong, but guided conversion, trust proof, and visual proof architecture are not yet world-class.
 3. [CONFIRMED] Core mobile lab performance is weak on revenue-driving routes: `/product/hbot` scored 36 performance with 9.5s LCP and 0.446 CLS; `/research` scored 40 performance with 9.1s LCP and 0.446 CLS; homepage and contact both scored 53 performance.
-4. [CONFIRMED] Public/noindex business routes are unstable or under-rendered: `/partners` and `/rewards` have zero visible main-copy, and `/account` is effectively blank without a session.
+4. [PARTIALLY FIXED 2026-04-12] `/partners` and `/rewards` now ship public preview content for signed-out visitors, and `/account` already has a preview state rather than a blank surface. Remaining experience debt is quality, not missing main-copy.
 5. [CONFIRMED] Accessibility is a repeat issue, not an edge case: 82 of 125 crawled routes had at least one serious or critical axe issue; the highest-risk problems were color contrast, nested interactive controls, unlabeled buttons, list markup errors, and invalid ARIA usage.
-6. [CONFIRMED] Hylono already has the right page graph, but many key pages still undersell their category, proof, or next step: the homepage H1 is only `HYLONO`, the store hub H1 is `Technology + Protocol`, and the contact page has no H2 structure and an unwired callback scheduler.
+6. [PARTIALLY FIXED 2026-04-12] Hylono already has the right page graph, but many key pages still undersell their category, proof, or next step. The callback interaction on `/contact` is wired as a draft-to-message flow, while heading and proof architecture gaps still remain on the homepage and store hub.
 7. [CONFIRMED] World-class competitors consistently expose clearer entry points, stronger trust/risk reversal, real testimonials/media proof, more obvious plan/tiering, and lower-friction consult/quiz/free-scan flows than Hylono currently does.
 
 ## 1) SITE INVENTORY - PAGE BY PAGE
@@ -608,9 +616,9 @@ Feasibility: 8/10.
 ## 9) PRIORITIZED ROADMAP
 | Rank | Initiative | Page / Surface | Impact | Effort | Type | Timeline | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Fix production build failure in research route | `/research` | [CONFIRMED] Critical | Low | QUICK WIN | 1-2 days | [app/research/page.tsx](F:/ag projects/Hylono_MAIN - SEO BOOST/app/research/page.tsx:335) |
-| 2 | Repair blank partner/rewards/account experiences with SSR-safe gated previews | `/partners`, `/rewards`, `/account` | [CONFIRMED] Critical | Medium | QUICK WIN | 3-5 days | Crawl + screenshots + [components/GatedView.tsx](F:/ag projects/Hylono_MAIN - SEO BOOST/components/GatedView.tsx:15) |
-| 3 | Wire callback scheduler and harden contact experience | `/contact` | [CONFIRMED] Critical | Medium | QUICK WIN | 3-5 days | [components/ContactPage.tsx](F:/ag projects/Hylono_MAIN - SEO BOOST/components/ContactPage.tsx:86) |
+| 1 | Verify research build failure status | `/research` | [VERIFIED OUTDATED 2026-04-12] | Low | CLOSED | Done | Current `app/research/page.tsx` no longer reproduces the reported line-335 error |
+| 2 | Repair blank partner/rewards/account experiences with public previews and partner intake | `/partners`, `/rewards`, `/account` | [DONE 2026-04-12] | Medium | QUICK WIN | Done | `app/partners/*`, `app/rewards/*`, `components/PartnerPortal.tsx`, `tests/components/PartnerPortal.test.tsx` |
+| 3 | Verify callback scheduler status and preserve contact draft flow | `/contact` | [VERIFIED OUTDATED 2026-04-12] | Low | CLOSED | Done | `tests/components/ContactPage.test.tsx` confirms the selected callback slot is drafted into the message |
 | 4 | Reframe homepage hero + trust + consult/quiz entry | `/` | [INFERRED] Very high | Medium | STRATEGIC | 1-2 weeks | Crawl + competitor benchmark |
 | 5 | Rebuild `/store` as a comparison hub | `/store` | [INFERRED] Very high | High | STRATEGIC | 2-3 weeks | Crawl + Healf/Oura/WHOOP patterns |
 | 6 | Rebuild `/wellness-planner` into a premium recommendation engine | `/wellness-planner` | [INFERRED] Very high | High | DIFFERENTIATOR | 2-4 weeks | Crawl + Next Health/Upgrade Labs patterns |

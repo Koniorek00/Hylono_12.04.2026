@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { partnerLocations, partnerTypeLabels } from '@/content/partners';
+import {
+  partnerDirectoryMeta,
+  partnerLocations,
+  partnerTypeDescriptions,
+  partnerTypeLabels,
+} from '@/content/partners';
+import { buildLocatorContactHref } from '@/lib/contact-prefill';
 import { createPageMetadata } from '@/lib/seo-metadata';
 import { createBreadcrumbSchema, createCollectionPageSchema } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
@@ -18,6 +24,9 @@ const toLocatorCountryId = (country: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')}`;
+
+const formatCountLabel = (count: number, singular: string, plural: string) =>
+  `${count} ${count === 1 ? singular : plural}`;
 
 const listedCountries = [...new Set(partnerLocations.map((partner) => partner.country))].sort();
 const listedTechnologies = [...new Set(partnerLocations.flatMap((partner) => partner.features))].sort();
@@ -41,6 +50,10 @@ const partnersByCountry = listedCountries.map((country) => ({
     ),
 }));
 
+const formattedPartnerVerificationDate = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'long',
+}).format(new Date(`${partnerDirectoryMeta.lastVerified}T00:00:00.000Z`));
+
 // [DECISION: SSG because the locator is a noindex utility page backed by repo-controlled partner records.]
 // Rendering strategy: server-rendered static HTML so the page stays usable without client-side filters or map hydration.
 export default function LocatorPageRoute() {
@@ -49,6 +62,7 @@ export default function LocatorPageRoute() {
     description:
       'Browse the currently listed Hylono clinics, showrooms, and distributors across Europe, then request a guided introduction.',
     path: '/locator',
+    dateModified: partnerDirectoryMeta.lastVerified,
   });
 
   const locatorListSchema = {
@@ -97,7 +111,7 @@ export default function LocatorPageRoute() {
         ])}
       />
 
-      <main id="main-content" className="bg-slate-50 text-slate-950">
+      <div className="bg-slate-50 text-slate-950">
         <section className="border-b border-slate-200 bg-white">
           <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
@@ -118,14 +132,22 @@ export default function LocatorPageRoute() {
               technology, or partner type.
             </p>
 
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Link
-                href="/contact"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-slate-950 px-6 py-3 text-base font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
-              >
-                Request partner introduction
-              </Link>
-              <p className="text-sm leading-6 text-slate-600">
+            <div className="mt-8 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href={buildLocatorContactHref({ intent: 'curious' })}
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-slate-950 px-6 py-3 text-base font-semibold text-white transition hover:bg-slate-800 sm:w-auto sm:shrink-0 sm:whitespace-nowrap"
+                >
+                  Request partner introduction
+                </Link>
+                <Link
+                  href="/rental"
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 text-base font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50 sm:w-auto sm:shrink-0 sm:whitespace-nowrap"
+                >
+                  Explore rental options
+                </Link>
+              </div>
+              <p className="max-w-2xl text-sm leading-6 text-slate-600">
                 Use the listed contact details below to confirm hours, technology access, and the
                 next available appointment route.
               </p>
@@ -147,8 +169,9 @@ export default function LocatorPageRoute() {
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <dt className="text-sm font-medium text-slate-600">Partner mix</dt>
                 <dd className="mt-2 text-lg font-semibold text-slate-950">
-                  {partnerTypeCounts.showroom} showrooms, {partnerTypeCounts.clinic} clinics,{' '}
-                  {partnerTypeCounts.distributor} distributors
+                  {formatCountLabel(partnerTypeCounts.showroom, 'showroom', 'showrooms')},{' '}
+                  {formatCountLabel(partnerTypeCounts.clinic, 'clinic', 'clinics')},{' '}
+                  {formatCountLabel(partnerTypeCounts.distributor, 'distributor', 'distributors')}
                 </dd>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
@@ -169,6 +192,77 @@ export default function LocatorPageRoute() {
                 </span>
               ))}
             </div>
+
+            <section
+              aria-labelledby="locator-directory-status"
+              className="mt-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 md:p-8"
+            >
+              <div className="flex flex-col gap-3 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
+                    Directory status
+                  </p>
+                  <h2
+                    id="locator-directory-status"
+                    className="mt-2 text-2xl font-semibold tracking-tight text-slate-950"
+                  >
+                    How these listings work
+                  </h2>
+                </div>
+                <p className="text-sm text-slate-600">
+                  Last verified: <span className="font-medium text-slate-950">{formattedPartnerVerificationDate}</span>
+                </p>
+              </div>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <h3 className="text-base font-semibold text-slate-950">
+                    {partnerDirectoryMeta.verificationLabel}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {partnerDirectoryMeta.coverageLabel}. Keep using the route as a reviewed
+                    directory rather than a live availability feed.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <h3 className="text-base font-semibold text-slate-950">Partner types</h3>
+                  <ul className="mt-3 space-y-3 text-sm leading-6 text-slate-600">
+                    <li>
+                      <span className="font-medium text-slate-950">{partnerTypeLabels.showroom}:</span>{' '}
+                      {partnerTypeDescriptions.showroom}
+                    </li>
+                    <li>
+                      <span className="font-medium text-slate-950">{partnerTypeLabels.clinic}:</span>{' '}
+                      {partnerTypeDescriptions.clinic}
+                    </li>
+                    <li>
+                      <span className="font-medium text-slate-950">{partnerTypeLabels.distributor}:</span>{' '}
+                      {partnerTypeDescriptions.distributor}
+                    </li>
+                  </ul>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <h3 className="text-base font-semibold text-slate-950">Best next step</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {partnerDirectoryMeta.nextStepLabel}.
+                  </p>
+                  <div className="mt-4 flex flex-col gap-3">
+                    <Link
+                      href={buildLocatorContactHref({ intent: 'curious' })}
+                      className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:whitespace-nowrap"
+                    >
+                      Start an introduction request
+                    </Link>
+                    <Link
+                      href="/partners"
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+                    >
+                      Explore partner programme
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </section>
 
@@ -266,6 +360,33 @@ export default function LocatorPageRoute() {
                           ))}
                         </ul>
                       </div>
+
+                      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <Link
+                          href={buildLocatorContactHref({
+                            intent: 'curious',
+                            country: partner.country,
+                            city: partner.city,
+                            modality: partner.features[0],
+                            partnerType: partnerTypeLabels[partner.type],
+                            partnerName: partner.name,
+                          })}
+                          className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:whitespace-nowrap"
+                        >
+                          Request introduction for this partner
+                        </Link>
+                        <Link
+                          href={buildLocatorContactHref({
+                            intent: 'rental',
+                            country: partner.country,
+                            city: partner.city,
+                            modality: partner.features[0],
+                          })}
+                          className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50 sm:whitespace-nowrap"
+                        >
+                          Ask about rental alternatives
+                        </Link>
+                      </div>
                     </article>
                   ))}
                 </div>
@@ -285,18 +406,24 @@ export default function LocatorPageRoute() {
                 route and request a guided introduction. That keeps the next step clear without
                 forcing you through filters before you have a human route.
               </p>
-              <div className="mt-8">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-6 py-3 text-base font-semibold text-white transition hover:bg-slate-800"
+                  href={buildLocatorContactHref({ intent: 'curious' })}
+                  className="inline-flex items-center justify-center rounded-xl bg-slate-950 px-6 py-3 text-base font-semibold text-white transition hover:bg-slate-800 sm:whitespace-nowrap"
                 >
                   Request partner introduction
+                </Link>
+                <Link
+                  href="/rental"
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 text-base font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50 sm:whitespace-nowrap"
+                >
+                  Explore rental options
                 </Link>
               </div>
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </>
   );
 }

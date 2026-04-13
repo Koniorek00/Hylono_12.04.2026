@@ -30,6 +30,10 @@ export interface MicroVideo {
     thumbnailColor: string;
     likes: number;
     views: string;
+    videoSrc?: string;
+    videoWebmSrc?: string;
+    posterSrc?: string;
+    hasAudio?: boolean;
     interactions?: Interaction[];
 }
 
@@ -76,29 +80,46 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
     const [showConfetti, setShowConfetti] = useState(false);
     const [xpEarned, setXpEarned] = useState(0);
     const [showXPToast, setShowXPToast] = useState(false);
-    const [audioMode, setAudioMode] = useState(false);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const interactionIdsRef = useRef<Set<string>>(new Set());
+    const hasRealVideo = Boolean(video.videoSrc || video.videoWebmSrc);
+    const isSilentVideo = hasRealVideo && video.hasAudio === false;
+
+    const maybeTriggerInteraction = (nextProgress: number): boolean => {
+        if (!video.interactions || activeInteraction) {
+            return false;
+        }
+
+        const hit = video.interactions.find((interaction) =>
+            nextProgress >= interaction.timestamp
+            && !interactionIdsRef.current.has(interaction.id)
+        );
+
+        if (!hit) {
+            return false;
+        }
+
+        interactionIdsRef.current.add(hit.id);
+        setActiveInteraction(hit);
+        setIsPlaying(false);
+        videoRef.current?.pause();
+        return true;
+    };
 
     // Simulate video progress and check for interactions
     useEffect(() => {
+        if (hasRealVideo) {
+            return;
+        }
+
         let interval: NodeJS.Timeout;
         if (isPlaying && !activeInteraction) {
             interval = setInterval(() => {
                 setProgress(prev => {
                     const nextProgress = prev + 0.5;
 
-                    // Check for interactions
-                    if (video.interactions) {
-                        const hit = video.interactions.find(i =>
-                            Math.abs(i.timestamp - nextProgress) < 0.3 &&
-                            // Only trigger if we are moving forward and haven't just triggered it
-                            !activeInteraction
-                        );
-
-                        if (hit) {
-                            setIsPlaying(false);
-                            setActiveInteraction(hit);
-                            return hit.timestamp;
-                        }
+                    if (maybeTriggerInteraction(nextProgress)) {
+                        return nextProgress;
                     }
 
                     if (nextProgress >= 100) {
@@ -111,7 +132,7 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
             }, 100);
         }
         return () => clearInterval(interval);
-    }, [isPlaying, activeInteraction, video]);
+    }, [isPlaying, activeInteraction, video, hasRealVideo]);
 
     const triggerVictory = () => {
         setShowConfetti(true);
@@ -144,11 +165,63 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
         setIsPlaying(true);
         setActiveInteraction(null);
         setShowConfetti(false);
+        interactionIdsRef.current = new Set();
     }, [video]);
+
+    useEffect(() => {
+        if (!hasRealVideo) {
+            return;
+        }
+
+        const currentVideo = videoRef.current;
+        if (!currentVideo) {
+            return;
+        }
+
+        if (activeInteraction) {
+            currentVideo.pause();
+            return;
+        }
+
+        if (isPlaying) {
+            const playAttempt = currentVideo.play();
+            if (playAttempt && typeof playAttempt.catch === 'function') {
+                playAttempt.catch(() => {
+                    setIsPlaying(false);
+                });
+            }
+            return;
+        }
+
+        currentVideo.pause();
+    }, [activeInteraction, hasRealVideo, isPlaying, video]);
 
     const togglePlay = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (!activeInteraction) {
+            if (hasRealVideo) {
+                const currentVideo = videoRef.current;
+                if (!currentVideo) {
+                    setIsPlaying((prev) => !prev);
+                    return;
+                }
+
+                if (currentVideo.paused) {
+                    const playAttempt = currentVideo.play();
+                    if (playAttempt && typeof playAttempt.catch === 'function') {
+                        playAttempt.catch(() => {
+                            setIsPlaying(false);
+                        });
+                    }
+                    setIsPlaying(true);
+                    return;
+                }
+
+                currentVideo.pause();
+                setIsPlaying(false);
+                return;
+            }
+
             setIsPlaying(!isPlaying);
         }
     };
@@ -175,19 +248,14 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
 
                 {/* Top Controls */}
                 <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
-                    {/* Left: Audio Mode & Bookmarks */}
+                    {/* Left: Source metadata + bookmarks */}
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setAudioMode(!audioMode)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
-                                ${audioMode
-                                    ? 'bg-purple-500 text-white'
-                                    : 'bg-white/10 text-white hover:bg-white/20'
-                                }`}
-                        >
-                            <Headphones className="w-4 h-4" />
-                            {audioMode ? 'Audio' : ''}
-                        </button>
+                        {isSilentVideo && (
+                            <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium text-white">
+                                <Headphones className="w-4 h-4" />
+                                Silent demo
+                            </div>
+                        )}
                         <BookmarkNotes videoId={video.id} currentProgress={progress} />
                     </div>
 
@@ -203,19 +271,56 @@ export const MicroLearningPlayer: React.FC<MicroLearningPlayerProps> = ({ video,
 
                 {/* Main Video Area (Visual Placeholder) */}
                 <div
-                    className={`absolute inset-0 ${video.thumbnailColor} flex items-center justify-center cursor-pointer transition-all duration-500 ${activeInteraction ? 'blur-md scale-105 brightness-50' : ''}`}
+                    className={`absolute inset-0 flex items-center justify-center cursor-pointer transition-all duration-500 ${activeInteraction ? 'blur-md scale-105 brightness-50' : ''}`}
                     onClick={togglePlay}
                 >
-                    {!isPlaying && !activeInteraction && (
-                        <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white animate-pulse">
-                            <Play className="w-8 h-8 ml-1" fill="currentColor" />
+                    {hasRealVideo ? (
+                        <>
+                            <video
+                                ref={videoRef}
+                                className="absolute inset-0 h-full w-full object-cover"
+                                playsInline
+                                preload="auto"
+                                poster={video.posterSrc}
+                                onLoadedMetadata={() => {
+                                    setProgress(0);
+                                }}
+                                onTimeUpdate={(event) => {
+                                    const duration = event.currentTarget.duration;
+                                    if (!Number.isFinite(duration) || duration <= 0) {
+                                        return;
+                                    }
+
+                                    const nextProgress = (event.currentTarget.currentTime / duration) * 100;
+                                    setProgress(nextProgress);
+                                    maybeTriggerInteraction(nextProgress);
+                                }}
+                                onEnded={() => {
+                                    setIsPlaying(false);
+                                    setProgress(100);
+                                    triggerVictory();
+                                }}
+                            >
+                                {video.videoWebmSrc && <source src={video.videoWebmSrc} type="video/webm" />}
+                                {video.videoSrc && <source src={video.videoSrc} type="video/mp4" />}
+                            </video>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-black/30" />
+                        </>
+                    ) : (
+                        <div
+                            className={`absolute inset-0 ${video.thumbnailColor} flex items-center justify-center`}
+                        >
+                            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl font-bold text-white/5 select-none animate-pulse">
+                                {Math.floor(progress)}%
+                            </span>
                         </div>
                     )}
 
-                    {/* Background Dynamic "Video" Content */}
-                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl font-bold text-white/5 select-none animate-pulse">
-                        {Math.floor(progress)}%
-                    </span>
+                    {!isPlaying && !activeInteraction && (
+                        <div className="relative z-10 w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white animate-pulse">
+                            <Play className="w-8 h-8 ml-1" fill="currentColor" />
+                        </div>
+                    )}
                 </div>
 
                 {/* Interactive Overlay */}

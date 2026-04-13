@@ -3,13 +3,13 @@ import { connection } from 'next/server';
 import { TeamDashboard } from '@/components/partner/TeamDashboard';
 import { createPageMetadata } from '@/lib/seo-metadata';
 
-// [DECISION: nexus team is a private staff-management dashboard rendered server-first with a client leaf for interactive team controls.]
+// [DECISION: nexus team stays server-routed as a temporary public preview while the build-in-progress staff dashboard remains noindex and interactive behavior stays in a client leaf.]
 // Rendering strategy: request-time server routing via `connection()` keeps the workspace session-aware while the interactive dashboard remains in a client leaf.
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Nexus Team',
   description:
-    'Monitor staff progress, certifications, and clinic compliance tasks in the Hylono Nexus team dashboard.',
+    'Preview staff progress, certifications, and clinic compliance tasks in the Hylono Nexus team dashboard while the build is in progress.',
   path: '/nexus/team',
   forceNoIndex: true,
 });

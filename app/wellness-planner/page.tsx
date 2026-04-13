@@ -3,6 +3,7 @@ import { createPageMetadata } from '@/lib/seo-metadata';
 import { WellnessPlannerClient } from './WellnessPlannerClient';
 
 // [DECISION: wellness planner route stays a static, noindex shell with a server-rendered orientation block and an interactive client island for the recommendation flow. Cache components/runtime cache behavior is preferred unless server-personalized data is introduced.]
+// Rendering strategy: server-rendered noindex planner shell with client-side state for guided recommendation inputs, result shaping, and downstream conversion handoffs.
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Wellness Planner',

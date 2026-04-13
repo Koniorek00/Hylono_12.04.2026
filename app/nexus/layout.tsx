@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
-import { requireAuthenticatedSession } from '@/lib/auth-guard';
 
-// [DECISION: nexus layout stays server-enforced because partner workspace routes must not render without a verified session.]
-export default async function NexusLayout({
+// [DECISION: nexus layout stays server-rendered without a global auth gate so the temporary /nexus preview can stay public while private child tools enforce authentication individually.]
+export default function NexusLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  await requireAuthenticatedSession('/nexus');
   return children;
 }

@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { and, eq, gte, ne } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
+import {
+    MOBILE_AUTH_SCOPE_RENTALS_READ,
+    readBearerToken,
+    verifyMobileAuthToken,
+} from '@/lib/mobile-auth';
 import { resolveRentalPlan } from '@/lib/commerce/rental-catalog';
 import { ensureDatabaseReady, getDb, isDatabaseConfigured } from '@/lib/db/client';
 import { rentalApplicationsTable, type RentalContactRecord } from '@/lib/db/schema';
@@ -217,6 +222,34 @@ function inferCompanyNameFromEmail(email: string): string | undefined {
     }
 
     return domain;
+}
+
+async function resolveAuthenticatedRentalUserId(
+    request: Request
+): Promise<string> {
+    const session = await auth();
+    const sessionEmail = session?.user?.email
+        ? normalizeUserId(session.user.email)
+        : '';
+
+    if (sessionEmail) {
+        return sessionEmail;
+    }
+
+    const bearerToken = readBearerToken(request);
+    if (!bearerToken) {
+        return '';
+    }
+
+    const claims = verifyMobileAuthToken(bearerToken, 'access');
+    if (
+        !claims ||
+        !claims.scope.includes(MOBILE_AUTH_SCOPE_RENTALS_READ)
+    ) {
+        return '';
+    }
+
+    return normalizeUserId(claims.email);
 }
 
 /**
@@ -470,10 +503,7 @@ export async function POST(request: Request): Promise<Response> {
  */
 export async function GET(request: Request): Promise<Response> {
     try {
-        const session = await auth();
-        const sessionEmail = session?.user?.email
-            ? normalizeUserId(session.user.email)
-            : '';
+        const sessionEmail = await resolveAuthenticatedRentalUserId(request);
 
         if (!sessionEmail) {
             return Response.json(

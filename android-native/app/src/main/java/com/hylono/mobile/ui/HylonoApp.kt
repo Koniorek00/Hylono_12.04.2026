@@ -188,11 +188,18 @@ fun HylonoMobileApp(
                     products = uiState.data.products,
                     draft = uiState.rentalDraft,
                     feedback = uiState.rentalFeedback,
+                    mobileSession = uiState.mobileSession,
+                    rentalHistory = uiState.rentalHistory,
                     contentPadding = innerPadding,
                     onBack = { navController.popBackStack() },
                     onDraftChange = viewModel::updateRentalDraft,
                     onClearDraft = viewModel::clearRentalDraft,
                     onDismissFeedback = viewModel::clearRentalFeedback,
+                    onDismissMobileSessionFeedback = viewModel::clearMobileSessionFeedback,
+                    onDismissRentalHistoryFeedback = viewModel::clearRentalHistoryFeedback,
+                    onSignIn = viewModel::signIn,
+                    onSignOut = viewModel::signOut,
+                    onRefreshRentalHistory = viewModel::refreshRentalHistory,
                     onSubmit = viewModel::submitRental,
                 )
             }

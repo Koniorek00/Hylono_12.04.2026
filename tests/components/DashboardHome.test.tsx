@@ -8,21 +8,21 @@ vi.mock('../../components/partner/PartnerLayout', () => ({
 }));
 
 describe('DashboardHome', () => {
-  it('routes primary shortcuts into the supported nexus action states', () => {
+  it('surfaces the public Nexus entry points and module links', () => {
     render(<DashboardHome />);
 
-    const addClientLinks = screen.getAllByRole('link', { name: /add client/i });
-    for (const link of addClientLinks) {
-      expect(link).toHaveAttribute('href', '/nexus/clients?action=new');
-    }
-
-    expect(screen.getByRole('link', { name: /create campaign/i })).toHaveAttribute(
+    expect(
+      screen.getByRole('heading', {
+        name: /run clinic operations, staff enablement, and content workflows/i,
+      })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /sign in to account/i })).toHaveAttribute(
       'href',
-      '/nexus/studio?action=new'
+      '/login?auth=required&next=%2Faccount'
     );
-    expect(screen.getByRole('link', { name: /view details/i })).toHaveAttribute(
-      'href',
-      '/nexus/fleet?device=d3'
-    );
+    expect(screen.getByRole('link', { name: /contact hylono/i })).toHaveAttribute('href', '/contact');
+    expect(screen.getByRole('link', { name: /clients/i })).toHaveAttribute('href', '/nexus/clients');
+    expect(screen.getByRole('link', { name: /fleet/i })).toHaveAttribute('href', '/nexus/fleet');
+    expect(screen.getByRole('link', { name: /studio/i })).toHaveAttribute('href', '/nexus/studio');
   });
 });

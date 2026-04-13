@@ -111,4 +111,14 @@ class HylonoValidatorsTest {
 
         assertNull(result)
     }
+
+    @Test
+    fun `validateMobileSignIn rejects blank password`() {
+        val result = validateMobileSignIn(
+            email = "jane@hylono.com",
+            password = "",
+        )
+
+        assertEquals("Enter the account password.", result)
+    }
 }

@@ -151,6 +151,215 @@ SELECT COUNT(*) FROM api_keys;
   }
 }
 
+function Ensure-DocumensoBootstrap {
+  param(
+    [Parameter(Mandatory = $true)][string]$Email,
+    [Parameter(Mandatory = $true)][string]$Name,
+    [Parameter(Mandatory = $true)][string]$PasswordHash
+  )
+
+  Invoke-PostgresSql -Database "documenso_db" -Sql @"
+WITH existing_user AS (
+  SELECT id
+  FROM "User"
+  WHERE email = '$Email'
+  LIMIT 1
+),
+inserted_user AS (
+  INSERT INTO "User" (
+    name,
+    email,
+    "emailVerified",
+    password,
+    source,
+    roles,
+    "updatedAt",
+    "lastSignedIn",
+    disabled
+  )
+  SELECT
+    '$Name',
+    '$Email',
+    NOW(),
+    '$PasswordHash',
+    'local-bootstrap',
+    ARRAY['ADMIN'::"Role"],
+    NOW(),
+    NOW(),
+    false
+  WHERE NOT EXISTS (SELECT 1 FROM existing_user)
+  RETURNING id
+),
+resolved_user AS (
+  SELECT id FROM inserted_user
+  UNION ALL
+  SELECT id FROM existing_user
+),
+existing_org AS (
+  SELECT id
+  FROM "Organisation"
+  WHERE "ownerUserId" = (SELECT id FROM resolved_user LIMIT 1)
+  LIMIT 1
+),
+inserted_claim AS (
+  INSERT INTO "OrganisationClaim" (
+    id,
+    "updatedAt",
+    "teamCount",
+    "memberCount",
+    flags,
+    "envelopeItemCount"
+  )
+  SELECT
+    md5(random()::text || clock_timestamp()::text),
+    NOW(),
+    1,
+    1,
+    '{}'::jsonb,
+    0
+  WHERE NOT EXISTS (SELECT 1 FROM existing_org)
+  RETURNING id
+),
+inserted_org_settings AS (
+  INSERT INTO "OrganisationGlobalSettings" (
+    id,
+    "emailDocumentSettings"
+  )
+  SELECT
+    md5(random()::text || clock_timestamp()::text),
+    '{}'::jsonb
+  WHERE NOT EXISTS (SELECT 1 FROM existing_org)
+  RETURNING id
+),
+inserted_auth_portal AS (
+  INSERT INTO "OrganisationAuthenticationPortal" (
+    id,
+    enabled,
+    "clientId",
+    "clientSecret",
+    "wellKnownUrl",
+    "defaultOrganisationRole",
+    "autoProvisionUsers",
+    "allowedDomains"
+  )
+  SELECT
+    md5(random()::text || clock_timestamp()::text),
+    false,
+    '',
+    '',
+    '',
+    'ADMIN'::"OrganisationMemberRole",
+    true,
+    ARRAY[]::text[]
+  WHERE NOT EXISTS (SELECT 1 FROM existing_org)
+  RETURNING id
+),
+inserted_org AS (
+  INSERT INTO "Organisation" (
+    id,
+    "updatedAt",
+    type,
+    name,
+    url,
+    "ownerUserId",
+    "organisationClaimId",
+    "organisationGlobalSettingsId",
+    "organisationAuthenticationPortalId"
+  )
+  SELECT
+    md5(random()::text || clock_timestamp()::text),
+    NOW(),
+    'ORGANISATION'::"OrganisationType",
+    'Hylono Local',
+    'hylono-local',
+    (SELECT id FROM resolved_user LIMIT 1),
+    (SELECT id FROM inserted_claim LIMIT 1),
+    (SELECT id FROM inserted_org_settings LIMIT 1),
+    (SELECT id FROM inserted_auth_portal LIMIT 1)
+  WHERE NOT EXISTS (SELECT 1 FROM existing_org)
+  RETURNING id
+),
+resolved_org AS (
+  SELECT id FROM inserted_org
+  UNION ALL
+  SELECT id FROM existing_org
+),
+inserted_org_member AS (
+  INSERT INTO "OrganisationMember" (
+    id,
+    "updatedAt",
+    "userId",
+    "organisationId"
+  )
+  SELECT
+    md5(random()::text || clock_timestamp()::text),
+    NOW(),
+    (SELECT id FROM resolved_user LIMIT 1),
+    (SELECT id FROM resolved_org LIMIT 1)
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM "OrganisationMember"
+    WHERE "userId" = (SELECT id FROM resolved_user LIMIT 1)
+      AND "organisationId" = (SELECT id FROM resolved_org LIMIT 1)
+  )
+  RETURNING id
+),
+existing_team AS (
+  SELECT id
+  FROM "Team"
+  WHERE "organisationId" = (SELECT id FROM resolved_org LIMIT 1)
+  LIMIT 1
+),
+inserted_team_settings AS (
+  INSERT INTO "TeamGlobalSettings" (
+    id,
+    "emailDocumentSettings"
+  )
+  SELECT
+    md5(random()::text || clock_timestamp()::text),
+    '{}'::jsonb
+  WHERE NOT EXISTS (SELECT 1 FROM existing_team)
+  RETURNING id
+),
+inserted_team AS (
+  INSERT INTO "Team" (
+    name,
+    url,
+    "organisationId",
+    "teamGlobalSettingsId"
+  )
+  SELECT
+    'Hylono Operations',
+    'hylono-operations',
+    (SELECT id FROM resolved_org LIMIT 1),
+    (SELECT id FROM inserted_team_settings LIMIT 1)
+  WHERE NOT EXISTS (SELECT 1 FROM existing_team)
+  RETURNING id
+),
+resolved_team AS (
+  SELECT id FROM inserted_team
+  UNION ALL
+  SELECT id FROM existing_team
+)
+INSERT INTO "TeamProfile" (
+  id,
+  enabled,
+  "teamId",
+  bio
+)
+SELECT
+  md5(random()::text || clock_timestamp()::text),
+  true,
+  (SELECT id FROM resolved_team LIMIT 1),
+  'Local Documenso operator workspace'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM "TeamProfile"
+  WHERE "teamId" = (SELECT id FROM resolved_team LIMIT 1)
+);
+"@
+}
+
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $envMap = Parse-EnvFile -Path (Join-Path $root ".env")
 $snipeDbPassword = $envMap["SNIPEIT_DB_PASSWORD"]
@@ -198,6 +407,17 @@ WHERE email = '$($operator.Email)';
 $documensoExists = Invoke-PostgresScalar -Database "documenso_db" -Sql @"
 SELECT COUNT(*) FROM "User" WHERE email = '$($operator.Email)';
 "@
+
+if ($documensoExists -eq "0") {
+  Ensure-DocumensoBootstrap `
+    -Email $operator.Email `
+    -Name "$($operator.FirstName) $($operator.LastName)" `
+    -PasswordHash $operator.DocumensoPasswordHash
+
+  $documensoExists = Invoke-PostgresScalar -Database "documenso_db" -Sql @"
+SELECT COUNT(*) FROM "User" WHERE email = '$($operator.Email)';
+"@
+}
 
 if ($documensoExists -eq "1") {
   Invoke-PostgresSql -Database "documenso_db" -Sql @"

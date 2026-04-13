@@ -43,10 +43,12 @@ const getSearchResults = (query: string): SearchResult[] => {
   }
 
   const articleResults: SearchResult[] = BLOG_POSTS.filter((post) =>
-    normalizeText(`${post.title} ${post.excerpt} ${post.category}`).includes(normalizedQuery)
+    normalizeText(
+      `${post.title} ${post.excerpt} ${post.category} ${post.answerSummary} ${post.audience} ${post.keyTakeaways.join(' ')} ${post.relatedConditionSlugs.join(' ')}`
+    ).includes(normalizedQuery)
   ).map((post) => ({
     title: post.title,
-    description: post.excerpt,
+    description: post.answerSummary,
     href: `/blog/${toBlogSlug(post.title)}`,
     type: 'article',
   }));

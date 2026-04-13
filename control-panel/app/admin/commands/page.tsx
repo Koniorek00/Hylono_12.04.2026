@@ -27,7 +27,7 @@ const TABS: Tab[] = [
       {
         label: "Start the full local stack",
         code: ".\\start-dev.bat",
-        note: "Single entry point for Docker, control panel, the website on localhost:3000, and the launcher-wired operator bootstrap for Kuma, Medusa, Snipe-IT, Cal.com, Lago, Twenty, n8n, Novu, plus the local mail-profile validation pass.",
+        note: "Single entry point for Docker, control panel, the website on localhost:3000, and the launcher-wired operator bootstrap for the active first wave: Kuma, Twenty, n8n, Novu, plus the local mail-profile validation pass.",
       },
       {
         label: "Generate secrets (.env)",
@@ -39,9 +39,19 @@ const TABS: Tab[] = [
         code: ".\\scripts\\setup.ps1 infrastructure",
       },
       {
-        label: "Start infrastructure plus default Phase 1A",
+        label: "Start infrastructure plus active first wave",
+        code: ".\\scripts\\setup.ps1 active",
+        note: "Starts only the current deploy-now app slice: Twenty, Novu, and n8n on top of infrastructure.",
+      },
+      {
+        label: "Start infrastructure plus local Phase 1A lab slice",
         code: ".\\scripts\\setup.ps1 1a",
-        note: "Brings up Medusa, Lago, Snipe-IT, Cal.com, Twenty, Documenso, Zitadel, Novu, n8n, and the required sidecars. The full desktop launcher replays the Medusa, Snipe-IT, Cal.com, and Lago baseline seeders automatically after the containers are healthy.",
+        note: "Brings up the broader local lab slice for Medusa, Lago, Snipe-IT, Cal.com, Twenty, Documenso, Zitadel, Novu, and n8n. Keep in mind that the default staging first wave is narrower and should center on the live intake backbone plus control-plane services.",
+      },
+      {
+        label: "Seed active first-wave operator baseline",
+        code: ".\\scripts\\seed-active-wave-operator-baseline.ps1",
+        note: "Reconciles the current deploy-now app settings for Uptime Kuma, Twenty, n8n, Novu, and the local mail-profile validation pass.",
       },
       {
         label: "Generate Documenso signing certificate",
@@ -99,13 +109,22 @@ const TABS: Tab[] = [
         note: "Checks whether the current local mail profile is consistent for app mailers and Novu before you cut over from local-safe to a real delivery provider.",
       },
       {
+        label: "Check stack version governance",
+        code: "node scripts/check-stack-version-governance.cjs",
+        note: "Verifies the pinned image-tag guardrails for the active first wave and prints advisories for intentionally delayed services that still remain on :latest.",
+      },
+      {
         label: "Validate staging env scaffold",
         code: ".\\scripts\\validate-staging-env.ps1 -Path .\\.env.staging",
-        note: "Checks a real .env.staging against the staging template so you catch placeholder secrets, bad URLs, and missing values before server launch.",
+        note: "Checks a real .env.staging against the narrowed active-first-wave staging template so you catch placeholder secrets, bad URLs, and missing values before server launch.",
       },
       {
         label: "Check Phase 1A status",
         code: "docker compose -f docker/phase-1a/docker-compose.yml ps",
+      },
+      {
+        label: "Check active first-wave status",
+        code: "docker compose -f docker/phase-1a/docker-compose.yml ps twenty novu-api novu-worker novu-ws novu-dashboard n8n n8n-worker",
       },
       {
         label: "Surface smoke check",

@@ -1,0 +1,85 @@
+# Page-Type Classification Map
+
+- `/`: Homepage
+- `/about`: About / Trust / Brand page
+- `/store`: Indexable public hub
+- `/research`: Indexable public hub
+- `/conditions`: Indexable public hub
+- `/protocols`: Indexable public hub
+- `/blog`: Indexable public hub
+- `/rental`: Indexable public hub
+- `/faq`: Indexable public hub
+- `/help`: Indexable public hub
+- `/contact`: Indexable public hub
+- `/press`: Press / media page
+- `/shipping`: Legal / Policy page
+- `/returns`: Legal / Policy page
+- `/warranty`: Legal / Policy page
+- `/privacy`: Legal / Policy page
+- `/terms`: Legal / Policy page
+- `/cookie-policy`: Legal / Policy page
+- `/conditions/recovery`: Condition / solution detail page
+- `/conditions/sleep`: Condition / solution detail page
+- `/conditions/stress`: Condition / solution detail page
+- `/conditions/comfort`: Condition / solution detail page
+- `/conditions/vitality`: Condition / solution detail page
+- `/protocols/recovery-oxygen-foundation`: Protocol / solution detail page
+- `/protocols/stress-balance-h2-foundation`: Protocol / solution detail page
+- `/protocols/vitality-dual-stack`: Protocol / solution detail page
+- `/blog/the-science-behind-hyperbaric-oxygen-therapy`: Article / guide detail page
+- `/blog/pemf-therapy-recharging-your-cellular-batteries`: Article / guide detail page
+- `/blog/red-light-therapy-for-skin-regeneration`: Article / guide detail page
+- `/blog/hydrogen-water-the-smallest-antioxidant`: Article / guide detail page
+- `/blog/the-superhuman-protocol-combining-pemf-hbot-and-rlt`: Article / guide detail page
+- `/product/hbot`: Product / service detail page
+- `/product/hydrogen`: Product / service detail page
+- `/product/rlt`: Product / service detail page
+- `/product/pemf`: Product / service detail page
+- `/product/ewot`: Product / service detail page
+- `/product/sauna_blanket`: Product / service detail page
+- `/product/ems`: Product / service detail page
+- `/product/vns`: Product / service detail page
+- `/product/hypoxic`: Product / service detail page
+- `/product/cryo`: Product / service detail page
+- `/product/os-h150`: Product / model detail page
+- `/product/os-h200-h300`: Product / model detail page
+- `/product/os-ho450-p`: Product / model detail page
+- `/product/pr-h600`: Product / model detail page
+- `/product/pr-ho900-ho1500-ho1800`: Product / model detail page
+- `/product/pr-ho900-p-ho1800-p-ho3000-p`: Product / model detail page
+- `/product/za-ho3000-ho3600`: Product / model detail page
+- `/product/za-ho3000-b-ho4500-b`: Product / model detail page
+- `/product/za-ho6000`: Product / model detail page
+- `/product/wo-b300-b600`: Product / model detail page
+- `/product/wo-s1300-s2000`: Product / model detail page
+- `/product/wo-pw3000`: Product / model detail page
+- `/product/wo-b4500`: Product / model detail page
+- `/search`: Secondary public / utility route
+- `/affiliate`: Secondary public / utility route
+- `/careers`: Secondary public / utility route
+- `/learning`: Secondary public / utility route
+- `/locator`: Locator / directory page
+- `/partners`: Secondary public / utility route
+- `/meridian`: Secondary public / utility route
+- `/firesafe`: Secondary public / utility route
+- `/hho-car-kit`: Secondary public / utility route
+- `/wellness-planner`: Secondary public / utility route
+- `/catalog/omega-3`: Secondary public / utility route
+- `/testing/product-3d`: Secondary public / utility route
+- `/checkout`: Private / transactional route
+- `/login`: Private / transactional route
+- `/account`: Private / transactional route
+- `/wishlist`: Private / transactional route
+- `/onboarding`: Private / transactional route
+- `/rental/checkout`: Private / transactional route
+- `/nexus`: Private / transactional route
+- `/nexus/academy`: Private / transactional route
+- `/nexus/clients`: Private / transactional route
+- `/nexus/docs`: Private / transactional route
+- `/nexus/fleet`: Private / transactional route
+- `/nexus/studio`: Private / transactional route
+- `/nexus/supplies`: Private / transactional route
+- `/nexus/team`: Private / transactional route
+- `/support`: Redirect / alias route
+- `/guarantee`: Redirect / alias route
+- `/product/hydrogen/[model]`: Redirect / alias route

@@ -1,8 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { GatedView } from '@/components/GatedView';
 import { PartnerPortal } from '@/components/PartnerPortal';
+import { navigateWithScroll } from '@/src/lib/navigation';
 
 interface PartnersClientProps {
   isAuthenticated: boolean;
@@ -12,13 +12,9 @@ export function PartnersClient({ isAuthenticated }: PartnersClientProps) {
   const router = useRouter();
 
   return (
-    <GatedView
-      title="Partner Portal"
-      description="The Hylono Partner Portal is exclusively available to verified clinic partners and certified practitioners."
+    <PartnerPortal
       isAuthenticated={isAuthenticated}
-      onRequestLogin={() => router.push('/account')}
-    >
-      <PartnerPortal />
-    </GatedView>
+      onRequestAccess={() => navigateWithScroll(router, '/account')}
+    />
   );
 }

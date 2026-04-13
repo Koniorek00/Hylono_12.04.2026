@@ -16,7 +16,7 @@ const TERM_MAPPINGS: { [key: string]: string } = {
     'Hydrogen': '/product/hydrogen',
     'Support Hub': '/help?tab=support',
     'Superhuman Protocol': '/protocols',
-    'Zone Builder': '/builder',
+    'Zone Builder': '/wellness-planner',
     'Bio-Assessment': '/dashboard',
     'Hylono Rewards': '/rewards',
     'Support': '/help?tab=support'

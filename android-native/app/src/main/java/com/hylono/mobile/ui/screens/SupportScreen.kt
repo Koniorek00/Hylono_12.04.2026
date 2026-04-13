@@ -125,7 +125,7 @@ fun SupportScreen(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
             Text(
-                text = "Rental history lookup still depends on the website's authenticated NextAuth session. // VERIFY: add a mobile-safe auth contract before exposing it natively.",
+                text = "Secure rental history access now lives in the rental workspace. Use that screen to sign in and synchronize active rental applications on this device.",
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

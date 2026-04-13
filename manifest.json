@@ -180,8 +180,8 @@
       "dockerImage": "twentycrm/twenty:latest",
       "defaultPort": 8107,
       "accessMode": "web-ui",
-      "uiUrl": "http://localhost:8107",
-      "healthEndpoint": "http://localhost:8107",
+      "uiUrl": "http://127.0.0.1:8107",
+      "healthEndpoint": "http://127.0.0.1:8107",
       "accessNotes": "Browser UI for the CRM workspace.",
       "docsUrl": "https://twenty.com/developers",
       "role": "CRM"
@@ -750,8 +750,11 @@
       "domain": "bi",
       "phase": "2",
       "verdict": "RECOMMENDED",
-      "dockerImage": "metabase/metabase:latest",
+      "dockerImage": "metabase/metabase:v0.59.5",
       "defaultPort": 8220,
+      "accessMode": "web-ui",
+      "uiUrl": "http://127.0.0.1:8220",
+      "healthEndpoint": "http://127.0.0.1:8220/api/health",
       "docsUrl": "https://www.metabase.com/docs/"
     },
     {
@@ -761,8 +764,11 @@
       "domain": "internal",
       "phase": "2",
       "verdict": "RECOMMENDED",
-      "dockerImage": "appsmith/appsmith-ee:latest",
+      "dockerImage": "appsmith/appsmith-ee:v1.98",
       "defaultPort": 8221,
+      "accessMode": "web-ui",
+      "uiUrl": "http://127.0.0.1:8221",
+      "healthEndpoint": "http://127.0.0.1:8221",
       "docsUrl": "https://docs.appsmith.com/"
     }
   ],

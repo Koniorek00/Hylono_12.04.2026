@@ -1,0 +1,522 @@
+[
+  {
+    "route": "/",
+    "file": "app/page.tsx",
+    "decision": "SSG because homepage marketing shell is static and optimized for global caching.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/about",
+    "file": "app/about/page.tsx",
+    "decision": "SSG because this is static informational brand content with no per-request personalization.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/account",
+    "file": "app/account/page.tsx",
+    "decision": "account route uses dynamic user session context and is treated as SSR by default runtime behavior; reverse if route is redesigned to fully static public profile content.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/affiliate",
+    "file": "app/affiliate/page.tsx",
+    "decision": "SSG because this route is static affiliate-intake guidance with manual follow-up and no verified public program terms.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/blog",
+    "file": "app/blog/page.tsx",
+    "decision": "blog route is cache-friendly semi-dynamic content and should use cache components/runtime cache behavior; reverse if per-user personalization becomes mandatory.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/blog/[slug]",
+    "file": "app/blog/[slug]/page.tsx",
+    "decision": "ISR because article content is semi-dynamic and should refresh on a timed cadence.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": true
+  },
+  {
+    "route": "/careers",
+    "file": "app/careers/page.tsx",
+    "decision": "SSG because the careers route renders a static informational shell and remains noindex while not part of the canonical public SEO graph.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/catalog/omega-3",
+    "file": "app/catalog/omega-3/page.tsx",
+    "decision": "SSG because this route is a fixed sales-collateral catalogue whose content is updated editorially rather than per-request. It remains noindex,follow because it functions as a premium catalogue sheet, not a canonical search landing page.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/checkout",
+    "file": "app/checkout/page.tsx",
+    "decision": "checkout route is transaction-sensitive and remains request-time rendered under Next.js 16 Cache Components defaults; explicit `dynamic` segment config is removed because it is incompatible when cacheComponents is enabled. Reverse only if checkout is redesigned to static-safe behavior.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/conditions",
+    "file": "app/conditions/page.tsx",
+    "decision": "SSG because this educational overview is static informational content.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/conditions/[slug]",
+    "file": "app/conditions/[slug]/page.tsx",
+    "decision": "ISR because condition detail pages are content-driven and update periodically.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": true
+  },
+  {
+    "route": "/contact",
+    "file": "app/contact/page.tsx",
+    "decision": "SSG because contact details and form shell are static route content.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/cookie-policy",
+    "file": "app/cookie-policy/page.tsx",
+    "decision": "SSG because policy content is static and versioned by deploy.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/faq",
+    "file": "app/faq/page.tsx",
+    "decision": "SSG because FAQ content is curated static educational material.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/firesafe",
+    "file": "app/firesafe/page.tsx",
+    "decision": "SSG because this compliance/informational page is static content.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/guarantee",
+    "file": "app/guarantee/page.tsx",
+    "decision": "SSG because this legacy assurance route is a static, non-indexable trust summary that points buyers to the canonical purchase-policy pages.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/help",
+    "file": "app/help/page.tsx",
+    "decision": "SSG because help center structure is static support content.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/hho-car-kit",
+    "file": "app/hho-car-kit/page.tsx",
+    "decision": "SSG because this product information page is static marketing content.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/learning",
+    "file": "app/learning/page.tsx",
+    "decision": "SSG because /learning is a noindex routing hub that should route users into real protocol, research, store, rental, and support pages without client-only gating.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/locator",
+    "file": "app/locator/page.tsx",
+    "decision": "SSG because the locator is a noindex utility page backed by repo-controlled partner records.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/login",
+    "file": "app/login/page.tsx",
+    "decision": "SSR because authentication entry experiences are user-state aware.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/meridian",
+    "file": "app/meridian/page.tsx",
+    "decision": "SSG because this route is static product/editorial content.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus",
+    "file": "app/nexus/page.tsx",
+    "decision": "nexus landing stays server-rendered as a static, public, noindex operator overview so the route can explain the workspace clearly while deeper modules stay interactive in client leaves.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/academy",
+    "file": "app/nexus/academy/page.tsx",
+    "decision": "nexus academy stays server-routed as a temporary public preview while the build-in-progress training workspace remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/clients",
+    "file": "app/nexus/clients/page.tsx",
+    "decision": "nexus clients stays server-routed as a temporary public preview while the build-in-progress CRM surface remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/docs",
+    "file": "app/nexus/docs/page.tsx",
+    "decision": "nexus docs stays server-routed as a temporary public preview while the build-in-progress document workspace remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/fleet",
+    "file": "app/nexus/fleet/page.tsx",
+    "decision": "nexus fleet stays server-routed as a temporary public preview while the build-in-progress operations dashboard remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/studio",
+    "file": "app/nexus/studio/page.tsx",
+    "decision": "nexus studio stays server-routed as a temporary public preview while the build-in-progress creation tool remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/supplies",
+    "file": "app/nexus/supplies/page.tsx",
+    "decision": "nexus supplies stays server-routed as a temporary public preview while the build-in-progress reordering workspace remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/nexus/team",
+    "file": "app/nexus/team/page.tsx",
+    "decision": "nexus team stays server-routed as a temporary public preview while the build-in-progress staff dashboard remains noindex and interactive behavior stays in a client leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/onboarding",
+    "file": "app/onboarding/page.tsx",
+    "decision": "SSR because onboarding flow can depend on user/session context.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/partners",
+    "file": "app/partners/page.tsx",
+    "decision": "SSG because partner program overview is static business information.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/press",
+    "file": "app/press/page.tsx",
+    "decision": "ISR because press assets and mentions can update on a periodic cadence.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/privacy",
+    "file": "app/privacy/page.tsx",
+    "decision": "SSG because privacy policy is static legal content tied to deploy revisions.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/[tech]",
+    "file": "app/product/[tech]/page.tsx",
+    "decision": "product route is catalog-style semi-dynamic content and should rely on cache components/runtime caching; reverse if product data becomes per-user personalized.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": true
+  },
+  {
+    "route": "/product/hydrogen/[model]",
+    "file": "app/product/hydrogen/[model]/page.tsx",
+    "decision": "SSG alias route that permanently consolidates legacy hydrogen model paths onto the new dedicated static PDPs.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": true
+  },
+  {
+    "route": "/product/os-h150",
+    "file": "app/product/os-h150/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/os-h200-h300",
+    "file": "app/product/os-h200-h300/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/os-ho450-p",
+    "file": "app/product/os-ho450-p/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/pr-h600",
+    "file": "app/product/pr-h600/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/pr-ho900-ho1500-ho1800",
+    "file": "app/product/pr-ho900-ho1500-ho1800/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/pr-ho900-p-ho1800-p-ho3000-p",
+    "file": "app/product/pr-ho900-p-ho1800-p-ho3000-p/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/wo-b300-b600",
+    "file": "app/product/wo-b300-b600/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/wo-b4500",
+    "file": "app/product/wo-b4500/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/wo-pw3000",
+    "file": "app/product/wo-pw3000/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/wo-s1300-s2000",
+    "file": "app/product/wo-s1300-s2000/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/za-ho3000-b-ho4500-b",
+    "file": "app/product/za-ho3000-b-ho4500-b/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/za-ho3000-ho3600",
+    "file": "app/product/za-ho3000-ho3600/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/product/za-ho6000",
+    "file": "app/product/za-ho6000/page.tsx",
+    "decision": "SSG because this product page is a fixed, indexable hydrogen PDP with stable product data.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/protocols",
+    "file": "app/protocols/page.tsx",
+    "decision": "ISR because protocol index content is semi-dynamic and periodically updated.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/protocols/[slug]",
+    "file": "app/protocols/[slug]/page.tsx",
+    "decision": "ISR because protocol detail content is editorial and refreshed periodically.",
+    "forceNoIndex": false,
+    "generateMetadata": true,
+    "generateStaticParams": true
+  },
+  {
+    "route": "/rental",
+    "file": "app/rental/page.tsx",
+    "decision": "ISR because rental catalog and pricing context is semi-dynamic.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/rental/checkout",
+    "file": "app/rental/checkout/page.tsx",
+    "decision": "SSR because checkout is personalized and must render per-request state.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/research",
+    "file": "app/research/page.tsx",
+    "decision": "research route is an indexable, content-heavy evidence hub and should render the answer block, review context, and study links on the server; keep runtime caching behavior and avoid client-side filters so the page stays crawlable and faster to parse.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/returns",
+    "file": "app/returns/page.tsx",
+    "decision": "SSG because returns policy content is static legal-operational guidance.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/rewards",
+    "file": "app/rewards/page.tsx",
+    "decision": "SSR because rewards visibility can depend on authenticated user state.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/search",
+    "file": "app/search/page.tsx",
+    "decision": "SSG because this is a lightweight internal search shell that reads query params and should not be indexed.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/shipping",
+    "file": "app/shipping/page.tsx",
+    "decision": "SSG because shipping policy and timelines are static informational content.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/store",
+    "file": "app/store/page.tsx",
+    "decision": "store route is semi-dynamic catalog content and should use cache components/runtime cache behavior; reverse if inventory/pricing moves to strict per-request rendering.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/support",
+    "file": "app/support/page.tsx",
+    "decision": "redirect because /support is a duplicate trust alias and should resolve to the canonical help center.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/terms",
+    "file": "app/terms/page.tsx",
+    "decision": "SSG because terms are static legal content versioned by deploy.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/testing/product-3d",
+    "file": "app/testing/product-3d/page.tsx",
+    "decision": "SSG because this is a private noindex lab route with a static server shell and an isolated client-side interaction leaf.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/warranty",
+    "file": "app/warranty/page.tsx",
+    "decision": "SSG because warranty policy content is static legal-commercial guidance.",
+    "forceNoIndex": false,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/wellness-planner",
+    "file": "app/wellness-planner/page.tsx",
+    "decision": "wellness planner route stays a static, noindex shell with a server-rendered orientation block and an interactive client island for the recommendation flow. Cache components/runtime cache behavior is preferred unless server-personalized data is introduced.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  },
+  {
+    "route": "/wishlist",
+    "file": "app/wishlist/page.tsx",
+    "decision": "SSR because wishlist data is user-specific and session-dependent.",
+    "forceNoIndex": true,
+    "generateMetadata": false,
+    "generateStaticParams": false
+  }
+]

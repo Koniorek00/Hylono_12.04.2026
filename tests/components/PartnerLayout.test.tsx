@@ -28,9 +28,9 @@ describe('PartnerLayout', () => {
     signOutMock.mockReset();
   });
 
-  it('signs the user out from the workspace chrome', () => {
+  it('signs the user out from the authenticated workspace chrome', () => {
     render(
-      <PartnerLayout title="Overview">
+      <PartnerLayout title="Overview" chromeMode="workspace">
         <div>Workspace</div>
       </PartnerLayout>
     );
@@ -38,5 +38,18 @@ describe('PartnerLayout', () => {
     fireEvent.click(screen.getByRole('button', { name: /sign out/i }));
 
     expect(signOutMock).toHaveBeenCalledWith({ callbackUrl: '/login' });
+  });
+
+  it('shows public sample workspace actions by default', () => {
+    render(
+      <PartnerLayout title="Overview">
+        <div>Workspace</div>
+      </PartnerLayout>
+    );
+
+    expect(screen.getAllByText(/sample workspace/i).length).toBeGreaterThan(0);
+    const signInLinks = screen.getAllByRole('link', { name: /sign in/i });
+    expect(signInLinks[0]).toHaveAttribute('href', '/login?auth=required&next=%2Faccount');
+    expect(screen.queryByRole('button', { name: /sign out/i })).not.toBeInTheDocument();
   });
 });

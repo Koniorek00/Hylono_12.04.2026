@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { BLOG_POSTS } from '@/constants/content';
+import { BlogPage } from '@/components/BlogPage';
 import { getBlogPublishedIsoDate, toBlogSlug } from '@/lib/blog';
 import { env } from '@/lib/env';
 import { createPageMetadata } from '@/lib/seo-metadata';
@@ -8,32 +9,17 @@ import { ORGANIZATION_ID, WEBSITE_ID, createBreadcrumbSchema, createCollectionPa
 } from '@/lib/seo-schema';
 import StructuredData from '@/src/components/StructuredData';
 import { StaticStructuredData } from '@/src/components/StaticStructuredData';
-import { BlogClient } from './BlogClient';
 
 const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
-const BLOG_CATEGORY_TO_PRODUCT_ROUTE: Record<string, string | null> = {
-  HBOT: 'hbot',
-  PEMF: 'pemf',
-  RLT: 'rlt',
-  Hydrogen: 'hydrogen',
-  Protocols: null,
-};
-
-const BLOG_CATEGORY_TO_PRODUCT_NAME: Record<string, string> = {
-  HBOT: 'Hylono HBOT',
-  PEMF: 'Hylono PEMF + VNS',
-  RLT: 'Hylono PBM / Red Light',
-  Hydrogen: 'Hylono Hydrogen',
-};
-
 // [DECISION: blog route is cache-friendly semi-dynamic content and should use cache components/runtime cache behavior; reverse if per-user personalization becomes mandatory.]
+// Rendering strategy: server-rendered route with a client search-and-filter leaf, crawlable article links, and visible cluster-routing context.
 
 export const metadata: Metadata = {
   ...createPageMetadata({
-    title: 'Hylono Blog | Research Notes, Protocol Guides and Product Insights',
+    title: 'Hylono Blog | Science Notes, Planning Guides, and Next Steps',
     description:
-      'Explore Hylono research notes, wellness articles, and practical protocol guides tied to products, evidence, and next-step planning.',
+      'Use the Hylono blog for plain-language science notes, modality primers, and planning guides before moving to research, conditions, products, or support.',
     path: '/blog',
   }),
   alternates: {
@@ -74,13 +60,13 @@ export default function BlogPageRoute() {
           url: `${SITE_URL}/blog/${slug}`,
           inLanguage: 'en',
           articleSection: post.category,
-          keywords: post.category,
-          about: BLOG_CATEGORY_TO_PRODUCT_ROUTE[post.category] != null
+          keywords: [post.category, ...post.relatedConditionSlugs].join(', '),
+          about: post.relatedProductRoute != null
             ? {
                 '@type': 'Product',
-                '@id': `${SITE_URL}/product/${BLOG_CATEGORY_TO_PRODUCT_ROUTE[post.category]}#product`,
-                url: `${SITE_URL}/product/${BLOG_CATEGORY_TO_PRODUCT_ROUTE[post.category]}`,
-                name: BLOG_CATEGORY_TO_PRODUCT_NAME[post.category] ?? `Hylono ${post.category}`,
+                '@id': `${SITE_URL}/product/${post.relatedProductRoute}#product`,
+                url: `${SITE_URL}/product/${post.relatedProductRoute}`,
+                name: `Hylono ${post.category === 'RLT' ? 'PBM / Red Light' : post.category}`,
               }
             : { '@type': 'DefinedTerm', name: post.category },
           ...(datePublished ? { datePublished } : {}),
@@ -105,7 +91,7 @@ export default function BlogPageRoute() {
             ...createCollectionPageSchema({
               name: 'Hylono Blog',
               description:
-                'Explore Hylono research notes, wellness articles, and practical protocol guides tied to products, evidence, and next-step planning.',
+                'Use the Hylono blog for shorter science notes, modality orientation, and planning guides that route into research, condition pages, product hubs, and support.',
               path: '/blog',
               dateModified: SCHEMA_DATE_MODIFIED,
             }),
@@ -115,7 +101,7 @@ export default function BlogPageRoute() {
               { '@type': 'Product', '@id': `${SITE_URL}/product/rlt#product`, name: 'Hylono PBM / Red Light', url: `${SITE_URL}/product/rlt` },
               { '@type': 'Product', '@id': `${SITE_URL}/product/pemf#product`, name: 'Hylono PEMF + VNS', url: `${SITE_URL}/product/pemf` },
             ],
-            keywords: 'hyperbaric oxygen therapy articles, PEMF wellness research, hydrogen therapy blog, red light therapy articles, HBOT research notes, wellness protocol guides',
+            keywords: 'hyperbaric oxygen therapy articles, PEMF planning guide, hydrogen wellness research notes, red light therapy article hub, Hylono protocol planning, condition-led wellness guidance',
             mainEntity: { '@id': `${SITE_URL}/blog#article-list` },
             speakable: {
               '@type': 'SpeakableSpecification',
@@ -123,8 +109,10 @@ export default function BlogPageRoute() {
             },
             relatedLink: [
               `${SITE_URL}/research`,
+              `${SITE_URL}/store`,
               `${SITE_URL}/protocols`,
               `${SITE_URL}/conditions`,
+              `${SITE_URL}/contact`,
             ],
           }}
         />
@@ -136,7 +124,7 @@ export default function BlogPageRoute() {
           ])}
         />
       </Suspense>
-      <BlogClient />
+      <BlogPage />
     </>
   );
 }

@@ -48,6 +48,7 @@ create_db "thingsboard" "thingsboard_db" "${THINGSBOARD_DB_PASSWORD}"
 create_db "strapi" "strapi_db" "${STRAPI_DB_PASSWORD}"
 create_db "dify" "dify_db" "${DIFY_DB_PASSWORD}"
 create_db "grafana" "grafana_db" "${GRAFANA_DB_PASSWORD}"
+create_db "metabase" "metabase_db" "${METABASE_DB_PASSWORD}"
 
 # Phase 1C
 create_db "chatwoot" "chatwoot_db" "${CHATWOOT_DB_PASSWORD}"

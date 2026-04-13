@@ -47,4 +47,13 @@ fun validateNewsletter(draft: NewsletterDraft): String? = when {
     else -> null
 }
 
+fun validateMobileSignIn(
+    email: String,
+    password: String,
+): String? = when {
+    !email.isValidEmail() -> "Enter a valid account email address."
+    password.isBlank() -> "Enter the account password."
+    else -> null
+}
+
 private fun String.isValidEmail(): Boolean = emailRegex.matches(trim())

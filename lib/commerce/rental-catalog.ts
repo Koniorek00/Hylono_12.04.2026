@@ -4,6 +4,9 @@ const LEGACY_RENTAL_PRODUCT_MAP: Record<string, string> = {
   'tech-hbot': 'hbot-st1700',
   'tech-hydrogen': 'h2-hop450',
   'tech-h2': 'h2-hop450',
+  hbot: 'hbot-st1700',
+  hydrogen: 'h2-hop450',
+  h2: 'h2-hop450',
 };
 
 export interface ResolvedRentalPlan {
@@ -33,7 +36,7 @@ const parseTermMonths = (value: string): number | null => {
   return Number.isFinite(months) && months > 0 ? months : null;
 };
 
-const resolveProductId = (techId: string): string | undefined => {
+export const resolveRentalProductId = (techId: string): string | undefined => {
   const normalized = normalizeId(techId);
   return productById[normalized]
     ? normalized
@@ -41,7 +44,7 @@ const resolveProductId = (techId: string): string | undefined => {
 };
 
 export function getRentalPlanOptions(techId: string): RentalPlanOption[] {
-  const productId = resolveProductId(techId);
+  const productId = resolveRentalProductId(techId);
   if (!productId) {
     return [];
   }
@@ -79,7 +82,7 @@ export function resolveRentalPlan(
   techId: string,
   requestedTermMonths?: number
 ): ResolvedRentalPlan | null {
-  const productId = resolveProductId(techId);
+  const productId = resolveRentalProductId(techId);
   if (!productId) {
     return null;
   }

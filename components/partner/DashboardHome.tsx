@@ -2,353 +2,267 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { PartnerLayout } from './PartnerLayout';
+import { motion } from 'motion/react';
 import {
+    ArrowRight,
+    BadgeCheck,
+    Boxes,
+    FileText,
+    GraduationCap,
+    Palette,
+    ShieldCheck,
+    ShoppingBag,
     Users,
     Wrench,
-    FileText,
-    Calendar,
-    ArrowRight,
-    AlertTriangle,
-    Activity,
-    Palette,
-    Plus,
     LucideIcon,
+    LogIn,
+    MessageSquare,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { buildLoginRedirectPath } from '@/lib/auth-redirect';
+import { PartnerLayout } from './PartnerLayout';
 
-// ─────────────────────────────────────────────────────────
-// TYPES
-// ─────────────────────────────────────────────────────────
-
-interface KpiCardProps {
-    label: string;
-    value: string | number;
-    sub: string;
-    icon: LucideIcon;
-    accent: string;          // Tailwind bg class for icon bg
-    iconColor: string;       // Tailwind text class for icon
-    alert?: boolean;
-}
-
-interface QuickActionProps {
-    icon: LucideIcon;
-    label: string;
+interface ModuleCard {
+    title: string;
     description: string;
     href: string;
-    iconBg: string;
-    iconColor: string;
+    icon: LucideIcon;
+    badge: string;
 }
 
-interface ActivityItem {
-    id: string;
-    type: 'client' | 'service' | 'document' | 'appointment';
-    text: string;
-    time: string;
+interface FoundationCard {
+    title: string;
+    description: string;
 }
 
-interface DeviceRow {
-    id: string;
-    name: string;
-    serial: string;
-    status: 'online' | 'maintenance' | 'offline';
-    nextService: string;
-}
-
-// ─────────────────────────────────────────────────────────
-// STATIC DATA (replace with API when available)
-// ─────────────────────────────────────────────────────────
-
-const RECENT_ACTIVITY: ActivityItem[] = [
-    { id: 'a1', type: 'client',      text: 'New client registered — Maria K.',                 time: '2h ago' },
-    { id: 'a2', type: 'service',     text: 'Service log added for Pinnacle 360 (SN-8821)',      time: '5h ago' },
-    { id: 'a3', type: 'document',    text: 'Informed consent signed — James W.',                time: 'Yesterday' },
-    { id: 'a4', type: 'appointment', text: 'Session completed — Sarah C. (HBOT Protocol A)',   time: 'Yesterday' },
-    { id: 'a5', type: 'client',      text: 'Client notes updated — Robert P.',                  time: '2 days ago' },
-];
-
-const FLEET_ROWS: DeviceRow[] = [
-    { id: 'd1', name: 'Pinnacle 360 Hard Shell', serial: 'SN-8821-HB',  status: 'online',      nextService: '01 Mar 2026' },
-    { id: 'd2', name: 'Aurora Pro Panel',        serial: 'RLT-99X-02',  status: 'online',      nextService: '15 Jun 2026' },
-    { id: 'd3', name: 'Core PEMF Mat',           serial: 'PEMF-PRO-55', status: 'maintenance', nextService: 'OVERDUE' },
-];
-
-const QUICK_ACTIONS: QuickActionProps[] = [
+const MODULES: ModuleCard[] = [
     {
+        title: 'Clients',
+        description: 'Review intake, client records, session history, and protocol coverage from one workspace.',
+        href: '/nexus/clients',
         icon: Users,
-        label: 'Add Client',
-        description: 'Register a new client in Nexus',
-        href: '/nexus/clients?action=new',
-        iconBg: 'bg-cyan-50',
-        iconColor: 'text-cyan-600',
+        badge: 'Records',
     },
     {
-        icon: FileText,
-        label: 'New Document',
-        description: 'Consent form or waiver',
+        title: 'Fleet',
+        description: 'Track service health, maintenance checkpoints, and device readiness across the clinic fleet.',
+        href: '/nexus/fleet',
+        icon: Wrench,
+        badge: 'Operations',
+    },
+    {
+        title: 'Documents',
+        description: 'Generate intake sheets, consents, and clinic-ready paperwork from the same route cluster.',
         href: '/nexus/docs',
-        iconBg: 'bg-indigo-50',
-        iconColor: 'text-indigo-600',
+        icon: FileText,
+        badge: 'Compliance',
     },
     {
+        title: 'Studio',
+        description: 'Build branded collateral, campaign assets, and operator-facing marketing outputs.',
+        href: '/nexus/studio',
         icon: Palette,
-        label: 'Create Campaign',
-        description: 'Open marketing studio',
-        href: '/nexus/studio?action=new',
-        iconBg: 'bg-purple-50',
-        iconColor: 'text-purple-600',
+        badge: 'Content',
+    },
+    {
+        title: 'Academy',
+        description: 'Run onboarding, certification tracking, and internal readiness refreshers for partner teams.',
+        href: '/nexus/academy',
+        icon: GraduationCap,
+        badge: 'Training',
+    },
+    {
+        title: 'Supplies',
+        description: 'Handle consumables, accessories, and reorder planning alongside the rest of the workspace.',
+        href: '/nexus/supplies',
+        icon: ShoppingBag,
+        badge: 'Commerce',
+    },
+    {
+        title: 'Team',
+        description: 'Inspect staffing, certifications, and operational coverage without leaving the operator shell.',
+        href: '/nexus/team',
+        icon: Boxes,
+        badge: 'Staffing',
     },
 ];
 
-// ─────────────────────────────────────────────────────────
-// SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────
+const FOUNDATIONS: FoundationCard[] = [
+    {
+        title: 'One operator shell',
+        description: 'Clients, fleet, documents, studio, training, and supplies live in one connected route family instead of scattered tools.',
+    },
+    {
+        title: 'Public-safe walkthrough',
+        description: 'This public overview focuses on module structure and operator coverage rather than pretending to show a live clinic deployment.',
+    },
+    {
+        title: 'Launch-ready access path',
+        description: 'Use sign-in for account access and contact Hylono when a clinic needs onboarding, rollout support, or partner setup.',
+    },
+];
 
-const KpiCard: React.FC<KpiCardProps> = ({
-    label, value, sub, icon: Icon, accent, iconColor, alert,
-}) => (
-    <div className={`bg-white rounded-xl border ${alert ? 'border-amber-200' : 'border-slate-100'} shadow-sm p-5 flex items-start gap-4`}>
-        <div className={`w-10 h-10 rounded-lg ${accent} flex items-center justify-center shrink-0`}>
-            <Icon className={`w-5 h-5 ${iconColor}`} />
-        </div>
-        <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
-            <p className="text-2xl font-bold text-slate-900 mt-0.5 leading-none">{value}</p>
-            <p className={`text-xs mt-1 ${alert ? 'text-amber-600 font-semibold' : 'text-slate-400'}`}>{sub}</p>
-        </div>
-    </div>
-);
+const accessHref = buildLoginRedirectPath('/account');
 
-const QuickAction: React.FC<QuickActionProps> = ({
-    icon: Icon, label, description, href, iconBg, iconColor,
+const ModulePreviewCard: React.FC<ModuleCard> = ({
+    title,
+    description,
+    href,
+    icon: Icon,
+    badge,
 }) => (
     <Link
         href={href}
-        className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex items-center gap-4 hover:border-cyan-200 hover:shadow-md transition-all group"
+        className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-md"
     >
-        <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
-            <Icon className={`w-5 h-5 ${iconColor}`} />
+        <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+                <Icon className="h-5 w-5" />
+            </div>
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                {badge}
+            </span>
         </div>
-        <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-900 group-hover:text-cyan-700 transition-colors">{label}</p>
-            <p className="text-xs text-slate-400 truncate">{description}</p>
+        <h2 className="text-lg font-semibold text-slate-900 transition-colors group-hover:text-cyan-700">
+            {title}
+        </h2>
+        <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">{description}</p>
+        <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-700">
+            Open module
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </div>
-        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all shrink-0" />
     </Link>
 );
 
-const activityIcon = (type: ActivityItem['type']) => {
-    switch (type) {
-        case 'client':      return <Users className="w-3.5 h-3.5 text-cyan-500" />;
-        case 'service':     return <Wrench className="w-3.5 h-3.5 text-amber-500" />;
-        case 'document':    return <FileText className="w-3.5 h-3.5 text-indigo-500" />;
-        case 'appointment': return <Calendar className="w-3.5 h-3.5 text-emerald-500" />;
-    }
-};
-
-const DeviceStatusBadge: React.FC<{ status: DeviceRow['status'] }> = ({ status }) => {
-    if (status === 'online') {
-        return (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Online
-            </span>
-        );
-    }
-    if (status === 'maintenance') {
-        return (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase">
-                <Wrench className="w-3 h-3" />
-                Service
-            </span>
-        );
-    }
-    return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold uppercase">
-            Offline
-        </span>
-    );
-};
-
-// ─────────────────────────────────────────────────────────
-// MAIN COMPONENT
-// ─────────────────────────────────────────────────────────
-
-export const DashboardHome: React.FC = () => {
-    const today = new Date().toLocaleDateString('en-GB', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-    });
-
-    return (
-        <PartnerLayout title="Overview">
-
-            {/* Page header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                <div>
-                    <h1 className="text-xl font-bold text-slate-900">Overview</h1>
-                    <p className="text-sm text-slate-400 mt-0.5">{today}</p>
-                </div>
-                <Link
-                    href="/nexus/clients?action=new"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Client
-                </Link>
-            </div>
-
-            {/* ── KPI Cards ─────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0 }}
-                >
-                    <KpiCard
-                        label="Active Clients"
-                        value={88}
-                        sub="12 at-risk — review needed"
-                        icon={Users}
-                        accent="bg-cyan-50"
-                        iconColor="text-cyan-600"
-                    />
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.05 }}
-                >
-                    <KpiCard
-                        label="Fleet Health"
-                        value="2 / 3"
-                        sub="1 unit needs service"
-                        icon={Activity}
-                        accent="bg-amber-50"
-                        iconColor="text-amber-600"
-                        alert
-                    />
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                >
-                    <KpiCard
-                        label="Pending Documents"
-                        value={4}
-                        sub="Consent forms awaiting signature"
-                        icon={FileText}
-                        accent="bg-indigo-50"
-                        iconColor="text-indigo-600"
-                    />
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                >
-                    <KpiCard
-                        label="Sessions This Week"
-                        value={14}
-                        sub="Next: Today, 14:00"
-                        icon={Calendar}
-                        accent="bg-emerald-50"
-                        iconColor="text-emerald-600"
-                    />
-                </motion.div>
-            </div>
-
-            {/* ── Middle row: Fleet + Recent Activity ───────────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
-
-                {/* Fleet Status (3/5) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="lg:col-span-3 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden"
-                >
-                    <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                        <h2 className="text-sm font-semibold text-slate-900">Fleet Status</h2>
-                        <Link href="/nexus/fleet?device=d3" className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
-                            Manage <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                    </div>
-                    <div className="divide-y divide-slate-50">
-                        {FLEET_ROWS.map((device) => (
-                            <Link
-                                key={device.id}
-                                href={`/nexus/fleet?device=${device.id}`}
-                                className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors group"
-                            >
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-slate-800 group-hover:text-cyan-700 transition-colors truncate">
-                                        {device.name}
-                                    </p>
-                                    <p className="text-[10px] font-mono text-slate-400">{device.serial}</p>
-                                </div>
-                                <DeviceStatusBadge status={device.status} />
-                                <div className="text-right hidden sm:block">
-                                    <p className="text-[10px] text-slate-400 uppercase font-semibold">Next service</p>
-                                    <p className={`text-xs font-medium ${device.nextService === 'OVERDUE' ? 'text-red-600 font-bold' : 'text-slate-600'}`}>
-                                        {device.nextService}
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                    {FLEET_ROWS.some(d => d.status === 'maintenance') && (
-                        <div className="px-5 py-3 bg-amber-50 border-t border-amber-100 flex items-center gap-2 text-xs text-amber-700">
-                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                            <span>Core PEMF Mat has an open service ticket. <Link href="/nexus/fleet?device=d3" className="font-bold underline hover:no-underline">View details</Link></span>
-                        </div>
-                    )}
-                </motion.div>
-
-                {/* Recent Activity (2/5) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.25 }}
-                    className="lg:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden"
-                >
-                    <div className="px-5 py-4 border-b border-slate-100">
-                        <h2 className="text-sm font-semibold text-slate-900">Recent Activity</h2>
-                    </div>
-                    <ul className="divide-y divide-slate-50">
-                        {RECENT_ACTIVITY.map((item) => (
-                            <li key={item.id} className="flex items-start gap-3 px-5 py-3">
-                                <div className="w-6 h-6 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                                    {activityIcon(item.type)}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs text-slate-700 leading-snug">{item.text}</p>
-                                    <p className="text-[10px] text-slate-400 mt-0.5">{item.time}</p>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </motion.div>
-            </div>
-
-            {/* ── Quick Actions ─────────────────────────────────────── */}
-            <motion.div
-                initial={{ opacity: 0, y: 8 }}
+export const DashboardHome: React.FC = () => (
+    <PartnerLayout title="Overview">
+        <div className="space-y-8">
+            <motion.section
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                className="overflow-hidden rounded-[28px] bg-slate-950 text-white shadow-xl"
             >
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Quick Actions</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {QUICK_ACTIONS.map((action) => (
-                        <QuickAction key={action.href} {...action} />
+                <div className="grid gap-8 px-6 py-8 md:px-8 md:py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                            <BadgeCheck className="h-3.5 w-3.5" />
+                            Nexus operator workspace
+                        </div>
+                        <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                            Run clinic operations, staff enablement, and content workflows from one Nexus shell.
+                        </h1>
+                        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 md:text-base">
+                            Nexus groups client records, fleet readiness, documents, team training, supplies, and studio output into a single partner workspace. Explore the module structure here, then continue through sign-in when account access is needed.
+                        </p>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                            <Link
+                                href={accessHref}
+                                className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-100"
+                            >
+                                <LogIn className="h-4 w-4" />
+                                Sign in to account
+                            </Link>
+                            <Link
+                                href="/contact"
+                                className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                            >
+                                <MessageSquare className="h-4 w-4" />
+                                Contact Hylono
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200">
+                            Workspace coverage
+                        </p>
+                        <div className="mt-4 space-y-3">
+                            {[
+                                'Clients and protocol tracking',
+                                'Fleet health and maintenance workflows',
+                                'Documents, onboarding, and compliance',
+                                'Studio output for clinic marketing',
+                                'Academy readiness and team enablement',
+                            ].map((item) => (
+                                <div
+                                    key={item}
+                                    className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3"
+                                >
+                                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
+                                    <span className="text-sm text-slate-200">{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </motion.section>
+
+            <motion.section
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Public route note
+                </p>
+                <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
+                    Public Nexus routes are presented as a sample workspace tour. The goal is to show how the operator product is structured without presenting fabricated live clinic activity as production data.
+                </p>
+            </motion.section>
+
+            <section id="nexus-modules">
+                <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                            Modules
+                        </p>
+                        <h2 className="mt-1 text-2xl font-semibold text-slate-900">
+                            Explore the route network module by module.
+                        </h2>
+                    </div>
+                    <p className="max-w-xl text-sm text-slate-500">
+                        Each module route stays available for walkthrough and can be upgraded into full partner access without changing the core route structure.
+                    </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {MODULES.map((module, index) => (
+                        <motion.div
+                            key={module.href}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.08 + index * 0.03 }}
+                        >
+                            <ModulePreviewCard {...module} />
+                        </motion.div>
                     ))}
                 </div>
-            </motion.div>
+            </section>
 
-        </PartnerLayout>
-    );
-};
-
+            <section>
+                <div className="mb-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Foundations
+                    </p>
+                    <h2 className="mt-1 text-2xl font-semibold text-slate-900">
+                        What makes this launch-safe right now.
+                    </h2>
+                </div>
+                <div className="grid gap-4 lg:grid-cols-3">
+                    {FOUNDATIONS.map((item, index) => (
+                        <motion.div
+                            key={item.title}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.12 + index * 0.04 }}
+                            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                        >
+                            <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                            <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </section>
+        </div>
+    </PartnerLayout>
+);

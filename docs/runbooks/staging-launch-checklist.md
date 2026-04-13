@@ -7,7 +7,9 @@
 - [ ] Confirm DNS is ready for the staging subdomains.
 - [ ] Confirm a reverse proxy will terminate TLS.
 - [ ] Confirm `.env.staging` exists and has no placeholder secrets.
+- [ ] Run `node scripts/check-stack-version-governance.cjs`.
 - [ ] Run `.\scripts\validate-staging-env.ps1 -Path .\.env.staging` and fix every reported issue.
+- [ ] Uncomment and fill the conditional service keys in `.env.staging` only for the services that are intentionally part of this wave.
 
 ## Infrastructure
 
@@ -18,24 +20,24 @@
 
 ## App Layer
 
-- [ ] Start Medusa.
-- [ ] Start Lago.
-- [ ] Start Snipe-IT.
-- [ ] Start Cal.com.
+- [ ] Start the main site and control panel.
 - [ ] Start Twenty CRM.
-- [ ] Start Documenso.
-- [ ] Start Zitadel.
 - [ ] Start Novu.
 - [ ] Start n8n.
+
+## Conditional Later App Layer
+
+- [ ] Start Cal.com only if booking ownership is approved for this wave.
+- [ ] Start Documenso only if the document class and retention policy are approved.
+- [ ] Start Zitadel only if internal-tools SSO is part of this wave.
+- [ ] Keep Medusa, Lago, Snipe-IT, and Leihs disabled unless a separate decision log explicitly approves them.
 
 ## Operator Baseline
 
 - [ ] Confirm the staging monitoring page is visible.
 - [ ] Confirm the CRM baseline exists.
-- [ ] Confirm the billing baseline exists.
-- [ ] Confirm the scheduling baseline exists.
 - [ ] Confirm the notification baseline exists.
-- [ ] Confirm the signing certificate path is valid.
+- [ ] Confirm optional baselines only for the conditional services that were intentionally enabled.
 
 ## Verification
 

@@ -16,6 +16,32 @@ export const rentalLandingContent = {
       'Review shipping, returns, and warranty before checkout',
     ],
   },
+  programFacts: [
+    {
+      title: 'Manual review before billing',
+      text: 'Rental requests are reviewed by the Hylono team before deposit timing, payment method, and delivery details are confirmed.',
+      href: '/contact?intent=rental',
+      cta: 'Ask about next steps',
+    },
+    {
+      title: 'EU delivery and support coverage',
+      text: 'Published rental support and delivery coverage is currently limited to European Union member states.',
+      href: '/shipping',
+      cta: 'Review shipping policy',
+    },
+    {
+      title: 'Terms depend on the selected plan',
+      text: 'Monthly pricing, minimum term, and deposit are shown per eligible device and confirmed again before the agreement is finalized.',
+      href: '/rental/checkout',
+      cta: 'Preview request flow',
+    },
+    {
+      title: 'Return, extend, or buy later where offered',
+      text: 'Use the linked returns, terms, and product pages to review how return handling, extensions, and purchase-credit paths work.',
+      href: '/returns',
+      cta: 'Review return process',
+    },
+  ],
   howItWorks: [
     {
       number: 1,
@@ -93,14 +119,57 @@ const modalityDisplayMap: Record<string, RentalTechnologyFilter> = {
   O2: 'HBOT',
 };
 
-export const rentalProducts = products
-  .filter((product) => product.rentalEligible && product.rentalPlans?.length)
-  .map((product) => ({
-    id: product.id,
-    slug: product.slug,
-    title: product.title,
-    modality: modalityDisplayMap[product.modality] ?? 'H2',
-    rentalMonthly: Math.min(...(product.rentalPlans ?? []).map((plan) => plan.monthlyPrice)),
-    available: true,
-    image: product.images[0],
-  }));
+const modalityRouteMap: Record<Exclude<RentalTechnologyFilter, 'all'>, string> = {
+  HBOT: 'hbot',
+  H2: 'hydrogen',
+  RLT: 'rlt',
+  PEMF: 'pemf',
+};
+
+const normalizeRentalModality = (
+  modality: string
+): Exclude<RentalTechnologyFilter, 'all'> => {
+  const resolvedModality = modalityDisplayMap[modality];
+  return resolvedModality && resolvedModality !== 'all' ? resolvedModality : 'H2';
+};
+
+const parsePlanMonths = (value: string): number => {
+  const match = value.match(/(\d+)/);
+  if (!match) {
+    return 1;
+  }
+
+  const months = Number.parseInt(match[1] ?? '', 10);
+  return Number.isFinite(months) && months > 0 ? months : 1;
+};
+
+export const rentalProducts = products.flatMap((product) => {
+  const rentalPlans = product.rentalPlans ?? [];
+
+  if (!product.rentalEligible || rentalPlans.length === 0) {
+    return [];
+  }
+
+  const modality = normalizeRentalModality(product.modality);
+
+  return [
+    {
+      id: product.id,
+      slug: product.slug,
+      title: product.title,
+      shortDescription: product.shortDescription,
+      modality,
+      productPath: `/product/${modalityRouteMap[modality]}`,
+      rentalMonthly: Math.min(...rentalPlans.map((plan) => plan.monthlyPrice)),
+      minimumTermMonths: Math.min(...rentalPlans.map((plan) => parsePlanMonths(plan.minPeriod))),
+      availableTerms: rentalPlans
+        .map((plan) => parsePlanMonths(plan.period))
+        .sort((left, right) => left - right),
+      deposit: Math.min(...rentalPlans.map((plan) => plan.deposit)),
+      purchasePrice: product.purchasePrice,
+      selectionRationale: product.selectionRationale,
+      available: true,
+      image: product.images[0],
+    },
+  ];
+});

@@ -1,19 +1,17 @@
 import type { Metadata } from 'next';
-import { connection } from 'next/server';
 import { DashboardHome } from '@/components/partner/DashboardHome';
 import { createPageMetadata } from '@/lib/seo-metadata';
 
-// [DECISION: nexus dashboard is request-aware partner workspace UI and remains server-routed with a client leaf for session-gated operations.]
+// [DECISION: nexus landing stays server-rendered as a static, public, noindex operator overview so the route can explain the workspace clearly while deeper modules stay interactive in client leaves.]
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Nexus',
   description:
-    'Access the Hylono Nexus workspace for clinic operations, training, fleet health, and partner resources.',
+    'Explore the Hylono Nexus workspace for clinic operations, fleet health, documents, training, and partner workflows.',
   path: '/nexus',
   forceNoIndex: true,
 });
 
-export default async function NexusPageRoute() {
-  await connection();
+export default function NexusPageRoute() {
   return <DashboardHome />;
 }

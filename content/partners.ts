@@ -22,6 +22,19 @@ export const partnerTypeLabels: Record<PartnerType, string> = {
   showroom: 'Hylono Showroom',
 };
 
+export const partnerTypeDescriptions: Record<PartnerType, string> = {
+  clinic: 'Hosts wellness sessions or guided access for the technologies listed on the page.',
+  distributor: 'Supports regional product access, purchasing guidance, and rollout coordination.',
+  showroom: 'Offers an in-person Hylono environment for demos, walkthroughs, or appointment-led visits.',
+};
+
+export const partnerDirectoryMeta = {
+  lastVerified: '2026-04-12',
+  verificationLabel: 'Repo-controlled listings reviewed before publication',
+  coverageLabel: 'Public directory focused on currently published Europe coverage',
+  nextStepLabel: 'Use contact for a guided introduction when you need the closest match by city, technology, or partner type',
+} as const;
+
 export const partnerLocations: PartnerLocation[] = [
   {
     id: '1',

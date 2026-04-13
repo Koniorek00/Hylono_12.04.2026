@@ -16,7 +16,7 @@ export const featureFlags = {
 
   // Rental
   feature_rental_landing: true,
-  feature_rental_checkout: false,
+  feature_rental_checkout: true,
   feature_account_rentals: false,
 
   // Protocols

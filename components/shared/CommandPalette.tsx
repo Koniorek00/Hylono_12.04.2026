@@ -44,7 +44,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onNavigate }) =>
         // Places
         { id: 'p1', label: 'Concept', description: 'Home Page', category: 'Places', icon: Home, target: 'home' },
         { id: 'p2', label: 'Store', description: 'Browse Products', category: 'Places', icon: ShoppingBag, target: 'store' },
-        { id: 'p3', label: 'Configurator', description: 'Build Your Zone', category: 'Places', icon: Palette, target: 'builder' },
+        { id: 'p3', label: 'Configurator', description: 'Build Your Zone', category: 'Places', icon: Palette, target: 'wellness-planner' },
         { id: 'p4', label: 'Science & Research', description: 'Evidence Library', category: 'Places', icon: GraduationCap, target: 'blog' },
         { id: 'p5', label: 'Dashboard', description: 'User Portal', category: 'Places', icon: LayoutDashboard, target: 'dashboard' },
 

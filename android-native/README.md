@@ -35,8 +35,11 @@ The app currently integrates directly with the authoritative App Router handlers
 - `POST /api/contact`
 - `POST /api/newsletter`
 - `POST /api/rental`
+- `POST /api/mobile/auth`
+- `POST /api/mobile/auth/refresh`
+- `GET /api/rental` via mobile bearer token or website session
 
-Native rental history lookup is still intentionally not exposed because the server-side `GET /api/rental` contract now requires a valid NextAuth session cookie and no mobile-safe auth/session contract exists in the repo yet.
+Native rental history is now exposed behind a narrow mobile-safe auth contract. The current implementation reuses the repo-configured credentials authority already used by the protected website login and stores the resulting mobile session securely on-device.
 
 Set a different backend at build time with:
 
@@ -65,13 +68,15 @@ This first native cut includes:
 - Partner locator
 - Support request center wired to `POST /api/contact` and `POST /api/newsletter`
 - Booking intake form with on-device draft persistence
-- Rental intake form with on-device draft persistence and explicit web-auth lookup boundary
+- Rental intake form with on-device draft persistence
+- Secure mobile sign-in for authenticated rental-history lookup
 - Contact and newsletter drafts persisted locally until send or clear
 - Native submission banners now surface server validation, rate-limit, and degraded-backend guidance for all repo-backed intake flows
 - Nexus workspace with overview, client monitoring, and fleet health
 - First JVM unit tests for validation and draft codec coverage
 - GitHub Actions workflow for `android-native/` assemble, lint, and unit tests
 
-Authentication, payment checkout, push notifications, offline sync, and real clinic data APIs are not implemented yet.
+Broader customer authentication, payment checkout, push notifications, offline sync, and real clinic data APIs are not implemented yet.
 
 See `docs/continuation-audit.md` for the current continuation-root decision and status matrix against the original Android brief.
+See `docs/mobile-auth-contract.md` for the current mobile auth and rental-history contract.

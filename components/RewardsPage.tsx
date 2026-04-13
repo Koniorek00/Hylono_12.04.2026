@@ -19,6 +19,7 @@ import { NavigateFunction } from '../types';
 
 interface RewardsPageProps {
     onNavigate?: NavigateFunction;
+    isAuthenticated?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,10 @@ const EARN_METHODS = [
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const RewardsPage: React.FC<RewardsPageProps> = ({ onNavigate }) => {
+export const RewardsPage: React.FC<RewardsPageProps> = ({
+    onNavigate,
+    isAuthenticated = false,
+}) => {
     const shouldReduceMotion = useReducedMotion();
     const [copied, setCopied] = useState(false);
     const [activeSection, setActiveSection] = useState<'referral' | 'loyalty'>('referral');
@@ -72,7 +76,7 @@ export const RewardsPage: React.FC<RewardsPageProps> = ({ onNavigate }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-950 pt-10 pb-24">
+        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-950 pt-10 pb-24">
             <div className="max-w-6xl mx-auto px-6">
                 {/* Header */}
                 <motion.div
@@ -90,6 +94,36 @@ export const RewardsPage: React.FC<RewardsPageProps> = ({ onNavigate }) => {
                         Two ways to earn: refer friends for instant credit, or accumulate points with every purchase.
                     </p>
                 </motion.div>
+
+                {!isAuthenticated && (
+                    <motion.div
+                        initial={shouldReduceMotion ? {} : { opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="max-w-3xl mx-auto mb-10 rounded-3xl border border-cyan-500/30 bg-slate-900/70 p-6 text-center"
+                    >
+                        <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-300">
+                            Public preview
+                        </p>
+                        <p className="mt-3 text-sm leading-7 text-slate-300">
+                            Browse the reward structure before you sign in. Personal balances,
+                            referral codes, and member actions unlock from your Hylono account.
+                        </p>
+                        <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+                            <button
+                                onClick={() => onNavigate?.('account')}
+                                className="rounded-full bg-cyan-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-cyan-400"
+                            >
+                                Sign in for your rewards
+                            </button>
+                            <button
+                                onClick={() => onNavigate?.('store')}
+                                className="rounded-full border border-slate-600 px-6 py-3 text-sm font-semibold text-slate-200 transition hover:border-slate-400 hover:text-white"
+                            >
+                                Explore the store first
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
 
                 {/* Section Toggle */}
                 <div className="flex justify-center mb-12">
@@ -304,7 +338,7 @@ export const RewardsPage: React.FC<RewardsPageProps> = ({ onNavigate }) => {
                     </div>
                 </motion.div>
             </div>
-        </div>
+        </main>
     );
 };
 

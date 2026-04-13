@@ -32,6 +32,23 @@ const RESEARCH_MODALITY_PROTOCOL_ROUTE: Record<ResearchModality, string> = {
   H2: '/protocols/stress-balance-h2-foundation',
 };
 
+const RESEARCH_MODALITY_CONDITION_ROUTE: Record<
+  ResearchModality,
+  {
+    href: string;
+    label: string;
+  }
+> = {
+  HBOT: {
+    href: '/conditions/recovery',
+    label: 'recovery guide',
+  },
+  H2: {
+    href: '/conditions/stress',
+    label: 'stress guide',
+  },
+};
+
 const RESEARCH_MODALITY_INTROS: Record<
   ResearchModality,
   {
@@ -59,14 +76,22 @@ const RESEARCH_MODALITY_INTROS: Record<
   },
 };
 
-const displayReviewDate = new Date(`${SCHEMA_DATE_MODIFIED}T00:00:00Z`).toLocaleDateString('en-US', {
+const displayReviewDateIso = `${SCHEMA_DATE_MODIFIED}T00:00:00Z`;
+const displayReviewDate = new Date(displayReviewDateIso).toLocaleDateString('en-US', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
 });
 
-const latestStudyYear = Math.max(...researchContent.studies.map((study) => study.year));
-const modalityCount = new Set(researchContent.studies.map((study) => study.modality)).size;
+const researchStudies = researchContent.studies;
+const curatedStudyCount = researchStudies.length;
+const canonicalStudyCount = researchContent.canonicalStudyCount;
+const latestStudyYear =
+  curatedStudyCount > 0 ? Math.max(...researchStudies.map((study) => study.year)) : null;
+const modalityCount = new Set(researchStudies.map((study) => study.modality)).size;
+const activeResearchModalities = RESEARCH_MODALITIES.filter((modality) =>
+  researchStudies.some((study) => study.modality === modality)
+);
 
 // [DECISION: research route is an indexable, content-heavy evidence hub and should render the answer block, review context, and study links on the server; keep runtime caching behavior and avoid client-side filters so the page stays crawlable and faster to parse.]
 // Rendering strategy: server-rendered research hub with schema emitted from the route and static study cards sourced from canonical content modules.
@@ -74,7 +99,7 @@ const modalityCount = new Set(researchContent.studies.map((study) => study.modal
 export const metadata: Metadata = createPageMetadata({
   title: 'HBOT & Hydrogen Research | Hylono',
   description:
-    'Read curated HBOT and hydrogen studies, see the limits of the evidence, and move to the relevant product hub or protocol page.',
+    'Read the current HBOT and hydrogen evidence set, see the limits of the evidence, and move to the relevant product hub or protocol page.',
   path: '/research',
 });
 
@@ -98,8 +123,8 @@ export default function ResearchPageRoute() {
     isPartOf: { '@id': WEBSITE_ID() },
     publisher: { '@id': ORGANIZATION_ID() },
     itemListOrder: 'https://schema.org/ItemListUnordered',
-    numberOfItems: researchContent.studies.length,
-    itemListElement: researchContent.studies.map((study, index) => ({
+    numberOfItems: researchStudies.length,
+    itemListElement: researchStudies.map((study, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       url: study.url,
@@ -137,16 +162,17 @@ export default function ResearchPageRoute() {
   const researchPageSchemaBase = createMedicalWebPageSchema({
     name: 'Hylono Research Hub',
     description:
-      'Read curated HBOT and hydrogen research summaries, visible limitations, and next-step links to product hubs and protocols.',
+      'Read the current HBOT and hydrogen research summaries, visible limitations, and next-step links to product hubs and protocols.',
     abstract:
       'Server-rendered evidence hub for HBOT and hydrogen studies with plain-language summaries, limitations, and links into the Hylono topical graph.',
     path: '/research',
     about: ['Mild Hyperbaric Oxygen Therapy', 'Hydrogen wellness technology', 'Protocol planning'],
-    citations: researchContent.studies.map((study) => ({
+    citations: researchStudies.map((study) => ({
       title: study.title,
       url: study.url,
       doi: study.doi,
       year: study.year,
+      authors: study.authors,
     })),
     mainEntity: { '@id': `${env.NEXT_PUBLIC_SITE_URL}/research#study-list` },
     reviewedByName: siteOwnership.research.team,
@@ -155,7 +181,7 @@ export default function ResearchPageRoute() {
     lastReviewed: SCHEMA_DATE_MODIFIED,
   });
 
-  const researchProductMentions = [...new Set(researchContent.studies.map((study) => study.modality))]
+  const researchProductMentions = [...new Set(researchStudies.map((study) => study.modality))]
     .map((modality) => RESEARCH_MODALITY_PRODUCT_ROUTE[modality])
     .filter((slug): slug is string => Boolean(slug))
     .map((slug) => ({
@@ -185,7 +211,10 @@ export default function ResearchPageRoute() {
     ...(researchProductMentions.length > 0 ? { mentions: researchProductMentions } : {}),
     relatedLink: [
       `${env.NEXT_PUBLIC_SITE_URL}/store`,
+      `${env.NEXT_PUBLIC_SITE_URL}/conditions/recovery`,
+      `${env.NEXT_PUBLIC_SITE_URL}/conditions/stress`,
       `${env.NEXT_PUBLIC_SITE_URL}/protocols`,
+      `${env.NEXT_PUBLIC_SITE_URL}/rental`,
       `${env.NEXT_PUBLIC_SITE_URL}/conditions`,
       `${env.NEXT_PUBLIC_SITE_URL}/contact`,
     ],
@@ -219,20 +248,23 @@ export default function ResearchPageRoute() {
                 id="research-answer-summary"
                 className="mt-5 max-w-2xl text-lg leading-8 text-slate-700"
               >
-                Read curated HBOT and hydrogen studies, see what outcomes were actually measured,
-                and move to the relevant technology or protocol page without guessing what the
-                evidence does and does not support.
+                Read the current HBOT and hydrogen evidence set, see what outcomes were actually
+                measured, and move to the relevant technology or protocol page without guessing
+                what the evidence does and does not support.
               </p>
 
               <ul className="mt-8 grid gap-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
                 <li className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  HBOT entries here focus on exercise performance and post-exercise soreness.
+                  The public hub now surfaces the full current canonical HBOT and hydrogen evidence
+                  set tied to live condition, product, and protocol routes.
                 </li>
                 <li className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  Hydrogen entries here focus on fatigue and aerobic-capacity outcomes.
+                  Coverage is {curatedStudyCount} published records from {canonicalStudyCount}{' '}
+                  canonical evidence entries.
                 </li>
                 <li className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  Every study note includes a limitation so relevance is easier to judge fast.
+                  Modality coverage follows verified evidence availability, so unsupported
+                  categories are intentionally not represented here yet.
                 </li>
               </ul>
 
@@ -282,10 +314,11 @@ export default function ResearchPageRoute() {
 
               <div className="mt-6 grid grid-cols-3 gap-3 text-left">
                 <div className="rounded-2xl border border-white bg-white p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Studies</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Coverage</p>
                   <p className="mt-2 text-2xl font-black text-slate-950">
-                    {researchContent.studies.length}
+                    {curatedStudyCount}/{canonicalStudyCount}
                   </p>
+                  <p className="mt-1 text-xs text-slate-500">published / canonical</p>
                 </div>
                 <div className="rounded-2xl border border-white bg-white p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Modalities</p>
@@ -293,9 +326,63 @@ export default function ResearchPageRoute() {
                 </div>
                 <div className="rounded-2xl border border-white bg-white p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Latest year</p>
-                  <p className="mt-2 text-2xl font-black text-slate-950">{latestStudyYear}</p>
+                  <p className="mt-2 text-2xl font-black text-slate-950">
+                    {latestStudyYear ?? 'N/A'}
+                  </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 py-14">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                {researchContent.curationTitle}
+              </p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+                Full current HBOT and hydrogen coverage.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-slate-700">
+                {researchContent.selectionPolicy}
+              </p>
+              <p className="mt-4 text-sm leading-7 text-slate-700">
+                {researchContent.scopeNote}
+              </p>
+              <p className="mt-4 text-sm font-medium leading-7 text-slate-600">
+                {researchContent.sortLabel}
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Direct exits
+              </p>
+              <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
+                Keep the evidence path specific.
+              </h2>
+              <div className="mt-5 flex flex-col gap-3 text-sm font-semibold">
+                <Link
+                  href="/conditions/recovery"
+                  className="underline decoration-slate-300 underline-offset-4"
+                >
+                  Open the recovery guide
+                </Link>
+                <Link
+                  href="/conditions/stress"
+                  className="underline decoration-slate-300 underline-offset-4"
+                >
+                  Open the stress guide
+                </Link>
+                <Link href="/rental" className="underline decoration-slate-300 underline-offset-4">
+                  Explore rentals
+                </Link>
+              </div>
+              <p className="mt-5 text-sm leading-7 text-slate-700">
+                Use a condition guide when you need context first, or rental when you are already
+                narrowing toward trial, logistics, and support.
+              </p>
             </div>
           </div>
         </section>
@@ -310,8 +397,9 @@ export default function ResearchPageRoute() {
                 Choose the evidence path that matches your intent.
               </h2>
               <p className="mt-3 text-base leading-7 text-slate-700">
-                The current library is small enough to scan without filters. Use the modality
-                summaries first, then open the source study or continue to the related hub.
+                The current library is still compact enough to scan directly. Start with the
+                modality snapshots, then move into condition guides, source studies, product hubs,
+                protocols, or rental planning depending on what question you need answered next.
               </p>
             </div>
             <Link
@@ -322,56 +410,69 @@ export default function ResearchPageRoute() {
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-2">
-            {RESEARCH_MODALITIES.map((modality) => {
-              const studies = researchContent.studies.filter((study) => study.modality === modality);
-              const productHref = `/product/${RESEARCH_MODALITY_PRODUCT_ROUTE[modality]}`;
-              const protocolHref = RESEARCH_MODALITY_PROTOCOL_ROUTE[modality];
-              const content = RESEARCH_MODALITY_INTROS[modality];
+          {activeResearchModalities.length > 0 ? (
+            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+              {activeResearchModalities.map((modality) => {
+                const studies = researchStudies.filter((study) => study.modality === modality);
+                const productHref = `/product/${RESEARCH_MODALITY_PRODUCT_ROUTE[modality]}`;
+                const protocolHref = RESEARCH_MODALITY_PROTOCOL_ROUTE[modality];
+                const condition = RESEARCH_MODALITY_CONDITION_ROUTE[modality];
+                const content = RESEARCH_MODALITY_INTROS[modality];
 
-              return (
-                <article
-                  key={modality}
-                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    {content.eyebrow}
-                  </p>
-                  <h3 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
-                    {content.heading}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-slate-700">{content.description}</p>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">{content.limitation}</p>
+                return (
+                  <article
+                    key={modality}
+                    className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                      {content.eyebrow}
+                    </p>
+                    <h3 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
+                      {content.heading}
+                    </h3>
+                    <p className="mt-4 text-sm leading-7 text-slate-700">{content.description}</p>
+                    <p className="mt-4 text-sm leading-7 text-slate-600">{content.limitation}</p>
 
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {studies.map((study) => (
-                      <span
-                        key={study.id}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {studies.map((study) => (
+                        <span
+                          key={study.id}
+                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600"
+                        >
+                          {study.studyType} | {study.year}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold">
+                      <Link
+                        href={productHref}
+                        className="text-slate-950 underline decoration-slate-300 underline-offset-4 transition hover:decoration-slate-950"
                       >
-                        {study.studyType} | {study.year}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold">
-                    <Link
-                      href={productHref}
-                      className="text-slate-950 underline decoration-slate-300 underline-offset-4 transition hover:decoration-slate-950"
-                    >
-                      View the {RESEARCH_MODALITY_PRODUCT_NAME[modality]} hub
-                    </Link>
-                    <Link
-                      href={protocolHref}
-                      className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
-                    >
-                      See the related protocol
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                        View the {RESEARCH_MODALITY_PRODUCT_NAME[modality]} hub
+                      </Link>
+                      <Link
+                        href={condition.href}
+                        className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
+                      >
+                        Open the {condition.label}
+                      </Link>
+                      <Link
+                        href={protocolHref}
+                        className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
+                      >
+                        See the related protocol
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 text-sm leading-7 text-slate-700">
+              {researchContent.emptyState}
+            </div>
+          )}
         </section>
 
         <section className="border-y border-slate-200 bg-white">
@@ -381,68 +482,95 @@ export default function ResearchPageRoute() {
                 Study library
               </p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
-                Read the studies without extra filtering steps.
+                Read the selected studies with source context up front.
               </h2>
               <p className="mt-3 text-base leading-7 text-slate-700">
-                Each card shows the study type, the population studied, a plain-language takeaway,
-                and the relevant next internal path.
+                Each card shows the study type, source provenance, primary endpoint, and a
+                plain-language takeaway before you decide whether to continue to source material or
+                the next Hylono route.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-5 lg:grid-cols-2">
-              {researchContent.studies.map((study) => {
-                const productHref = `/product/${RESEARCH_MODALITY_PRODUCT_ROUTE[study.modality]}`;
-                const protocolHref = RESEARCH_MODALITY_PROTOCOL_ROUTE[study.modality];
+            {researchStudies.length > 0 ? (
+              <div className="mt-8 grid gap-5 lg:grid-cols-2">
+                {researchStudies.map((study) => {
+                  const productHref = `/product/${RESEARCH_MODALITY_PRODUCT_ROUTE[study.modality]}`;
+                  const protocolHref = RESEARCH_MODALITY_PROTOCOL_ROUTE[study.modality];
 
-                return (
-                  <article
-                    key={study.id}
-                    className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-slate-950 px-3 py-1 text-xs font-semibold text-white">
-                        {study.modality}
-                      </span>
-                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                        {study.studyType}
-                      </span>
-                      <span className="text-xs font-medium text-slate-500">{study.year}</span>
-                    </div>
+                  return (
+                    <article
+                      key={study.id}
+                      className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-slate-950 px-3 py-1 text-xs font-semibold text-white">
+                          {study.modality}
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                          {study.studyType}
+                        </span>
+                        <span className="text-xs font-medium text-slate-500">{study.year}</span>
+                      </div>
 
-                    <h3 className="mt-4 text-xl font-black leading-8 text-slate-950">{study.title}</h3>
-                    <p className="mt-3 text-sm font-medium text-slate-500">{study.population}</p>
-                    <p className="mt-4 text-sm leading-7 text-slate-700">{study.summary}</p>
+                      <h3 className="mt-4 text-xl font-black leading-8 text-slate-950">
+                        {study.title}
+                      </h3>
+                      <p className="mt-3 text-sm font-medium text-slate-600">
+                        {study.authors} | {study.publication}
+                      </p>
+                      <div className="mt-4 grid gap-3 text-sm leading-6 text-slate-600 sm:grid-cols-2">
+                        <p>
+                          <span className="font-semibold text-slate-950">Population:</span>{' '}
+                          {study.population}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-950">Primary endpoint:</span>{' '}
+                          {study.primaryEndpoint}
+                        </p>
+                        {study.sampleSize ? (
+                          <p>
+                            <span className="font-semibold text-slate-950">Sample size:</span> n=
+                            {study.sampleSize}
+                          </p>
+                        ) : null}
+                      </div>
+                      <p className="mt-4 text-sm leading-7 text-slate-700">{study.summary}</p>
 
-                    {study.doi ? (
-                      <p className="mt-4 text-xs text-slate-500">DOI: {study.doi}</p>
-                    ) : null}
+                      {study.doi ? (
+                        <p className="mt-4 text-xs text-slate-500">DOI: {study.doi}</p>
+                      ) : null}
 
-                    <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold">
-                      <a
-                        href={study.url}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="text-slate-950 underline decoration-slate-300 underline-offset-4 transition hover:decoration-slate-950"
-                      >
-                        Open the source study
-                      </a>
-                      <Link
-                        href={productHref}
-                        className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
-                      >
-                        View the related product hub
-                      </Link>
-                      <Link
-                        href={protocolHref}
-                        className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
-                      >
-                        Continue to a protocol
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+                      <div className="mt-6 flex flex-wrap gap-4 text-sm font-semibold">
+                        <a
+                          href={study.url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="text-slate-950 underline decoration-slate-300 underline-offset-4 transition hover:decoration-slate-950"
+                        >
+                          Open the source study
+                        </a>
+                        <Link
+                          href={productHref}
+                          className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
+                        >
+                          View the related product hub
+                        </Link>
+                        <Link
+                          href={protocolHref}
+                          className="text-slate-700 underline decoration-slate-300 underline-offset-4 transition hover:text-slate-950"
+                        >
+                          Continue to a protocol
+                        </Link>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-sm leading-7 text-slate-700">
+                {researchContent.emptyState}
+              </div>
+            )}
           </div>
         </section>
 
@@ -462,6 +590,12 @@ export default function ResearchPageRoute() {
               <p className="mt-4 text-sm leading-7 text-slate-700">
                 Some studies in this library report promising signals, but none of them replace
                 product-specific guidance, clinician input, or protocol suitability review.
+              </p>
+              <p className="mt-4 text-sm leading-7 text-slate-700">
+                Last reviewed:{' '}
+                <time dateTime={displayReviewDateIso} className="font-medium text-slate-950">
+                  {displayReviewDate}
+                </time>
               </p>
             </div>
 
@@ -483,6 +617,9 @@ export default function ResearchPageRoute() {
                 </Link>
                 <Link href="/protocols" className="underline decoration-slate-500 underline-offset-4">
                   Browse protocols
+                </Link>
+                <Link href="/rental" className="underline decoration-slate-500 underline-offset-4">
+                  Explore rentals
                 </Link>
                 <Link href="/contact" className="underline decoration-slate-500 underline-offset-4">
                   Contact Hylono

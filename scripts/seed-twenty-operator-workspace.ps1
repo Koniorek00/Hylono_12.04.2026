@@ -13,6 +13,10 @@ if (-not $PSBoundParameters.ContainsKey("SeedPath")) {
   $SeedPath = Join-Path $PSScriptRoot "data\twenty-operator-workspace.seed.json"
 }
 
+$script:TwentyListLimit = 2000
+$script:TwentyPageSize = 50
+$script:TwentyWorkspaceSchema = $null
+
 function Parse-EnvFile {
   param([Parameter(Mandatory = $true)][string]$Path)
 
@@ -206,6 +210,16 @@ function Invoke-TwentyDbScalar {
   return (($output | Select-Object -First 1) | Out-String).Trim()
 }
 
+function Escape-SqlLiteral {
+  param([AllowNull()][string]$Value)
+
+  if ($null -eq $Value) {
+    return ""
+  }
+
+  return $Value.Replace("'", "''")
+}
+
 function Get-TwentyBootstrapState {
   $workspaceCount = [int](Invoke-TwentyDbScalar -Sql @'
 select count(*) from core.workspace;
@@ -304,6 +318,48 @@ function Ensure-TwentyWorkspaceState {
   return $state
 }
 
+function Get-TwentyWorkspaceSchema {
+  if ($script:TwentyWorkspaceSchema) {
+    return $script:TwentyWorkspaceSchema
+  }
+
+  $state = Ensure-TwentyWorkspaceState
+  $workspaceId = Escape-SqlLiteral -Value $state.WorkspaceId
+  $schema = Invoke-TwentyDbScalar -Sql @"
+select schema
+from core."dataSource"
+where "workspaceId" = '$workspaceId'
+order by schema asc
+limit 1;
+"@
+
+  if ([string]::IsNullOrWhiteSpace($schema)) {
+    throw "Could not resolve the active Twenty workspace schema for workspace $($state.WorkspaceId)."
+  }
+
+  $script:TwentyWorkspaceSchema = $schema
+  return $schema
+}
+
+function Find-TwentyRecordIdInWorkspaceSchema {
+  param(
+    [Parameter(Mandatory = $true)][string]$TableName,
+    [Parameter(Mandatory = $true)][string]$ColumnName,
+    [Parameter(Mandatory = $true)][string]$Value
+  )
+
+  $schema = Get-TwentyWorkspaceSchema
+  $escapedValue = Escape-SqlLiteral -Value $Value
+
+  return Invoke-TwentyDbScalar -Sql @"
+select id::text
+from "$schema"."$TableName"
+where "$ColumnName" = '$escapedValue'
+order by "createdAt" asc
+limit 1;
+"@
+}
+
 function New-TwentyApiKey {
   param([Parameter(Mandatory = $true)][string]$WorkspaceId)
 
@@ -335,6 +391,11 @@ function Test-TwentyApiAccess {
     } -TimeoutSec 20
     return $true
   } catch {
+    $message = $_.ToString()
+    if ($message -match '"statusCode":429' -or $message -match "Limit reached") {
+      return $true
+    }
+
     return $false
   }
 }
@@ -563,7 +624,19 @@ function Invoke-TwentyJson {
     $requestParams["ContentType"] = "application/json"
   }
 
-  return Invoke-RestMethod @requestParams
+  for ($attempt = 1; $attempt -le 4; $attempt++) {
+    try {
+      return Invoke-RestMethod @requestParams
+    } catch {
+      $message = $_.ToString()
+      $isRateLimited = $message -match '"statusCode":429' -or $message -match "Limit reached"
+      if (-not $isRateLimited -or $attempt -eq 4) {
+        throw
+      }
+
+      Start-Sleep -Seconds ([Math]::Min(12, 2 * $attempt))
+    }
+  }
 }
 
 function Test-TwentyDuplicateError {
@@ -647,6 +720,39 @@ function Get-FirstMatchingItem {
   return $null
 }
 
+function Find-TwentyExistingRecord {
+  param(
+    [Parameter(Mandatory = $true)][string]$ResourcePath,
+    [Parameter(Mandatory = $true)][string]$ResponseCollectionKey,
+    [Parameter(Mandatory = $true)][scriptblock]$Predicate
+  )
+
+  $after = $null
+
+  while ($true) {
+    $query = "rest/${ResourcePath}?limit=$($script:TwentyPageSize)"
+    if (-not [string]::IsNullOrWhiteSpace($after)) {
+      $query = "$query&after=$([uri]::EscapeDataString($after))"
+    }
+
+    $response = Invoke-TwentyJson -Method GET -Path $query -Headers $script:TwentyHeaders
+    $items = @($response.data.$ResponseCollectionKey)
+    $existing = Get-FirstMatchingItem -Items $items -Predicate $Predicate
+    if ($existing) {
+      return $existing
+    }
+
+    if (-not $response.pageInfo.hasNextPage) {
+      return $null
+    }
+
+    $after = $response.pageInfo.endCursor
+    if ([string]::IsNullOrWhiteSpace($after)) {
+      return $null
+    }
+  }
+}
+
 function Ensure-Company {
   param(
     [Parameter(Mandatory = $true)][string]$Name,
@@ -659,8 +765,12 @@ function Ensure-Company {
     return $knownRecord.id
   }
 
-  $companies = @((Invoke-TwentyJson -Method GET -Path "rest/companies?limit=200" -Headers $script:TwentyHeaders).data.companies)
-  $existing = Get-FirstMatchingItem -Items $companies -Predicate {
+  $dbExistingId = Find-TwentyRecordIdInWorkspaceSchema -TableName "company" -ColumnName "name" -Value $Name
+  if (-not [string]::IsNullOrWhiteSpace($dbExistingId)) {
+    return $dbExistingId
+  }
+
+  $existing = Find-TwentyExistingRecord -ResourcePath "companies" -ResponseCollectionKey "companies" -Predicate {
     param($company)
     $company.name -eq $Name
   }
@@ -689,8 +799,7 @@ function Ensure-Company {
       throw
     }
 
-    $companies = @((Invoke-TwentyJson -Method GET -Path "rest/companies?limit=200" -Headers $script:TwentyHeaders).data.companies)
-    $existing = Get-FirstMatchingItem -Items $companies -Predicate {
+    $existing = Find-TwentyExistingRecord -ResourcePath "companies" -ResponseCollectionKey "companies" -Predicate {
       param($company)
       $company.name -eq $Name
     }
@@ -699,7 +808,7 @@ function Ensure-Company {
       return $existing.id
     }
 
-    Write-Warning "Task '$Title' already exists in Twenty, but its id could not be recovered from the list API. Continuing without rewriting it."
+    Write-Warning "Company '$Name' already exists in Twenty, but its id could not be recovered from the list API. Continuing without rewriting it."
     return $KnownId
   }
 }
@@ -720,8 +829,12 @@ function Ensure-Person {
     return $knownRecord.id
   }
 
-  $people = @((Invoke-TwentyJson -Method GET -Path "rest/people?limit=200" -Headers $script:TwentyHeaders).data.people)
-  $existing = Get-FirstMatchingItem -Items $people -Predicate {
+  $dbExistingId = Find-TwentyRecordIdInWorkspaceSchema -TableName "person" -ColumnName "emailsPrimaryEmail" -Value $Email
+  if (-not [string]::IsNullOrWhiteSpace($dbExistingId)) {
+    return $dbExistingId
+  }
+
+  $existing = Find-TwentyExistingRecord -ResourcePath "people" -ResponseCollectionKey "people" -Predicate {
     param($person)
     $person.emails.primaryEmail -eq $Email
   }
@@ -766,8 +879,7 @@ function Ensure-Person {
       throw
     }
 
-    $people = @((Invoke-TwentyJson -Method GET -Path "rest/people?limit=200" -Headers $script:TwentyHeaders).data.people)
-    $existing = Get-FirstMatchingItem -Items $people -Predicate {
+    $existing = Find-TwentyExistingRecord -ResourcePath "people" -ResponseCollectionKey "people" -Predicate {
       param($person)
       $person.emails.primaryEmail -eq $Email
     }
@@ -796,8 +908,12 @@ function Ensure-Opportunity {
     return $knownRecord.id
   }
 
-  $opportunities = @((Invoke-TwentyJson -Method GET -Path "rest/opportunities?limit=200" -Headers $script:TwentyHeaders).data.opportunities)
-  $existing = Get-FirstMatchingItem -Items $opportunities -Predicate {
+  $dbExistingId = Find-TwentyRecordIdInWorkspaceSchema -TableName "opportunity" -ColumnName "name" -Value $Name
+  if (-not [string]::IsNullOrWhiteSpace($dbExistingId)) {
+    return $dbExistingId
+  }
+
+  $existing = Find-TwentyExistingRecord -ResourcePath "opportunities" -ResponseCollectionKey "opportunities" -Predicate {
     param($opportunity)
     $opportunity.name -eq $Name
   }
@@ -831,8 +947,7 @@ function Ensure-Opportunity {
       throw
     }
 
-    $opportunities = @((Invoke-TwentyJson -Method GET -Path "rest/opportunities?limit=200" -Headers $script:TwentyHeaders).data.opportunities)
-    $existing = Get-FirstMatchingItem -Items $opportunities -Predicate {
+    $existing = Find-TwentyExistingRecord -ResourcePath "opportunities" -ResponseCollectionKey "opportunities" -Predicate {
       param($opportunity)
       $opportunity.name -eq $Name
     }
@@ -858,8 +973,12 @@ function Ensure-Task {
     return $knownRecord.id
   }
 
-  $tasks = @((Invoke-TwentyJson -Method GET -Path "rest/tasks?limit=200" -Headers $script:TwentyHeaders).data.tasks)
-  $existing = Get-FirstMatchingItem -Items $tasks -Predicate {
+  $dbExistingId = Find-TwentyRecordIdInWorkspaceSchema -TableName "task" -ColumnName "title" -Value $Title
+  if (-not [string]::IsNullOrWhiteSpace($dbExistingId)) {
+    return $dbExistingId
+  }
+
+  $existing = Find-TwentyExistingRecord -ResourcePath "tasks" -ResponseCollectionKey "tasks" -Predicate {
     param($task)
     $task.title -eq $Title
   }
@@ -885,8 +1004,7 @@ function Ensure-Task {
       throw
     }
 
-    $tasks = @((Invoke-TwentyJson -Method GET -Path "rest/tasks?limit=200" -Headers $script:TwentyHeaders).data.tasks)
-    $existing = Get-FirstMatchingItem -Items $tasks -Predicate {
+    $existing = Find-TwentyExistingRecord -ResourcePath "tasks" -ResponseCollectionKey "tasks" -Predicate {
       param($task)
       $task.title -eq $Title
     }
@@ -952,7 +1070,7 @@ if (Test-Path $envLocalFile) {
 $script:TwentyBaseUrl = if ($envMap["TWENTY_API_BASE_URL"]) {
   $envMap["TWENTY_API_BASE_URL"].TrimEnd("/")
 } else {
-  "http://localhost:8107"
+  "http://127.0.0.1:8107"
 }
 
 $twentyApiKey = Ensure-TwentyApiKey -EnvMap $envMap -EnvLocalPath $envLocalFile

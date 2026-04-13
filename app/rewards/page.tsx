@@ -10,7 +10,8 @@ export const metadata: Metadata = createPageMetadata({
   forceNoIndex: true,
 });
 
-// [DECISION: SSR because rewards visibility can depend on authenticated user state.]
+// [DECISION: keep the rewards route request-time because auth() makes the page user-state aware under Next.js 16 cache components without an explicit dynamic export, while the public preview should remain visible for unauthenticated visitors.]
+// Rendering strategy: request-time server route that checks session state and serves a noindex rewards preview with authenticated navigation handled in the client leaf.
 export default async function RewardsPageRoute() {
   const session = await auth();
 

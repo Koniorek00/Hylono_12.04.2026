@@ -1,7 +1,7 @@
 import { fetchWithTimeout } from '@/app/api/_shared/http';
 import { env } from '@/lib/env';
 
-const DEFAULT_TWENTY_API_BASE_URL = 'http://localhost:8107';
+const DEFAULT_TWENTY_API_BASE_URL = 'http://127.0.0.1:8107';
 const LIST_LIMIT = 100;
 
 const COMMON_EMAIL_DOMAINS = new Set([

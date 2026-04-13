@@ -9,7 +9,7 @@ interface BuilderCTAProps {
 
 export const BuilderCTA: React.FC<BuilderCTAProps> = ({ goal }) => {
     const router = useRouter();
-    const path = goal ? `builder?goal=${goal}` : 'builder';
+    const path = goal ? `wellness-planner?goal=${goal}` : 'wellness-planner';
 
     const navigateTo = (targetPath: string) => {
         router.push(`/${targetPath}`);
